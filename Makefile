@@ -35,7 +35,6 @@ pytest:
 		--rcfile='test/coverage.pytest.rc' \
 		-m pytest 
 
-
 coverage:
 	coverage combine && \
 		coverage report --show-missing --omit=*test* --fail-under=20 && \
