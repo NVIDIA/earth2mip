@@ -15,19 +15,26 @@ black:
 	pre-commit run black -a
 
 interrogate:
+	echo "TODO"
 	true
 
 lint:
-	pre-commit run -a
+	pre-commit run check-added-large-files -a
+	pre-commit run flake8 -a
 
 license:
+	echo "TODO"
 	true
 
 doctest:
+	echo "TODO"
 	true
 
 pytest:
-	coverage run -m pytest
+	coverage run \
+		--rcfile='test/coverage.pytest.rc' \
+		-m pytest 
+
 
 coverage:
 	coverage combine && \
