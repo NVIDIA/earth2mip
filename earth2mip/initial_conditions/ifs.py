@@ -1,5 +1,6 @@
 import datetime
-from earth2mip import schema, filesystem
+from modulus.utils import filesystem
+from earth2mip import schema
 from earth2mip.datasets.era5 import METADATA
 import json
 import xarray

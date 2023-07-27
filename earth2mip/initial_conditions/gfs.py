@@ -1,7 +1,7 @@
 import datetime
 from earth2mip import schema
 from earth2mip.datasets.gfs import METADATA34, METADATA73
-from earth2mip.filesystem import LOCAL_CACHE
+from modulus.utils.filesystem import LOCAL_CACHE
 import json
 import xarray
 import numpy as np
@@ -18,7 +18,7 @@ from tqdm import tqdm
 # Will error if larger
 MAX_BYTE_SIZE = 2000000
 # Location to cache grib files
-GFS_CACHE = LOCAL_CACHE + "/gfs"
+GFS_CACHE = LOCAL_CACHE + "/earth2mip/gfs"
 
 
 @dataclass

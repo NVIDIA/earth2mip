@@ -1,3 +1,4 @@
+# flake8: noqa
 import os
 from earth2mip.datasets import era5
 from earth2mip import config
@@ -5,7 +6,8 @@ import xarray
 import datetime
 import s3fs
 import json
-from earth2mip import filesystem, schema
+from earth2mip import schema
+from modulus.utils import filesystem
 import logging
 
 __all__ = ["open_era5_xarray"]
@@ -13,12 +15,11 @@ __all__ = ["open_era5_xarray"]
 logger = logging.getLogger(__name__)
 # TODO move to earth2mip/datasets/era5?
 
-
-def _get_path(path: str, time) -> str:
-    filename = time.strftime("%Y.h5")
-    h5_files = filesystem.glob(os.path.join(path, "*/*.h5"))
-    files = {os.path.basename(f): f for f in h5_files}
-    return files[filename]
+# def _get_path(path: str, time) -> str:
+#     filename = time.strftime("%Y.h5")
+#     h5_files = filesystem.glob(os.path.join(path, "*/*.h5"))
+#     files = {os.path.basename(f): f for f in h5_files}
+#     return files[filename]
 
 
 def open_era5_xarray(
@@ -26,7 +27,11 @@ def open_era5_xarray(
 ) -> xarray.DataArray:
 
     root = config.get_data_root(channel_set)
-    path = _get_path(root, time)
+    raise NotImplementedError(
+        "Need to update era5 method to get explicit file name (replace glob)"
+    )
+    # path = _get_path(root, time)  # TODO: REMOVE/REPLACE
+
     logger.debug(f"Opening {path} for {time}.")
 
     if path.endswith(".h5"):
