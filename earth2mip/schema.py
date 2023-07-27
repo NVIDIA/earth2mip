@@ -1,0 +1,230 @@
+from typing import List, Optional
+import pydantic
+from earth2mip import weather_events
+from earth2mip.weather_events import InitialConditionSource, WeatherEvent
+from enum import Enum
+import datetime
+
+__all__ = ["InitialConditionSource", "WeatherEvent"]
+
+
+class Grid(Enum):
+    grid_721x1440 = "721x1440"
+    grid_720x1440 = "720x1440"
+    s2s_challenge = "s2s"
+
+
+# Enum of channels
+class ChannelSet(Enum):
+    """An Enum of standard sets of channels
+
+    These correspond to the post-processed outputs in .h5 files like this:
+
+        73var: /lustre/fsw/sw_climate_fno/test_datasets/73var-6hourly
+        34var: /lustre/fsw/sw_climate_fno/34Vars
+
+    This concept is needed to map from integer channel numbers (e.g. [0, 1, 2]
+    to physical variables).
+
+    """
+
+    var34 = "34var"
+    var73 = "73var"
+
+    def list_channels(self) -> List[str]:
+        """List channel names corresponding to the vocabulary"""
+        return _channels[self]
+
+
+_channels = {
+    ChannelSet.var73: [
+        "u10m",
+        "v10m",
+        "u100m",
+        "v100m",
+        "t2m",
+        "sp",
+        "msl",
+        "tcwv",
+        "u50",
+        "u100",
+        "u150",
+        "u200",
+        "u250",
+        "u300",
+        "u400",
+        "u500",
+        "u600",
+        "u700",
+        "u850",
+        "u925",
+        "u1000",
+        "v50",
+        "v100",
+        "v150",
+        "v200",
+        "v250",
+        "v300",
+        "v400",
+        "v500",
+        "v600",
+        "v700",
+        "v850",
+        "v925",
+        "v1000",
+        "z50",
+        "z100",
+        "z150",
+        "z200",
+        "z250",
+        "z300",
+        "z400",
+        "z500",
+        "z600",
+        "z700",
+        "z850",
+        "z925",
+        "z1000",
+        "t50",
+        "t100",
+        "t150",
+        "t200",
+        "t250",
+        "t300",
+        "t400",
+        "t500",
+        "t600",
+        "t700",
+        "t850",
+        "t925",
+        "t1000",
+        "r50",
+        "r100",
+        "r150",
+        "r200",
+        "r250",
+        "r300",
+        "r400",
+        "r500",
+        "r600",
+        "r700",
+        "r850",
+        "r925",
+        "r1000",
+    ],
+    ChannelSet.var34: [
+        "u10m",
+        "v10m",
+        "t2m",
+        "sp",
+        "msl",
+        "t850",
+        "u1000",
+        "v1000",
+        "z1000",
+        "u850",
+        "v850",
+        "z850",
+        "u500",
+        "v500",
+        "z500",
+        "t500",
+        "z50",
+        "r500",
+        "r850",
+        "tcwv",
+        "u100m",
+        "v100m",
+        "u250",
+        "v250",
+        "z250",
+        "t250",
+        "u100",
+        "v100",
+        "z100",
+        "t100",
+        "u900",
+        "v900",
+        "z900",
+        "t900",
+    ],
+}
+
+
+class Model(pydantic.BaseModel):
+    """Metadata for using a ERA5 time-stepper model"""
+
+    n_history: int
+    channel_set: ChannelSet
+    grid: Grid
+    in_channels: List[int]
+    out_channels: List[int]
+    architecture: str = ""
+    architecture_entrypoint: str = ""
+    time_step: datetime.timedelta = datetime.timedelta(hours=6)
+
+
+class PerturbationStrategy(Enum):
+    correlated = "correlated"
+    gaussian = "gaussian"
+    gp = "gp"
+    correlated_spherical_grf = "correlated_spherical_grf"
+    spherical_grf = "spherical_grf"
+
+
+class EnsembleRun(pydantic.BaseModel):
+    """A configuration for running an ensemble weather forecast
+
+    Attributes:
+        fcn_model: The name of the fully convolutional neural network (FCN) model to use for the forecast.
+        ensemble_members: The number of ensemble members to use in the forecast.
+        noise_amplitude: The amplitude of the Gaussian noise to add to the initial conditions.
+        noise_reddening: The noise reddening amplitude, 2.0 was the defualt set by A.G. work.
+        grf_noise_alpha: tuning parameter of the Gaussian random field, see ensemble_utils.generate_noise_grf for details
+        grf_noise_sigma: tuning parameter of the Gaussian random field, see ensemble_utils.generate_noise_grf for details
+        grf_noise_tau: tuning parameter of the Gaussian random field, see ensemble_utils.generate_noise_grf for details
+        simulation_length: The length of the simulation in timesteps.
+        output_frequency: The frequency at which to write the output to file, in timesteps.
+        use_cuda_graphs: Whether to use CUDA graphs to optimize the computation.
+        seed: The random seed for the simulation.
+        ensemble_batch_size: The batch size to use for the ensemble.
+        autocast_fp16: Whether to use automatic mixed precision (AMP) with FP16 data types.
+        perturbation_strategy: The strategy to use for perturbing the initial conditions.
+        forecast_name (optional): The name of the forecast to use (alternative to `weather_event`).
+        weather_event (optional): The weather event to use for the forecast (alternative to `forecast_name`).
+        output_dir (optional): The directory to save the output files in (alternative to `output_path`).
+        output_path (optional): The path to the output file (alternative to `output_dir`).
+        restart_frequency: if provided save at end and at the specified frequency. 0 = only save at end.
+
+    """  # noqa
+
+    fcn_model: str
+    simulation_length: int
+    # TODO make perturbation_strategy an Enum (see ChannelSet)
+    perturbation_strategy: PerturbationStrategy = PerturbationStrategy.correlated
+    single_value_perturbation: bool = True
+    noise_reddening: float = 2.0
+    noise_amplitude: float = 0.05
+    grf_noise_alpha: float = 2.0
+    grf_noise_sigma: float = 5.0
+    grf_noise_tau: float = 2.0
+    output_frequency: int = 1
+    output_grid: Optional[Grid] = None
+    use_cuda_graphs: bool = False
+    ensemble_members: int = 1
+    seed: int = 1
+    ensemble_batch_size: int = 1
+    autocast_fp16: bool = False
+    # alternatives for specifiying forecast
+    forecast_name: Optional[str] = None
+    weather_event: Optional[weather_events.WeatherEvent] = None
+    # alternative for specifying output
+    output_dir: Optional[str] = None
+    output_path: Optional[str] = None
+    restart_frequency: Optional[int] = None
+
+    def get_weather_event(self) -> weather_events.WeatherEvent:
+        if self.forecast_name:
+            return weather_events.read(self.forecast_name)
+        else:
+            return self.weather_event
