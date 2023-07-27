@@ -1,26 +1,15 @@
+import pytest
 from pathlib import Path
-from earth2mip import filesystem
+from modulus.utils import filesystem
 
 
-def test_glob(tmp_path: Path):
-    a = tmp_path / "a.txt"
-    a.touch()
-
-    # use file:// protocol to ensure handling is correct
-    (f,) = filesystem.glob(f"file://{tmp_path.as_posix()}/*.txt")
-    assert f == f"file://{a.as_posix()}"
+@pytest.fixture
+def pyfile_name():
+    return "test_filesystem.py"
 
 
-def test_glob_no_scheme(tmp_path: Path):
-    a = tmp_path / "a.txt"
-    a.touch()
-
-    (f,) = filesystem.glob(f"{tmp_path.as_posix()}/*.txt")
-    assert f == a.as_posix()
-
-
-def test__to_url():
-    assert (
-        filesystem._to_url("s3", "sw_climate_fno/a.txt") == "s3://sw_climate_fno/a.txt"
-    )
-    assert filesystem._to_url("", "sw_climate_fno/a.txt") == "sw_climate_fno/a.txt"
+def test_modulus_filesystem_local(pyfile_name):
+    # Check if this test file is seen in a Fsspec local file system
+    file_path = Path(__file__).parent.resolve()
+    fssystem = filesystem._get_fs("file")
+    assert pyfile_name in [Path(file).name for file in fssystem.ls(file_path)]

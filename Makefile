@@ -4,8 +4,10 @@
 # ALL THESE TARGETS NEED to be here for blossom-ci
 
 install:
+	git submodule update --init --recursive && \
 	pip install --upgrade pip && \
-		pip install -e .
+	cd third_party/modulus && pip install . && cd ../.. && \
+	pip install -e .
 
 setup-ci:
 	pip install pre-commit && \
@@ -33,7 +35,7 @@ doctest:
 pytest:
 	coverage run \
 		--rcfile='test/coverage.pytest.rc' \
-		-m pytest 
+		-m pytest --ignore=third_party
 
 coverage:
 	coverage combine && \
