@@ -32,6 +32,9 @@ class Settings(BaseSettings):
     # TODO add a default option.
     TEST_DIAGNOSTICS: List[str] = ()
 
+    # where to store regridding files
+    MAP_FILES: str = ""
+
     class Config:
         env_file = ".env"
 

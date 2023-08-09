@@ -1,7 +1,7 @@
 {
   "dataset_name": "34Var",
   "attrs": {
-    "path": "/lustre/fsw/sw_climate_fno/34Var",
+    "selene_path": "/lustre/fsw/sw_climate_fno/34Var",
     "description": "ERA5 data at 6 hourly frequency with snapshots at 0000, 0600, 1200, 1800 UTC. Structured with 1460 snapshots in every yearly file. First snapshot in each file is Jan 01 0000 UTC. Leap years are missing Dec 31st. "
   },
   "h5_path": "fields",

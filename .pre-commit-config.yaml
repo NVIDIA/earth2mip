@@ -23,7 +23,7 @@ repos:
                 frontend/package-lock.json
             )$
     - id: trailing-whitespace
-      
+
 -   repo: https://github.com/pycqa/flake8
     rev: 3.7.9
     hooks:

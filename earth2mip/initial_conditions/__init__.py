@@ -4,17 +4,65 @@ import datetime
 from earth2mip import schema
 import joblib
 import numpy as np
-from earth2mip.initial_conditions.era5 import open_era5_xarray
+from earth2mip.initial_conditions.era5 import open_era5_xarray, HDF5DataSource
 from earth2mip.initial_conditions import ifs
 from earth2mip.initial_conditions import cds
 from earth2mip.initial_conditions import gfs
 from earth2mip.initial_conditions import hrmip
 
-# hack...shouldn't be imported from here
+# TODO remove this fcn-mip import
 from earth2mip.datasets.era5 import METADATA
 import json
 
-__all__ = ["open_era5_xarray", "get"]
+__all__ = ["open_era5_xarray", "get", "get_data_source"]
+
+
+def get_data_source(
+    n_history,
+    grid,
+    channel_set,
+    netcdf="",
+    initial_condition_source=schema.InitialConditionSource.era5,
+):
+    if initial_condition_source == schema.InitialConditionSource.era5:
+        root = config.get_data_root(channel_set)
+        return HDF5DataSource.from_path(root)
+    else:
+        return LegacyDataSource(
+            n_history,
+            grid,
+            channel_set,
+            netcdf=netcdf,
+            initial_condition_source=initial_condition_source,
+        )
+
+
+class LegacyDataSource:
+    def __init__(
+        self,
+        n_history,
+        grid,
+        channel_set,
+        netcdf="",
+        initial_condition_source=schema.InitialConditionSource.era5,
+    ):
+        self.n_history = n_history
+        self.grid = grid
+        self.channel_set = channel_set
+        self.initial_condition_source = initial_condition_source
+        self.netcdf = ""
+
+    def __getitem__(self, time):
+        if self.netcdf:
+            return xarray.open_dataset(self.netcdf)["fields"]
+        else:
+            return ic(
+                n_history=self.n_history,
+                grid=self.grid,
+                time=time,
+                channel_set=self.channel_set,
+                source=self.initial_condition_source,
+            )
 
 
 def get(
@@ -23,20 +71,7 @@ def get(
     channel_set: schema.ChannelSet,
     source: schema.InitialConditionSource = schema.InitialConditionSource.era5,
 ) -> xarray.DataArray:
-    if source == schema.InitialConditionSource.era5:
-        ds = open_era5_xarray(time, channel_set)
-        subset = ds.sel(time=slice(None, time))
-        subset = subset[-n_history - 1 :]
-        num_time = subset.sizes["time"]
-        if num_time != n_history + 1:
-            a = ds.time.min().values
-            b = ds.time.max().values
-            raise ValueError(
-                f"{num_time} found. Expected: {n_history + 1} ."
-                f"Time requested: {time}. Time range in data: {a} -- {b}."
-            )
-        return subset.load()
-    elif source == schema.InitialConditionSource.hrmip:
+    if source == schema.InitialConditionSource.hrmip:
         ds = hrmip.get(time, channel_set)
         return ds
     elif source == schema.InitialConditionSource.ifs:
