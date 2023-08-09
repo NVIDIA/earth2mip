@@ -55,7 +55,7 @@ def test_time_collection(tmp_path):
             "--nnodes",
             "1",
             "--nproc_per_node",
-            str(max([torch.cuda.device_count(), 2])),
+            str(min([torch.cuda.device_count(), 2])),
             "-m",
             "earth2mip.time_collection",
             root,
