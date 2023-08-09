@@ -20,7 +20,8 @@ repos:
       exclude:
       exclude: |
             (?x)^(
-                frontend/package-lock.json
+                frontend/package-lock.json |
+                .licenses/details.json
             )$
     - id: trailing-whitespace
 
