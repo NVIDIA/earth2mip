@@ -114,7 +114,7 @@ def open_34_vars(path: str, f: Optional[Any] = None) -> xarray.DataArray:
         * lon      (lon) float64 0.0 0.25 0.5 0.75 1.0 ... 359.0 359.2 359.5 359.8
         * channel  (channel) <U5 'u10' 'v10' 't2m' 'sp' ... 'v900' 'z900' 't900'
         Attributes:
-            path:  /lustre/fsw/sw_climate_fno/34Var
+            selene_path:  /lustre/fsw/sw_climate_fno/34Var
             description:  ERA5 data at 6 hourly frequency with snapshots at 0000, 060...
             path:         /out_of_sample/2018.h5
     """

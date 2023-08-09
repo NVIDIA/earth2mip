@@ -1,5 +1,7 @@
 config.py
 
+scheduler.json
+*.nc
 __pycache__
 *.pyc
 .ipynb_checkpoints

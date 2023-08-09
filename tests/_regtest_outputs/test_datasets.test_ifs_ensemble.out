@@ -1,0 +1,19 @@
+xarray.Dataset {
+dimensions:
+	time = 6 ;
+	initial_time = 334 ;
+	lat = 721 ;
+	lon = 1440 ;
+	ensemble = 50 ;
+
+variables:
+	timedelta64[ns] time(time) ;
+	datetime64[ns] initial_time(initial_time) ;
+	float64 lat(lat) ;
+	float64 lon(lon) ;
+	float32 z500(initial_time, time, ensemble, lat, lon) ;
+	float32 u10m(initial_time, time, ensemble, lat, lon) ;
+	datetime64[ns] valid_time(time, initial_time) ;
+
+// global attributes:
+}

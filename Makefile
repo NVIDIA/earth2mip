@@ -34,10 +34,10 @@ doctest:
 
 pytest:
 	coverage run \
-		--rcfile='test/coverage.pytest.rc' \
+		--rcfile='tests/coverage.pytest.rc' \
 		-m pytest --ignore=third_party
 
 coverage:
 	coverage combine && \
-		coverage report --show-missing --omit=*test* --fail-under=20 && \
+		coverage report --show-missing --omit=*tests* --fail-under=20 && \
 		coverage html

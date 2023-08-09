@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Mapping, Any
 import pydantic
 from earth2mip import weather_events
 from earth2mip.weather_events import InitialConditionSource, WeatherEvent
@@ -151,17 +151,37 @@ _channels = {
 }
 
 
-class Model(pydantic.BaseModel):
-    """Metadata for using a ERA5 time-stepper model"""
+class InferenceEntrypoint(pydantic.BaseModel):
+    """
+    Attrs:
+        name: an entrypoint string like ``my_package:model_entrypoint``.
+            this points to a function ``model_entrypoint(package)`` which returns an
+            ``Inference`` object given a package
+        kwargs: the arguments to pass to the constructor
+    """
 
-    n_history: int
-    channel_set: ChannelSet
-    grid: Grid
-    in_channels: List[int]
-    out_channels: List[int]
+    name: str = ""
+    kwargs: Mapping[Any, Any] = pydantic.Field(default_factory=dict)
+
+
+class Model(pydantic.BaseModel):
+    """Metadata for using a ERA5 time-stepper model
+
+    Attrs:
+        entrypoint: if provided, will be used to load a custom time-loop
+            implementation.
+
+    """
+
+    n_history: int = 0
+    channel_set: ChannelSet = ChannelSet.var34
+    grid: Grid = Grid.grid_720x1440
+    in_channels: List[int] = pydantic.Field(default_factory=list)
+    out_channels: List[int] = pydantic.Field(default_factory=list)
     architecture: str = ""
     architecture_entrypoint: str = ""
     time_step: datetime.timedelta = datetime.timedelta(hours=6)
+    entrypoint: Optional[InferenceEntrypoint] = None
 
 
 class PerturbationStrategy(Enum):
@@ -170,6 +190,7 @@ class PerturbationStrategy(Enum):
     gp = "gp"
     correlated_spherical_grf = "correlated_spherical_grf"
     spherical_grf = "spherical_grf"
+    bred_vector = "bred_vector"
 
 
 class EnsembleRun(pydantic.BaseModel):
@@ -210,11 +231,9 @@ class EnsembleRun(pydantic.BaseModel):
     grf_noise_tau: float = 2.0
     output_frequency: int = 1
     output_grid: Optional[Grid] = None
-    use_cuda_graphs: bool = False
     ensemble_members: int = 1
     seed: int = 1
     ensemble_batch_size: int = 1
-    autocast_fp16: bool = False
     # alternatives for specifiying forecast
     forecast_name: Optional[str] = None
     weather_event: Optional[weather_events.WeatherEvent] = None
