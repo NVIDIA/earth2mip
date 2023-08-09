@@ -1,5 +1,8 @@
 # Earth2-MIP
 
+**DO NOT EDIT THIS REPO...all changes are mirrored with
+https://gitlab-master.nvidia.com/earth-2/fcn-mip/-/tree/main/external/e2-mip**
+
 ## Getting started
 
 To make it easy for you to get started with GitLab, here's a list of recommended next steps.
