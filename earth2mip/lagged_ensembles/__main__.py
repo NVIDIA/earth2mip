@@ -13,7 +13,6 @@ import xarray
 
 from earth2mip import forecasts, networks
 from earth2mip.initial_conditions.era5 import HDF5DataSource
-from earth2mip.datasets.deterministic_ifs import open_deterministic_ifs
 from earth2mip.datasets.hindcast import open_forecast
 from earth2mip.lagged_ensembles import core
 from earth2mip.xarray import metrics
@@ -212,9 +211,13 @@ def main(
         )
     elif forecast_dir:
         run_forecast = forecasts.XarrayForecast(
-            open_forecast(forecast_dir), times=times, fields=FIELDS
+            open_forecast(forecast_dir, group="mean.zarr"), times=times, fields=FIELDS
         )
     elif ifs:
+        # TODO fix this import error
+        # TODO convert ifs to zarr so we don't need custom code
+        from earth2mip.datasets.deterministic_ifs import open_deterministic_ifs
+
         run_forecast = forecasts.XarrayForecast(open_deterministic_ifs(ifs))
     elif persistence:
         run_forecast = forecasts.Persistence
