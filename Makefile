@@ -41,3 +41,8 @@ coverage:
 	coverage combine && \
 		coverage report --show-missing --omit=*tests* --fail-under=20 && \
 		coverage html
+
+docs:
+	$(MAKE) -C docs html
+	open docs/_build/html/index.html
+.PHONY: docs

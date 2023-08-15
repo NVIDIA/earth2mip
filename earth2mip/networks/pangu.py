@@ -230,27 +230,31 @@ class PanguInference(torch.nn.Module):
                 yield time0, x0, restart_data
 
 
-def load(package, *, time_step_hours: int, pretrained=True):
+def load(package, *, time_step_hours: int, pretrained=True, device="not used"):
     """Load a single time-step pangu weather
     """
     assert pretrained
-    p = package.get("model.onnx")
-    model = PanguStacked(PanguWeather(p))
-    channel_names = model.channel_names()
-    center = np.zeros([len(channel_names)])
-    scale = np.ones([len(channel_names)])
-    grid = schema.Grid.grid_721x1440
-    dt = datetime.timedelta(hours=time_step_hours)
-    return networks.Inference(model, channels=None, center=center, scale=scale, grid=grid, channel_names=channel_names, time_step=dt)
+    with torch.cuda.device(device):
+        p = package.get("model.onnx")
+        model = PanguStacked(PanguWeather(p))
+        channel_names = model.channel_names()
+        center = np.zeros([len(channel_names)])
+        scale = np.ones([len(channel_names)])
+        grid = schema.Grid.grid_721x1440
+        dt = datetime.timedelta(hours=time_step_hours)
+        inference = networks.Inference(model, channels=None, center=center, scale=scale, grid=grid, channel_names=channel_names, time_step=dt)
+        inference.to(device)
+        return inference
 
 
-def load_24substep6(package, pretrained=True):
+def load_24substep6(package, pretrained=True, device="doesn't matter"):
     """Load the sub-stepped pangu weather inference
     """
     assert pretrained
-    p6 = package.get("model_6.onnx")
-    p24 = package.get("model_24.onnx")
+    with torch.cuda.device(device):
+        p6 = package.get("model_6.onnx")
+        p24 = package.get("model_24.onnx")
 
-    model_6 = PanguStacked(PanguWeather(p6))
-    model_24 = PanguStacked(PanguWeather(p24))
-    return PanguInference(model_6, model_24)
+        model_6 = PanguStacked(PanguWeather(p6))
+        model_24 = PanguStacked(PanguWeather(p24))
+        return PanguInference(model_6, model_24)

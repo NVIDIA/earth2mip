@@ -16,6 +16,16 @@ class TimeLoop(Protocol):
     The expectation is that this class and the data passed to it are on the same
     device. While torch modules can be moved between devices easily, this is not
     true for all frameworks.
+
+    Attributes:
+        in_channel_names:
+        out_channel_names:
+        grid:
+        n_history_levels:
+        history_time_step:
+        time_step:
+        device:
+
     """
 
     in_channel_names: List[ChannelNameT]
