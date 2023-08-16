@@ -13,6 +13,7 @@ Welcome to Earth2 MIP's documentation!
    clis.rst
    plugin
    api
+   troubleshooting
 
 
 

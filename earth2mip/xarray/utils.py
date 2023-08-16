@@ -1,5 +1,9 @@
 import xarray
-import cupy
+
+try:
+    import cupy
+except ImportError:
+    cupy = None
 
 
 def to_cupy(ds):
