@@ -113,7 +113,11 @@ class NestedDirectoryStore(MutableMapping):
         raise NotImplementedError()
 
     def __contains__(self, k):
-        return self._get_new_key(k) in self._map
+        return (
+            (self._get_new_key(k) in self._map)
+            or (os.path.basename(k) == ".zmetadata")
+            or (k.startswith(self.concat_dim) and k in self._local)
+        )
 
     def __len__(self, k):
         raise NotImplementedError()

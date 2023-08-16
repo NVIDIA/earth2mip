@@ -1,7 +1,11 @@
 import xarray
 import numpy as np
 from earth2mip.xarray.utils import to_cupy, concat_dict
-import cupy
+
+try:
+    import cupy
+except ImportError:
+    cupy = None
 
 import pytest
 

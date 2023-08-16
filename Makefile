@@ -6,7 +6,6 @@
 install:
 	git submodule update --init --recursive && \
 	pip install --upgrade pip && \
-	cd third_party/modulus && pip install . && cd ../.. && \
 	pip install -e .
 
 setup-ci:
