@@ -4,7 +4,6 @@
 # ALL THESE TARGETS NEED to be here for blossom-ci
 
 install:
-	git submodule update --init --recursive && \
 	pip install --upgrade pip && \
 	pip install -e .
 
