@@ -71,10 +71,10 @@
 | asciitree                 | 0.3.3      | MIT                                               | http://github.com/mbr/asciitree                                   |
 | PyYAML                    | 6.0.1      | MIT License                                       | https://pyyaml.org/                                               |
 | aioitertools              | 0.11.0     | MIT License                                       | https://aioitertools.omnilib.dev                                  |
-| annotated-types           | 0.5.0      | MIT License                                       | UNKNOWN                                                           |
+| annotated-types           | 0.5.0      | MIT License                                       | https://github.com/annotated-types/annotated-types                |
 | attrs                     | 23.1.0     | MIT License                                       | https://www.attrs.org/en/stable/changelog.html                    |
 | cffi                      | 1.15.1     | MIT License                                       | http://cffi.readthedocs.org                                       |
-| cftime                    | 1.6.2      | MIT License                                       | UNKNOWN                                                           |
+| cftime                    | 1.6.2      | MIT License                                       | https://github.com/Unidata/cftime                                 |
 | charset-normalizer        | 3.2.0      | MIT License                                       | https://github.com/Ousret/charset_normalizer                      |
 | coloredlogs               | 15.0.1     | MIT License                                       | https://coloredlogs.readthedocs.io                                |
 | einops                    | 0.6.1      | MIT License                                       | https://github.com/arogozhnikov/einops                            |
