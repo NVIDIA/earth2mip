@@ -13,6 +13,17 @@ class Grid(Enum):
     grid_720x1440 = "720x1440"
     s2s_challenge = "s2s"
 
+    @property
+    def shape(self):
+        if self == Grid.grid_721x1440:
+            return (721, 1440)
+        elif self == Grid.grid_720x1440:
+            return (720, 1440)
+        elif self == Grid.s2s_challenge:
+            return (181, 360)
+        else:
+            raise ValueError(f"Unknown grid {self}")
+
 
 # Enum of channels
 class ChannelSet(Enum):
