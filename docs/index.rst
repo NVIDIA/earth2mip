@@ -10,6 +10,8 @@ Welcome to Earth2 MIP's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   tutorial
+   concepts
    clis.rst
    plugin
    api

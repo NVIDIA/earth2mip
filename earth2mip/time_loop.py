@@ -43,7 +43,9 @@ class TimeLoop(Protocol):
         Args:
             x: an initial condition. has shape (B, n_history_levels,
                 len(in_channel_names), Y, X).  (Y, X) should be consistent with
-                ``grid``.
+                ``grid``. ``x[:, -i]`` is the data correspond to
+                ``time - (i-1) * self.history_time_step``. Note this means that
+                ``time`` corresponds to ``x[:, -1]``...not ``x[:, 0]``.
             time: the datetime to start with
             restart: if provided this restart information (typically some torch
                 Tensor) can be used to restart the time loop
