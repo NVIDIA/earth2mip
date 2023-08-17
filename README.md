@@ -1,8 +1,5 @@
 # Earth2-MIP
 
-**DO NOT EDIT THIS REPO...all changes are mirrored with
-https://gitlab-master.nvidia.com/earth-2/fcn-mip/-/tree/main/external/e2-mip**
-
 ## Description
 
 Earth 2 Model Intercomparison Project (MIP) is python inference framework for data-driven weather and climate models.
