@@ -1,68 +1,19 @@
-"""
-# Lagged Average Forecasting
+# SPDX-FileCopyrightText: Copyright (c) 2023 NVIDIA CORPORATION & AFFILIATES.
+# All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-Noah Brenowitz
-July 3, 2023
-
-This notebook contains the first comparison of probablistic IFS and SFNO forecasts.
-
-I try the concept of Lagged Average Forecating (Hoffman and Kalnay, 1982) for generating ensembles. This is perhaps the earliest ensemble technique that was applied to operational weather prediction. The number of ensemble members is limited, but because they are drawn directly from the data distribution no new tuning knobs are added. This technique is valuable for comparing ML and physical models since only deterministic forecasts are required. This method may not be ideal for forecast applications, but it can tell us if a deterministic model (SFNO, IFS, etc) is "too predictable". "Too predictable" determinstic models improve deterministic accuracy at the cost of having a calibrated ensemble.
-
-I computed spread errors based on an ensemble from 9 rolling lags of lead time.
-All the “ensemble members” have the same valid_time, but their initializations differ by 12 hours. Specifically,
-let $x(t_0, t)$ be the forecast valid at time $t$ but starting at $t_0 \leq t$. The lagged-ensemble of size $m$ is $S_m(t_0, t)=\{ x(t_0 - (m-1)/2 h ,t ),\ldots,x(t_0, t),\ldots, x(t_0+(m-1)/2, t) \}$. $h$ is the time step of the forecast/validation data. Note that the ensemble contains future members so is not practical for real-time forecast application, but by having the same number of future and past lags it ensures that the average lead-time of the ensemble is $t-t_0$. Without this, some further post-processing would be required to ensure that long lead time simulations are weighted less, an approach that Hoffman and Kalnay call "tempering". For forecast applications, we should be able to get hourly outputs from ECWMF, so can in theory generate up to 24 ensemble members from only 1 day of lag.
-
-
-Preliminary results with LAF are similar to our other initialization methods. The ensemble mean is more skillful than the deterministic model.
-
-It is intriguing that z500, our "worst" channel relative to IFS also has the best ratio between spread and skill. t2m. It's not surprise since this fields have much sharper features. Since the models are dissipative the spread is too small, but the error of any individual deterministic member is higher.
-
-A key question: **Do we expect spread-error to be 1:1 for LAF?**. Also, do we need to consider a simple model calibration to allow comparing models "maximizing sharpness subject to calibration" (Raftery et. al., 2005).
-
-## Caveats
-
-- This is with /lustre/fsw/sw_climate_fno/nbrenowitz/model_packages/sfno_coszen, an older, non-finetuned model. Would be interesting to retry with a better model.
-- For computational simplicity only show scores over the initial 10 valid_times
-- Unlike with initial condition perturbations, we know that some ensemble members---the longer lead-times---are less accurate. These ensemble members should be weighted less.
-
-## References
-
-
-Hoffman, R. N., & Kalnay, E. (1983). Lagged average forecasting, an alternative to Monte Carlo forecasting. Tellus A Dynamic Meteorology and Oceanography, 35A(2), 100–118. https://doi.org/10.1111/j.1600-0870.1983.tb00189.x
-
-Raftery, A. E., Gneiting, T., Balabdaoui, F., & Polakowski, M. (2005). Using Bayesian Model Averaging to Calibrate Forecast Ensembles. Monthly Weather Review, 133(5), 1155–1174. https://doi.org/10.1175/MWR2906.1
-
-e[j][l][m]  = x(j - l + m, j)
-len(e[j][l]) = #(m s.t. n > j - l + m  >= 0 and -L <= m <= L)
-             = #(m  s.t. n + l - j > m >= l - j and  -L <= m <= L)
-             = #(m  s.t. n + l - j - 1 >= m >= l - j and  -L <= m <= L)
-
-len(e[j][l]) = min(n + l - j - 1, L) - max(l - j, -L)
-
-# proof that filling it up works
-e[j][l+m][m] = x(j-l, j),
-0 <= l <= j, l <= n
-
-e[j][l'] = x(j- l' + m, j),
-0 <= l' - m <= j
-l' -j <= m <= l'
-
-l <= n
-l' -m <= n
-l' -n <= m
-
--L <= m <= L
-
-lower_bound = max(l' - j, l' - n, -L)
-upper_bound = min(l', L)
-
-
-Setup the dask distributed::
-
-    dask-scheduler --scheduler-file /tmp/scheduler.json &
-    export PYTHONPATH=/root/fcn-mip/workflows/scoring_tools:/root/fcn-mip:$PYTHONPATH
-    dask-worker --nthreads 1 --nworkers 32 --scheduler-file  /tmp/scheduler.json
-"""  # noqa
 import torch
 import torch.distributed
 from collections import deque
