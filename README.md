@@ -3,65 +3,25 @@
 **DO NOT EDIT THIS REPO...all changes are mirrored with
 https://gitlab-master.nvidia.com/earth-2/fcn-mip/-/tree/main/external/e2-mip**
 
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
-```bash
-cd existing_repo
-git remote add origin https://gitlab-master.nvidia.com/modulus/earth-2/earth2-mip.git
-git branch -M main
-git push -uf origin main
-```
-
-## Integrate with your tools
-
-- [ ] [Set up project integrations](https://gitlab-master.nvidia.com/modulus/earth-2/earth2-mip/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-## Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-
-Choose a self-explaining name for your project.
-
 ## Description
 
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+Earth 2 Model Intercomparison Project (MIP) is python inference framework for data-driven weather and climate models.
+It aims to provide a uniform interface for running and scoring any such model with a variety of data sources.
+It is inspired by the difficulty of sharing and running such models between teammates here at NVIDIA.
+Often necessary input data such as normalization constants and hyperparameter values are not packaged alongside the model weights.
+Every model typically implements a slightly different interface.
+Scoring routines are specific to the model being scored and often not shared between groups.
+
+earth2mip addresses  these points and bridge the gap between the domain experts
+who most often are assessing ML models, and the ML experts producing them.
+
+Compared to other projects in this space, earth2mip focuses on scoring models on-the-fly.
+It has python APIs suitable for rapid iteration in a jupyter book, CLIs for scoring models distributed over many GPUs, and a flexible
+plugin framework that allows anyone to use their own ML models.
 
 ## Badges
+
+TODO
 
 On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
 
@@ -71,11 +31,53 @@ Depending on what you are making, it can be a good idea to include screenshots o
 
 ## Installation
 
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+TODO add these instructions
 
 ## Usage
 
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+Basic inference example:
+
+TODO make sure this example runs (need CDS api for pangu)
+
+```python
+>>> import datetime
+>>> from earth2mip.networks import get_model
+>>> from earth2mip.initial_conditions.era5 import HDF5DataSource
+>>> from earth2mip.inference_ensemble import run_basic_inference
+
+>>> time_loop  = get_model("pangu_weather_6", device='cuda:0')
+n_history=0 channel_set=<ChannelSet.var34: '34var'> grid=<Grid.grid_720x1440: '720x1440'> in_channels=[] out_channels=[] architecture='' architecture_entrypoint='' time_step=datetime.timedelta(seconds=21600) entrypoint=InferenceEntrypoint(name='earth2mip.networks.pangu:load', kwargs={'time_step_hours': 6})
+>>> data_source = HDF5DataSource.from_path("/mount/73vars/")
+>>> ds = run_basic_inference(time_loop, n=10, data_source=data_source, time=datetime.datetime(2018, 1, 1))
+>>> ds.chunk()
+<xarray.DataArray (time: 11, history: 1, channel: 73, lat: 721, lon: 1440)>
+dask.array<xarray-<this-array>, shape=(11, 1, 73, 721, 1440), dtype=float32, chunksize=(11, 1, 73, 721, 1440), chunktype=numpy.ndarray>
+Coordinates:
+  * time     (time) datetime64[ns] 2018-01-01 ... 2018-01-03T12:00:00
+  * lat      (lat) float64 90.0 89.75 89.5 89.25 ... -89.25 -89.5 -89.75 -90.0
+  * lon      (lon) float64 0.0 0.25 0.5 0.75 1.0 ... 359.0 359.2 359.5 359.8
+  * channel  (channel) <U5 'u10m' 'v10m' 'u100m' ... 'r850' 'r925' 'r1000'
+Dimensions without coordinates: history
+
+```
+
+Deterministic scoring:
+
+```
+>>> time_mean = np.zeros([73, 721, 1440])
+>>> score_deterministic(time_loop, data_source=data_source, n=10, initial_times=[datetime.datetime(2018, 1, 1)], time_mean=time_mean)
+<xarray.Dataset>
+Dimensions:        (lead_time: 11, channel: 73, initial_time: 1)
+Coordinates:
+  * lead_time      (lead_time) timedelta64[ns] 0 days 00:00:00 ... 2 days 12:...
+  * channel        (channel) <U5 'u10m' 'v10m' 'u100m' ... 'r850' 'r925' 'r1000'
+Dimensions without coordinates: initial_time
+Data variables:
+    acc            (lead_time, channel) float64 1.0 1.0 1.0 ... 0.9923 0.9964
+    rmse           (lead_time, channel) float64 1.204e-07 .214e-07 ... 6.548
+    initial_times  (initial_time) datetime64[ns] 2018-01-01
+```
+
 
 ## Support
 
@@ -87,11 +89,43 @@ If you have ideas for releases in the future, it is a good idea to list them in 
 
 ## Contributing
 
-State if you are open to contributions and what your requirements are for accepting them.
+We are open to contributions! Please open a PR. Here are some guidelines:
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+Linting. Manually run the linting:
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+    make lint
+
+Run it before every commit:
+
+- (optional) install pre-commit hooks and git lfs with `make setup-ci`.
+  After this command is run, you will need to fix any lint errors before
+  commiting. This needs to be done once per local clone of this repository.
+
+Pull requests (contributor instructions):
+- Try to test your code (your reviewer may request you to write some).
+- finish your work and run `make lint test`. Fix any errors that come up.
+- target MRs to main
+- either fork or push a feature branch to this repo directly
+- open the MR, and then slack Yair or Noah to review it.
+
+Pull requests (reviewer instructions)
+- The reviewer is responsible for merging
+- Avoid "squash merge"
+- The CI is currently broken. So use the "merge immediately" button.
+
+To run the test suite:
+
+    pytest
+
+To run quick tests (takes 10 seconds):
+
+  pytest -m 'not slow'
+
+To reset the regression data:
+
+  pytest --regtest-reset
+
+and then check in the changes.
 
 ## Authors and acknowledgment
 
@@ -100,7 +134,3 @@ Show your appreciation to those who have contributed to the project.
 ## License
 
 For open source projects, say how it is licensed.
-
-## Project status
-
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
