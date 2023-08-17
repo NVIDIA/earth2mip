@@ -23,7 +23,7 @@ lint:
 	pre-commit run flake8 -a
 
 license:
-	python test/_license/header_check.py
+	python tests/_license/header_check.py
 
 doctest:
 	echo "TODO"
