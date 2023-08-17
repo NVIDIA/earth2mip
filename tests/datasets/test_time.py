@@ -14,23 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from earth2mip.initial_conditions import get
-from earth2mip import schema
 import datetime
+from earth2mip.datasets.era5 import time
 
-import pytest
+
+def test_datetime_range():
+    times = time.datetime_range(2018, datetime.timedelta(hours=6), 2)
+    assert times == [datetime.datetime(2018, 1, 1, 0), datetime.datetime(2018, 1, 1, 6)]
 
 
-@pytest.mark.slow
-@pytest.mark.xfail
-def test_get():
-    # uses I/O and old ICs are not available forever.
-    time = datetime.datetime(2023, 3, 10, 0)
-    dataset = get(
-        0, time, schema.ChannelSet.var34, source=schema.InitialConditionSource.cds
-    )
-
-    # check dims
-    correct_dims = {"time": 1, "channel": 34, "lat": 721, "lon": 1440}
-    assert dataset.dims == tuple(correct_dims.keys())
-    assert dataset.shape == tuple(correct_dims.values())
+def test_filename_to_year():
+    assert 2018 == time.filename_to_year("some/long/path/2018.h5")
