@@ -256,7 +256,7 @@ def get_initializer(
     return perturb
 
 
-def run_basic_inference(model: time_loop.TimeLoop, n: int, data_source, time, output):
+def run_basic_inference(model: time_loop.TimeLoop, n: int, data_source, time):
     """Run a basic inference"""
     ds = data_source[time].sel(channel=model.in_channel_names)
     x = torch.from_numpy(ds.values).cuda()
