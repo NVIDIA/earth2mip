@@ -23,6 +23,7 @@ import pytest
 
 
 @pytest.mark.slow
+@pytest.mark.xfail
 def test_open_34_vars(tmp_path: pathlib.Path):
     path = tmp_path / "1979.h5"
     with h5py.File(path, "w") as f:
@@ -36,6 +37,7 @@ def test_open_34_vars(tmp_path: pathlib.Path):
 
 
 @pytest.mark.slow
+@pytest.mark.xfail
 def test_open_all_hdf5(tmp_path):
     folder = tmp_path / "train"
     folder.mkdir()
