@@ -24,9 +24,14 @@ import pytest
 
 @pytest.mark.slow
 def test_cds_data_source():
+    try:
+        client = cds.Client()
+    except Exception:
+        pytest.skip("Could not initialize client")
+
     time = datetime.datetime(2018, 1, 1)
     channels = ["q1000", "t2m"]
-    source = cds.DataSource(channels)
+    source = cds.DataSource(channels, client=client)
     dataset = source[time]
 
     assert source.channel_names == channels
