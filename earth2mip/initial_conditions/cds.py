@@ -22,7 +22,6 @@ import dataclasses
 from earth2mip import schema
 import xarray
 import numpy as np
-import tempfile
 import os
 from concurrent.futures import ThreadPoolExecutor
 from cdsapi import Client
@@ -83,13 +82,16 @@ class DataSource:
     client: Client = dataclasses.field(
         default_factory=lambda: Client(progress=False, quiet=False)
     )
+    _cache: str = ".cds/"
 
     @property
     def time_means(self):
         raise NotImplementedError()
 
     def __getitem__(self, time: datetime.datetime):
-        return _get_channels(self.client, time, self.channel_names)
+        d = os.path.join(self._cache, time.isoformat())
+        os.makedirs(d, exist_ok=True)
+        return _get_channels(self.client, time, self.channel_names, d)
 
 
 def get(time: datetime.datetime, channel_set: schema.ChannelSet):
@@ -161,12 +163,14 @@ def _parse_files(
     """
     arrays = [None] * len(codes)
     for path in files:
+        print(path)
         with open(path) as f:
             while True:
                 gid = eccodes.codes_grib_new_from_file(f)
                 if gid is None:
                     break
                 id = eccodes.codes_get(gid, "paramId")
+                print(id)
                 level = eccodes.codes_get(gid, "level")
                 type_of_level = eccodes.codes_get(gid, "typeOfLevel")
 
@@ -189,7 +193,6 @@ def _parse_files(
                     continue
 
                 arrays[i] = vals
-
     array = np.stack(arrays)
     coords = {}
     coords["lat"] = lat[:, 0]
@@ -200,13 +203,13 @@ def _parse_files(
 def _download_codes(client, codes, time, d):
 
     files = []
-    format = "grib"
+    format = "grib2"
 
     def download(arg):
-        f = tempfile.mktemp(dir=d, suffix="." + format)
         name, req = arg
-        path = os.path.join(d, f)
-        client.retrieve(name, req, path)
+        path = os.path.join(d, name + ".grib")
+        if not os.path.exists(path):
+            client.retrieve(name, req, path)
         return path
 
     requests = _get_cds_requests(codes, time, format)
@@ -218,10 +221,9 @@ def _download_codes(client, codes, time, d):
     return darray
 
 
-def _get_channels(client, time: datetime.datetime, channels: List[str]):
+def _get_channels(client, time: datetime.datetime, channels: List[str], d):
     codes = [parse_channel(c) for c in channels]
-    with tempfile.TemporaryDirectory() as d:
-        darray = _download_codes(client, codes, time, d)
+    darray = _download_codes(client, codes, time, d)
     return (
         darray.assign_coords(channel=channels)
         .assign_coords(time=time)
