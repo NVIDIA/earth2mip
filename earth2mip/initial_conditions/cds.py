@@ -14,7 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import warnings
+from typing import List
 import datetime
+import dataclasses
 from earth2mip import schema
 import xarray
 import tempfile
@@ -30,6 +33,18 @@ import urllib3
 urllib3.disable_warnings(
     urllib3.exceptions.InsecureRequestWarning
 )  # Hack to disable SSL warnings
+
+
+@dataclasses.dataclass
+class DataSource:
+    channel_names: List[str]
+
+    @property
+    def time_means(self):
+        raise NotImplementedError()
+
+    def __getitem__(self, time: datetime.datetime):
+        return _get_channels(time, self.channel_names)
 
 
 # CDS mapping from channel names to CDS names, tuple means pressure level data
@@ -112,6 +127,11 @@ def create_CDS_channel_mapping():
         channel = f"r{level}"
         cds_name = "relative_humidity"
         channel_mapping[channel] = (cds_name, level)
+
+        # add specific humidity
+        channel = f"q{level}"
+        cds_name = "specific_humidity"
+        channel_mapping[channel] = (cds_name, level)
     return channel_mapping
 
 
@@ -192,10 +212,14 @@ def retrieve_era5_data(
 
 
 def get(time: datetime.datetime, channel_set: schema.ChannelSet):
-
-    # Get channel data
+    warnings.warn(
+        DeprecationWarning("Will be removed. Please use CDSDataSource instead.")
+    )
     channels = channel_set.list_channels()
+    return _get_channels(time, channels)
 
+
+def _get_channels(time: datetime.datetime, channels: List[str]):
     with tempfile.TemporaryDirectory() as d:
         path = os.path.join(d, "file.nc")
         retrieve_era5_data(channels, time, path)
