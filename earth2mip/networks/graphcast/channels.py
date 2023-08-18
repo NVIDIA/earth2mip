@@ -101,5 +101,23 @@ def yield_channels_ecmwf():
         code = sl_inputs[v]
         yield code_to_channel[code], code, None
 
-for v, code, level in yield_channels_ecmwf():
-    print(v, code, level)
+
+
+if __name__ == "__main__":
+    from earth2mip.initial_conditions import cds
+    import datetime
+    import xarray
+    channels = list(yield_channels())
+    client = cds.Client()
+    ds = cds.DataSource(channels, client=client)
+    time = datetime.datetime(2018, 1, 1)
+
+    try:
+        ds = xarray.open_dataset("output.nc")
+    except FileNotFoundError:
+        ds = ds[time]
+        ds.rename("fields").to_netcdf("output.nc")
+
+
+
+
