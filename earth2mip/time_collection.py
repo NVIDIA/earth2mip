@@ -81,9 +81,11 @@ def main(
     logger.info(
         "distributed info: " + str((dist.rank, time_rank, group_ranks, ranks_per_time))
     )
-    group = torch.distributed.new_group(group_ranks)
-    group_rank = torch.distributed.get_group_rank(group, dist.rank)
-    lines = lines[time_rank::n_time_groups]
+
+    if torch.distributed.is_initialized():
+        group = torch.distributed.new_group(group_ranks)
+        group_rank = torch.distributed.get_group_rank(group, dist.rank)
+        lines = lines[time_rank::n_time_groups]
 
     # setup dask client for post processing
     client = get_distributed_client(dist.rank)
