@@ -197,31 +197,31 @@ def _parse_files(
     return xarray.DataArray(array, dims=["channel", "lat", "lon"], coords=coords)
 
 
-def _download_codes(client, codes, time):
+def _download_codes(client, codes, time, d):
 
-    with tempfile.TemporaryDirectory() as d:
-        files = []
-        format = "grib"
+    files = []
+    format = "grib"
 
-        def download(arg):
-            f = tempfile.mktemp(dir=d, suffix="." + format)
-            name, req = arg
-            path = os.path.join(d, f)
-            client.retrieve(name, req, path)
-            return path
+    def download(arg):
+        f = tempfile.mktemp(dir=d, suffix="." + format)
+        name, req = arg
+        path = os.path.join(d, f)
+        client.retrieve(name, req, path)
+        return path
 
-        requests = _get_cds_requests(codes, time, format)
-        with ThreadPoolExecutor(4) as pool:
-            files = pool.map(download, requests)
+    requests = _get_cds_requests(codes, time, format)
+    with ThreadPoolExecutor(4) as pool:
+        files = pool.map(download, requests)
 
-        darray = _parse_files(codes, files)
+    darray = _parse_files(codes, files)
 
     return darray
 
 
 def _get_channels(client, time: datetime.datetime, channels: List[str]):
     codes = [parse_channel(c) for c in channels]
-    darray = _download_codes(client, codes, time)
+    with tempfile.TemporaryDirectory() as d:
+        darray = _download_codes(client, codes, time, d)
     return (
         darray.assign_coords(channel=channels)
         .assign_coords(time=time)
