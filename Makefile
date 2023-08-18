@@ -4,6 +4,7 @@
 # ALL THESE TARGETS NEED to be here for blossom-ci
 
 install:
+	apt-get install -y libeccodes-dev
 	pip install --upgrade pip && \
 	pip install -e .
 
