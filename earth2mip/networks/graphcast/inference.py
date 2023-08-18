@@ -255,27 +255,6 @@ def main():
         predictor = construct_wrapped_graphcast(model_config, task_config)
         return predictor(inputs, targets_template=targets_template, forcings=forcings)
 
-    @hk.transform_with_state
-    def loss_fn(model_config, task_config, inputs, targets, forcings):
-        predictor = construct_wrapped_graphcast(model_config, task_config)
-        loss, diagnostics = predictor.loss(inputs, targets, forcings)
-        return xarray_tree.map_structure(
-            lambda x: xarray_jax.unwrap_data(x.mean(), require_jax=True),
-            (loss, diagnostics),
-        )
-
-    def grads_fn(params, state, model_config, task_config, inputs, targets, forcings):
-        def _aux(params, state, i, t, f):
-            (loss, diagnostics), next_state = loss_fn.apply(
-                params, state, jax.random.PRNGKey(0), model_config, task_config, i, t, f
-            )
-            return loss, (diagnostics, next_state)
-
-        (loss, (diagnostics, next_state)), grads = jax.value_and_grad(
-            _aux, has_aux=True
-        )(params, state, inputs, targets, forcings)
-        return loss, diagnostics, next_state, grads
-
     # Jax doesn't seem to like passing configs as args through the jit. Passing it
     # in via partial (instead of capture by closure) forces jax to invalidate the
     # jit cache if you change configs.
@@ -301,8 +280,6 @@ def main():
             forcings=eval_forcings,
         )
 
-    loss_fn_jitted = drop_state(with_params(jax.jit(with_configs(loss_fn.apply))))
-    grads_fn_jitted = with_params(jax.jit(with_configs(grads_fn)))
     run_forward_jitted = drop_state(
         with_params(jax.jit(with_configs(run_forward.apply)))
     )
