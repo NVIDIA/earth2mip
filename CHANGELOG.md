@@ -6,7 +6,6 @@
 
 ## Dependencies
 
-- hypothesis
 - eccodes
 
 ## Features added
