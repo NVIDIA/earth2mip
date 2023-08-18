@@ -39,35 +39,32 @@ TODO make sure this example runs (need CDS api for pangu)
 ```python
 >>> import datetime
 >>> from earth2mip.networks import get_model
->>> from earth2mip.initial_conditions.era5 import HDF5DataSource
+>>> from earth2mip.initial_conditions import cds
 >>> from earth2mip.inference_ensemble import run_basic_inference
-
->>> time_loop  = get_model("pangu_weather_6", device='cuda:0')
-n_history=0 channel_set=<ChannelSet.var34: '34var'> grid=<Grid.grid_720x1440: '720x1440'> in_channels=[] out_channels=[] architecture='' architecture_entrypoint='' time_step=datetime.timedelta(seconds=21600) entrypoint=InferenceEntrypoint(name='earth2mip.networks.pangu:load', kwargs={'time_step_hours': 6})
->>> data_source = HDF5DataSource.from_path("/mount/73vars/")
+>>> time_loop  = get_model("pangu_weather_6", device="cuda:0")
+>>> data_source = cds.DataSource(time_loop.in_channel_names)
 >>> ds = run_basic_inference(time_loop, n=10, data_source=data_source, time=datetime.datetime(2018, 1, 1))
 >>> ds.chunk()
-<xarray.DataArray (time: 11, history: 1, channel: 73, lat: 721, lon: 1440)>
-dask.array<xarray-<this-array>, shape=(11, 1, 73, 721, 1440), dtype=float32, chunksize=(11, 1, 73, 721, 1440), chunktype=numpy.ndarray>
+<xarray.DataArray (time: 11, history: 1, channel: 69, lat: 721, lon: 1440)>
+dask.array<xarray-<this-array>, shape=(11, 1, 69, 721, 1440), dtype=float32, chunksize=(11, 1, 69, 721, 1440), chunktype=numpy.ndarray>
 Coordinates:
+  * lon      (lon) float32 0.0 0.25 0.5 0.75 1.0 ... 359.0 359.2 359.5 359.8
+  * lat      (lat) float32 90.0 89.75 89.5 89.25 ... -89.25 -89.5 -89.75 -90.0
   * time     (time) datetime64[ns] 2018-01-01 ... 2018-01-03T12:00:00
-  * lat      (lat) float64 90.0 89.75 89.5 89.25 ... -89.25 -89.5 -89.75 -90.0
-  * lon      (lon) float64 0.0 0.25 0.5 0.75 1.0 ... 359.0 359.2 359.5 359.8
-  * channel  (channel) <U5 'u10m' 'v10m' 'u100m' ... 'r850' 'r925' 'r1000'
+  * channel  (channel) <U5 'z1000' 'z925' 'z850' 'z700' ... 'u10m' 'v10m' 't2m'
 Dimensions without coordinates: history
-
 ```
 
 Deterministic scoring:
 
 ```
->>> time_mean = np.zeros([73, 721, 1440])
+>>> time_mean = np.zeros([69, 721, 1440])
 >>> score_deterministic(time_loop, data_source=data_source, n=10, initial_times=[datetime.datetime(2018, 1, 1)], time_mean=time_mean)
 <xarray.Dataset>
-Dimensions:        (lead_time: 11, channel: 73, initial_time: 1)
+Dimensions:        (lead_time: 11, channel: 69, initial_time: 1)
 Coordinates:
   * lead_time      (lead_time) timedelta64[ns] 0 days 00:00:00 ... 2 days 12:...
-  * channel        (channel) <U5 'u10m' 'v10m' 'u100m' ... 'r850' 'r925' 'r1000'
+  * channel        (channel) <U5 'z1000' 'z925' 'z850' 'z700' ... 'u10m' 'v10m' 't2m'
 Dimensions without coordinates: initial_time
 Data variables:
     acc            (lead_time, channel) float64 1.0 1.0 1.0 ... 0.9923 0.9964
