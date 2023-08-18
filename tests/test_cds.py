@@ -14,12 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from earth2mip.initial_conditions import get
 from earth2mip.initial_conditions import cds
 from earth2mip import schema
 import datetime
-from hypothesis import given
-from hypothesis.strategies import integers
+import random
 
 import pytest
 
@@ -45,8 +43,8 @@ def test_make_request(regtest):
         print(req, file=regtest)
 
 
-@given(integers(min_value=0))
-def test_parse_channel_with_level(channel_level):
+def test_parse_channel_with_level():
+    channel_level = random.randint(0, 10000)
     channel_string = f"u{channel_level}"
     assert cds.parse_channel(channel_string).level == channel_level
 
