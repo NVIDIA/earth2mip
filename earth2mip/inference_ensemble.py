@@ -275,7 +275,7 @@ def get_initializer(
 def run_basic_inference(model: time_loop.TimeLoop, n: int, data_source, time):
     """Run a basic inference"""
     ds = data_source[time].sel(channel=model.in_channel_names)
-    x = torch.from_numpy(ds.values).cuda()
+    x = torch.from_numpy(ds.values).cuda().type(model.dtype)
     # need a batch dimension of length 1
     x = x[None]
 
