@@ -39,12 +39,10 @@ TODO make sure this example runs (need CDS api for pangu)
 ```python
 >>> import datetime
 >>> from earth2mip.networks import get_model
->>> from earth2mip.initial_conditions.era5 import HDF5DataSource
+>>> from earth2mip.initial_conditions import cds
 >>> from earth2mip.inference_ensemble import run_basic_inference
-
->>> time_loop  = get_model("pangu_weather_6", device='cuda:0')
-n_history=0 channel_set=<ChannelSet.var34: '34var'> grid=<Grid.grid_720x1440: '720x1440'> in_channels=[] out_channels=[] architecture='' architecture_entrypoint='' time_step=datetime.timedelta(seconds=21600) entrypoint=InferenceEntrypoint(name='earth2mip.networks.pangu:load', kwargs={'time_step_hours': 6})
->>> data_source = HDF5DataSource.from_path("/mount/73vars/")
+>>> time_loop  = get_model("pangu_weather_6", device="cuda:0")
+>>> data_source = cds.DataSource(time_loop.in_channel_names)
 >>> ds = run_basic_inference(time_loop, n=10, data_source=data_source, time=datetime.datetime(2018, 1, 1))
 >>> ds.chunk()
 <xarray.DataArray (time: 11, history: 1, channel: 73, lat: 721, lon: 1440)>

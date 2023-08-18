@@ -15,6 +15,7 @@
 # limitations under the License.
 
 from earth2mip.initial_conditions import get
+from earth2mip.initial_conditions import cds
 from earth2mip import schema
 import datetime
 
@@ -32,5 +33,18 @@ def test_get():
 
     # check dims
     correct_dims = {"time": 1, "channel": 34, "lat": 721, "lon": 1440}
+    assert dataset.dims == tuple(correct_dims.keys())
+    assert dataset.shape == tuple(correct_dims.values())
+
+
+@pytest.mark.slow
+def test_cds_data_source():
+    time = datetime.datetime(2018, 1, 1)
+    channels = ["q1000"]
+    source = cds.DataSource(channels)
+    dataset = source[time]
+
+    assert source.channel_names == channels
+    correct_dims = {"time": 1, "channel": len(channels), "lat": 721, "lon": 1440}
     assert dataset.dims == tuple(correct_dims.keys())
     assert dataset.shape == tuple(correct_dims.values())
