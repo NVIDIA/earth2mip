@@ -12,11 +12,10 @@ import numpy as np
 import contextlib
 
 from earth2mip import registry, ModelRegistry, model_registry
-from earth2mip import filesystem, loaders, time_loop
+from earth2mip import filesystem, loaders, time_loop, schema
 import modulus
 from modulus.utils.sfno.zenith_angle import cos_zenith_angle
 from modulus.distributed.manager import DistributedManager
-from earth2mip import schema
 from earth2mip.loaders import LoaderProtocol
 
 if sys.version_info < (3, 10):
@@ -304,7 +303,12 @@ def _default_inference(package, metadata, device):
 
 
 def _load_package(package, metadata, device) -> time_loop.TimeLoop:
-    print(metadata)
+
+    if metadata is None:
+        local_path = package.get("metadata.json")
+        with open(local_path) as f:
+            metadata = schema.Model.parse_raw(f.read())
+
     if metadata.entrypoint:
         ep = EntryPoint(name=None, group=None, value=metadata.entrypoint.name)
         inference_loader = ep.load()
@@ -314,7 +318,10 @@ def _load_package(package, metadata, device) -> time_loop.TimeLoop:
 
 
 def get_model(
-    model: str, registry: ModelRegistry = registry, device="cpu"
+    model: str,
+    registry: ModelRegistry = registry,
+    device="cpu",
+    metadata: Optional[schema.Model] = None,
 ) -> time_loop.TimeLoop:
     """
     Function to construct an inference model and load the appropriate
@@ -327,6 +334,9 @@ def get_model(
         Supported urls protocols include s3:// for PBSS access, and file:// for
         local files.
     registry: A model registry object. Defaults to the global model registry
+    metadata: If provided, this model metadata will be used to load the model.
+        By default this will be loaded from the file ``metadata.json`` in the
+        model package.
     device: the device to load on, by default the 'cpu'
 
 
@@ -342,7 +352,7 @@ def get_model(
     else:
         package = model_registry.Package(root=model, seperator="/")
 
-    return _load_package(package, package.metadata(), device)
+    return _load_package(package, metadata, device)
 
 
 class Identity(torch.nn.Module):
