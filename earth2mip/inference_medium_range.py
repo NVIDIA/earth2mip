@@ -24,8 +24,9 @@ import numpy as np
 import datetime
 import sys
 from earth2mip import config
-from earth2mip import schema, networks, time_loop
+from earth2mip import schema, time_loop
 from earth2mip.initial_conditions.era5 import HDF5DataSource
+from earth2mip import _cli_utils
 from modulus.distributed.manager import DistributedManager
 
 
@@ -254,7 +255,7 @@ def score_deterministic(
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("model")
+    _cli_utils.add_model_args(parser, required=True)
     parser.add_argument("output")
     parser.add_argument("-n", type=int, default=4)
     parser.add_argument("--test", action="store_true")
@@ -264,7 +265,6 @@ def main():
     )
 
     args = parser.parse_args()
-    model = args.model
     DistributedManager.initialize()
     dist = DistributedManager()
 
@@ -272,7 +272,7 @@ def main():
     if args.test:
         initial_times = initial_times[-dist.world_size :]
 
-    model = networks.get_model(args.model, device=dist.device)
+    model = _cli_utils.model_from_args(args, dist.device)
 
     data_source = HDF5DataSource.from_path(args.data or config.ERA5_HDF5_73)
 
