@@ -6,6 +6,9 @@
 
 ## Dependencies
 
+- hypothesis
+- eccodes
+
 ## Features added
 
 - `earth2mip.initial_conditions.cds.CDSDataSource`
