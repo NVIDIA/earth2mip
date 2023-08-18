@@ -51,6 +51,7 @@ class TimeLoop(Protocol):
     history_time_step: datetime.timedelta = datetime.timedelta(hours=0)
     time_step: datetime.timedelta
     device: torch.device
+    dtype: torch.dtype = torch.float32
 
     def __call__(
         self, time: datetime.datetime, x: torch.Tensor, restart: Optional[Any] = None

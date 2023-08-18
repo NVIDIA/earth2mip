@@ -89,21 +89,8 @@ class PanguWeather:
         )
 
     def __call__(self, fields_pl, fields_sfc):
-        # fields_pl = self.fields_pl
-
-        # param, level = self.param_level_pl
-        # fields_pl = fields_pl.sel(param=param, level=level)
-        # fields_pl = fields_pl.order_by(param=param, level=level)
-
-        # fields_pl_numpy = fields_pl.astype(dtype=np.float32)
-        # fields_pl_numpy = fields_pl_numpy.reshape((5, 13, 721, 1440))
-
-        # fields_sfc_numpy = fields_sfc.astype(dtype=np.float32)
-
-        # input = fields_pl_numpy
-        # input_surface = fields_sfc_numpy
-
-        # X is a PyTorch tensor on device
+        assert fields_pl.dype == torch.float32
+        assert fields_sl.dype == torch.float32
         # from https://onnxruntime.ai/docs/api/python/api_summary.html
         binding = self.ort_session.io_binding()
 
