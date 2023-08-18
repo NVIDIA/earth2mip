@@ -135,15 +135,9 @@ def create_CDS_channel_mapping():
     return channel_mapping
 
 
-def retrieve_channel_data(args):
-    idx, channel, time, area, grid, format, channel_mapping, client = args
-    cds_variable = channel_mapping.get(channel)
-    if not cds_variable:
-        raise ValueError(f"Unknown channel: {channel}")
-
+def retrieve_channel_data(client, cds_variable, time, area, grid, format, file):
     if isinstance(cds_variable, tuple):  # it's a pressure level variable
         cds_name, level = cds_variable
-        tmp_file = tempfile.NamedTemporaryFile(suffix=".nc")
         client.retrieve(
             "reanalysis-era5-pressure-levels",
             {
@@ -158,10 +152,9 @@ def retrieve_channel_data(args):
                 "grid": grid,
                 "format": format,
             },
-            tmp_file.name,
+            file,
         )
-    else:  # it's a single level variable
-        tmp_file = tempfile.NamedTemporaryFile(suffix=".nc")
+    elif isinstance(cds_variable, str):  # it's a single level variable
         client.retrieve(
             "reanalysis-era5-single-levels",
             {
@@ -175,40 +168,10 @@ def retrieve_channel_data(args):
                 "grid": grid,
                 "format": format,
             },
-            tmp_file.name,
+            file,
         )
-    data = xarray.open_dataset(tmp_file.name)
-    main_var = list(set(data.variables) - set(data.coords))[
-        0
-    ]  # main variable is one not in coordinates
-    data = data.rename({main_var: channel})  # rename variable to channel
-    return idx, data
-
-
-def retrieve_era5_data(
-    channels,
-    time,
-    file_name,
-    area=(90, -180, -90, 180),
-    grid=(0.25, 0.25),
-    format="netcdf",
-):
-    c = Client(progress=False, quiet=True)
-    channel_mapping = create_CDS_channel_mapping()
-    data_arrays = [None] * len(channels)  # pre-allocate list
-
-    # create a list of arguments for each call to retrieve_channel_data
-    args = [
-        (idx, channel, time, area, grid, format, channel_mapping, c)
-        for idx, channel in enumerate(channels)
-    ]
-
-    with ThreadPoolExecutor() as executor:
-        for idx, data in executor.map(retrieve_channel_data, args):
-            data_arrays[idx] = data  # place data into correct position
-
-    combined_data = xarray.merge(data_arrays)
-    combined_data.to_netcdf(file_name)
+    else:
+        raise NotImplementedError(cds_variable)
 
 
 def get(time: datetime.datetime, channel_set: schema.ChannelSet):
@@ -219,14 +182,45 @@ def get(time: datetime.datetime, channel_set: schema.ChannelSet):
     return _get_channels(time, channels)
 
 
+def _download_channels_legacy(client, channels, time):
+    grid = (0.25, 0.25)
+    area = (90, -180, -90, 180)
+    format = "netcdf"
+
+    channel_mapping = create_CDS_channel_mapping()
+
+    # create a list of arguments for each call to retrieve_channel_data
+    cds_variables = [channel_mapping[c] for c in channels]
+
+    def get(cds_variable):
+        tmp_file = tempfile.mktemp(suffix=".nc")
+        try:
+            retrieve_channel_data(
+                client, cds_variable, time, area, grid, format, tmp_file
+            )
+            # return first array in dataset
+            ds = xarray.open_dataset(tmp_file)
+            for v in ds:
+                return ds[v].load()
+        finally:
+            os.unlink(tmp_file)
+
+    with ThreadPoolExecutor() as executor:
+        data_arrays = executor.map(get, cds_variables)
+
+    darray = xarray.Dataset(
+        {channel: arr for channel, arr in zip(channels, data_arrays)}
+    )
+    return darray
+
+
 def _get_channels(time: datetime.datetime, channels: List[str]):
-    with tempfile.TemporaryDirectory() as d:
-        path = os.path.join(d, "file.nc")
-        retrieve_era5_data(channels, time, path)
-        darray = xarray.open_dataset(path).load()
+    client = Client(progress=False, quiet=True)
+
+    ds = _download_channels_legacy(client, channels, time)
 
     # Concatenate channels
-    darray = darray.to_array(dim="channel")
+    darray = ds.to_array(dim="channel")
     darray = darray.transpose("time", "channel", "latitude", "longitude")
 
     # Rename lat/lon
