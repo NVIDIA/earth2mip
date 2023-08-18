@@ -2,16 +2,15 @@ import asyncio
 import concurrent.futures
 import datetime
 import logging
-from typing import Optional
 from functools import partial
+import argparse
 
 import cupy
 import pandas as pd
 import torch
-import typer
 import xarray
 
-from earth2mip import forecasts, networks
+from earth2mip import forecasts, _cli_utils
 from earth2mip.initial_conditions.era5 import HDF5DataSource
 from earth2mip.datasets.hindcast import open_forecast
 from earth2mip.lagged_ensembles import core
@@ -164,18 +163,7 @@ def collect_score(score, times) -> pd.DataFrame:
     return df
 
 
-def main(
-    *,
-    data: str = None,
-    model: Optional[str] = None,
-    forecast_dir: Optional[str] = None,
-    ifs: str = "",
-    persistence: bool = False,
-    inits: int = 10,
-    lags: int = 4,
-    leads: int = 54,
-    output: str = ".",
-):
+def main(args):
     """Run a lagged ensemble scoring
 
     Can be run against either a fcn model (--model), a forecast directory as
@@ -189,12 +177,12 @@ def main(
         torchrun --nproc_per_node 2 --nnodes 1 -m earth2mip.lagged_ensembles --model sfno_73ch --inits 10 --leads 5 --lags 4
 
     """  # noqa
-    times = list(get_times_2018(inits))
+
+    times = list(get_times_2018(args.inits))
     FIELDS = ["u10m", "v10m", "z500", "t2m", "t850"]
     pool = concurrent.futures.ThreadPoolExecutor()
 
-    data_source = HDF5DataSource.from_path(data or config.ERA5_HDF5_73)
-    # TODO check behavior of ``device`` flag
+    data_source = HDF5DataSource.from_path(args.data or config.ERA5_HDF5_73)
     obs = Observations(times=times, pool=pool, data_source=data_source, device="cpu")
 
     try:
@@ -204,22 +192,24 @@ def main(
 
     rank = torch.distributed.get_rank() if torch.distributed.is_initialized() else 0
     device = torch.device("cuda", rank % torch.cuda.device_count())
-    if model:
-        inference = networks.get_model(model, device=device)
+    if args.model:
+        timeloop = _cli_utils.model_from_args(args, device=device)
         run_forecast = forecasts.TimeLoopForecast(
-            inference, times=times, observations=obs
+            timeloop, times=times, observations=obs
         )
-    elif forecast_dir:
+    elif args.forecast_dir:
         run_forecast = forecasts.XarrayForecast(
-            open_forecast(forecast_dir, group="mean.zarr"), times=times, fields=FIELDS
+            open_forecast(args.forecast_dir, group="mean.zarr"),
+            times=times,
+            fields=FIELDS,
         )
-    elif ifs:
+    elif args.ifs:
         # TODO fix this import error
         # TODO convert ifs to zarr so we don't need custom code
         from earth2mip.datasets.deterministic_ifs import open_deterministic_ifs
 
-        run_forecast = forecasts.XarrayForecast(open_deterministic_ifs(ifs))
-    elif persistence:
+        run_forecast = forecasts.XarrayForecast(open_deterministic_ifs(args.ifs))
+    elif args.persistence:
         run_forecast = forecasts.Persistence
     else:
         raise ValueError(
@@ -233,18 +223,37 @@ def main(
         observations=obs,
         score=partial(score, run_forecast.channel_names),
         run_forecast=run_forecast,
-        lags=lags,
-        n=leads,
+        lags=args.lags,
+        n=args.leads,
     )
 
     with torch.cuda.device(device):
         scores = asyncio.run(scores_future)
     df = collect_score(scores, times)
-    path = f"{output}.{rank:03d}.csv"
+    path = f"{args.output}.{rank:03d}.csv"
     print(f"saving scores to {path}")
     # remove headers from other ranks so it is easy to cat the files
     df.to_csv(path, header=(rank == 0))
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Your CLI description here", usage=main.__doc__
+    )
+
+    parser.add_argument("--data", type=str, help="Path to data file")
+    _cli_utils.add_model_args(parser, required=False)
+    parser.add_argument("--forecast_dir", type=str, help="Path to forecast directory")
+    parser.add_argument("--ifs", type=str, default="", help="IFS parameter")
+    parser.add_argument("--persistence", action="store_true", help="Enable persistence")
+    parser.add_argument("--inits", type=int, default=10, help="Number of inits")
+    parser.add_argument("--lags", type=int, default=4, help="Number of lags")
+    parser.add_argument("--leads", type=int, default=54, help="Number of leads")
+    parser.add_argument("--output", type=str, default=".", help="Output directory")
+
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
-    typer.run(main)
+    args = parse_args()
+    main(args)

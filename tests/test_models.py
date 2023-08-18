@@ -1,12 +1,15 @@
 import pathlib
+import argparse
 import numpy as np
 import datetime
 
 import torch
-from earth2mip import schema, model_registry, networks
+from earth2mip import schema, model_registry, networks, _cli_utils
 from earth2mip.model_registry import Package
 
 import hashlib
+
+import pytest
 
 
 def md5_checksum(x, precision):
@@ -97,20 +100,44 @@ def test_get_model_architecture_entrypoint(tmp_path):
     assert isinstance(model, torch.nn.Module)
 
 
+def test_get_model_uses_metadata(tmp_path):
+    registry = model_registry.ModelRegistry(tmp_path.as_posix())
+    model_name = "model"
+    model = networks.get_model(model_name, registry, metadata=metadata_with_entrypoint)
+    assert isinstance(model, MyTestInference)
+
+
+@pytest.mark.parametrize("required", [True, False])
+def test__cli_utils(tmp_path, required):
+    path = tmp_path / "meta.json"
+
+    with path.open("w") as f:
+        f.write(metadata_with_entrypoint.json())
+
+    parser = argparse.ArgumentParser()
+    _cli_utils.add_model_args(parser, required=required)
+    model_args = ["model"] if required else ["--model", "unused"]
+    args = parser.parse_args(model_args + ["--model-metadata", path.as_posix()])
+    loop = _cli_utils.model_from_args(args, device="cpu")
+    assert isinstance(loop, MyTestInference)
+
+
 class MyTestInference:
     def __init__(self, package, device, **kwargs):
         self.kwargs = kwargs
         self.device = device
 
 
+metadata_with_entrypoint = schema.Model(
+    entrypoint=schema.InferenceEntrypoint(
+        name="tests.test_models:MyTestInference", kwargs=dict(param=1)
+    )
+)
+
+
 def test__load_package_entrypoint():
     package = Package("", seperator="/")
-    metadata = schema.Model(
-        entrypoint=schema.InferenceEntrypoint(
-            name="tests.test_models:MyTestInference", kwargs=dict(param=1)
-        )
-    )
-    obj = networks._load_package(package, metadata, device="cpu")
+    obj = networks._load_package(package, metadata_with_entrypoint, device="cpu")
     assert isinstance(obj, MyTestInference)
-    assert obj.kwargs == metadata.entrypoint.kwargs
+    assert obj.kwargs == metadata_with_entrypoint.entrypoint.kwargs
     assert obj.device == "cpu"
