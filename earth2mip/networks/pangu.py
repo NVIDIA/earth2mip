@@ -58,7 +58,7 @@ class PanguWeather:
 
     # Output
     expver = "pguw"
-    #providers=['CUDAExecutionProvider', 'CPUExecutionProvider']
+    # providers=['CUDAExecutionProvider', 'CPUExecutionProvider']
 
     def __init__(self, path):
         self.path = path
@@ -73,16 +73,20 @@ class PanguWeather:
         self.device_index = torch.cuda.current_device()
 
         os.stat(self.path)
-        providers =   [('CUDAExecutionProvider', {
-        'device_id': self.device_index,
-    })]
+        providers = [
+            (
+                "CUDAExecutionProvider",
+                {
+                    "device_id": self.device_index,
+                },
+            )
+        ]
 
         self.ort_session = ort.InferenceSession(
             self.path,
             sess_options=options,
             providers=providers,
         )
-
 
     def __call__(self, fields_pl, fields_sfc):
         # fields_pl = self.fields_pl
@@ -99,7 +103,6 @@ class PanguWeather:
         # input = fields_pl_numpy
         # input_surface = fields_sfc_numpy
 
-
         # X is a PyTorch tensor on device
         # from https://onnxruntime.ai/docs/api/python/api_summary.html
         binding = self.ort_session.io_binding()
@@ -109,7 +112,7 @@ class PanguWeather:
 
             binding.bind_input(
                 name=name,
-                device_type='cuda',
+                device_type="cuda",
                 device_id=self.device_index,
                 element_type=np.float32,
                 shape=tuple(x.shape),
@@ -120,7 +123,7 @@ class PanguWeather:
             x = torch.empty_like(like).contiguous()
             binding.bind_output(
                 name=name,
-                device_type='cuda',
+                device_type="cuda",
                 device_id=self.device_index,
                 element_type=np.float32,
                 shape=tuple(x.shape),
@@ -167,20 +170,20 @@ class PanguStacked:
         pl = pl.resize(*pl_shape)
         sl = surface[0]
         plo, slo = self.model(pl, sl)
-        return torch.cat([
-            plo.resize(1, nchan, 721, 1440),
-            slo.resize(1, x.size(1) - nchan, 721, 1440)
-        ], dim=1)
+        return torch.cat(
+            [
+                plo.resize(1, nchan, 721, 1440),
+                slo.resize(1, x.size(1) - nchan, 721, 1440),
+            ],
+            dim=1,
+        )
 
 
 class PanguInference(torch.nn.Module):
     n_history_levels = 1
     time_step = datetime.timedelta(hours=6)
 
-    def __init__(self,
-        model_6: PanguStacked,
-        model_24: PanguStacked
-    ):
+    def __init__(self, model_6: PanguStacked, model_24: PanguStacked):
         super().__init__()
         self.model_6 = model_6
         self.model_24 = model_24
@@ -202,7 +205,6 @@ class PanguInference(torch.nn.Module):
     @property
     def grid(self):
         return schema.Grid.grid_721x1440
-
 
     def run_steps_with_restart(self, x, n, normalize=True, time=None):
         """Yield (time, unnormalized data, restart) tuples
@@ -247,8 +249,7 @@ class PanguInference(torch.nn.Module):
 
 
 def load(package, *, time_step_hours: int, pretrained=True, device="not used"):
-    """Load a single time-step pangu weather
-    """
+    """Load a single time-step pangu weather"""
     assert pretrained
     with torch.cuda.device(device):
         p = package.get("model.onnx")
@@ -258,14 +259,21 @@ def load(package, *, time_step_hours: int, pretrained=True, device="not used"):
         scale = np.ones([len(channel_names)])
         grid = schema.Grid.grid_721x1440
         dt = datetime.timedelta(hours=time_step_hours)
-        inference = networks.Inference(model, channels=None, center=center, scale=scale, grid=grid, channel_names=channel_names, time_step=dt)
+        inference = networks.Inference(
+            model,
+            channels=None,
+            center=center,
+            scale=scale,
+            grid=grid,
+            channel_names=channel_names,
+            time_step=dt,
+        )
         inference.to(device)
         return inference
 
 
 def load_24substep6(package, pretrained=True, device="doesn't matter"):
-    """Load the sub-stepped pangu weather inference
-    """
+    """Load the sub-stepped pangu weather inference"""
     assert pretrained
     with torch.cuda.device(device):
         p6 = package.get("model_6.onnx")
