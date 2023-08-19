@@ -1,5 +1,12 @@
 # see ecwmf parameter table https://codes.ecmwf.int/grib/param-db/?&filter=grib1&table=128
 from earth2mip.initial_conditions import cds
+import numpy as np
+from modulus.utils.sfno.zenith_angle import cos_zenith_angle
+import graphcast.data_utils 
+import pandas
+import xarray
+
+tisr =     "toa_incident_solar_radiation"
 
 sl_inputs = {
      "2m_temperature": 167 ,
@@ -7,6 +14,7 @@ sl_inputs = {
     "10m_v_component_of_wind": 166,
     "10m_u_component_of_wind": 165,
     "total_precipitation_6hr": 260267,
+tisr: 212,
 }
 
 pl_inputs = {
@@ -64,7 +72,6 @@ levels = [
 ]
 
 time_dependent = {
-    "toa_incident_solar_radiation": 212,
     "year_progress_sin": None,
     "year_progress_cos": None,
     "day_progress_sin": None,
@@ -74,6 +81,7 @@ time_dependent = {
 
 channels = []
 cds.CHANNEL_TO_CODE['tp6'] = sl_inputs['total_precipitation_6hr']
+cds.CHANNEL_TO_CODE['tisr'] = sl_inputs['toa_incident_solar_radiation']
 cds.CHANNEL_TO_CODE['zs'] = static_inputs['geopotential_at_surface']
 cds.CHANNEL_TO_CODE['w'] = pl_inputs['vertical_velocity']
 
@@ -100,6 +108,66 @@ def yield_channels_ecmwf():
     for v in sl_inputs:
         code = sl_inputs[v]
         yield code_to_channel[code], code, None
+
+def keys_to_vals(d):
+    return dict(zip(d.values(), d.keys()))
+
+
+def unpack(x, codes, pressure_level_codes, single_level_codes, levels):
+    """retrieve variable from x
+
+    Args:
+        x: array (b, h, c, y, x)
+        channels: names of c dim
+        levels: levels to get
+        pressure_level_codes_to_get
+        single_level_codes_to_get
+    """
+    idx = pandas.Index(codes)
+    output = xarray.Dataset()
+    for code in pressure_level_codes:
+        name = keys_to_vals(pl_inputs)[code]
+        indexer = idx.get_indexer([cds.PressureLevelCode(code, level) for level in levels])
+        output[name] = ["batch", "time", "level", "lat", "lon"], x[:, :, indexer]
+    for code in single_level_codes:
+        name = keys_to_vals(sl_inputs)[code]
+        indexer = codes.index(cds.SingleLevelCode(code))
+        output[name] = ["batch", "time", "lat", "lon"], x[:, :, indexer]
+    return output.assign_coords(level=levels)
+
+
+def pack(ds: xarray.Dataset, codes) -> np.ndarray:
+    """retrieve variable from x
+
+    Args:
+        x: array (b, h, c, y, x)
+        channels: names of c dim
+        levels: levels to get
+        pressure_level_codes_to_get
+        single_level_codes_to_get
+    """
+    idx = pandas.Index(codes)
+    shape = (1, ds.sizes['time'], len(codes), ds.sizes['lat'], ds.sizes['lon'])
+    x = np.zeros(shape=shape)
+    pl_name_by_code = keys_to_vals(pl_inputs)
+    sl_name_by_code = keys_to_vals(sl_inputs)
+    for k, code in enumerate(codes):
+        if isinstance(code, cds.SingleLevelCode):
+            x[:, :, k] = ds[sl_name_by_code[code.id]]
+        elif isinstance(code, cds.PressureLevelCode):
+            x[:, :, k] = ds[pl_name_by_code[code.id]].sel(level=code.level)
+    return x
+    
+
+def toa_incident_solar_radiation(time, lat, lon):
+    solar_constant = 1361  #  W/m²
+    z = cos_zenith_angle(time, lon, lat)
+    return np.maximum(0, z) * solar_constant
+
+
+def add_derived_vars(ds):
+    graphcast.data_utils.add_derived_vars(ds)
+    ds[tisr] = toa_incident_solar_radiation(ds.time, ds.lat, ds.lon)
 
 
 

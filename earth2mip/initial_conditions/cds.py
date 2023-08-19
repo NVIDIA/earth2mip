@@ -56,13 +56,13 @@ CHANNEL_TO_CODE = {
 }
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(eq=True, order=True, frozen=True)
 class PressureLevelCode:
     id: int
     level: int = 0
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(eq=True, order=True, frozen=True)
 class SingleLevelCode:
     id: int
 
