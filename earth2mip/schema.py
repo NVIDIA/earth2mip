@@ -20,6 +20,7 @@ from earth2mip import weather_events
 from earth2mip.weather_events import InitialConditionSource, WeatherEvent
 from enum import Enum
 import datetime
+import numpy as np
 
 __all__ = ["InitialConditionSource", "WeatherEvent"]
 
@@ -39,6 +40,38 @@ class Grid(Enum):
             return (181, 360)
         else:
             raise ValueError(f"Unknown grid {self}")
+
+    @property
+    def _lat_spacing(self):
+        if self == Grid.grid_721x1440:
+            return 0.25
+        elif self == Grid.grid_720x1440:
+            return 0.25
+        elif self == Grid.s2s_challenge:
+            return 1.0
+        else:
+            raise ValueError(f"Unknown grid {self}")
+
+    @property
+    def _lon_spacing(self):
+        if self == Grid.grid_721x1440:
+            return 0.25
+        elif self == Grid.grid_720x1440:
+            return 0.25
+        elif self == Grid.s2s_challenge:
+            return 1.0
+        else:
+            raise ValueError(f"Unknown grid {self}")
+
+    @property
+    def lat(self):
+        n = self.shape[0]
+        return 90 - np.arange(n) * self._lat_spacing
+
+    @property
+    def lon(self):
+        n = self.shape[1]
+        return np.arange(n) * self._lon_spacing
 
 
 # Enum of channels

@@ -27,6 +27,20 @@ We will demonstrate each of these interfaces for the persistence forecast.
 A persistence forecast is one that always returns the initial condition. It is a
 common baseline for a weather forecast.
 
+A design philosphy we follow is that model wrappers should take plain torch
+tensors as inputs and outputs and provide static metadata (e.g. grid, channel,
+time) about how those tensors map onto the planet.
+An alternative philosophy is to use some kind of metadata-aware container either
+custom-built or off-the-shelf like xarray.
+We avoid the latter approach since there is always a temptation to  implement all of
+mathematics on some container type or hide the arrays under several layers of containers.
+At the end of the day, most ML models ultimately take and receive a single multi
+dimesional array of data.
+Finally, ML
+developers are all familiar with basic array-like data types.
+We already need to wrap our models in a stack of abstractions to
+provide a common interface, so we don't need to make the data more complex.
+
 Module
 ^^^^^^
 

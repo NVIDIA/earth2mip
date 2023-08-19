@@ -40,6 +40,8 @@ CHANNEL_TO_CODE = {
     "z": 129,
     "u": 131,
     "v": 132,
+    # w = dp/dt, normally called omega
+    "w": 135,
     "t": 130,
     "q": 133,
     "r": 157,
@@ -53,7 +55,16 @@ CHANNEL_TO_CODE = {
     "msl": 151,
     # total precip
     "tp": 228,
+    # total precip accumlated over 6 hours
+    "tp06": 260267,
+    "tisr": 212,
+    "zs": 162051,
+    "lsm": 172,
 }
+
+
+def keys_to_vals(d):
+    return dict(zip(d.values(), d.keys()))
 
 
 @dataclasses.dataclass(eq=True, order=True, frozen=True)
@@ -61,10 +72,18 @@ class PressureLevelCode:
     id: int
     level: int = 0
 
+    def __str__(self):
+        lookup = keys_to_vals(CHANNEL_TO_CODE)
+        return lookup[self.id] + str(self.level)
+
 
 @dataclasses.dataclass(eq=True, order=True, frozen=True)
 class SingleLevelCode:
     id: int
+
+    def __str__(self):
+        lookup = keys_to_vals(CHANNEL_TO_CODE)
+        return lookup[self.id]
 
 
 def parse_channel(channel: str) -> Union[PressureLevelCode, SingleLevelCode]:

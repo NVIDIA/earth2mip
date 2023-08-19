@@ -1,9 +1,12 @@
 # %%
 # @title Imports
 import os
+import numpy as np
 import dataclasses
+from earth2mip import schema
 import datetime
 import functools
+import torch
 import math
 import re
 from typing import Optional
@@ -15,7 +18,7 @@ from graphcast import checkpoint
 from graphcast import data_utils
 from graphcast import graphcast
 from graphcast import normalization
-from earth2mip.networks.graphcast import rollout
+from earth2mip.networks.graphcast import rollout, channels
 from graphcast import xarray_jax
 from graphcast import xarray_tree
 from IPython.display import HTML
@@ -26,6 +29,10 @@ import matplotlib.pyplot as plt
 from matplotlib import animation
 import numpy as np
 import xarray
+import jax
+from earth2mip.networks.graphcast.rollout import _get_next_inputs
+
+rng = jax.random.PRNGKey(0)
 
 
 def parse_file_parts(file_name):
@@ -159,9 +166,22 @@ def data_valid_for_model(
 
 
 class Graphcast:
-    def __init__(self, root):
+
+    grid = schema.Grid.grid_721x1440
+    n_history_levels: int = 2
+    history_time_step: datetime.timedelta = datetime.timedelta(hours=6)
+    time_step: datetime.timedelta = datetime.timedelta(hours=6)
+    dtype: torch.dtype = torch.float32
+
+    def __init__(self, package, device):
         model_name = "GraphCast - ERA5 1979-2017 - resolution 0.25 - pressure levels 37 - mesh 2to6 - precipitation input and output.npz"
-        checkpoint_path = os.path.join(root, "params", model_name)
+
+        self.device = device
+
+        def join(*args):
+            return package.get(os.path.join(*args))
+
+        checkpoint_path = join("params", model_name)
         # load checkpoint:
         with open(checkpoint_path, "rb") as f:
             ckpt = checkpoint.load(f, graphcast.CheckPoint)
@@ -175,12 +195,19 @@ class Graphcast:
         print("Model license:\n", ckpt.license, "\n")
 
         # load stats
-        with open(os.path.join(root, "stats/diffs_stddev_by_level.nc"), "rb") as f:
+        with open(join("stats/diffs_stddev_by_level.nc"), "rb") as f:
             diffs_stddev_by_level = xarray.load_dataset(f).compute()
-        with open(os.path.join(root, "stats/mean_by_level.nc"), "rb") as f:
+        with open(join("stats/mean_by_level.nc"), "rb") as f:
             mean_by_level = xarray.load_dataset(f).compute()
-        with open(os.path.join(root, "stats/stddev_by_level.nc"), "rb") as f:
+        with open(join("stats/stddev_by_level.nc"), "rb") as f:
             stddev_by_level = xarray.load_dataset(f).compute()
+
+        # static data
+        static_path = package.get(
+            "dataset/source-era5_date-2022-01-01_res-1.0_levels-13_steps-01.nc"
+        )
+        with xarray.open_dataset(static_path) as ds:
+            self.static_data = ds[["geopotential_at_surface", "land_sea_mask"]].load()
 
         # jit the stuff
         # @title Build jitted functions, and possibly initialize random weights
@@ -246,7 +273,19 @@ class Graphcast:
             with_params(jax.jit(with_configs(run_forward.apply)))
         )
 
-    def __call__(self, eval_inputs, eval_targets, eval_forcings):
+    @property
+    def codes(self):
+        return channels.get_graphcast_codes(channels.levels, precip=True)
+
+    @property
+    def in_channel_names(self):
+        return [str(c) for c in self.codes]
+
+    @property
+    def out_channel_names(self):
+        return self.in_channel_names
+
+    def __call__(self, time, x):
         """
 
         inputs::
@@ -351,13 +390,71 @@ class Graphcast:
             }
 
         """
-        return rollout.chunked_prediction(
-            self.run_forward_jitted,
-            rng=jax.random.PRNGKey(0),
-            inputs=eval_inputs,
-            targets_template=eval_targets * np.nan,
-            forcings=eval_forcings,
+        # graphcast uses -90 to 90 for lat
+        x_rev = x[:, :, :, ::-1]
+        d = channels.unpack_all(x_rev, self.codes)
+
+        # states up to t
+        d = channels.assign_grid_coords(d, self.grid)
+        d.coords["time"] = (
+            np.arange(self.n_history_levels) - self.n_history_levels + 1
+        ) * self.history_time_step
+        channels.add_dynamic_vars(d, time)
+        d = d.merge(self.static_data)
+
+        # "targets" template. This this is basically a schema of the state at t
+        # + 1. Not sure why it's needed.
+        target_vars = [
+            "2m_temperature",
+            "mean_sea_level_pressure",
+            "10m_v_component_of_wind",
+            "10m_u_component_of_wind",
+            "total_precipitation_6hr",
+            "temperature",
+            "geopotential",
+            "u_component_of_wind",
+            "v_component_of_wind",
+            "vertical_velocity",
+            "specific_humidity",
+        ]
+        target = (
+            d[target_vars].isel(time=[0]).assign(time=[self.history_time_step]) * np.nan
         )
+
+        while True:
+            final_time = d.isel(time=slice(0, 1))
+            out = channels.pack(final_time, self.codes)
+            # need to reverse lat
+            yield time, out[:, 0, :, ::-1]
+            # forcings at t + 1
+            forcings = xarray.Dataset()
+            forcings.coords["time"] = xarray.Variable(
+                ["time"], [self.history_time_step]
+            )
+            forcings = channels.assign_grid_coords(forcings, self.grid)
+            channels.add_dynamic_vars(forcings, time)
+
+            next_inputs = self.run_forward_jitted(
+                rng=rng, inputs=d, targets_template=target, forcings=forcings
+            )
+
+            next_inputs = next_inputs.merge(forcings)
+            d = _get_next_inputs(d, next_inputs)
+            time += self.time_step
+
+        return
+
+        # TODO restore these tests
+
+        def assert_schema_same(x, y):
+            assert set(x) == set(y), set(x).symmetric_difference(set(y))
+            for v in x:
+                assert x[v].dims == y[v].dims
+            xarray.testing.assert_equal(x.coords.to_dataset(), y.coords.to_dataset())
+
+        assert_schema_same(d, eval_inputs)
+        assert_schema_same(forcings, eval_forcings.isel(time=[0]))
+        assert_schema_same(target, eval_targets.isel(time=[0]))
 
 
 def main():
@@ -365,7 +462,7 @@ def main():
     model = Graphcast(root)
 
     # load dataset
-    dataset_filename = os.path.join(
+    dataset_filename = join(
         root, "dataset", "source-era5_date-2022-01-01_res-0.25_levels-37_steps-12.nc"
     )
     with open(dataset_filename, "rb") as f:

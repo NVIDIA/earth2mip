@@ -2,19 +2,35 @@
 from earth2mip.initial_conditions import cds
 import numpy as np
 from modulus.utils.sfno.zenith_angle import cos_zenith_angle
-import graphcast.data_utils 
+import pandas as pd
+import graphcast.data_utils
 import pandas
 import xarray
 
-tisr =     "toa_incident_solar_radiation"
+
+CODE_TO_GRAPHCAST_NAME = {
+    167: "2m_temperature",
+    151: "mean_sea_level_pressure",
+    166: "10m_v_component_of_wind",
+    165: "10m_u_component_of_wind",
+    260267: "total_precipitation_6hr",
+    212: "toa_incident_solar_radiation",
+    130: "temperature",
+    129: "geopotential",
+    131: "u_component_of_wind",
+    132: "v_component_of_wind",
+    135: "vertical_velocity",
+    133: "specific_humidity",
+    162051: "geopotential_at_surface",
+    172: "land_sea_mask",
+}
 
 sl_inputs = {
-     "2m_temperature": 167 ,
+    "2m_temperature": 167,
     "mean_sea_level_pressure": 151,
     "10m_v_component_of_wind": 166,
     "10m_u_component_of_wind": 165,
-    "total_precipitation_6hr": 260267,
-tisr: 212,
+    "toa_incident_solar_radiation": 212,
 }
 
 pl_inputs = {
@@ -75,16 +91,11 @@ time_dependent = {
     "year_progress_sin": None,
     "year_progress_cos": None,
     "day_progress_sin": None,
-    "day_progress_cos": None
+    "day_progress_cos": None,
 }
 
 
 channels = []
-cds.CHANNEL_TO_CODE['tp6'] = sl_inputs['total_precipitation_6hr']
-cds.CHANNEL_TO_CODE['tisr'] = sl_inputs['toa_incident_solar_radiation']
-cds.CHANNEL_TO_CODE['zs'] = static_inputs['geopotential_at_surface']
-cds.CHANNEL_TO_CODE['w'] = pl_inputs['vertical_velocity']
-
 code_to_channel = dict(zip(cds.CHANNEL_TO_CODE.values(), cds.CHANNEL_TO_CODE.keys()))
 
 
@@ -109,9 +120,6 @@ def yield_channels_ecmwf():
         code = sl_inputs[v]
         yield code_to_channel[code], code, None
 
-def keys_to_vals(d):
-    return dict(zip(d.values(), d.keys()))
-
 
 def unpack(x, codes, pressure_level_codes, single_level_codes, levels):
     """retrieve variable from x
@@ -126,14 +134,40 @@ def unpack(x, codes, pressure_level_codes, single_level_codes, levels):
     idx = pandas.Index(codes)
     output = xarray.Dataset()
     for code in pressure_level_codes:
-        name = keys_to_vals(pl_inputs)[code]
-        indexer = idx.get_indexer([cds.PressureLevelCode(code, level) for level in levels])
+        name = CODE_TO_GRAPHCAST_NAME[code]
+        indexer = idx.get_indexer(
+            [cds.PressureLevelCode(code, level) for level in levels]
+        )
         output[name] = ["batch", "time", "level", "lat", "lon"], x[:, :, indexer]
     for code in single_level_codes:
-        name = keys_to_vals(sl_inputs)[code]
+        name = CODE_TO_GRAPHCAST_NAME[code]
         indexer = codes.index(cds.SingleLevelCode(code))
         output[name] = ["batch", "time", "lat", "lon"], x[:, :, indexer]
     return output.assign_coords(level=levels)
+
+
+def unpack_all(x, codes):
+
+    p_codes = set()
+    s_codes = set()
+    levels = set()
+
+    for c in codes:
+        if isinstance(c, cds.SingleLevelCode):
+            s_codes.add(c.id)
+        elif isinstance(c, cds.PressureLevelCode):
+            p_codes.add(c.id)
+            levels.add(c.level)
+
+    return unpack(x, codes, sorted(p_codes), sorted(s_codes), levels=sorted(levels))
+
+
+def assign_grid_coords(ds, grid):
+    coords = {
+        "lat": grid.lat[::-1],
+        "lon": grid.lon,
+    }
+    return ds.assign_coords(coords)
 
 
 def pack(ds: xarray.Dataset, codes) -> np.ndarray:
@@ -147,34 +181,69 @@ def pack(ds: xarray.Dataset, codes) -> np.ndarray:
         single_level_codes_to_get
     """
     idx = pandas.Index(codes)
-    shape = (1, ds.sizes['time'], len(codes), ds.sizes['lat'], ds.sizes['lon'])
+    shape = (1, ds.sizes["time"], len(codes), ds.sizes["lat"], ds.sizes["lon"])
     x = np.zeros(shape=shape)
-    pl_name_by_code = keys_to_vals(pl_inputs)
-    sl_name_by_code = keys_to_vals(sl_inputs)
     for k, code in enumerate(codes):
+        name = CODE_TO_GRAPHCAST_NAME[code.id]
         if isinstance(code, cds.SingleLevelCode):
-            x[:, :, k] = ds[sl_name_by_code[code.id]]
+            x[:, :, k] = ds[name]
         elif isinstance(code, cds.PressureLevelCode):
-            x[:, :, k] = ds[pl_name_by_code[code.id]].sel(level=code.level)
+            x[:, :, k] = ds[name].sel(level=code.level)
     return x
-    
+
+
+def get_graphcast_codes(levels, precip=True):
+    lookup_code = cds.keys_to_vals(CODE_TO_GRAPHCAST_NAME)
+    output = []
+    for v in pl_inputs:
+        code = lookup_code[v]
+        for level in levels:
+            output.append(cds.PressureLevelCode(code, level=level))
+
+    for v in sl_inputs:
+        code = lookup_code[v]
+        output.append(cds.SingleLevelCode(code))
+
+    if precip:
+        code = lookup_code["total_precipitation_6hr"]
+        output.append(cds.SingleLevelCode(code))
+
+    return output
+
 
 def toa_incident_solar_radiation(time, lat, lon):
+    # TODO validate this code against the ECWMF data
     solar_constant = 1361  #  W/m²
     z = cos_zenith_angle(time, lon, lat)
     return np.maximum(0, z) * solar_constant
 
 
-def add_derived_vars(ds):
+def add_dynamic_vars(ds, time):
+    if "batch" in ds.dims:
+        assert ds.sizes["batch"] == 1, "haven't vectorized cos zenith yet over time"
+    ds.coords["init_time"] = xarray.Variable(["batch"], [pd.Timestamp(time)])
+    ds.coords["datetime"] = ds.init_time + ds.time
     graphcast.data_utils.add_derived_vars(ds)
-    ds[tisr] = toa_incident_solar_radiation(ds.time, ds.lat, ds.lon)
+    del ds["year_progress"]
+    del ds["day_progress"]
 
+    toas = []
+    for dt in ds.time.values.flat:
+        tt = pd.Timestamp(time) - pd.Timedelta(dt)
+        datetime = tt.to_pydatetime()
+        toas.append(toa_incident_solar_radiation(time, ds.lat, ds.lon))
+    ds["toa_incident_solar_radiation"] = xarray.concat(toas, dim="time").expand_dims(
+        "batch"
+    )
+    del ds.coords["datetime"]
+    del ds.coords["init_time"]
 
 
 if __name__ == "__main__":
     from earth2mip.initial_conditions import cds
     import datetime
     import xarray
+
     channels = list(yield_channels())
     client = cds.Client()
     ds = cds.DataSource(channels, client=client)
@@ -185,7 +254,3 @@ if __name__ == "__main__":
     except FileNotFoundError:
         ds = ds[time]
         ds.rename("fields").to_netcdf("output.nc")
-
-
-
-
