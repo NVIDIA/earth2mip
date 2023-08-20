@@ -24,6 +24,7 @@ from graphcast import xarray_tree
 from IPython.display import HTML
 import haiku as hk
 import jax
+import jax.numpy as jnp
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib import animation
@@ -268,6 +269,8 @@ class Graphcast:
         def run_forward(model_config, task_config, x):
             lat = self.grid.lat[::-1]
             lon = self.grid.lon
+
+            x = x.astype(jnp.float16)
             predictor = construct_wrapped_graphcast(model_config, task_config)
             return predictor(x, lat, lon)
 

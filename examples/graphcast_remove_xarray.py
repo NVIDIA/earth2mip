@@ -124,7 +124,6 @@ for code in x_codes:
             arr = forcings[code]
         case t, str(s):
             arr = forcings[s][:, t]
-    arr = get_code_from_ds(code, example_batch)
     arrays.append(arr)
 
 for code in f_codes:
