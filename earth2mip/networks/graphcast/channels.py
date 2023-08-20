@@ -1,7 +1,10 @@
 # see ecwmf parameter table https://codes.ecmwf.int/grib/param-db/?&filter=grib1&table=128
+from typing import List
 from earth2mip.initial_conditions import cds
 import numpy as np
+import dataclasses
 from modulus.utils.sfno.zenith_angle import cos_zenith_angle
+from graphcast.graphcast import TaskConfig
 import pandas as pd
 import graphcast.data_utils
 import pandas
@@ -192,22 +195,27 @@ def pack(ds: xarray.Dataset, codes) -> np.ndarray:
     return x
 
 
-def get_graphcast_codes(levels, precip=True):
+def get_codes(variables: List[str], levels: List[int], n_history=2):
     lookup_code = cds.keys_to_vals(CODE_TO_GRAPHCAST_NAME)
     output = []
-    for v in pl_inputs:
-        code = lookup_code[v]
-        for level in levels:
-            output.append(cds.PressureLevelCode(code, level=level))
-
-    for v in sl_inputs:
-        code = lookup_code[v]
-        output.append(cds.SingleLevelCode(code))
-
-    if precip:
-        code = lookup_code["total_precipitation_6hr"]
-        output.append(cds.SingleLevelCode(code))
-
+    for v in sorted(variables):
+        if v in lookup_code:
+            code = lookup_code[v]
+            if v in pl_inputs:
+                for history in range(n_history):
+                    for level in levels:
+                        output.append(
+                            (history, cds.PressureLevelCode(code, level=level))
+                        )
+            elif v in static_inputs:
+                output.append(v)
+            else:
+                for history in range(n_history):
+                    output.append((history, cds.SingleLevelCode(code)))
+        else:
+            # should be compute later
+            for history in range(n_history):
+                output.append((history, v))
     return output
 
 

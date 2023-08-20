@@ -1,5 +1,5 @@
 """
-pip install -r earth2mip/networks/graphcast/requiremnets.txt
+pip install -r earth2mip/networks/graphcast/requirements.txt
 
 
 Run like::
@@ -51,11 +51,13 @@ time = datetime.datetime(2022, 1, 1)
 i = model.out_channel_names.index("t2m")
 fig = plt.figure()
 for k, (t, y) in enumerate(model(time, packed)):
-    if k > 5:
-        break
     print(t)
     plt.clf()
     ax = fig.add_subplot(projection=crs.PlateCarree())
     ax.pcolormesh(model.grid.lon, model.grid.lat, y[0, i], transform=crs.PlateCarree())
     ax.coastlines(color="w")
     plt.savefig(f"{k:04d}.png")
+    if k == 1:
+        break
+
+# %%

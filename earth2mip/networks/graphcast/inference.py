@@ -32,8 +32,6 @@ import xarray
 import jax
 from earth2mip.networks.graphcast.rollout import _get_next_inputs
 
-rng = jax.random.PRNGKey(0)
-
 
 def parse_file_parts(file_name):
     return dict(part.split("-", 1) for part in file_name.split("_"))
@@ -165,6 +163,36 @@ def data_valid_for_model(
     )
 
 
+class NoXarrayGraphcast(graphcast.GraphCast):
+    def __call__(self, grid_node_features, lat, lon):
+        # Transfer data for the grid to the mesh,
+        # [num_mesh_nodes, batch, latent_size], [num_grid_nodes, batch, latent_size]
+        if not self._initialized:
+            self._init_mesh_properties()
+            self._init_grid_properties(grid_lat=lat, grid_lon=lon)
+            self._grid2mesh_graph_structure = self._init_grid2mesh_graph()
+            self._mesh_graph_structure = self._init_mesh_graph()
+            self._mesh2grid_graph_structure = self._init_mesh2grid_graph()
+
+            self._initialized = True
+
+        (latent_mesh_nodes, latent_grid_nodes) = self._run_grid2mesh_gnn(
+            grid_node_features
+        )
+
+        # Run message passing in the multimesh.
+        # [num_mesh_nodes, batch, latent_size]
+        updated_latent_mesh_nodes = self._run_mesh_gnn(latent_mesh_nodes)
+
+        # Transfer data frome the mesh to the grid.
+        # [num_grid_nodes, batch, output_size]
+        output_grid_nodes = self._run_mesh2grid_gnn(
+            updated_latent_mesh_nodes, latent_grid_nodes
+        )
+
+        return output_grid_nodes
+
+
 class Graphcast:
 
     grid = schema.Grid.grid_721x1440
@@ -196,11 +224,11 @@ class Graphcast:
 
         # load stats
         with open(join("stats/diffs_stddev_by_level.nc"), "rb") as f:
-            diffs_stddev_by_level = xarray.load_dataset(f).compute()
+            self.diffs_stddev_by_level = xarray.load_dataset(f).compute()
         with open(join("stats/mean_by_level.nc"), "rb") as f:
-            mean_by_level = xarray.load_dataset(f).compute()
+            self.mean_by_level = xarray.load_dataset(f).compute()
         with open(join("stats/stddev_by_level.nc"), "rb") as f:
-            stddev_by_level = xarray.load_dataset(f).compute()
+            self.stddev_by_level = xarray.load_dataset(f).compute()
 
         # static data
         static_path = package.get(
@@ -216,7 +244,8 @@ class Graphcast:
         ):
             """Constructs and wraps the GraphCast Predictor."""
             # Deeper one-step predictor.
-            predictor = graphcast.GraphCast(model_config, task_config)
+            predictor = NoXarrayGraphcast(model_config, task_config)
+            return predictor
 
             # Modify inputs/outputs to `graphcast.GraphCast` to handle conversion to
             # from/to float32 to/from BFloat16
@@ -231,16 +260,16 @@ class Graphcast:
                 stddev_by_level=stddev_by_level,
             )
 
-            # # Wraps everything so the one-step model can produce trajectories.
-            # predictor = autoregressive.Predictor(predictor, gradient_checkpointing=True)
+            # Wraps everything so the one-step model can produce trajectories.
+            predictor = autoregressive.Predictor(predictor, gradient_checkpointing=True)
             return predictor
 
         @hk.transform_with_state
-        def run_forward(model_config, task_config, inputs, targets_template, forcings):
+        def run_forward(model_config, task_config, x):
+            lat = self.grid.lat[::-1]
+            lon = self.grid.lon
             predictor = construct_wrapped_graphcast(model_config, task_config)
-            return predictor(
-                inputs, targets_template=targets_template, forcings=forcings
-            )
+            return predictor(x, lat, lon)
 
         # Jax doesn't seem to like passing configs as args through the jit. Passing it
         # in via partial (instead of capture by closure) forces jax to invalidate the
@@ -258,16 +287,6 @@ class Graphcast:
         # predictions. This is requiredy by our rollout code, and generally simpler.
         def drop_state(fn):
             return lambda **kw: fn(**kw)[0]
-
-        init_jitted = jax.jit(with_configs(run_forward.init))
-
-        if params is None:
-            params, state = init_jitted(
-                rng=jax.random.PRNGKey(0),
-                inputs=eval_inputs,
-                targets_template=eval_targets,
-                forcings=eval_forcings,
-            )
 
         self.run_forward_jitted = drop_state(
             with_params(jax.jit(with_configs(run_forward.apply)))
