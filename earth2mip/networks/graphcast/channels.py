@@ -91,6 +91,7 @@ levels = [
 ]
 
 time_dependent = {
+    "toa_incident_solar_radiation": None,
     "year_progress_sin": None,
     "year_progress_cos": None,
     "day_progress_sin": None,
@@ -199,7 +200,12 @@ def get_codes(variables: List[str], levels: List[int], n_history=2):
     lookup_code = cds.keys_to_vals(CODE_TO_GRAPHCAST_NAME)
     output = []
     for v in sorted(variables):
-        if v in lookup_code:
+        if v in time_dependent:
+            for history in range(n_history):
+                output.append((history, v))
+        elif v in static_inputs:
+            output.append(v)
+        elif v in lookup_code:
             code = lookup_code[v]
             if v in pl_inputs:
                 for history in range(n_history):
@@ -207,15 +213,11 @@ def get_codes(variables: List[str], levels: List[int], n_history=2):
                         output.append(
                             (history, cds.PressureLevelCode(code, level=level))
                         )
-            elif v in static_inputs:
-                output.append(v)
             else:
                 for history in range(n_history):
                     output.append((history, cds.SingleLevelCode(code)))
         else:
-            # should be compute later
-            for history in range(n_history):
-                output.append((history, v))
+            raise NotImplementedError(v)
     return output
 
 

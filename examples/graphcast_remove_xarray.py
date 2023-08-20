@@ -78,7 +78,7 @@ arrays = []
 time = datetime.datetime(2018, 1, 1)
 seconds = time.timestamp()
 s = model.history_time_step.total_seconds()
-seconds_since_epoch = np.array([seconds - (i - 2) * s for i in range(3)])
+seconds_since_epoch = np.array([seconds + (i - 1) * s for i in range(3)])
 seconds_since_epoch = seconds_since_epoch.reshape([3])
 day_progress = data_utils.get_day_progress(seconds_since_epoch, model.grid.lon).reshape(
     [1, 3, 1, 1, 1440]
@@ -86,6 +86,22 @@ day_progress = data_utils.get_day_progress(seconds_since_epoch, model.grid.lon).
 year_progress = data_utils.get_year_progress(seconds_since_epoch).reshape(
     [1, 3, 1, 1, 1]
 )
+
+
+def add_toa(d):
+    tisr = [
+        channels.toa_incident_solar_radiation(
+            time + (i - 1) * model.history_time_step,
+            model.grid.lat[:, None],
+            model.grid.lon[None, :],
+        )
+        for i in range(3)
+    ]
+
+    # h y x
+    tisr = np.stack(tisr)
+    d["toa_incident_solar_radiation"] = tisr[None, :, None]
+
 
 channel_shape = [1, 3, 1, *model.grid.shape]
 day_progress = np.broadcast_to(day_progress, channel_shape)
@@ -106,7 +122,7 @@ forcings = {
     "land_sea_mask": lsm,
     "geopotential_at_surface": zs,
 }
-
+add_toa(forcings)
 
 for code in x_codes:
     match code:
