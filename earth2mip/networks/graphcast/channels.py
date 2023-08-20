@@ -196,25 +196,25 @@ def pack(ds: xarray.Dataset, codes) -> np.ndarray:
     return x
 
 
-def get_codes(variables: List[str], levels: List[int], n_history=2):
+def get_codes(variables: List[str], levels: List[int], time_levels: List[int]):
     lookup_code = cds.keys_to_vals(CODE_TO_GRAPHCAST_NAME)
     output = []
     for v in sorted(variables):
         if v in time_dependent:
-            for history in range(n_history):
+            for history in time_levels:
                 output.append((history, v))
         elif v in static_inputs:
             output.append(v)
         elif v in lookup_code:
             code = lookup_code[v]
             if v in pl_inputs:
-                for history in range(n_history):
+                for history in time_levels:
                     for level in levels:
                         output.append(
                             (history, cds.PressureLevelCode(code, level=level))
                         )
             else:
-                for history in range(n_history):
+                for history in time_levels:
                     output.append((history, cds.SingleLevelCode(code)))
         else:
             raise NotImplementedError(v)

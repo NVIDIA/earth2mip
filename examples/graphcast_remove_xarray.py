@@ -64,13 +64,13 @@ import numpy as np
 
 task_config = model.task_config
 x_codes = channels.get_codes(
-    task_config.input_variables, levels=task_config.pressure_levels, n_history=2
+    task_config.input_variables, levels=task_config.pressure_levels, time_levels=[0, 1]
 )
 f_codes = channels.get_codes(
-    task_config.forcing_variables, levels=task_config.pressure_levels, n_history=1
+    task_config.forcing_variables, levels=task_config.pressure_levels, time_levels=[2]
 )
 t_codes = channels.get_codes(
-    task_config.target_variables, levels=task_config.pressure_levels, n_history=1
+    task_config.target_variables, levels=task_config.pressure_levels, time_levels=[2]
 )
 
 
@@ -119,8 +119,6 @@ forcings = {
     "day_progress_cos": np.cos(day_progress),
     "year_progress_sin": np.sin(year_progress),
     "year_progress_cos": np.cos(year_progress),
-    "land_sea_mask": lsm,
-    "geopotential_at_surface": zs,
 }
 add_toa(forcings)
 
@@ -135,9 +133,9 @@ for code in x_codes:
         case t, cds.SingleLevelCode(id):
             arr = example_batch[channels.CODE_TO_GRAPHCAST_NAME[id]].values[:, t, None]
         case "land_sea_mask":
-            arr = forcings[code]
+            arr = lsm
         case "geopotential_at_surface":
-            arr = forcings[code]
+            arr = zs
         case t, str(s):
             arr = forcings[s][:, t]
     arrays.append(arr)
@@ -184,13 +182,22 @@ diff_scale = np.array(
     [get_data_for_code_scalar(code, model.diffs_stddev_by_level) for code in t_codes]
 )
 
-prognostic_indices = [x_codes.index((1, c)) for _, c in t_codes]
 
+in_codes = x_codes + f_codes
+
+prog_level_0 = [in_codes.index((0, c)) for _, c in t_codes]
+prog_level_1 = [in_codes.index((1, c)) for _, c in t_codes]
+forcing_level_0 = [in_codes.index((0, v)) for v in forcings]
+forcing_level_1 = [in_codes.index((1, v)) for v in forcings]
+forcing_level_2 = [in_codes.index((2, v)) for v in forcings]
 
 # %%
 x = (array - mean) / scale
 d = model.run_forward_jitted(rng=rng, x=x)
-x_next = x[:, :, prognostic_indices] * mean[prognostic_indices] + d * diff_scale
+x_next = x[:, :, prog_level_1] * mean[prog_level_1] + d * diff_scale
+
+array[:, :, prog_level_0] = array[:, :, prog_level_1]
+array[:, :, prog_level_1] = x_next
 
 
 # %%
