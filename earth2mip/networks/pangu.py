@@ -89,8 +89,8 @@ class PanguWeather:
         )
 
     def __call__(self, fields_pl, fields_sfc):
-        assert fields_pl.dype == torch.float32
-        assert fields_sl.dype == torch.float32
+        assert fields_pl.dtype == torch.float32
+        assert fields_sl.dtype == torch.float32
         # from https://onnxruntime.ai/docs/api/python/api_summary.html
         binding = self.ort_session.io_binding()
 
