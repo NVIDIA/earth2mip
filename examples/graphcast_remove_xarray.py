@@ -38,8 +38,6 @@ import numpy as np
 import jax
 
 x = np.ones([1440 * 721, 1, 471])
-rng = jax.random.PRNGKey(0)
-y = model.run_forward_jitted(rng=rng, x=x)
 # %%
 dataset_filename = package.get(
     "dataset/source-era5_date-2022-01-01_res-0.25_levels-37_steps-01.nc"
@@ -74,84 +72,9 @@ t_codes = channels.get_codes(
 )
 
 
-arrays = []
 time = datetime.datetime(2018, 1, 1)
-seconds = time.timestamp()
-s = model.history_time_step.total_seconds()
-seconds_since_epoch = np.array([seconds + (i - 1) * s for i in range(3)])
-seconds_since_epoch = seconds_since_epoch.reshape([3])
-day_progress = data_utils.get_day_progress(seconds_since_epoch, model.grid.lon).reshape(
-    [1, 3, 1, 1, 1440]
-)
-year_progress = data_utils.get_year_progress(seconds_since_epoch).reshape(
-    [1, 3, 1, 1, 1]
-)
-
-
-def add_toa(d):
-    tisr = [
-        channels.toa_incident_solar_radiation(
-            time + (i - 1) * model.history_time_step,
-            model.grid.lat[:, None],
-            model.grid.lon[None, :],
-        )
-        for i in range(3)
-    ]
-
-    # h y x
-    tisr = np.stack(tisr)
-    d["toa_incident_solar_radiation"] = tisr[None, :, None]
-
-
-channel_shape = [1, 3, 1, *model.grid.shape]
-day_progress = np.broadcast_to(day_progress, channel_shape)
-year_progress = np.broadcast_to(day_progress, channel_shape)
-
 channel_shape = [1, 1, *model.grid.shape]
-lsm = np.broadcast_to(example_batch.land_sea_mask.values[None, None], channel_shape)
-zs = np.broadcast_to(
-    example_batch.geopotential_at_surface.values[None, None], channel_shape
-)
-
-
-forcings = {
-    "day_progress_sin": np.sin(day_progress),
-    "day_progress_cos": np.cos(day_progress),
-    "year_progress_sin": np.sin(year_progress),
-    "year_progress_cos": np.cos(year_progress),
-}
-add_toa(forcings)
-
-for code in x_codes:
-    match code:
-        case t, cds.PressureLevelCode(id, level):
-            arr = (
-                example_batch[channels.CODE_TO_GRAPHCAST_NAME[id]]
-                .sel(level=level)
-                .values[:, t, None]
-            )
-        case t, cds.SingleLevelCode(id):
-            arr = example_batch[channels.CODE_TO_GRAPHCAST_NAME[id]].values[:, t, None]
-        case "land_sea_mask":
-            arr = lsm
-        case "geopotential_at_surface":
-            arr = zs
-        case t, str(s):
-            arr = forcings[s][:, t]
-    arrays.append(arr)
-
-for code in f_codes:
-    match t, code:
-        case cds.SingleLevelCode(id):
-            arr = example_batch[channels.CODE_TO_GRAPHCAST_NAME[id]].values[:, t, None]
-        case str(s):
-            arr = forcings[s][:, t]
-    arrays.append(arr)
-
-array = np.concatenate(arrays, axis=1)
 import einops
-
-array = einops.rearrange(array, "b c y x -> (y x) b c")
 
 
 def get_data_for_code_scalar(code, scalar):
@@ -185,19 +108,91 @@ diff_scale = np.array(
 
 in_codes = x_codes + f_codes
 
+# %%
+ngrid = np.prod(model.grid.shape)
+array = np.empty([ngrid, 1, len(in_codes)], dtype=np.float32)
+
 prog_level_0 = [in_codes.index((0, c)) for _, c in t_codes]
 prog_level_1 = [in_codes.index((1, c)) for _, c in t_codes]
-forcing_level_0 = [in_codes.index((0, v)) for v in forcings]
-forcing_level_1 = [in_codes.index((1, v)) for v in forcings]
-forcing_level_2 = [in_codes.index((2, v)) for v in forcings]
+
+
+for k, code in enumerate(x_codes):
+    match code:
+        case t, cds.PressureLevelCode(id, level):
+            arr = (
+                example_batch[channels.CODE_TO_GRAPHCAST_NAME[id]]
+                .sel(level=level)
+                .values[:, t, None]
+            )
+        case t, cds.SingleLevelCode(id):
+            arr = example_batch[channels.CODE_TO_GRAPHCAST_NAME[id]].values[:, t, None]
+    array[:, 0, k] = einops.rearrange(arr, "b h y x ->  h (b y x)")
+
+
+def set_static(field, example_batch):
+    assert example_batch[field].dims == ("lat", "lon")
+    arr = example_batch[field].values
+    k = in_codes.index(field)
+    array[:, 0, k] = einops.rearrange(arr, "y x ->  (y x)")
+
+
+def set_forcing(v, t, data):
+    # (y x) b c
+    i = in_codes.index((t, v))
+    array[:, :, i] = data
+
+
+def set_forcings(time: datetime.datetime, t: int):
+    seconds = time.timestamp()
+
+    lat, lon = np.meshgrid(model.grid.lat, model.grid.lon, indexing="ij")
+
+    lat = lat.reshape([-1, 1])
+    lon = lon.reshape([-1, 1])
+
+    day_progress = data_utils.get_day_progress(seconds, lon)
+    year_progress = data_utils.get_year_progress(seconds)
+    set_forcing("day_progress_sin", t, np.sin(day_progress))
+    set_forcing("day_progress_cos", t, np.cos(day_progress))
+    set_forcing("year_progress_sin", t, np.sin(year_progress))
+    set_forcing("year_progress_cos", t, np.cos(year_progress))
+
+    tisr = channels.toa_incident_solar_radiation(time, lat, lon)
+    set_forcing("toa_incident_solar_radiation", t, tisr)
+
+
+def set_prognostic(t: int, data):
+    index = [prog_level_0, prog_level_1][t]
+    array[:, :, index] = data
+
+
+def get_prognostic(t: int):
+    index = [prog_level_0, prog_level_1][t]
+    return array[:, :, index]
+
+
+set_static("land_sea_mask", example_batch)
+set_static("geopotential_at_surface", example_batch)
+rng = jax.random.PRNGKey(0)
+
+for i in range(5):
+    print(i)
+    set_forcings(time - 1 * model.history_time_step, 0)
+    set_forcings(time, 1)
+    set_forcings(time + model.history_time_step, 2)
+
+    x = (array - mean) / scale
+    d = model.run_forward_jitted(rng=rng, x=x)
+    x_next = array[:, :, prog_level_1] + d * diff_scale
+
+    # update array
+    set_prognostic(0, get_prognostic(1))
+    set_prognostic(1, x_next)
+    time = time + model.time_step
 
 # %%
-x = (array - mean) / scale
-d = model.run_forward_jitted(rng=rng, x=x)
-x_next = x[:, :, prog_level_1] * mean[prog_level_1] + d * diff_scale
-
-array[:, :, prog_level_0] = array[:, :, prog_level_1]
-array[:, :, prog_level_1] = x_next
+set_prognostic(0, get_prognostic(1))
+get_prognostic(1)
 
 
 # %%
