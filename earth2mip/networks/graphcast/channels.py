@@ -196,6 +196,10 @@ def pack(ds: xarray.Dataset, codes) -> np.ndarray:
     return x
 
 
+def is_3d(name):
+    return name in pl_inputs
+
+
 def get_codes(variables: List[str], levels: List[int], time_levels: List[int]):
     lookup_code = cds.keys_to_vals(CODE_TO_GRAPHCAST_NAME)
     output = []
@@ -247,6 +251,40 @@ def add_dynamic_vars(ds, time):
     )
     del ds.coords["datetime"]
     del ds.coords["init_time"]
+
+
+def get_data_for_code_scalar(code, scalar):
+    match code:
+        case _, cds.PressureLevelCode(id, level):
+            arr = scalar[CODE_TO_GRAPHCAST_NAME[id]].sel(level=level).values
+        case _, cds.SingleLevelCode(id):
+            arr = scalar[CODE_TO_GRAPHCAST_NAME[id]].values
+        case "land_sea_mask":
+            arr = scalar[code].values
+        case "geopotential_at_surface":
+            arr = scalar[code].values
+        case _, str(s):
+            arr = scalar[s].values
+    return arr
+
+
+def get_codes_from_task_config(task_config: TaskConfig):
+    x_codes = get_codes(
+        task_config.input_variables,
+        levels=task_config.pressure_levels,
+        time_levels=[0, 1],
+    )
+    f_codes = get_codes(
+        task_config.forcing_variables,
+        levels=task_config.pressure_levels,
+        time_levels=[2],
+    )
+    t_codes = get_codes(
+        task_config.target_variables,
+        levels=task_config.pressure_levels,
+        time_levels=[0],
+    )
+    return x_codes + f_codes, t_codes
 
 
 if __name__ == "__main__":
