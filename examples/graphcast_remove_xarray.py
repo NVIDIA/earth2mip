@@ -136,13 +136,13 @@ def set_static(field, example_batch):
     array[:, 0, k] = einops.rearrange(arr, "y x ->  (y x)")
 
 
-def set_forcing(v, t, data):
+def set_forcing(array, v, t, data):
     # (y x) b c
     i = in_codes.index((t, v))
-    array[:, :, i] = data
+    return array.at[:, :, i].set(data)
 
 
-def set_forcings(time: datetime.datetime, t: int):
+def set_forcings(x, time: datetime.datetime, t: int):
     seconds = time.timestamp()
 
     lat, lon = np.meshgrid(model.grid.lat, model.grid.lon, indexing="ij")
@@ -152,21 +152,21 @@ def set_forcings(time: datetime.datetime, t: int):
 
     day_progress = data_utils.get_day_progress(seconds, lon)
     year_progress = data_utils.get_year_progress(seconds)
-    set_forcing("day_progress_sin", t, np.sin(day_progress))
-    set_forcing("day_progress_cos", t, np.cos(day_progress))
-    set_forcing("year_progress_sin", t, np.sin(year_progress))
-    set_forcing("year_progress_cos", t, np.cos(year_progress))
+    x = set_forcing(x, "day_progress_sin", t, np.sin(day_progress))
+    x = set_forcing(x, "day_progress_cos", t, np.cos(day_progress))
+    x = set_forcing(x, "year_progress_sin", t, np.sin(year_progress))
+    x = set_forcing(x, "year_progress_cos", t, np.cos(year_progress))
 
     tisr = channels.toa_incident_solar_radiation(time, lat, lon)
-    set_forcing("toa_incident_solar_radiation", t, tisr)
+    return set_forcing(x, "toa_incident_solar_radiation", t, tisr)
 
 
-def set_prognostic(t: int, data):
+def set_prognostic(array, t: int, data):
     index = [prog_level_0, prog_level_1][t]
-    array[:, :, index] = data
+    return array.at[:, :, index].set(data)
 
 
-def get_prognostic(t: int):
+def get_prognostic(array, t: int):
     index = [prog_level_0, prog_level_1][t]
     return array[:, :, index]
 
@@ -175,25 +175,21 @@ set_static("land_sea_mask", example_batch)
 set_static("geopotential_at_surface", example_batch)
 rng = jax.random.PRNGKey(0)
 
-for i in range(5):
+s = jax.device_put(array)
+for i in range(10):
     print(i)
-    set_forcings(time - 1 * model.history_time_step, 0)
-    set_forcings(time, 1)
-    set_forcings(time + model.history_time_step, 2)
+    s = set_forcings(s, time - 1 * model.history_time_step, 0)
+    s = set_forcings(s, time, 1)
+    s = set_forcings(s, time + model.history_time_step, 2)
 
-    x = (array - mean) / scale
+    x = (s - mean) / scale
     d = model.run_forward_jitted(rng=rng, x=x)
-    x_next = array[:, :, prog_level_1] + d * diff_scale
+    x_next = get_prognostic(s, 1) + d * diff_scale
 
     # update array
-    set_prognostic(0, get_prognostic(1))
-    set_prognostic(1, x_next)
+    s = set_prognostic(s, 0, get_prognostic(s, 1))
+    s = set_prognostic(s, 1, x_next)
     time = time + model.time_step
-
-# %%
-set_prognostic(0, get_prognostic(1))
-get_prognostic(1)
-
 
 # %%
 names = [str(c) for _, c in t_codes]
@@ -205,5 +201,3 @@ p = jax.dlpack.to_dlpack(x_next)
 pt = torch.from_dlpack(p)
 pt = pt[:, :, i].reshape([*model.grid.shape, -1])
 plt.pcolormesh(pt[:, :, 0].cpu().numpy())
-
-# %%
