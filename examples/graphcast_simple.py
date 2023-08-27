@@ -9,8 +9,7 @@ Run like::
 to avoid conflicting with the google graphcast library
 
 TODO
-- currently this script does not work for time-steps > 1, something is broken in
-  the graphcast wrapper.
+- reverse the order of the latitude coordinate
 """
 # %%
 import sys
