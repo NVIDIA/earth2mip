@@ -1,18 +1,32 @@
-# Release latest (released Aug MM, YYYY)
+<!-- markdownlint-disable MD024 -->
+# Changelog
 
-## Deprecated
+All notable changes to this project will be documented in this file.
 
-- `earth2mip.initial_conditions.cds.get`
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Dependencies
+## Release latest (released Aug MM, YYYY)
 
-- eccodes
-
-## Features added
+### Added
 
 - `earth2mip.initial_conditions.cds.CDSDataSource`
-- add `--model-metadata` flag to `earth2mip.inference_medium_range` and
-  `earth2mip.inference_ensemble`. Add `metadata` argument to
-  `earth2mip.networks.get_model`.
+- `earth2mip.initial_conditions.cds.get`
 
-## Bugs fixed
+### Changed
+
+- Add `--model-metadata` flag to `earth2mip.inference_medium_range` and
+  `earth2mip.inference_ensemble`.
+- Add `metadata` argument to `earth2mip.networks.get_model`.
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+### Dependencies
+
+- Added eccodes
