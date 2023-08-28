@@ -172,13 +172,12 @@ class GraphcastTimeLoop(TimeLoop):
         array = einops.rearrange(array, "(y x) b c -> b c y x", y=self.grid.shape[0])
         p = jax.dlpack.to_dlpack(array)
         pt = torch.from_dlpack(p)
-        return pt
+        return torch.flip(pt, [-2])
 
     def _input_codes(self):
         return list(get_codes(self.task_config))
 
     def __call__(self, time, x, restart=None):
-        # TODO handle reverse order of lat coords
         assert not restart, "not implemented"
         ngrid = np.prod(self.grid.shape)
         array = torch.empty([ngrid, 1, len(self.in_codes)], device=x.device)
@@ -188,7 +187,7 @@ class GraphcastTimeLoop(TimeLoop):
         for t in range(2):
             index_in_input = [self.in_codes.index((t, c)) for c in x_codes]
             array[:, :, index_in_input] = einops.rearrange(
-                x[:, t], "b c y x -> (y x) b c"
+                torch.flip(x[:, t], [-2]), "b c y x -> (y x) b c"
             )
 
         self.set_static_variables(array)

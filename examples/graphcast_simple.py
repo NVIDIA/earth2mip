@@ -4,12 +4,8 @@ pip install -r earth2mip/networks/graphcast/requirements.txt
 
 Run like::
 
-    python3 -m examples.graphcast
+    python3 examples/graphcast_simple.py
 
-to avoid conflicting with the google graphcast library
-
-TODO
-- reverse the order of the latitude coordinate
 """
 # %%
 import sys
@@ -41,7 +37,8 @@ def get_input_from_xarray(task_config, example_batch):
             arr = np.expand_dims(arr, 2)
             arrays.append(arr)
 
-    return np.concatenate(arrays, axis=2)
+    array = np.concatenate(arrays, axis=2)
+    return np.flip(array, axis=-2).copy()
 
 
 # %%
