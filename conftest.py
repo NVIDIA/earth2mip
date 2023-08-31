@@ -26,6 +26,7 @@ import os
 
 import torch
 
+
 def get_gpu_count():
     return torch.cuda.device_count()
 
@@ -39,8 +40,10 @@ def has_registry():
 @pytest.fixture()
 def dist():
     from modulus.distributed.manager import DistributedManager
+
     DistributedManager.initialize()
     return DistributedManager()
+
 
 @pytest.fixture()
 def ngpu():

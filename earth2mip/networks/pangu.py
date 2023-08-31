@@ -191,6 +191,7 @@ class PanguInference(torch.nn.Module):
     @property
     def grid(self):
         return schema.Grid.grid_721x1440
+
     @property
     def channel_set(self):
         print("calling  channel_set(self):")
