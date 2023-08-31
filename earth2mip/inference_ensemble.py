@@ -195,8 +195,9 @@ def main():
 
     # Set up parallel
     DistributedManager.initialize()
+    device = DistributedManager().device
     group = torch.distributed.group.WORLD
-    model = get_model(config.fcn_model)
+    model = get_model(config.fcn_model, device=device)
     perturb = get_initializer(
         model,
         config,

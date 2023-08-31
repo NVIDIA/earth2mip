@@ -55,7 +55,6 @@ class PanguWeather:
         ["z", "q", "t", "u", "v"],
         [1000, 925, 850, 700, 600, 500, 400, 300, 250, 200, 150, 100, 50],
     )
-
     # Output
     expver = "pguw"
     # providers=['CUDAExecutionProvider', 'CPUExecutionProvider']
@@ -192,6 +191,10 @@ class PanguInference(torch.nn.Module):
     @property
     def grid(self):
         return schema.Grid.grid_721x1440
+    @property
+    def channel_set(self):
+        print("calling  channel_set(self):")
+        return schema.ChannelSet.var_pangu
 
     def run_steps_with_restart(self, x, n, normalize=True, time=None):
         """Yield (time, unnormalized data, restart) tuples
@@ -253,6 +256,7 @@ def load(package, *, time_step_hours: int, pretrained=True, device="not used"):
             scale=scale,
             grid=grid,
             channel_names=channel_names,
+            channel_set=schema.ChannelSet.var_pangu,
             time_step=dt,
         )
         inference.to(device)
