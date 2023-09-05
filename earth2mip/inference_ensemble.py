@@ -14,18 +14,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional, Any
 import argparse
 import logging
 import os
 import sys
-from datetime import datetime
 import xarray
 import cftime
+import json
 
 import numpy as np
 import torch
 import tqdm
+from typing import Optional, Any
+from datetime import datetime
 from modulus.distributed.manager import DistributedManager
 from netCDF4 import Dataset as DS
 
@@ -37,10 +38,6 @@ __all__ = ["run_inference"]
 from earth2mip import initial_conditions, time_loop
 from earth2mip.ensemble_utils import (
     generate_noise_correlated,
-    draw_noise,
-    generate_noise_grf,
-    generate_correlated_spherical_grf,
-    load_spherical_mean_covar,
     generate_bred_vector,
 )
 from earth2mip.netcdf import finalize_netcdf, initialize_netcdf, update_netcdf
@@ -87,7 +84,6 @@ def run_ensembles(
     restart_initial_directory: str = "",
     progress: bool = True,
 ):
-
     if not output_grid:
         output_grid = model.grid
 
@@ -120,38 +116,40 @@ def run_ensembles(
         x = model.normalize(x)
         x = x.repeat(batch_size, 1, 1, 1, 1)
         perturb(x, rank, batch_id, device)
-        restart_dir = weather_event.properties.restart
-        if restart_dir:
-            path = get_checkpoint_path(rank, batch_id, restart_dir)
-            # TODO use logger
-            logger.info(f"Loading from restart from {path}")
-            kwargs = torch.load(path)
-        else:
-            kwargs = dict(
-                x=x,
-                normalize=False,
-                time=time,
-            )
+        # restart_dir = weather_event.properties.restart
 
-        iterator = model.run_steps_with_restart(n=n_steps, **kwargs)
+        # TODO: figure out if needed
+        # if restart_dir:
+        #     path = get_checkpoint_path(rank, batch_id, restart_dir)
+        #     # TODO use logger
+        #     logger.info(f"Loading from restart from {path}")
+        #     kwargs = torch.load(path)
+        # else:
+        #     kwargs = dict(
+        #         x=x,
+        #         normalize=False,
+        #         time=time,
+        #     )
+
+        iterator = model(time, x)
 
         # Check if stdout is connected to a terminal
         if sys.stderr.isatty() and progress:
             iterator = tqdm.tqdm(iterator, total=n_steps)
 
-        k = 0
         time_count = -1
 
-        for time, data, restart in iterator:
-            k += 1
+        # for time, data, restart in iterator:
 
-            if restart_frequency and k % restart_frequency == 0:
-                save_restart(
-                    restart,
-                    rank,
-                    batch_id,
-                    path=os.path.join(output_path, "restart", time.isoformat()),
-                )
+        for k, (time, data, _) in enumerate(iterator):
+
+            # if restart_frequency and k % restart_frequency == 0:
+            #     save_restart(
+            #         restart,
+            #         rank,
+            #         batch_id,
+            #         path=os.path.join(output_path, "restart", time.isoformat()),
+            #     )
 
             # Saving the output
             if output_frequency and k % output_frequency == 0:
@@ -170,13 +168,16 @@ def run_ensembles(
                     ds.channel,
                 )
 
-        if restart_frequency is not None:
-            save_restart(
-                restart,
-                rank,
-                batch_id,
-                path=os.path.join(output_path, "restart", "end"),
-            )
+            if k == n_steps:
+                break
+
+        # if restart_frequency is not None:
+        #     save_restart(
+        #         restart,
+        #         rank,
+        #         batch_id,
+        #         path=os.path.join(output_path, "restart", "end"),
+        #     )
 
     finalize_netcdf(diagnostics, nc, domains, weather_event, model.channel_set)
 
@@ -186,22 +187,38 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("config")
-    parser.add_argument("--fcn_model", default=None)
+    parser.add_argument("--weather_model", default=None)
     args = parser.parse_args()
 
-    config: EnsembleRun = EnsembleRun.parse_file(args.config)
-    if args.fcn_model:
-        config.fcn_model = args.fcn_model
+    # If config is a file
+    if os.path.exists(args.config):
+        config: EnsembleRun = EnsembleRun.parse_file(args.config)
+    # If string, assume JSON string
+    elif isinstance(args.config, str):
+        config: EnsembleRun = EnsembleRun.parse_obj(json.loads(args.config))
+    # Otherwise assume parsable obj
+    else:
+        raise ValueError(
+            f"Passed config parameter {args.config} should be valid file or JSON string"
+        )
+
+    if args.weather_model:
+        config.weather_model = args.weather_model
 
     # Set up parallel
     DistributedManager.initialize()
     device = DistributedManager().device
     group = torch.distributed.group.WORLD
-    model = get_model(config.fcn_model, device=device)
+
+    logging.info(f"Earth-2 MIP config loaded {config}")
+    logging.info(f"Loading model onto device {device}")
+    model = get_model(config.weather_model, device=device)
+    logging.info(f"Constructing initializer data source")
     perturb = get_initializer(
         model,
         config,
     )
+    logging.info(f"Running inference")
     run_inference(model, config, perturb, group)
 
 
@@ -209,35 +226,11 @@ def get_initializer(
     model,
     config,
 ):
-    if config.perturbation_strategy == PerturbationStrategy.correlated_spherical_grf:
-        mean, sqrt_covar = load_spherical_mean_covar()
-
     def perturb(x, rank, batch_id, device):
         shape = x.shape
         if config.perturbation_strategy == PerturbationStrategy.gaussian:
             noise = config.noise_amplitude * torch.normal(
                 torch.zeros(shape), torch.ones(shape)
-            ).to(device)
-        elif config.perturbation_strategy == PerturbationStrategy.spherical_grf:
-            noise = generate_noise_grf(
-                shape,
-                model.grid,
-                sigma=config.grf_noise_sigma,
-                alpha=config.grf_noise_alpha,
-                tau=config.grf_noise_tau,
-            ).to(device)
-        elif (
-            config.perturbation_strategy
-            == PerturbationStrategy.correlated_spherical_grf
-        ):
-            noise = generate_correlated_spherical_grf(
-                shape,
-                model.grid,
-                sigma=config.grf_noise_sigma,
-                alpha=config.grf_noise_alpha,
-                tau=config.grf_noise_tau,
-                mean=mean,
-                sqrt_covar=sqrt_covar,
             ).to(device)
         elif config.perturbation_strategy == PerturbationStrategy.correlated:
             noise = generate_noise_correlated(
@@ -246,15 +239,6 @@ def get_initializer(
                 device=device,
                 noise_amplitude=config.noise_amplitude,
             )
-        elif config.perturbation_strategy == PerturbationStrategy.gp:
-            corr = torch.load("/lustre/fsw/sw_climate_fno/ensemble_init_stats/corr.pth")
-            length_scales = torch.load(
-                "/lustre/fsw/sw_climate_fno/ensemble_init_stats/length_scales.pth"
-            ).to(device)
-            noise = config.noise_amplitude * draw_noise(
-                corr, spreads=None, length_scales=length_scales, device=device
-            ).to(device)
-            noise = noise.repeat(config.ensemble_batch_size, 1, 1, 1, 1)
         elif config.perturbation_strategy == PerturbationStrategy.bred_vector:
             noise = generate_bred_vector(
                 x,
@@ -264,10 +248,7 @@ def get_initializer(
             )
         if rank == 0 and batch_id == 0:  # first ens-member is deterministic
             noise[0, :, :, :, :] = 0
-        if config.single_value_perturbation:
-            x[:, :, 5, :, :] += noise[:, :, 5, :, :]
-        else:
-            x += noise
+        x += noise
         return x
 
     return perturb
@@ -276,7 +257,8 @@ def get_initializer(
 def run_basic_inference(model: time_loop.TimeLoop, n: int, data_source, time):
     """Run a basic inference"""
     ds = data_source[time].sel(channel=model.in_channel_names)
-    x = torch.from_numpy(ds.values).cuda().type(model.dtype)
+    # TODO make the dtype flexible
+    x = torch.from_numpy(ds.values).cuda().type(torch.float)
     # need a batch dimension of length 1
     x = x[None]
 
@@ -350,7 +332,11 @@ def run_inference(
     if config.output_dir:
         date_str = "{:%Y_%m_%d_%H_%M_%S}".format(date_obj)[5:]
         name = weather_event.properties.name
-        output_path = f"{config.output_dir}/Output.{config.fcn_model}.{name}.{date_str}"
+        output_path = (
+            f"{config.output_dir}/"
+            f"Output.{config.weather_model}."
+            f"{name}.{date_str}"
+        )
     else:
         output_path = config.output_path
 
@@ -370,7 +356,7 @@ def run_inference(
 
     with DS(output_file_path, "w", format="NETCDF4") as nc:
         # assign global attributes
-        nc.model = config.fcn_model
+        nc.model = config.weather_model
         nc.config = config.json()
         nc.weather_event = weather_event.json()
         nc.date_created = datetime.now().isoformat()

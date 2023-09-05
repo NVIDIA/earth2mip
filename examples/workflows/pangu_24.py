@@ -15,26 +15,23 @@
 # limitations under the License.
 
 # %%
-import sys
-
 import numpy as np
 import datetime
 from earth2mip import (
     registry,
     inference_ensemble,
 )
-from earth2mip.initial_conditions.era5 import HDF5DataSource
 from earth2mip.networks.pangu import load_24substep6
+from earth2mip.initial_conditions import cds
 
 # %%
 
 package = registry.get_model("pangu_weather_24substep6")
 
-
 timeloop = load_24substep6(package, device="cuda:0")
-path = sys.argv[1]
-data_source = HDF5DataSource.from_path(path)
-
+# path = sys.argv[1]
+# data_source = HDF5DataSource.from_path(path)
+data_source = cds.DataSource(timeloop.in_channel_names)
 output = "path/"
 time = datetime.datetime(2018, 1, 1)
 ds = inference_ensemble.run_basic_inference(
@@ -42,7 +39,6 @@ ds = inference_ensemble.run_basic_inference(
     n=12,
     data_source=data_source,
     time=time,
-    output=output,
 )
 print(ds)
 

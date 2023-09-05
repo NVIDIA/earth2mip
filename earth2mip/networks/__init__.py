@@ -169,6 +169,7 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
 
         self.model = model
         self.channel_set = channel_set
+        self.channel_names = channel_names
         self.grid = grid
         self.time_step = time_step
         self.n_history = n_history
@@ -319,7 +320,6 @@ def _default_inference(package, metadata, device):
 
 
 def _load_package(package, metadata, device) -> time_loop.TimeLoop:
-
     if metadata is None:
         local_path = package.get("metadata.json")
         with open(local_path) as f:

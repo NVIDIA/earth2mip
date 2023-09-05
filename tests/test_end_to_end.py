@@ -59,10 +59,9 @@ def test_inference_ensemble(tmp_path):
     data_source = get_data_source(inference)
     time = datetime.datetime(2018, 1, 1)
     config = schema.EnsembleRun(
-        fcn_model="dummy",
+        weather_model="dummy",
         simulation_length=40,
         output_path=tmp_path.as_posix(),
-        single_value_perturbation=False,
         weather_event=schema.WeatherEvent(
             properties=weather_events.WeatherEventProperties(
                 name="test", start_time=time

@@ -286,9 +286,6 @@ class Model(pydantic.BaseModel):
 class PerturbationStrategy(Enum):
     correlated = "correlated"
     gaussian = "gaussian"
-    gp = "gp"
-    correlated_spherical_grf = "correlated_spherical_grf"
-    spherical_grf = "spherical_grf"
     bred_vector = "bred_vector"
 
 
@@ -296,13 +293,10 @@ class EnsembleRun(pydantic.BaseModel):
     """A configuration for running an ensemble weather forecast
 
     Attributes:
-        fcn_model: The name of the fully convolutional neural network (FCN) model to use for the forecast.
+        weather_model: The name of the fully convolutional neural network (FCN) model to use for the forecast.
         ensemble_members: The number of ensemble members to use in the forecast.
         noise_amplitude: The amplitude of the Gaussian noise to add to the initial conditions.
         noise_reddening: The noise reddening amplitude, 2.0 was the defualt set by A.G. work.
-        grf_noise_alpha: tuning parameter of the Gaussian random field, see ensemble_utils.generate_noise_grf for details
-        grf_noise_sigma: tuning parameter of the Gaussian random field, see ensemble_utils.generate_noise_grf for details
-        grf_noise_tau: tuning parameter of the Gaussian random field, see ensemble_utils.generate_noise_grf for details
         simulation_length: The length of the simulation in timesteps.
         output_frequency: The frequency at which to write the output to file, in timesteps.
         use_cuda_graphs: Whether to use CUDA graphs to optimize the computation.
@@ -318,16 +312,13 @@ class EnsembleRun(pydantic.BaseModel):
 
     """  # noqa
 
-    fcn_model: str
+    weather_model: str
     simulation_length: int
     # TODO make perturbation_strategy an Enum (see ChannelSet)
     perturbation_strategy: PerturbationStrategy = PerturbationStrategy.correlated
     single_value_perturbation: bool = True
     noise_reddening: float = 2.0
     noise_amplitude: float = 0.05
-    grf_noise_alpha: float = 2.0
-    grf_noise_sigma: float = 5.0
-    grf_noise_tau: float = 2.0
     output_frequency: int = 1
     output_grid: Optional[Grid] = None
     ensemble_members: int = 1

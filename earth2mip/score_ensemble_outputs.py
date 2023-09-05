@@ -67,7 +67,6 @@ def main(
     score: bool = True,
     save_ensemble: bool = False,
 ) -> None:
-
     if output_path is None:
         output_path = args.input_path
 

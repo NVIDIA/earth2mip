@@ -29,17 +29,14 @@
         },
         "output_path": "dummy/output",
         "output_frequency": 1,
-        "fcn_model": "unused",
+        "weather_model": "unused",
         "seed": 12345,
         "use_cuda_graphs": false,
         "ensemble_batch_size": 1,
         "autocast_fp16": false,
-        "perturbation_strategy": "spherical_grf",
+        "perturbation_strategy": "correlated",
         "noise_amplitude": 0.05,
-        "noise_reddening": 2,
-        "grf_noise_alpha": 2.0,
-        "grf_noise_sigma": 5.0,
-        "grf_noise_tau": 2.0
+        "noise_reddening": 2
     },
     "score": true,
     "times": [

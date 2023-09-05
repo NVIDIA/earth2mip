@@ -134,11 +134,10 @@ def update_netcdf(
     lon,
     channel,
 ):
-
     assert len(total_diagnostics) == len(domains), (total_diagnostics, domains)
 
     batch_size = geometry.get_batch_size(data)
-    for (d_index, domain) in enumerate(domains):
+    for d_index, domain in enumerate(domains):
         lat, lon, regional_data = geometry.select_space(data, lat, lon, domain)
 
         domain_diagnostics = total_diagnostics[d_index]
@@ -152,7 +151,7 @@ def update_netcdf(
 
 def finalize_netcdf(total_diagnostics, nc, domains, weather_event, channel_set):
     times = cftime.num2date(nc["time"][:], nc["time"].units)
-    for (d_index, domain) in enumerate(domains):
+    for d_index, domain in enumerate(domains):
         domain_diagnostics = total_diagnostics[d_index]
         for diagnostic in domain_diagnostics:
             diagnostic.finalize(times, weather_event, channel_set)

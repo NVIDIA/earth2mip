@@ -63,7 +63,6 @@ async def yield_lagged_ensembles(
     buffers = None
 
     for i0 in range(n_iter):
-
         for k in range(world_size):
             i = world_size * i0 + k
             if i + n + 1 < nt:
@@ -127,7 +126,6 @@ async def yield_lagged_ensembles(
                     # looping we take, so is what we do here:
                     expected = num(n=n, ell=lead_time + m, j=jj, L=lags)
                     if jj < nt and len(ensemble[k]) == expected:
-
                         # sanity check that a single ensemble is not
                         # processed multiple times
                         if k in finished:
