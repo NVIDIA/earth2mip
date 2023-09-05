@@ -198,7 +198,6 @@ def _parse_files(
 
 
 def _download_codes(client, codes, time):
-
     with tempfile.TemporaryDirectory() as d:
         files = []
         format = "grib"

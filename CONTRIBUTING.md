@@ -27,6 +27,34 @@ to merge the changes from a branch of the fork into a selected branch of upstrea
 testing has been completed. Note that every PR should correspond to an open issue and
 should be linked on Github.
 
+
+### CI
+Linting. Manually run the linting:
+
+    make lint
+
+Run it before every commit:
+
+- (optional) install pre-commit hooks and git lfs with `make setup-ci`.
+  After this command is run, you will need to fix any lint errors before
+  commiting. This needs to be done once per local clone of this repository.
+
+
+To run the test suite:
+
+    pytest
+
+To run quick tests (takes 10 seconds):
+
+  pytest -m 'not slow'
+
+To reset the regression data:
+
+  pytest --regtest-reset
+
+and then check in the changes.
+
+
 ### Licensing Information
 
 All source code files should start with this paragraph:

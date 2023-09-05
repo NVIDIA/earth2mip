@@ -15,7 +15,7 @@
 # limitations under the License.
 
 """
-Pangu Weathe adapter
+Pangu Weather adapter
 
 adapted from https://raw.githubusercontent.com/ecmwf-lab/ai-models-panguweather/main/ai_models_panguweather/model.py
 
@@ -173,6 +173,7 @@ class PanguInference(torch.nn.Module):
         super().__init__()
         self.model_6 = model_6
         self.model_24 = model_24
+        self.channels = None
 
     def to(self, device):
         return self
@@ -182,11 +183,11 @@ class PanguInference(torch.nn.Module):
 
     @property
     def in_channel_names(self):
-        return self.model_6.channel_names()
+        return self.channel_names
 
     @property
     def out_channel_names(self):
-        return self.model_6.channel_names()
+        return self.channel_names
 
     @property
     def grid(self):
@@ -194,8 +195,19 @@ class PanguInference(torch.nn.Module):
 
     @property
     def channel_set(self):
-        print("calling  channel_set(self):")
         return schema.ChannelSet.var_pangu
+
+    @property
+    def channel_names(self):
+        return schema.ChannelSet.var_pangu.list_channels()
+
+    @property
+    def n_history(self):
+        return 0
+
+    def normalize(self, x):
+        # No normalization for pangu
+        return x
 
     def run_steps_with_restart(self, x, n, normalize=True, time=None):
         """Yield (time, unnormalized data, restart) tuples
@@ -210,6 +222,8 @@ class PanguInference(torch.nn.Module):
             yield data
             if k == n:
                 break
+
+        yield from self.__call__(time, x)
 
     def __call__(self, time, x, restart=None):
         """Yield (time, unnormalized data, restart) tuples
@@ -239,7 +253,21 @@ class PanguInference(torch.nn.Module):
                 yield time0, x0, restart_data
 
 
-def load(package, *, time_step_hours: int, pretrained=True, device="not used"):
+def load(package, *, pretrained=True, device="doesn't matter"):
+    """Load the sub-stepped pangu weather inference"""
+    assert pretrained
+
+    p6 = package.get("pangu_weather_6.onnx")
+    p24 = package.get("pangu_weather_24.onnx")
+
+    model_6 = PanguStacked(PanguWeather(p6))
+    model_24 = PanguStacked(PanguWeather(p24))
+    return PanguInference(model_6, model_24)
+
+
+def load_single_model(
+    package, *, time_step_hours: int, pretrained=True, device="cuda:0"
+):
     """Load a single time-step pangu weather"""
     assert pretrained
     with torch.cuda.device(device):
@@ -262,15 +290,3 @@ def load(package, *, time_step_hours: int, pretrained=True, device="not used"):
         )
         inference.to(device)
         return inference
-
-
-def load_24substep6(package, pretrained=True, device="doesn't matter"):
-    """Load the sub-stepped pangu weather inference"""
-    assert pretrained
-    with torch.cuda.device(device):
-        p6 = package.get("model_6.onnx")
-        p24 = package.get("model_24.onnx")
-
-        model_6 = PanguStacked(PanguWeather(p6))
-        model_24 = PanguStacked(PanguWeather(p24))
-        return PanguInference(model_6, model_24)

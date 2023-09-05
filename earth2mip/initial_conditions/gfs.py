@@ -169,7 +169,6 @@ def get(
     time: Union[datetime.datetime, None],
     channel_set: schema.ChannelSet,
 ) -> xarray.DataArray:
-
     # If no time is provided, use current time
     if time is None:
         time = datetime.datetime.now()

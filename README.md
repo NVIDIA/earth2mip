@@ -1,130 +1,117 @@
-# Earth2-MIP
+# Earth-2 MIP (Alpha)
 
-## Description
+<!-- markdownlint-disable -->
+[![Project Status: Active - The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
+[![GitHub](https://img.shields.io/github/license/NVIDIA/earth2mip)](https://github.com/NVIDIA/earth2mip/blob/master/LICENSE.txt)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+<!-- markdownlint-enable -->
 
-Earth 2 Model Intercomparison Project (MIP) is python inference framework for data-driven weather and climate models.
-It aims to provide a uniform interface for running and scoring any such model with a variety of data sources.
-It is inspired by the difficulty of sharing and running such models between teammates here at NVIDIA.
-Often necessary input data such as normalization constants and hyperparameter values are not packaged alongside the model weights.
-Every model typically implements a slightly different interface.
-Scoring routines are specific to the model being scored and often not shared between groups.
-
-earth2mip addresses  these points and bridge the gap between the domain experts
-who most often are assessing ML models, and the ML experts producing them.
-
-Compared to other projects in this space, earth2mip focuses on scoring models on-the-fly.
-It has python APIs suitable for rapid iteration in a jupyter book, CLIs for scoring models distributed over many GPUs, and a flexible
-plugin framework that allows anyone to use their own ML models.
-
-## Badges
-
-TODO
-
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+Earth-2 Model Intercomparison Project (MIP) is python based validation framework that
+enables climate researchers and scientists to evaluate the relative skill of AI models
+for weather and climate.
+It provides a uniform interface for running inference using pre-trained model
+checkpoints and scoring the skill of such models using certain standard metrics.
+This repository is meant to facilitate the weather and climate community to come up with
+good reference baseline of events to test the models against and to use with a variety
+of data sources.
 
 ## Installation
 
-TODO add these instructions
+Earth-2 MIP will be installable on PyPi upon general release.
+Install from source in the mean time:
 
-## Usage
+```bash
+git clone git@github.com:NVIDIA/earth2mip.git
 
-Basic inference example:
-
-TODO make sure this example runs (need CDS api for pangu)
-
-```python
->>> import datetime
->>> from earth2mip.networks import get_model
->>> from earth2mip.initial_conditions import cds
->>> from earth2mip.inference_ensemble import run_basic_inference
->>> time_loop  = get_model("pangu_weather_6", device="cuda:0")
->>> data_source = cds.DataSource(time_loop.in_channel_names)
->>> ds = run_basic_inference(time_loop, n=10, data_source=data_source, time=datetime.datetime(2018, 1, 1))
->>> ds.chunk()
-<xarray.DataArray (time: 11, history: 1, channel: 69, lat: 721, lon: 1440)>
-dask.array<xarray-<this-array>, shape=(11, 1, 69, 721, 1440), dtype=float32, chunksize=(11, 1, 69, 721, 1440), chunktype=numpy.ndarray>
-Coordinates:
-  * lon      (lon) float32 0.0 0.25 0.5 0.75 1.0 ... 359.0 359.2 359.5 359.8
-  * lat      (lat) float32 90.0 89.75 89.5 89.25 ... -89.25 -89.5 -89.75 -90.0
-  * time     (time) datetime64[ns] 2018-01-01 ... 2018-01-03T12:00:00
-  * channel  (channel) <U5 'z1000' 'z925' 'z850' 'z700' ... 'u10m' 'v10m' 't2m'
-Dimensions without coordinates: history
+cd earth2mip && pip install .
 ```
 
-Deterministic scoring:
+To verify installation run:
 
-```
->>> time_mean = np.zeros([69, 721, 1440])
->>> score_deterministic(time_loop, data_source=data_source, n=10, initial_times=[datetime.datetime(2018, 1, 1)], time_mean=time_mean)
-<xarray.Dataset>
-Dimensions:        (lead_time: 11, channel: 69, initial_time: 1)
-Coordinates:
-  * lead_time      (lead_time) timedelta64[ns] 0 days 00:00:00 ... 2 days 12:...
-  * channel        (channel) <U5 'z1000' 'z925' 'z850' 'z700' ... 'u10m' 'v10m' 't2m'
-Dimensions without coordinates: initial_time
-Data variables:
-    acc            (lead_time, channel) float64 1.0 1.0 1.0 ... 0.9923 0.9964
-    rmse           (lead_time, channel) float64 1.204e-07 .214e-07 ... 6.548
-    initial_times  (initial_time) datetime64[ns] 2018-01-01
+```bash
+make pytest
 ```
 
+## Getting Started
 
-## Support
+The [notebooks](./examples/notebooks/) folder contains reference Jupyter notebooks for a few common
+usecases.
+These are the best way to start exploring Earth-2 MIP :
 
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+1. [Ensemble Inference](./examples/notebooks/01_ensemble_inference.ipynb) - This
+notebook will demonstrate how to perturb the initial conditions to generate ensemble of
+inference outputs for a given pre-trained model and generate some standard metrics to
+evaluate the skill of the model.
 
-## Roadmap
+2. [Model Inter Comparison](./examples/notebooks/02_model_comparison.ipynb) - This
+notebook will showcase how to generate forecasts from multiple models with Earth-2 MIP
+and how to compare their predictions.
 
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+### Supported Models
+
+These notebooks illustrate how-to-use with a few models and this can serve as reference
+to bring in your own checkpoint as long as its compatible. There may be additional work
+to make it compatible with Earth-2 MIP.
+Earth-2 MIP leverages the model zoo in Modulus framework to provide a reference set of
+models. The goal is to enable to community to grow this collection of models as showin
+the table below.
+
+<!-- markdownlint-disable -->
+| ID | Model | Architecture | Type | Reference | Source | Size |
+|:-----:|:-----:|:-------------------------------------------:|:--------------:|:---------:|:-------:|:---:|
+| fcn* | FourCastNet |    Adaptive Fourier Neural Operator  | global weather |   [Arxiv](https://arxiv.org/abs/2202.11214)   | modulus |
+| dlwp |  Deep Learning Weather Prediction  |  Convolution Encoder-Decoder | global weather |   [AGU](https://doi.org/10.1029/2020MS002109)   | modulus |  50Mb |
+| pangu | Pangu Weather  |  Vision Transformer | global weather |  [Nature](https://doi.org/10.1038/s41586-023-06185-3) | onnx | 2Gb |
+| fcnv2_sm |  FourCastNet v2 | Spherical Harmonics Fourier Neural Operator | global weather |  [Arxiv](https://arxiv.org/abs/2306.03838)  | modulus | 8Gb |
+<!-- markdownlint-enable -->
+
+\* = coming soon
+
+We want to integrate your model into the scoreboard to show the community!
+The best way to do this is via [NVIDIA Modulus](https://github.com/NVIDIA/modulus).
+You can contribute your model (both the training code as well as model checkpoint) and
+we can ensure that it is maintained as part of the reference set.
 
 ## Contributing
 
-We are open to contributions! Please open a PR. Here are some guidelines:
+Earth-2 MIP is an open source collaboration and its success is rooted in community
+contribution to further the field.
+Thank you for contributing to the project so others can build on your contribution.
+For guidance on making a contribution to Earth-2 MIP, please refer to the
+[contributing guidelines](./CONTRIBUTING.md).
 
-Linting. Manually run the linting:
+## More About Earth-2 MIP
 
-    make lint
+This work is inspired to facilitate similar engagements between teams here at
+NVIDIA - the ML experts developing new models and the domain experts in Climate science
+evaluating the skill of such models.
+For instance, often necessary input data such as normalization constants and
+hyperparameter values are not packaged alongside the model weights.
+Every model typically implements a slightly different interface. Scoring routines are
+specific to the model being scored and may not be consistent across groups.
 
-Run it before every commit:
+Earth-2 MIP addresses  these challenges and bridges the gap between the domain experts
+who most often are assessing ML models, and the ML experts producing them.
+Compared to other projects in this space, Earth-2 MIP focuses on scoring models
+on-the-fly.
+It has python APIs suitable for rapid iteration in a jupyter book, CLIs for scoring
+models distributed over many GPUs, and a flexible
+plugin framework that allows anyone to use their own ML models.
+More importantly Earth-2 MIP aspires to facilitate exploration and collaboration within
+the climate research community to evaluate the potential of AI models in climate and
+weather simulations.
 
-- (optional) install pre-commit hooks and git lfs with `make setup-ci`.
-  After this command is run, you will need to fix any lint errors before
-  commiting. This needs to be done once per local clone of this repository.
+## Communication
 
-Pull requests (contributor instructions):
-- Try to test your code (your reviewer may request you to write some).
-- finish your work and run `make lint test`. Fix any errors that come up.
-- target MRs to main
-- either fork or push a feature branch to this repo directly
-- open the MR, and then slack Yair or Noah to review it.
-
-Pull requests (reviewer instructions)
-- The reviewer is responsible for merging
-- Avoid "squash merge"
-- The CI is currently broken. So use the "merge immediately" button.
-
-To run the test suite:
-
-    pytest
-
-To run quick tests (takes 10 seconds):
-
-  pytest -m 'not slow'
-
-To reset the regression data:
-
-  pytest --regtest-reset
-
-and then check in the changes.
-
-## Authors and acknowledgment
-
-Show your appreciation to those who have contributed to the project.
+- Github Discussions: Discuss new ideas, model integraiton, support etc.
+- GitHub Issues: Bug reports, feature requests, install issues, etc.
 
 ## License
 
-For open source projects, say how it is licensed.
+Earth-2 MIP is provided under the Apache License 2.0, please see
+[LICENSE.txt](./LICENSE.txt) for full license text.
+
+### Additional Resources
+
+- [Earth-2 Website](https://www.nvidia.com/en-us/high-performance-computing/earth-2/)
+- [NVIDIA Modulus](https://github.com/NVIDIA/modulus)

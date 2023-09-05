@@ -69,7 +69,6 @@ def main(
     config: str,
     output: str,
 ):
-
     os.makedirs(output, exist_ok=True)
 
     with open(config) as f:

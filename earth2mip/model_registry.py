@@ -116,7 +116,6 @@ class Package:
 
 
 class ModelRegistry:
-
     SEPERATOR: str = "/"
 
     def __init__(self, path: str):

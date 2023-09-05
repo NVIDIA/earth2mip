@@ -18,7 +18,8 @@ _templates/
 baseline_afno_26.zarr/
 34Vars/long/
 .nfs*
-output/
+examples/outputs/
+examples/models/
 tmp/
 tests/Output.*
 
