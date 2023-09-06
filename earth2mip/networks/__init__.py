@@ -225,7 +225,11 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
             yield data
 
     def __call__(
-        self, time: datetime.datetime, x: torch.Tensor, restart: Optional[Any] = None
+        self,
+        time: datetime.datetime,
+        x: torch.Tensor,
+        restart: Optional[Any] = None,
+        normalize=True,
     ) -> Iterator[Tuple[datetime.datetime, torch.Tensor, Any]]:
         """
         Args:
@@ -245,7 +249,7 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         if restart:
             yield from self._iterate(**restart)
         else:
-            yield from self._iterate(x=x, time=time, n=None, normalize=True)
+            yield from self._iterate(x=x, time=time, n=None, normalize=normalize)
 
     def run_steps_with_restart(self, x, n, normalize=True, time=None):
         warnings.warn(
