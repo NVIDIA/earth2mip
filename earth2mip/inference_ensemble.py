@@ -181,27 +181,29 @@ def run_ensembles(
     finalize_netcdf(diagnostics, nc, domains, weather_event, model.channel_set)
 
 
-def main():
+def main(config=None):
     logging.basicConfig(level=logging.INFO)
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("config")
-    parser.add_argument("--weather_model", default=None)
-    args = parser.parse_args()
+    if config is None:
+        parser = argparse.ArgumentParser()
+        parser.add_argument("config")
+        parser.add_argument("--weather_model", default=None)
+        args = parser.parse_args()
+        config = args.config
 
     # If config is a file
-    if os.path.exists(args.config):
-        config: EnsembleRun = EnsembleRun.parse_file(args.config)
+    if os.path.exists(config):
+        config: EnsembleRun = EnsembleRun.parse_file(config)
     # If string, assume JSON string
-    elif isinstance(args.config, str):
-        config: EnsembleRun = EnsembleRun.parse_obj(json.loads(args.config))
+    elif isinstance(config, str):
+        config: EnsembleRun = EnsembleRun.parse_obj(json.loads(config))
     # Otherwise assume parsable obj
     else:
         raise ValueError(
-            f"Passed config parameter {args.config} should be valid file or JSON string"
+            f"Passed config parameter {config} should be valid file or JSON string"
         )
 
-    if args.weather_model:
+    if args and args.weather_model:
         config.weather_model = args.weather_model
 
     # Set up parallel
