@@ -374,7 +374,7 @@ def get_model(
 
 
 class Identity(torch.nn.Module):
-    def __call__(self, x):
+    def forward(self, x):
         return x
 
 
