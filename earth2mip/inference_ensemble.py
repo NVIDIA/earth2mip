@@ -142,7 +142,6 @@ def run_ensembles(
         # for time, data, restart in iterator:
 
         for k, (time, data, _) in enumerate(iterator):
-
             # if restart_frequency and k % restart_frequency == 0:
             #     save_restart(
             #         restart,

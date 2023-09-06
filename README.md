@@ -6,10 +6,12 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 <!-- markdownlint-enable -->
 
-Earth-2 Model Intercomparison Project (MIP) is python based validation framework that
-enables climate researchers and scientists to evaluate the relative skill of AI models
+Earth-2 Model Intercomparison Project (MIP) is python based AI framework that
+enables climate researchers and scientists explore and experiment with the use of AI models for 
 for weather and climate.
-It provides a uniform interface for running inference using pre-trained model
+It provides reference workflows for understanding how AI models capture the understanding of our 
+climate system and how they can work with traditional numerical weather forecasting models.
+For instance, the repo provides a uniform interface for running inference using pre-trained model
 checkpoints and scoring the skill of such models using certain standard metrics.
 This repository is meant to facilitate the weather and climate community to come up with
 good reference baseline of events to test the models against and to use with a variety
@@ -35,7 +37,7 @@ make pytest
 ## Getting Started
 
 The [notebooks](./examples/notebooks/) folder contains reference Jupyter notebooks for a few common
-usecases.
+workflows and usecases.
 These are the best way to start exploring Earth-2 MIP :
 
 1. [Ensemble Inference](./examples/notebooks/01_ensemble_inference.ipynb) - This
@@ -62,7 +64,7 @@ the table below.
 | fcn* | FourCastNet |    Adaptive Fourier Neural Operator  | global weather |   [Arxiv](https://arxiv.org/abs/2202.11214)   | modulus |
 | dlwp |  Deep Learning Weather Prediction  |  Convolution Encoder-Decoder | global weather |   [AGU](https://doi.org/10.1029/2020MS002109)   | modulus |  50Mb |
 | pangu | Pangu Weather  |  Vision Transformer | global weather |  [Nature](https://doi.org/10.1038/s41586-023-06185-3) | onnx | 2Gb |
-| fcnv2_sm |  FourCastNet v2 | Spherical Harmonics Fourier Neural Operator | global weather |  [Arxiv](https://arxiv.org/abs/2306.03838)  | modulus | 8Gb |
+| fcnv2_sm |  FourCastNet v2 | Spherical Harmonics Fourier Neural Operator | global weather |  [Arxiv](https://arxiv.org/abs/2306.03838)  | modulus | 3.5Gb |
 <!-- markdownlint-enable -->
 
 \* = coming soon
