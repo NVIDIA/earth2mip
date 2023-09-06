@@ -17,30 +17,35 @@
 # %%
 import numpy as np
 import datetime
-from earth2mip import (
-    registry,
-    inference_ensemble,
-)
-from earth2mip.networks.fcnv2_sm import load
+import os
+
+# Set number of GPUs to use to 1
+os.environ["WORLD_SIZE"] = "1"
+# Set model registry as a local folder
+model_registry = os.path.join(os.path.dirname(os.path.realpath(os.getcwd())), "models")
+os.makedirs(model_registry, exist_ok=True)
+os.environ["MODEL_REGISTRY"] = model_registry
+
+# With the enviroment variables set now we import Earth-2 MIP
+from earth2mip import registry, inference_ensemble
 from earth2mip.initial_conditions import cds
+from earth2mip.networks.fcnv2_sm import load as fcnv2_sm_load
 
 # %%
-
+# Load Pangu model(s) from registry
 package = registry.get_model("fcnv2_sm")
+print("loading FCNv2 small model, this can take a bit")
+sfno_inference_model = fcnv2_sm_load(package)
 
-timeloop = load(package, device="cuda:0")
-# path = sys.argv[1]
-# data_source = HDF5DataSource.from_path(path)
-data_source = cds.DataSource(timeloop.in_channel_names)
+data_source = cds.DataSource(sfno_inference_model.in_channel_names)
 output = "path/"
 time = datetime.datetime(2018, 1, 1)
 ds = inference_ensemble.run_basic_inference(
-    timeloop,
+    sfno_inference_model,
     n=1,
     data_source=data_source,
     time=time,
 )
-print(ds)
 
 
 # %%
