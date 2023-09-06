@@ -131,7 +131,7 @@ def run_ensembles(
         #         time=time,
         #     )
 
-        iterator = model(time, x)
+        iterator = model(time, x, normalize=False)
 
         # Check if stdout is connected to a terminal
         if sys.stderr.isatty() and progress:
@@ -203,8 +203,8 @@ def main(config=None):
             f"Passed config parameter {config} should be valid file or JSON string"
         )
 
-    if args and args.weather_model:
-        config.weather_model = args.weather_model
+    # if args and args.weather_model:
+    #     config.weather_model = args.weather_model
 
     # Set up parallel
     DistributedManager.initialize()

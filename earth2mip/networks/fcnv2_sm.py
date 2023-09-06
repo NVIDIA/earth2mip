@@ -60,7 +60,7 @@ def load(package, *, pretrained=True, device="cuda"):
 
     grid = schema.Grid.grid_721x1440
     channel_set = schema.ChannelSet.var73
-    dt = datetime.timedelta(hours=12)
+    dt = datetime.timedelta(hours=6)
 
     inference = networks.Inference(
         core_model,
