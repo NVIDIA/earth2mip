@@ -73,7 +73,6 @@ class Wrapper(torch.nn.Module):
 
     def forward(self, *args, **kwargs):
         """x: (batch, history, channel, x, y)"""
-
         return self.module(*args, **kwargs)
 
 
@@ -159,8 +158,8 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         self.time_dependent = depends_on_time(model.forward)
 
         # TODO probably delete this line
-        if not isinstance(model, modulus.Module):
-            model = Wrapper(model)
+        # if not isinstance(model, modulus.Module):
+        #     model = Wrapper(model)
 
         # TODO extract this to another place
         model = _SimpleModelAdapter(
@@ -226,7 +225,11 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
             yield data
 
     def __call__(
-        self, time: datetime.datetime, x: torch.Tensor, restart: Optional[Any] = None
+        self,
+        time: datetime.datetime,
+        x: torch.Tensor,
+        restart: Optional[Any] = None,
+        normalize=True,
     ) -> Iterator[Tuple[datetime.datetime, torch.Tensor, Any]]:
         """
         Args:
@@ -246,7 +249,7 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         if restart:
             yield from self._iterate(**restart)
         else:
-            yield from self._iterate(x=x, time=time, n=None, normalize=True)
+            yield from self._iterate(x=x, time=time, n=None, normalize=normalize)
 
     def run_steps_with_restart(self, x, n, normalize=True, time=None):
         warnings.warn(
@@ -266,7 +269,6 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
             raise ValueError("Time dependent models require ``time``.")
 
         time = time or datetime.datetime(1900, 1, 1)
-
         with torch.no_grad():
             # drop all but the last time point
             # remove channels
@@ -324,12 +326,12 @@ def _load_package(package, metadata, device) -> time_loop.TimeLoop:
         local_path = package.get("metadata.json")
         with open(local_path) as f:
             metadata = schema.Model.parse_raw(f.read())
-
     if metadata.entrypoint:
         ep = EntryPoint(name=None, group=None, value=metadata.entrypoint.name)
         inference_loader = ep.load()
         return inference_loader(package, device=device, **metadata.entrypoint.kwargs)
     else:
+        warnings.warn("No loading entry point found, using default inferencer")
         return _default_inference(package, metadata, device=device)
 
 
@@ -372,7 +374,7 @@ def get_model(
 
 
 class Identity(torch.nn.Module):
-    def __call__(self, x):
+    def forward(self, x):
         return x
 
 
