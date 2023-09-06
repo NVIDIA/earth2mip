@@ -16,6 +16,8 @@
 
 """
 FCN v2 Small adapter
+
+This model is an outdated version of FCN v2 (SFNO), a more recent one is present in Modulus.
 """
 from typing import List
 import logging
@@ -23,104 +25,45 @@ import os
 import datetime
 import torch
 import json
+import pathlib
 
 import numpy as np
 import onnxruntime as ort
 import dataclasses
 
 from earth2mip import registry, schema, networks, config, initial_conditions, geometry
+from modulus.models.fcn_mip_plugin import _fix_state_dict_keys
 
-from modulus.models.sfno.sfnonet import SphericalFourierNeuralOperatorNet as SFNO
-from modulus.utils.sfno.zenith_angle import cos_zenith_angle
-
-
-class _CosZenWrapper(torch.nn.Module):
-    """Wrapper for SFNO model with Cosine Zenith inputs."""
-
-    def __init__(
-        self,
-        model: torch.nn.Module,
-        lon: np.ndarray,
-        lat: np.ndarray,
-        device,
-        local_center_path: str = "",
-        local_std_path: str = "",
-    ):
-        super().__init__()
-        self.module = model
-        self.lon = lon
-        self.lat = lat
-
-        # self.center = torch.as_tensor(
-        #     np.load(local_center_path),
-        #     device=device,
-        #     dtype=torch.float32,
-        # )
-
-        # self.std = torch.as_tensor(
-        #     np.load(local_std_path),
-        #     device=device,
-        #     dtype=torch.float32,
-        # )
-
-    def normalize(self, x: torch.Tensor) -> torch.Tensor:
-        return (x - self.center.to(x.dtype).to(x.device)) / self.std.to(x.dtype).to(
-            x.device
-        )
-
-    def unnormalize(self, x: torch.Tensor) -> torch.Tensor:
-        return x * self.std.to(x.dtype).to(x.device) + self.center.to(x.dtype).to(
-            x.device
-        )
-
-    def forward(self, x: torch.Tensor, time: datetime.datetime):
-        """Cosine zenith forward model call."""
-        x = x.squeeze(1)
-        n_batch = x.shape[0]
-        lon_grid, lat_grid = np.meshgrid(self.lon, self.lat)
-        cosz = cos_zenith_angle(time, lon_grid, lat_grid)
-        cosz = cosz.astype(np.float32)
-        z = torch.from_numpy(cosz).to(device=x.device)
-        z = z.repeat(n_batch, *[1 for i in range(x.ndim - 1)])
-        z = torch.cat([x, z], dim=1)
-        x = self.forward_batch(z, x)
-        x = x.unsqueeze(1)
-        return x
-
-    @torch.no_grad()
-    def forward_batch(self, z: torch.Tensor, x: torch.Tensor):
-        n = z.shape[0]
-        for batch in range(0, n):
-            # self.z.copy_(z[batch : batch + 1])
-            # self.g.replay()
-            # x[batch : batch + 1].copy_(self.x, non_blocking=True)
-            print(z[batch : batch + 1].shape)
-            x[batch : batch + 1] = self.module(z[batch : batch + 1])
-        return x
+# TODO: Update to new arch in Modulus!
+import earth2mip.networks.fcnv2 as fcnv2
 
 
 def load(package, *, pretrained=True, device="cuda"):
     assert pretrained
 
+    config_path = pathlib.Path(__file__).parent / "fcnv2" / "sfnonet.yaml"
+    params = fcnv2.YParams(config_path.as_posix(), "sfno_73ch")
+    params.img_crop_shape_x = 721
+    params.img_crop_shape_y = 1440
+    params.N_in_channels = 73
+    params.N_out_channels = 73
+
+    core_model = fcnv2.FourierNeuralOperatorNet(params).to(device)
+
     local_center = np.load(package.get("global_means.npy"))
     local_std = np.load(package.get("global_stds.npy"))
 
-    with open(package.get("metadata.json")) as f:
-        metadata = json.load(f)
+    weights_path = package.get("weights.tar")
+    weights = torch.load(weights_path, map_location=device)
+    fixed_weights = _fix_state_dict_keys(weights["model_state"], add_module=False)
+    core_model.load_state_dict(fixed_weights)
 
-    with open(package.get("config.json")) as json_file:
-        config = json.load(json_file)
-
-    lat = metadata["lat"]
-    lon = metadata["lon"]
-    model = SFNO({}, **config).to(device)
-    sfno_wrapper = _CosZenWrapper(model, lon, lat, device)
     grid = schema.Grid.grid_721x1440
     channel_set = schema.ChannelSet.var73
     dt = datetime.timedelta(hours=12)
 
     inference = networks.Inference(
-        sfno_wrapper,
+        core_model,
         channels=None,
         center=local_center,
         scale=local_std,
