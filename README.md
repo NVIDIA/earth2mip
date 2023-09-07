@@ -36,6 +36,8 @@ To verify installation run:
 make pytest
 ```
 
+TEST
+
 ## Getting Started
 
 The [notebooks](./examples/notebooks/) folder contains reference Jupyter notebooks for a
