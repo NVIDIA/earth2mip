@@ -7,12 +7,14 @@
 <!-- markdownlint-enable -->
 
 Earth-2 Model Intercomparison Project (MIP) is python based AI framework that
-enables climate researchers and scientists explore and experiment with the use of AI models for 
-for weather and climate.
-It provides reference workflows for understanding how AI models capture the understanding of our 
-climate system and how they can work with traditional numerical weather forecasting models.
-For instance, the repo provides a uniform interface for running inference using pre-trained model
-checkpoints and scoring the skill of such models using certain standard metrics.
+enables climate researchers and scientists explore and experiment with the use of AI
+models for for weather and climate.
+It provides reference workflows for understanding how AI models capture the understanding
+of our  climate system and how they can work with traditional numerical weather
+forecasting models.
+For instance, the repo provides a uniform interface for running inference using
+pre-trained model checkpoints and scoring the skill of such models using certain
+standard metrics.
 This repository is meant to facilitate the weather and climate community to come up with
 good reference baseline of events to test the models against and to use with a variety
 of data sources.
@@ -36,8 +38,8 @@ make pytest
 
 ## Getting Started
 
-The [notebooks](./examples/notebooks/) folder contains reference Jupyter notebooks for a few common
-workflows and usecases.
+The [notebooks](./examples/notebooks/) folder contains reference Jupyter notebooks for a
+few common workflows and usecases.
 These are the best way to start exploring Earth-2 MIP :
 
 1. [Ensemble Inference](./examples/notebooks/01_ensemble_inference.ipynb) - This
