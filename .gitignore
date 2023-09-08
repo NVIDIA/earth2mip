@@ -209,8 +209,10 @@ pyrightconfig.json
 dask-worker-space
 pages
 
-
-
 .vscode/
 ecwmf/
 .env
+
+# Apptainer
+build-temp*/
+*.sif/
