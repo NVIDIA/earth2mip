@@ -34,8 +34,10 @@ LICENSE.txt /code/earth2mip/LICENSE.txt
     cd /code/earth2mip && pip install .
     pip3 install cartopy ecmwflibs h5netcdf
     pip3 install --upgrade nbconvert
-
-    apt install -y nodejs npm
+    
+    apt update
+    apt install -y nodejs
+    apt install -y npm
     
 %files
     examples/notebooks/* /examples/notebooks/
