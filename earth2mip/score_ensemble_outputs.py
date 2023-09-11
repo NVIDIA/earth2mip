@@ -42,7 +42,7 @@ def _open(f, domain, chunks={"time": 1}):
 
 def open_ensemble(path, group):
     path = pathlib.Path(path)
-    ensemble_files = list(path.glob("ensemble_out_*.nc"))
+    ensemble_files = sorted(list(path.glob("ensemble_out_*.nc")))
     return xarray.concat([_open(f, group) for f in ensemble_files], dim="ensemble")
 
 
