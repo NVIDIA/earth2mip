@@ -3,6 +3,7 @@
 <!-- markdownlint-disable -->
 [![Project Status: Active - The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 [![GitHub](https://img.shields.io/github/license/NVIDIA/earth2mip)](https://github.com/NVIDIA/earth2mip/blob/master/LICENSE.txt)
+[![Documentstion](https://img.shields.io/badge/docs-online-green)](https://nvidia.github.io/earth2mip/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 <!-- markdownlint-enable -->
 
@@ -104,6 +105,9 @@ plugin framework that allows anyone to use their own ML models.
 More importantly Earth-2 MIP aspires to facilitate exploration and collaboration within
 the climate research community to evaluate the potential of AI models in climate and
 weather simulations.
+
+Please see the [documentation page](https://nvidia.github.io/earth2mip/) for in depth
+information about Earth-2 MIP, functionality, APIs, etc.
 
 ## Communication
 
