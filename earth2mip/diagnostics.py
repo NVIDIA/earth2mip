@@ -16,7 +16,6 @@
 
 import torch
 import numpy as np
-from datetime import datetime
 from earth2mip.weather_events import CWBDomain, Window, MultiPoint
 from earth2mip import weather_events
 from earth2mip.schema import Grid
@@ -138,4 +137,3 @@ class Raw(Diagnostics):
 DiagnosticTypes = {
     "raw": Raw,
 }
-
