@@ -31,4 +31,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Dependencies
 
-- Added eccodes
+- Added eccodes, ecmwflibs, h5netcdf
