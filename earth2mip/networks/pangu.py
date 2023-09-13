@@ -266,12 +266,17 @@ def load(package, *, pretrained=True, device="doesn't matter"):
 
 
 def load_single_model(
-    package, *, time_step_hours: int, pretrained=True, device="cuda:0"
+    package, *, time_step_hours: int = 24, pretrained=True, device="cuda:0"
 ):
     """Load a single time-step pangu weather"""
     assert pretrained
     with torch.cuda.device(device):
-        p = package.get("model.onnx")
+        if time_step_hours == 6:
+            p = package.get("pangu_weather_6.onnx")
+        elif time_step_hours == 24:
+            p = package.get("pangu_weather_24.onnx")
+        else:
+            raise ValueError(f"time_step_hours must be 6 or 24, got {time_step_hours}")
         model = PanguStacked(PanguWeather(p))
         channel_names = model.channel_names()
         center = np.zeros([len(channel_names)])
