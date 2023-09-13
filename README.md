@@ -56,7 +56,7 @@ and how to compare their predictions.
 
 Earth-2 MIP provides high-level APIs for running inference with AI models.
 For example, the following can be used to run Pangu weather using an initial state from
-the CDS datastore:
+the climate data store (CDS):
 
 ```bash
 python
