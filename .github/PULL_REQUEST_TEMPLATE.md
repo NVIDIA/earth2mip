@@ -11,6 +11,7 @@
 - [ ] New or existing tests cover these changes.
 - [ ] The documentation is up to date with these changes.
 - [ ] The CHANGELOG.md is up to date with these changes.
+- [ ] An [issue](https://github.com/NVIDIA/earth2mip/issues) is linked to this pull request.
 
 ## Dependencies
 
