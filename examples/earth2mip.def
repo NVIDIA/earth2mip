@@ -22,28 +22,24 @@ Bootstrap: docker
 FROM: nvcr.io/nvidia/modulus/modulus:23.08
 
 %files
-earth2mip/* /code/earth2mip/earth2mip/
-MANIFEST.in /code/earth2mip/MANIFEST.in
-setup.cfg /code/earth2mip/setup.cfg
-setup.py /code/earth2mip/setup.py
-LICENSE.txt /code/earth2mip/LICENSE.txt
+earth2mip/* /earth2mip/earth2mip/
+MANIFEST.in /earth2mip/MANIFEST.in
+setup.cfg /earth2mip/setup.cfg
+setup.py /earth2mip/setup.py
+LICENSE.txt /earth2mip/LICENSE.txt
+earth2mip/examples/* /earth2mip/examples/
 
 %environment
+    export HOME=/earth2mip/
 
 %post
-    cd /code/earth2mip && pip install .
-    pip3 install cartopy ecmwflibs h5netcdf
+    cd /code/earth2mip && pip install -e .
+    pip3 install cartopy
     pip3 install --upgrade nbconvert
     
     apt update
     apt install -y nodejs
     apt install -y npm
-    
-%files
-    examples/notebooks/* /examples/notebooks/
-    examples/workflows/* /examples/workflows/
-    examples/README.md   /examples/README.md
-    
 
 %runscript
     "$@"

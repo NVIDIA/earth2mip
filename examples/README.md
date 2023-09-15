@@ -40,23 +40,27 @@ jupyter lab --ip='*' --NotebookApp.token='' --NotebookApp.password=''
 
 This will start the jupyter lab server inside the docker container. Once it is running, you can navigate to the `http://localhost:8888/` to access the jupyter environment and start using the notebooks.
 
-### Apptainer / Singularity
+### Singularity (Apptainer)
 
-For systems / compute enviroments that do not allow docker directly, a Apptainer definition file is also provided.
-This will build a sandbox from the Modulus docker container and set up Jupyter lab inside.
-To build the enviroment, run the following command:
+For systems / compute enviroments that do not allow docker directly, a
+Singularity/Apptainer definition file is also provided to build an image.
+This will build a `sif` file from the Modulus docker container and set up Jupyter lab inside.
+Starting in the root directory of this prepository, to build the enviroment run the
+following command:
 
 ```bash
-apptainer build --fakeroot --sandbox earth2mip.sif examples/earth2mip.def
+singularity build --sandbox earth2mip.sif examples/earth2mip.def
 ```
 
 This should create `earth2mip.sif` in the root of the repository folder.
-Next use the following command to launch Jupyter lab in the enviroment hosted at `http://localhost:8888/`:
-
+The following command can now be used to bind the Earth-2 MIP repo into the singularity
+container, install an edittable version of Earth-2 MIP and run Jupyter lab.
 
 ```bash
-apptainer run --writable --nv earth2mip.sif jupyter-lab --no-browser --allow-root --ip=0.0.0.0 --port=8888 --NotebookApp.token="" --notebook-dir=/examples/
+singularity run -B ${PWD}:/earth2mip/ --nv earth2mip.sif 'pip install -e . && jupyter-lab --no-browser --allow-root --ip=0.0.0.0 --port=8888 --NotebookApp.token="" --notebook-dir=/examples/'
 ```
+
+The Jupyter lab in the enviroment hosted at `http://localhost:8888/`:
 
 ## Running workflows
 
