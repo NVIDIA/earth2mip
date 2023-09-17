@@ -42,14 +42,14 @@ This will start the jupyter lab server inside the docker container. Once it is r
 
 ### Singularity (Apptainer)
 
-For systems / compute enviroments that do not allow docker directly, a
+For systems/compute environments that do not allow docker directly, a
 Singularity/Apptainer definition file is also provided to build an image.
 This will build a `sif` file from the Modulus docker container and set up Jupyter lab inside.
 Starting in the root directory of this prepository, to build the enviroment run the
 following command:
 
 ```bash
-singularity build --sandbox earth2mip.sif examples/earth2mip.def
+singularity build --fakeroot --sandbox earth2mip.sif examples/earth2mip.def
 ```
 
 This should create `earth2mip.sif` in the root of the repository folder.
@@ -57,17 +57,43 @@ The following command can now be used to bind the Earth-2 MIP repo into the sing
 container, install an edittable version of Earth-2 MIP and run Jupyter lab.
 
 ```bash
-singularity run -B ${PWD}:/earth2mip/ --nv earth2mip.sif 'pip install -e . && jupyter-lab --no-browser --allow-root --ip=0.0.0.0 --port=8888 --NotebookApp.token="" --notebook-dir=/examples/'
+singularity run -B ${PWD}:/workspace/earth2mip earth2mip.sif
 ```
 
-The Jupyter lab in the enviroment hosted at `http://localhost:8888/`:
+If your system requires specific set up for Jupyter lab, the following command can be
+modified below.
+
+```bash
+singularity exec -B ${PWD}:/workspace/earth2mip --nv earth2mip.sif bash -c 'cd ~
+    jupyter-lab --no-browser --ip=0.0.0.0 --port=8888 --NotebookApp.token="" --notebook-dir=examples/'
+```
+
+The Jupyter lab in the enviroment hosted at `http://localhost:8888/`.
+
+For a development environment, one could use a writtable container and perform an
+editable install of Earth-2 MIP but this does not work on many systems.
+Alternatively, the following command can be used to create a local python virtual
+environment in the bind directory and install Earth-2 MIP in edittable mode.
+When running Jupyter lab, use the 'earth2mip' kernel to execute the notebooks.
+This enables edits to the Earth-2 MIP module in the host directory that take immediate
+effect on the notebooks running inside the singularity container.
+
+```bash
+singularity exec -B ${PWD}:/workspace/earth2mip --nv earth2mip.sif bash -c 'cd ~
+    python3 -m venv --system-site-packages .venv --prompt earth2mip
+    source .venv/bin/activate
+    ipython kernel install --user --name=earth2mip
+    pip3 install -e .
+    jupyter-lab --no-browser --ip=0.0.0.0 --port=8888 --NotebookApp.token="" --notebook-dir=examples/'
+```
 
 ## Running workflows
 
-To run the sample workflows, follow the same procedure as above to launch the docker conatainer / apptainer enviroment and ensure Earth-2 MIP is installed.
+To run the sample workflows, follow the same procedure as above to launch the docker
+container / singularity enviroment and ensure Earth-2 MIP is installed.
 The workflows can then be excuted using python, e.g.
 
-```
+```bash
 cd workflows/
 python pangu_24.py
 ```
