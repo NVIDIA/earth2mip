@@ -39,6 +39,7 @@ from earth2mip import initial_conditions, time_loop
 from earth2mip.ensemble_utils import (
     generate_noise_correlated,
     generate_bred_vector,
+    apply_heating,
 )
 from earth2mip.netcdf import finalize_netcdf, initialize_netcdf, update_netcdf
 from earth2mip.networks import get_model, Inference
@@ -247,6 +248,16 @@ def get_initializer(
                 config.noise_amplitude,
                 time=config.weather_event.properties.start_time,
             )
+        elif config.perturbation_strategy == PerturbationStrategy.gaussian_heating:
+            heating = apply_heating(
+                shape,
+                config.heating_zonal_mean,
+                config.heating_zonal_sigma,
+                config.heating_meridional_mean,
+                config.heating_meridional_sigma,
+                config.heating_amplitude,
+            )
+            x[:, :, 0, :, :] += heating
         if rank == 0 and batch_id == 0:  # first ens-member is deterministic
             noise[0, :, :, :, :] = 0
         x += noise
