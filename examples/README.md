@@ -93,7 +93,7 @@ singularity exec -B ${PWD}:/workspace/earth2mip --nv earth2mip.sif bash -c 'cd ~
 
 ### Conda Environment
 
-For a Pythonic experience, we suggest setting up Earth-2 MIP in a
+For a more vanilla Pythonic experience, we suggest setting up Earth-2 MIP in a
 [Conda enviroment](https://www.anaconda.com/download).
 This will avoid the need for Docker/Singularity but will also require your system to be
 configured correctly to support the required dependencies.
