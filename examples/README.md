@@ -8,18 +8,20 @@ in Earth-2 MIP.
 
 ## Running Notebooks
 
-While Earth-2 MIP can be installed in a Python/Conda enviroment, its suggested that users run Earth 2 MIP inside the Modulus base container provided on NGC.
-The following instructions can be used to run the examples notebooks using either docker container or apptainer/singularity sandbox.
+While Earth-2 MIP can be installed in a Python/Conda enviroment, its suggested that
+users run Earth 2 MIP inside the Modulus base container provided on NGC.
+The following instructions can be used to run the examples notebooks using either docker
+container, apptainer/singularity image or conda environment.
 
-To clone the repository to your local machine (if you haven't already) use the following commands:
+### Docker
+
+Start with cloniong the repository to your local machine (if you haven't already) use
+the following commands:
 
 ```bash
 git clone https://github.com/NVIDIA/earth2mip.git
 cd earth2mip
 ```
-For the following steps, make sure you are in the *root* directory of the Earth-2 MIP repository.
-
-### Docker
 
 Launch the Modulus docker container with port mapping as below:
 
@@ -29,7 +31,8 @@ docker run --rm --shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 --runt
 
 The above command maps the port `8888` inside the docker container to the port `8888` on local machine.
 
-Once inside the container, navigate to the mounted folder `/earth2mip/`, install earth2mip package and launch the `jupyter lab` as shown below.
+Once inside the container, navigate to the mounted folder `/earth2mip/`, install
+Earth-2 MIP package and launch the `jupyter lab` as shown below.
 
 ```bash
 cd /earth2mip
@@ -38,7 +41,8 @@ cd examples
 jupyter lab --ip='*' --NotebookApp.token='' --NotebookApp.password=''
 ```
 
-This will start the jupyter lab server inside the docker container. Once it is running, you can navigate to the `http://localhost:8888/` to access the jupyter environment and start using the notebooks.
+This will start the jupyter lab server inside the docker container.
+The Jupyter lab enviroment will be hosted at [http://localhost:8888/](http://localhost:8888/).
 
 ### Singularity (Apptainer)
 
@@ -68,7 +72,7 @@ singularity exec -B ${PWD}:/workspace/earth2mip --nv earth2mip.sif bash -c 'cd ~
     jupyter-lab --no-browser --ip=0.0.0.0 --port=8888 --NotebookApp.token="" --notebook-dir=examples/'
 ```
 
-The Jupyter lab in the enviroment hosted at `http://localhost:8888/`.
+The Jupyter lab enviroment will be hosted at [http://localhost:8888/](http://localhost:8888/).
 
 For a development environment, one could use a writtable container and perform an
 editable install of Earth-2 MIP but this does not work on many systems.
@@ -86,6 +90,56 @@ singularity exec -B ${PWD}:/workspace/earth2mip --nv earth2mip.sif bash -c 'cd ~
     pip3 install -e .
     jupyter-lab --no-browser --ip=0.0.0.0 --port=8888 --NotebookApp.token="" --notebook-dir=examples/'
 ```
+
+### Conda Environment
+
+For a Pythonic experience, we suggest setting up Earth-2 MIP in a
+[Conda enviroment](https://www.anaconda.com/download).
+This will avoid the need for Docker/Singularity but will also require your system to be
+configured correctly to support the required dependencies.
+Start with creating a new Conda environment with Python 3.10:
+
+```bash
+conda create --name earth2mip python=3.10
+conda activate earth2mip
+```
+
+Next we need to clone and install Earth-2 MIP:
+
+```bash
+git clone git@github.com:NVIDIA/earth2mip.git && cd earth2mip 
+pip install .
+```
+
+On top of the dependencies installed with Earth-2 MIP, a few more will be needed for
+running some of the models:
+
+```bash
+pip install tensorly tensorly-torch
+
+git clone https://github.com/NVIDIA/apex
+pip install -v --disable-pip-version-check --no-cache-dir --no-build-isolation --global-option="--cpp_ext" --global-option="--cuda_ext" ./apex
+
+conda install -c dglteam dgl
+```
+
+Lastly we need to install and setup Jupyter lab with the following commands.
+Pick a password to log into your Jupyter instance:
+
+```bash
+pip install jupyterlab
+jupyter-lab --generate-config
+jupyter-lab password
+```
+
+Be sure you are inside the Earth-2 repository folder and execute the following command
+to launch the Jupyter lab session.
+
+```bash
+jupyter-lab --no-browser --ip=0.0.0.0 --port=8888 --notebook-dir=examples/
+```
+
+The Jupyter lab enviroment will be hosted at [http://localhost:8888/](http://localhost:8888/).
 
 ## Running workflows
 
