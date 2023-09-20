@@ -31,7 +31,7 @@ FROM: nvcr.io/nvidia/modulus/modulus:23.08
     examples/README.md /workspace/earth2mip/examples/README.md
 
 %post
-    cd /workspace/earth2mip && ls && pip3 install .
+    cd /workspace/earth2mip && pip3 install .
     pip3 install cartopy
     pip3 install --upgrade nbconvert
 
