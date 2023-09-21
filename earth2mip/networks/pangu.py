@@ -225,7 +225,7 @@ class PanguInference(torch.nn.Module):
 
         yield from self.__call__(time, x)
 
-    def __call__(self, time, x, restart=None):
+    def __call__(self, time, x, normalize=False, restart=None):
         """Yield (time, unnormalized data, restart) tuples
 
         restart = (time, unnormalized data)
