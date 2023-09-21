@@ -28,16 +28,14 @@ from timeit import default_timer  # noqa
 from typing import Union
 
 
-import torch
-
 def apply_gaussian_perturbation(
     device,
     x,
     model,
-    zonal_location: float = 0.0,
-    zonal_sigma: float = 0.0,
-    meridional_location: float = 0.0,
-    meridional_sigma: float = 0.0,
+    latitute_location: float = 0.0,
+    latitute_sigma: float = 0.0,
+    longitude_location: float = 0.0,
+    longitude_sigma: float = 0.0,
     amplitude: float = 0.0,
     modified_channel: str = 't850'
 ):
@@ -47,8 +45,8 @@ def apply_gaussian_perturbation(
     lon, lat = torch.meshgrid(lon, lat)
 
     gaussian = amplitude * torch.exp(
-        -((lon - zonal_location)**2 / (2 * zonal_sigma**2)
-          + (lat - meridional_location)**2 / (2 * meridional_sigma**2))
+        -((lon - latitute_location)**2 / (2 * latitute_sigma**2)
+          + (lat - longitude_location)**2 / (2 * longitude_sigma**2))
     )
     gaussian = gaussian.transpose(-1, -2).unsqueeze(0).unsqueeze(0).unsqueeze(0)
     gaussian = gaussian.expand(x.shape[0], x.shape[1], 1, x.shape[-2], x.shape[-1])
@@ -57,7 +55,6 @@ def apply_gaussian_perturbation(
     x[:, :, index_channel, :, :] += gaussian.squeeze(2).to(device)
     return x
 
-    
     
 def generate_noise_correlated(shape, *, reddening, device, noise_amplitude):
     return noise_amplitude * brown_noise(shape, reddening).to(device)
