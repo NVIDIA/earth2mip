@@ -252,14 +252,14 @@ def get_initializer(
             noise[0, :, :, :, :] = 0
         x += noise
         if config.apply_gaussian_perturbation:
-            apply_gaussian_modification(
+            apply_gaussian_perturbation(
                 device,
                 x,
                 model,
-                config.zonal_location,
-                config.zonal_sigma,
-                config.meridional_location,
-                config.meridional_sigma,
+                config.latitute_location,
+                config.latitute_sigma,
+                config.longitude_location,
+                config.longitude_sigma,
                 config.gaussian_amplitude,
                 config.modified_channel,
             )
