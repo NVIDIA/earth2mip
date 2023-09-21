@@ -331,11 +331,13 @@ class EnsembleRun(pydantic.BaseModel):
     output_dir: Optional[str] = None
     output_path: Optional[str] = None
     restart_frequency: Optional[int] = None
-    heating_zonal_mean: Optional[float] = None
-    heating_zonal_sigma: Optional[float] = None
-    heating_meridional_mean: Optional[float] = None
-    heating_meridional_sigma: Optional[float] = None
-    heating_amplitude: Optional[float] = None
+    apply_gaussian_perturbation: Optional[bool] = False
+    zonal_location: Optional[float] = None
+    zonal_sigma: Optional[float] = None
+    meridional_location: Optional[float] = None
+    meridional_sigma: Optional[float] = None
+    gaussian_amplitude: Optional[float] = None
+    modified_channel: Optional[str] = 't850'
     def get_weather_event(self) -> weather_events.WeatherEvent:
         if self.forecast_name:
             return weather_events.read(self.forecast_name)

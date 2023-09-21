@@ -28,20 +28,35 @@ from timeit import default_timer  # noqa
 from typing import Union
 
 
-def apply_heating(
-    shape,
-    heating_zonal_mean: float = 0.0,
-    heating_zonal_sigma: float = 0.0,
-    heating_meridional_mean: float = 0.0,
-    heating_meridional_sigma: float = 0.0,
-    heating_amplitude: float = 0.0,
-    ):
+import torch
+
+def apply_gaussian_perturbation(
+    device,
+    x,
+    model,
+    zonal_location: float = 0.0,
+    zonal_sigma: float = 0.0,
+    meridional_location: float = 0.0,
+    meridional_sigma: float = 0.0,
+    amplitude: float = 0.0,
+    modified_channel: str = 't850'
+):
+    shape = x.shape[-2:]
     lat = torch.linspace(-90, 90, shape[-2])
     lon = torch.linspace(-180, 180, shape[-1])
     lon, lat = torch.meshgrid(lon, lat)
-    gaussian_heating = heating_amplitude * torch.exp(-((lon - heating_zonal_mean)**2 / (2 * heating_zonal_sigma**2)
-                                             + (lat - heating_meridional_mean)**2 / (2 * heating_meridional_sigma**2)))    
-    return gaussian_heating
+
+    gaussian = amplitude * torch.exp(
+        -((lon - zonal_location)**2 / (2 * zonal_sigma**2)
+          + (lat - meridional_location)**2 / (2 * meridional_sigma**2))
+    )
+    gaussian = gaussian.transpose(-1, -2).unsqueeze(0).unsqueeze(0).unsqueeze(0)
+    gaussian = gaussian.expand(x.shape[0], x.shape[1], 1, x.shape[-2], x.shape[-1])
+    channel_list = model.channel_set.list_channels()
+    index_channel = channel_list.index(modified_channel)
+    x[:, :, index_channel, :, :] += gaussian.squeeze(2).to(device)
+    return x
+
     
     
 def generate_noise_correlated(shape, *, reddening, device, noise_amplitude):
