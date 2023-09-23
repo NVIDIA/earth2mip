@@ -43,25 +43,26 @@ class Grid(Enum):
 
     @property
     def lat(self):
-        return _grids[self]['lat']
+        return _grids[self]["lat"]
 
     @property
     def lon(self):
-        return _grids[self]['lon']
+        return _grids[self]["lon"]
+
 
 _grids = {
     Grid.grid_721x1440: {
         "lat": np.linspace(90, -90.0, 721),
-        "lon":  np.linspace(0, 359.75, 1440),
+        "lon": np.linspace(0, 359.75, 1440),
     },
     Grid.grid_720x1440: {
         "lat": np.linspace(89.75, -90.0, 720),
-        "lon":  np.linspace(0, 359.75, 1440),
+        "lon": np.linspace(0, 359.75, 1440),
     },
     Grid.s2s_challenge: {
         "lat": np.linspace(90, -90.0, 181),
-        "lon":  np.linspace(0, 359, 360),
-    }
+        "lon": np.linspace(0, 359, 360),
+    },
 }
 
 

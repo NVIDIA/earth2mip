@@ -259,12 +259,12 @@ def run_basic_inference(model: time_loop.TimeLoop, n: int, data_source, time):
     """Run a basic inference"""
     ds = data_source[time].sel(channel=model.in_channel_names)
 
-    if not model.grid.lat in ds.coords['lat'].values:
+    if not model.grid.lat in ds.coords["lat"].values:
         ds = ds.interp(lat=model.grid.lat)
     else:
         ds = ds.sel(lat=model.grid.lat)
 
-    if not model.grid.lon in ds.coords['lon'].values:
+    if not model.grid.lon in ds.coords["lon"].values:
         ds = ds.interp(lon=model.grid.lon)
     else:
         ds = ds.sel(lon=model.grid.lon)
