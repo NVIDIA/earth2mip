@@ -20,6 +20,7 @@ from earth2mip import weather_events
 from earth2mip.weather_events import InitialConditionSource, WeatherEvent
 from enum import Enum
 import datetime
+import numpy as np
 
 __all__ = ["InitialConditionSource", "WeatherEvent"]
 
@@ -40,6 +41,29 @@ class Grid(Enum):
         else:
             raise ValueError(f"Unknown grid {self}")
 
+    @property
+    def lat(self):
+        return _grids[self]['lat']
+
+    @property
+    def lon(self):
+        return _grids[self]['lon']
+
+_grids = {
+    Grid.grid_721x1440: {
+        "lat": np.linspace(90, -90.0, 721),
+        "lon":  np.linspace(0, 359.75, 1440),
+    },
+    Grid.grid_720x1440: {
+        "lat": np.linspace(89.75, -90.0, 720),
+        "lon":  np.linspace(0, 359.75, 1440),
+    },
+    Grid.s2s_challenge: {
+        "lat": np.linspace(90, -90.0, 181),
+        "lon":  np.linspace(0, 359, 360),
+    }
+}
+
 
 # Enum of channels
 class ChannelSet(Enum):
@@ -55,6 +79,7 @@ class ChannelSet(Enum):
 
     """
 
+    var26 = "26var"
     var34 = "34var"
     var73 = "73var"
     var_pangu = "var_pangu"
@@ -246,6 +271,34 @@ _channels = {
         "v900",
         "z900",
         "t900",
+    ],
+    ChannelSet.var26: [
+        "u10m",
+        "v10m",
+        "t2m",
+        "sp",
+        "msl",
+        "t850",
+        "u1000",
+        "v1000",
+        "z1000",
+        "u850",
+        "v850",
+        "z850",
+        "u500",
+        "v500",
+        "z500",
+        "t500",
+        "z50",
+        "r500",
+        "r850",
+        "tcwv",
+        "u100m",
+        "v100m",
+        "u250",
+        "v250",
+        "z250",
+        "t250",
     ],
 }
 
