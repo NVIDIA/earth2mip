@@ -20,12 +20,11 @@ import torch
 import numpy as np
 import xarray
 import json
+import modulus
 from earth2mip import registry, schema, networks, config, initial_conditions, geometry
 from earth2mip.time_loop import TimeLoop
 from earth2mip.schema import Grid
 
-from modulus.models.fcn_mip_plugin import _fix_state_dict_keys
-from modulus.models.dlwp import DLWP
 from modulus.utils.filesystem import Package
 from modulus.utils.sfno.zenith_angle import cos_zenith_angle
 
@@ -160,11 +159,7 @@ def load(package, *, pretrained=True, device="cuda"):
                 nr_output_channels=config["nr_output_channels"],
             )
 
-            if pretrained:
-                weights_path = package.get("weights.pt")
-                weights = torch.load(weights_path)
-                fixed_weights = _fix_state_dict_keys(weights, add_module=False)
-                core_model.load_state_dict(fixed_weights)
+            core_model = modulus.Module.from_checkpoint(package.get("dlwp.mdlus"))
 
             model = _DLWPWrapper(
                 core_model,
