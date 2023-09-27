@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List, Optional, Mapping, Any
+from typing import Union, List, Optional, Mapping, Any
 import pydantic
 from earth2mip import weather_events
 from earth2mip.weather_events import InitialConditionSource, WeatherEvent
@@ -331,13 +331,13 @@ class EnsembleRun(pydantic.BaseModel):
     output_dir: Optional[str] = None
     output_path: Optional[str] = None
     restart_frequency: Optional[int] = None
-    apply_gaussian_perturbation: Optional[bool] = False
+    apply_nudging: Optional[bool] = False
     latitute_location: Optional[float] = None
     latitute_sigma: Optional[float] = None
     longitude_location: Optional[float] = None
     longitude_sigma: Optional[float] = None
     gaussian_amplitude: Optional[float] = None
-    modified_channel: Optional[str] = 't850'
+    modified_channels: Union[str, List[str]] = 't850'
 
     def get_weather_event(self) -> weather_events.WeatherEvent:
         if self.forecast_name:

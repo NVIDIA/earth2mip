@@ -21,7 +21,7 @@ import sys
 import xarray
 import cftime
 import json
-
+from functools import partial
 import numpy as np
 import torch
 import tqdm
@@ -131,8 +131,8 @@ def run_ensembles(
         #         normalize=False,
         #         time=time,
         #     )
-
-        iterator = model(time, x, normalize=False)
+        
+        iterator = model(time, x, normalize=False, nudge = None)
 
         # Check if stdout is connected to a terminal
         if sys.stderr.isatty() and progress:
@@ -216,7 +216,11 @@ def main(config=None):
     logging.info(f"Loading model onto device {device}")
     model = get_model(config.weather_model, device=device)
     logging.info(f"Constructing initializer data source")
-    perturb = get_initializer(
+    perturb = get_perturbator(
+        model,
+        config,
+    )
+    model.nudge = get_nudging(
         model,
         config,
     )
@@ -224,7 +228,7 @@ def main(config=None):
     run_inference(model, config, perturb, group)
 
 
-def get_initializer(
+def get_perturbator(
     model,
     config,
 ):
@@ -251,21 +255,28 @@ def get_initializer(
         if rank == 0 and batch_id == 0:  # first ens-member is deterministic
             noise[0, :, :, :, :] = 0
         x += noise
-        if config.apply_gaussian_perturbation:
-            apply_gaussian_perturbation(
-                device,
-                x,
-                model,
-                config.latitute_location,
-                config.latitute_sigma,
-                config.longitude_location,
-                config.longitude_sigma,
-                config.gaussian_amplitude,
-                config.modified_channel,
-            )
         return x
 
     return perturb
+
+def get_nudging(
+    config,
+    model,
+):
+    if config.apply_nudging:
+        nudge = partial(apply_gaussian_perturbation,
+                        channel_set=model.channel_set,
+                        device=model.device,
+                        latitute_location=config.latitute_location,
+                        latitute_sigma=config.latitute_sigma,
+                        longitude_location=config.longitude_location,
+                        longitude_sigma=config.longitude_sigma,
+                        gaussian_amplitude=config.gaussian_amplitude,
+                        modified_channels=config.modified_channels,
+                       )
+    else:
+        nudge = None
+    return nudge
 
 
 def run_basic_inference(model: time_loop.TimeLoop, n: int, data_source, time):
@@ -311,7 +322,7 @@ def run_inference(
             xarray.Dataset object.
     """
     if not perturb:
-        perturb = get_initializer(model, config)
+        perturb = get_perturbator(model, config)
 
     if not group and torch.distributed.is_initialized():
         group = torch.distributed.group.WORLD
