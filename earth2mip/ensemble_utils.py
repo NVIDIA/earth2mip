@@ -44,7 +44,7 @@ def apply_gaussian_perturbation(
     lon = torch.linspace(-180, 180, x.shape[-1])
     lat, lon = torch.meshgrid(lat, lon)
 
-    dt = torch.tensor(time_step.total_seconds()) / 3600.0
+    dt = torch.tensor(time_step.total_seconds()) / 86400.0 # ~ 1/day
 
     gaussian = dt * gaussian_amplitude * torch.exp(
         -((lon - latitute_location)**2 / (2 * latitute_sigma**2)
