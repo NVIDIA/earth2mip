@@ -44,12 +44,11 @@ def apply_gaussian_perturbation(
     lon = torch.linspace(-180, 180, x.shape[-1])
     lat, lon = torch.meshgrid(lat, lon)
 
-    dt = torch.tensor(time_step.total_seconds()) / 86400.0 # ~ 1/day
+    dt = torch.tensor(time_step.total_seconds()) / 86400.0
 
     gaussian = dt * gaussian_amplitude * torch.exp(
         -((lon - latitute_location)**2 / (2 * latitute_sigma**2)
           + (lat - longitude_location)**2 / (2 * longitude_sigma**2)))
-    gaussian_expanded = gaussian.unsqueeze(0).unsqueeze(1)
     channel_list = channel_set.list_channels()
     for modified_channel in modified_channels:
         index_channel = channel_list.index(modified_channel)
