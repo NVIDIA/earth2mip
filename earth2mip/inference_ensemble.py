@@ -260,6 +260,7 @@ def get_perturbator(
 
     return perturb
 
+
 def get_nudging(
     model,
     config,
@@ -275,7 +276,7 @@ def get_nudging(
                         longitude_sigma=config.longitude_sigma,
                         gaussian_amplitude=config.gaussian_amplitude,
                         modified_channels=config.modified_channels,
-                       )
+                        )
     else:
         nudge = None
     return nudge

@@ -27,6 +27,7 @@ from datetime import datetime
 from timeit import default_timer  # noqa
 from typing import Union
 
+
 def apply_gaussian_perturbation(
     x,
     time_step,
@@ -46,10 +47,10 @@ def apply_gaussian_perturbation(
 
     dt = torch.tensor(time_step.total_seconds()) / 3600.0
 
-    gaussian = dt*gaussian_amplitude * torch.exp(
+    gaussian = dt * gaussian_amplitude * torch.exp(
         -((lon - latitute_location)**2 / (2 * latitute_sigma**2)
-          + (lat - longitude_location)**2 / (2 * longitude_sigma**2))
-    )
+          + (lat - longitude_location)**2 / (2 * longitude_sigma**2)))
+
     gaussian = gaussian.transpose(-1, -2).unsqueeze(0).unsqueeze(0).unsqueeze(0)
     gaussian = gaussian.expand(x.shape[0], x.shape[1], 1, x.shape[-2], x.shape[-1])
     channel_list = channel_set.list_channels()
@@ -57,7 +58,8 @@ def apply_gaussian_perturbation(
         index_channel = channel_list.index(modified_channel)
         x[:, :, index_channel, :, :] += gaussian.squeeze(2).to(device)
     return x
-    
+
+
 def generate_noise_correlated(shape, *, reddening, device, noise_amplitude):
     return noise_amplitude * brown_noise(shape, reddening).to(device)
 
