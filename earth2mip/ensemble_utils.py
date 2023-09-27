@@ -40,23 +40,20 @@ def apply_gaussian_perturbation(
     gaussian_amplitude,
     modified_channels,
 ):
-    shape = x.shape[-2:]
-    lat = torch.linspace(-90, 90, shape[-2])
-    lon = torch.linspace(-180, 180, shape[-1])
-    lon, lat = torch.meshgrid(lon, lat)
+    lat = torch.linspace(-90, 90, x.shape[-2])
+    lon = torch.linspace(-180, 180, x.shape[-1])
+    lat, lon = torch.meshgrid(lat, lon)
 
     dt = torch.tensor(time_step.total_seconds()) / 3600.0
 
     gaussian = dt * gaussian_amplitude * torch.exp(
         -((lon - latitute_location)**2 / (2 * latitute_sigma**2)
           + (lat - longitude_location)**2 / (2 * longitude_sigma**2)))
-
-    gaussian = gaussian.transpose(-1, -2).unsqueeze(0).unsqueeze(0).unsqueeze(0)
-    gaussian = gaussian.expand(x.shape[0], x.shape[1], 1, x.shape[-2], x.shape[-1])
+    gaussian_expanded = gaussian.unsqueeze(0).unsqueeze(1)
     channel_list = channel_set.list_channels()
     for modified_channel in modified_channels:
         index_channel = channel_list.index(modified_channel)
-        x[:, :, index_channel, :, :] += gaussian.squeeze(2).to(device)
+        x[:, index_channel, :, :] += gaussian.to(device)
     return x
 
 
