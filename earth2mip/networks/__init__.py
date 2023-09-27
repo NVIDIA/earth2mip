@@ -174,7 +174,7 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         self.grid = grid
         self.time_step = time_step
         self.n_history = n_history
-        self.nudging = None
+        self.nudge = None
 
         center = torch.from_numpy(np.squeeze(center)).float()
         scale = torch.from_numpy(np.squeeze(scale)).float()
@@ -217,8 +217,6 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         return (x - self.center_org[None, :, None, None]) / self.scale_org[
             None, :, None, None
         ]
-    def set_nudging(self, x):
-        self.nudging = x
 
     def run_steps(self, x, n, normalize=True, time=None):
         warnings.warn(
@@ -289,7 +287,6 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
             yield time, self.scale * x[:, -1] + self.center, restart
 
             for i in range(n) if n else itertools.count():
-                # yair self.nudge: x --> x+nudge
                 if self.nudge:
                     x = self.nudge(x, self.time_step)
                     
