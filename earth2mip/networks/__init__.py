@@ -124,7 +124,7 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         center: np.array,
         scale: np.array,
         grid: schema.Grid,
-        nudge = None, # yair  - remove this until time loop is out of model
+        nudge=None,
         channels=None,
         channel_set: Optional[schema.ChannelSet] = None,
         n_history: int = 0,
@@ -289,7 +289,7 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
             for i in range(n) if n else itertools.count():
                 if self.nudge:
                     x = self.nudge(x, self.time_step)
-                    
+
                 x = self.model(x, time)
                 time = time + self.time_step
 

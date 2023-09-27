@@ -314,7 +314,7 @@ class EnsembleRun(pydantic.BaseModel):
         latitute_sigma: latitute width (sigma) of the gaussian
         longitude_location: longitude location of the center of the gaussian
         longitude_sigma: longitude width (sigma) of the gaussian
-        gaussian_amplitude: in units of `x/hours` where `x` is the state vector of the model 
+        gaussian_amplitude: in units of `x/hours` where `x` is the state vector of the model
         modified_channels: list of channels to modify
 
     """  # noqa
