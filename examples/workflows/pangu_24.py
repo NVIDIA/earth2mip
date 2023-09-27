@@ -26,6 +26,20 @@ model_registry = os.path.join(os.path.dirname(os.path.realpath(os.getcwd())), "m
 os.makedirs(model_registry, exist_ok=True)
 os.environ["MODEL_REGISTRY"] = model_registry
 
+# %% Download Pangu checkpoints
+import subprocess
+if not os.path.isdir(os.path.join(model_registry, 'pangu')):
+    pangu_registry = os.path.join(model_registry, "pangu")
+    os.makedirs(pangu_registry, exist_ok=True)
+    # Wget onnx files
+    print("Downloading model checkpoint, this may take a bit")
+    subprocess.run(['wget', '-nc', '-P', f'{pangu_registry}', 'https://get.ecmwf.int/repository/test-data/ai-models/pangu-weather/pangu_weather_24.onnx'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    subprocess.run(['wget', '-nc', '-P', f'{pangu_registry}', 'https://get.ecmwf.int/repository/test-data/ai-models/pangu-weather/pangu_weather_6.onnx'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+
+    with open(os.path.join(pangu_registry, 'metadata.json'), 'w') as outfile:
+        json.dump({"entrypoint": {"name": "earth2mip.networks.pangu:load"}}, outfile, indent=2)
+
+
 import earth2mip.networks.pangu as pangu
 from earth2mip import (
     registry,

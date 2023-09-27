@@ -151,40 +151,31 @@ def load(package, *, pretrained=True, device="cuda"):
     cs_to_ll_mapfile_path = package.get("map_CS64_LL721x1440.nc")
 
     with torch.cuda.device(device):
-        # p = package.get("model.onnx")
-        with open(package.get("config.json")) as json_file:
-            config = json.load(json_file)
-            core_model = DLWP(
-                nr_input_channels=config["nr_input_channels"],
-                nr_output_channels=config["nr_output_channels"],
-            )
+        core_model = modulus.Module.from_checkpoint(package.get("dlwp.mdlus"))
+        model = _DLWPWrapper(
+            core_model,
+            lsm,
+            longrid,
+            latgrid,
+            topographic_height,
+            ll_to_cs_mapfile_path,
+            cs_to_ll_mapfile_path,
+        )
 
-            core_model = modulus.Module.from_checkpoint(package.get("dlwp.mdlus"))
-
-            model = _DLWPWrapper(
-                core_model,
-                lsm,
-                longrid,
-                latgrid,
-                topographic_height,
-                ll_to_cs_mapfile_path,
-                cs_to_ll_mapfile_path,
-            )
-
-            channel_names = ["t850", "z1000", "z700", "z500", "z300", "tcwv", "t2m"]
-            center = np.load(package.get("global_means.npy"))
-            scale = np.load(package.get("global_stds.npy"))
-            grid = schema.Grid.grid_721x1440
-            dt = datetime.timedelta(hours=12)
-            inference = networks.Inference(
-                model,
-                channels=None,
-                center=center,
-                scale=scale,
-                grid=grid,
-                channel_names=channel_names,
-                time_step=dt,
-                n_history=1,
-            )
-            inference.to(device)
-            return inference
+        channel_names = ["t850", "z1000", "z700", "z500", "z300", "tcwv", "t2m"]
+        center = np.load(package.get("global_means.npy"))
+        scale = np.load(package.get("global_stds.npy"))
+        grid = schema.Grid.grid_721x1440
+        dt = datetime.timedelta(hours=12)
+        inference = networks.Inference(
+            model,
+            channels=None,
+            center=center,
+            scale=scale,
+            grid=grid,
+            channel_names=channel_names,
+            time_step=dt,
+            n_history=1,
+        )
+        inference.to(device)
+        return inference
