@@ -15,9 +15,9 @@
 # limitations under the License.
 
 # %%
+import os
 import numpy as np
 import datetime
-import os
 
 # Set number of GPUs to use to 1
 os.environ["WORLD_SIZE"] = "1"
@@ -26,16 +26,17 @@ model_registry = os.path.join(os.path.dirname(os.path.realpath(os.getcwd())), "m
 os.makedirs(model_registry, exist_ok=True)
 os.environ["MODEL_REGISTRY"] = model_registry
 
-# With the enviroment variables set now we import Earth-2 MIP
+import earth2mip.networks.fcnv2_sm as fcnv2
 from earth2mip import registry, inference_ensemble
 from earth2mip.initial_conditions import cds
-from earth2mip.networks.fcnv2_sm import load as fcnv2_sm_load
+from modulus.distributed import DistributedManager
+from os.path import dirname, abspath, join
 
-# %%
-# Load Pangu model(s) from registry
+# %% Load model package and data source
+device = DistributedManager().device
+print(f"Loading FCNv2 small model onto {device}, this can take a bit")
 package = registry.get_model("fcnv2_sm")
-print("loading FCNv2 small model, this can take a bit")
-sfno_inference_model = fcnv2_sm_load(package)
+sfno_inference_model = fcnv2.load(package, device=device)
 
 data_source = cds.DataSource(sfno_inference_model.in_channel_names)
 output = "path/"
@@ -47,14 +48,16 @@ ds = inference_ensemble.run_basic_inference(
     time=time,
 )
 
-
-# %%
+# %% Post-process
+import matplotlib.pyplot as plt
 from scipy.signal import periodogram
+
+output = f"{dirname(dirname(abspath(__file__)))}/outputs/workflows"
+os.makedirs(output, exist_ok=True)
 
 arr = ds.sel(channel="u200").values
 f, pw = periodogram(arr, axis=-1, fs=1)
 pw = pw.mean(axis=(1, 2))
-import matplotlib.pyplot as plt
 
 l = ds.time - ds.time[0]  # noqa
 days = l / (ds.time[-1] - ds.time[0])
@@ -66,9 +69,9 @@ for k in range(ds.sizes["time"]):
 plt.legend()
 plt.ylim(bottom=1e-8)
 plt.grid()
-plt.savefig("u200_spectra.png")
+plt.savefig(join(output, "u200_spectra_fcnv2sm.png"), bbox_inches="tight")
 
 # %%
 day = (ds.time - ds.time[0]) / np.timedelta64(1, "D")
 plt.semilogy(day, pw[:, 100:].mean(-1), "o-")
-plt.savefig("u200_high_wave.png")
+plt.savefig(join(output, "u200_high_wave_fcnv2sm.png"), bbox_inches="tight")

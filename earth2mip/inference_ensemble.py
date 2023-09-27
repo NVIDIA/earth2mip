@@ -358,7 +358,7 @@ def run_inference(
     date_obj = convert_to_datetime(ds.time[-1])
 
     if config.output_dir:
-        date_str = "{:%Y_%m_%d_%H_%M_%S}".format(date_obj)[5:]
+        date_str = "{:%Y_%m_%d_%H_%M_%S}".format(date_obj)
         name = weather_event.properties.name
         output_path = (
             f"{config.output_dir}/"
