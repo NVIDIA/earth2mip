@@ -3,16 +3,19 @@
 <!-- markdownlint-disable -->
 [![Project Status: Active - The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 [![GitHub](https://img.shields.io/github/license/NVIDIA/earth2mip)](https://github.com/NVIDIA/earth2mip/blob/master/LICENSE.txt)
+[![Documentstion](https://img.shields.io/badge/docs-online-green)](https://nvidia.github.io/earth2mip/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 <!-- markdownlint-enable -->
 
 Earth-2 Model Intercomparison Project (MIP) is python based AI framework that
-enables climate researchers and scientists explore and experiment with the use of AI models for 
-for weather and climate.
-It provides reference workflows for understanding how AI models capture the understanding of our 
-climate system and how they can work with traditional numerical weather forecasting models.
-For instance, the repo provides a uniform interface for running inference using pre-trained model
-checkpoints and scoring the skill of such models using certain standard metrics.
+enables climate researchers and scientists explore and experiment with the use of AI
+models for for weather and climate.
+It provides reference workflows for understanding how AI models capture the understanding
+of our  climate system and how they can work with traditional numerical weather
+forecasting models.
+For instance, the repo provides a uniform interface for running inference using
+pre-trained model checkpoints and scoring the skill of such models using certain
+standard metrics.
 This repository is meant to facilitate the weather and climate community to come up with
 good reference baseline of events to test the models against and to use with a variety
 of data sources.
@@ -36,8 +39,8 @@ make pytest
 
 ## Getting Started
 
-The [notebooks](./examples/notebooks/) folder contains reference Jupyter notebooks for a few common
-workflows and usecases.
+The [notebooks](./examples/notebooks/) folder contains reference Jupyter notebooks for a
+few common workflows and usecases.
 These are the best way to start exploring Earth-2 MIP :
 
 1. [Ensemble Inference](./examples/notebooks/01_ensemble_inference.ipynb) - This
@@ -102,6 +105,9 @@ plugin framework that allows anyone to use their own ML models.
 More importantly Earth-2 MIP aspires to facilitate exploration and collaboration within
 the climate research community to evaluate the potential of AI models in climate and
 weather simulations.
+
+Please see the [documentation page](https://nvidia.github.io/earth2mip/) for in depth
+information about Earth-2 MIP, functionality, APIs, etc.
 
 ## Communication
 
