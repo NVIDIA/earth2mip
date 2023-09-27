@@ -27,34 +27,34 @@ from datetime import datetime
 from timeit import default_timer  # noqa
 from typing import Union
 
-
 def apply_gaussian_perturbation(
-    device,
     x,
-    model,
-    latitute_location: float = 0.0,
-    latitute_sigma: float = 0.0,
-    longitude_location: float = 0.0,
-    longitude_sigma: float = 0.0,
-    amplitude: float = 0.0,
-    modified_channel: str = 't850'
+    time_step,
+    channel_set,
+    device,
+    latitute_location,
+    latitute_sigma,
+    longitude_location,
+    longitude_sigma,
+    gaussian_amplitude,
+    modified_channels,
 ):
     shape = x.shape[-2:]
     lat = torch.linspace(-90, 90, shape[-2])
     lon = torch.linspace(-180, 180, shape[-1])
     lon, lat = torch.meshgrid(lon, lat)
 
-    gaussian = amplitude * torch.exp(
+    gaussian = time_step*amplitude * torch.exp(
         -((lon - latitute_location)**2 / (2 * latitute_sigma**2)
           + (lat - longitude_location)**2 / (2 * longitude_sigma**2))
     )
     gaussian = gaussian.transpose(-1, -2).unsqueeze(0).unsqueeze(0).unsqueeze(0)
     gaussian = gaussian.expand(x.shape[0], x.shape[1], 1, x.shape[-2], x.shape[-1])
-    channel_list = model.channel_set.list_channels()
-    index_channel = channel_list.index(modified_channel)
-    x[:, :, index_channel, :, :] += gaussian.squeeze(2).to(device)
+    channel_list = channel_set.list_channels()
+    for modified_channel in modified_channels:
+        index_channel = channel_list.index(modified_channel)
+        x[:, :, index_channel, :, :] += gaussian.squeeze(2).to(device)
     return x
-
     
 def generate_noise_correlated(shape, *, reddening, device, noise_amplitude):
     return noise_amplitude * brown_noise(shape, reddening).to(device)

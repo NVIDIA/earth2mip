@@ -174,6 +174,7 @@ class PanguInference(torch.nn.Module):
         self.model_6 = model_6
         self.model_24 = model_24
         self.channels = None
+        self.nudge = None
 
     def to(self, device):
         return self
@@ -245,10 +246,14 @@ class PanguInference(torch.nn.Module):
                 for i in range(3):
                     time1 += datetime.timedelta(hours=6)
 
+                    if self.nudge:
+                        x1 = self.nudge(x1, self.time_step)
                     x1 = self.model_6(x1)
                     yield time1, x1, restart_data
 
                 time0 += datetime.timedelta(hours=24)
+                if self.nudge:
+                    x0 = self.nudge(x0, 4.0*self.time_step)
                 x0 = self.model_24(x0)
                 yield time0, x0, restart_data
 
