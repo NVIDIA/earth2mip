@@ -16,7 +16,7 @@
 name: Bug Report
 description: File a bug report for Earth-2 MIP
 title: "🐛[BUG]: "
-labels: ["bug"]
+labels: ["bug", "? - Needs Triage"]
 
 body:
   - type: markdown
@@ -31,7 +31,7 @@ body:
     attributes:
       label: Version
       description: What version of Earth-2 MIP are you running?
-      placeholder: "example: 0.1.0"
+      placeholder: "source - main"
     validations:
       required: true
 
@@ -41,32 +41,17 @@ body:
       label: On which installation method(s) does this occur?
       multiple: true
       options:
-        - Docker
-        - Pip
         - Source
+        - Pip
 
   - type: textarea
     id: description
     attributes:
       label: Describe the issue
-      description: Please provide a complete and succinct description of the problem, including what you expected to happen.
+      description: Please provide a complete and succinct description of the problem, including what you expected to happen and what actually occurs.
       placeholder: XYZ occurred, I expected QRS results
     validations:
       required: true
-
-  - type: textarea
-    id: mvr
-    attributes:
-      label: Minimum reproducible example
-      description: Please supply a [minimum reproducible code example](https://matthewrocklin.com/blog/work/2018/02/28/minimal-bug-reports) here.
-      render: shell
-
-  - type: textarea
-    id: logs
-    attributes:
-      label: Relevant log output
-      description: Please paste relevant error and log output here
-      render: shell
 
   - type: textarea
     id: env-details
