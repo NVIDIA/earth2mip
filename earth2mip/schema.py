@@ -309,6 +309,13 @@ class EnsembleRun(pydantic.BaseModel):
         output_dir (optional): The directory to save the output files in (alternative to `output_path`).
         output_path (optional): The path to the output file (alternative to `output_dir`).
         restart_frequency: if provided save at end and at the specified frequency. 0 = only save at end.
+        apply_nudging: Flag for applying a Gaussian nudging functions
+        latitute_location: latitute location of the center of the gaussian
+        latitute_sigma: latitute width (sigma) of the gaussian
+        longitude_location: longitude location of the center of the gaussian
+        longitude_sigma: longitude width (sigma) of the gaussian
+        gaussian_amplitude: in units of `x/hours` where `x` is the state vector of the model 
+        modified_channels: list of channels to modify
 
     """  # noqa
 
