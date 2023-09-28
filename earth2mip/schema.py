@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Union, List, Optional, Mapping, Any
+from typing import List, Optional, Mapping, Any
 import pydantic
 from earth2mip import weather_events
 from earth2mip.weather_events import InitialConditionSource, WeatherEvent
@@ -296,6 +296,7 @@ class EnsembleRun(pydantic.BaseModel):
         weather_model: The name of the fully convolutional neural network (FCN) model to use for the forecast.
         ensemble_members: The number of ensemble members to use in the forecast.
         noise_amplitude: The amplitude of the Gaussian noise to add to the initial conditions.
+        noise_injection_amplitude: The amplitude of the model noise to add beteen steps with units `var/h`.
         noise_reddening: The noise reddening amplitude, 2.0 was the defualt set by A.G. work.
         simulation_length: The length of the simulation in timesteps.
         output_frequency: The frequency at which to write the output to file, in timesteps.
@@ -309,13 +310,7 @@ class EnsembleRun(pydantic.BaseModel):
         output_dir (optional): The directory to save the output files in (alternative to `output_path`).
         output_path (optional): The path to the output file (alternative to `output_dir`).
         restart_frequency: if provided save at end and at the specified frequency. 0 = only save at end.
-        apply_nudging: Flag for applying a Gaussian nudging functions
-        latitute_location: latitute location of the center of the gaussian
-        latitute_sigma: latitute width (sigma) of the gaussian
-        longitude_location: longitude location of the center of the gaussian
-        longitude_sigma: longitude width (sigma) of the gaussian
-        gaussian_amplitude: in units of `x/hours` where `x` is the state vector of the model
-        modified_channels: list of channels to modify
+        noise_injection: Flag for applying a brown noise between model steps as model perturbation
 
     """  # noqa
 
@@ -326,6 +321,7 @@ class EnsembleRun(pydantic.BaseModel):
     single_value_perturbation: bool = True
     noise_reddening: float = 2.0
     noise_amplitude: float = 0.05
+    noise_injection_amplitude: float = 0.05
     output_frequency: int = 1
     output_grid: Optional[Grid] = None
     ensemble_members: int = 1
@@ -338,13 +334,7 @@ class EnsembleRun(pydantic.BaseModel):
     output_dir: Optional[str] = None
     output_path: Optional[str] = None
     restart_frequency: Optional[int] = None
-    apply_nudging: Optional[bool] = False
-    latitute_location: Optional[float] = None
-    latitute_sigma: Optional[float] = None
-    longitude_location: Optional[float] = None
-    longitude_sigma: Optional[float] = None
-    gaussian_amplitude: Optional[float] = None
-    modified_channels: Union[str, List[str]] = 't850'
+    noise_injection: Optional[bool] = False
 
     def get_weather_event(self) -> weather_events.WeatherEvent:
         if self.forecast_name:

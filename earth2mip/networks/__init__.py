@@ -124,7 +124,7 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         center: np.array,
         scale: np.array,
         grid: schema.Grid,
-        nudge=None,
+        noise_injection=None,
         channels=None,
         channel_set: Optional[schema.ChannelSet] = None,
         n_history: int = 0,
@@ -141,7 +141,7 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
                 the means. The shape is NOT `len(channels)`.
             scale: a 1d numpy array with shape (n_channels in data) containing
                 the stds. The shape is NOT `len(channels)`.
-            nudge: a nudging function that augments the state vector 
+            noise_injection: a nudging function that augments the state vector
             grid: metadata about the grid, which should be used to pass the
                 correct data to this object.
             channels: a list of integers taken from [0, n_channels in data -
@@ -174,7 +174,7 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         self.grid = grid
         self.time_step = time_step
         self.n_history = n_history
-        self.nudge = None
+        self.noise_injection = noise_injection
 
         center = torch.from_numpy(np.squeeze(center)).float()
         scale = torch.from_numpy(np.squeeze(scale)).float()
@@ -287,8 +287,8 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
             yield time, self.scale * x[:, -1] + self.center, restart
 
             for i in range(n) if n else itertools.count():
-                if self.nudge:
-                    x = self.nudge(x, self.time_step)
+                if self.noise_injection:
+                    x = self.noise_injection(x, self.time_step)
 
                 x = self.model(x, time)
                 time = time + self.time_step

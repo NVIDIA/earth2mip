@@ -39,7 +39,7 @@ from earth2mip import initial_conditions, time_loop
 from earth2mip.ensemble_utils import (
     generate_noise_correlated,
     generate_bred_vector,
-    apply_gaussian_perturbation,
+    generate_model_noise_correlated,
 )
 from earth2mip.netcdf import finalize_netcdf, initialize_netcdf, update_netcdf
 from earth2mip.networks import get_model, Inference
@@ -220,8 +220,7 @@ def main(config=None):
         model,
         config,
     )
-    model.nudge = get_nudging(
-        model,
+    model.noise_injection = get_noise_injection(
         config,
         device,
     )
@@ -261,25 +260,19 @@ def get_perturbator(
     return perturb
 
 
-def get_nudging(
-    model,
+def get_noise_injection(
     config,
     device,
 ):
-    if config.apply_nudging:
-        nudge = partial(apply_gaussian_perturbation,
-                        channel_set=model.channel_set,
-                        device=device,
-                        latitute_location=config.latitute_location,
-                        latitute_sigma=config.latitute_sigma,
-                        longitude_location=config.longitude_location,
-                        longitude_sigma=config.longitude_sigma,
-                        gaussian_amplitude=config.gaussian_amplitude,
-                        modified_channels=config.modified_channels,
-                        )
+    if config.noise_injection:
+        noise_injection = partial(
+            generate_model_noise_correlated,
+            reddening=config.noise_reddening,
+            device=device,
+            noise_injection_amplitude=config.noise_injection_amplitude)
     else:
-        nudge = None
-    return nudge
+        noise_injection = None
+    return noise_injection
 
 
 def run_basic_inference(model: time_loop.TimeLoop, n: int, data_source, time):

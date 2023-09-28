@@ -28,32 +28,16 @@ from timeit import default_timer  # noqa
 from typing import Union
 
 
-def apply_gaussian_perturbation(
-    x,
-    time_step,
-    channel_set,
-    device,
-    latitute_location,
-    latitute_sigma,
-    longitude_location,
-    longitude_sigma,
-    gaussian_amplitude,
-    modified_channels,
-):
-    lat = torch.linspace(-90, 90, x.shape[-2])
-    lon = torch.linspace(-180, 180, x.shape[-1])
-    lat, lon = torch.meshgrid(lat, lon)
-
-    dt = torch.tensor(time_step.total_seconds()) / 86400.0
-
-    gaussian = dt * gaussian_amplitude * torch.exp(
-        -((lon - latitute_location)**2 / (2 * latitute_sigma**2)
-          + (lat - longitude_location)**2 / (2 * longitude_sigma**2)))
-    channel_list = channel_set.list_channels()
-    for modified_channel in modified_channels:
-        index_channel = channel_list.index(modified_channel)
-        x[:, index_channel, :, :] += gaussian.to(device)
-    return x
+# TODO change all noise funcs to update x and not return noise and unify functions
+def generate_model_noise_correlated(x,
+                                    time_step,
+                                    reddening,
+                                    device,
+                                    noise_injection_amplitude,
+                                    ):
+    shape = x.shape
+    dt = torch.tensor(time_step.total_seconds()) / 3600.0
+    return x + noise_injection_amplitude * dt * brown_noise(shape, reddening).to(device)
 
 
 def generate_noise_correlated(shape, *, reddening, device, noise_amplitude):
