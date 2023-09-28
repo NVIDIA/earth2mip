@@ -91,10 +91,10 @@ table below.
 <!-- markdownlint-disable -->
 | ID | Model | Architecture | Type | Reference | Source | Size |
 |:-----:|:-----:|:-------------------------------------------:|:--------------:|:---------:|:-------:|:---:|
-| fcn* | FourCastNet |    Adaptive Fourier Neural Operator  | global weather |   [Arxiv](https://arxiv.org/abs/2202.11214)   | modulus |
-| dlwp |  Deep Learning Weather Prediction  |  Convolution Encoder-Decoder | global weather |   [AGU](https://doi.org/10.1029/2020MS002109)   | modulus |  50Mb |
+| fcn | FourCastNet | Adaptive Fourier Neural Operator  | global weather | [Arxiv](https://arxiv.org/abs/2202.11214)   | [modulus](https://catalog.ngc.nvidia.com/orgs/nvidia/teams/modulus/models/modulus_fcn) | 300Mb |
+| dlwp |  Deep Learning Weather Prediction  |  Convolution Encoder-Decoder | global weather |   [AGU](https://doi.org/10.1029/2020MS002109)   | [modulus](https://catalog.ngc.nvidia.com/orgs/nvidia/teams/modulus/models/modulus_dlwp_cubesphere) |  50Mb |
 | pangu | Pangu Weather  |  Vision Transformer | global weather |  [Nature](https://doi.org/10.1038/s41586-023-06185-3) | onnx | 2Gb |
-| fcnv2_sm |  FourCastNet v2 | Spherical Harmonics Fourier Neural Operator | global weather |  [Arxiv](https://arxiv.org/abs/2306.03838)  | modulus | 3.5Gb |
+| fcnv2_sm |  FourCastNet v2 | Spherical Harmonics Fourier Neural Operator | global weather |  [Arxiv](https://arxiv.org/abs/2306.03838)  | [modulus](https://catalog.ngc.nvidia.com/orgs/nvidia/teams/modulus/models/modulus_fcnv2_sm) | 3.5Gb |
 <!-- markdownlint-enable -->
 
 \* = coming soon
