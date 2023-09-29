@@ -249,7 +249,17 @@ def get_initializer(
             )
         if rank == 0 and batch_id == 0:  # first ens-member is deterministic
             noise[0, :, :, :, :] = 0
-        x += noise
+
+        if config.ic_perturbed_channels=="All":
+            x += noise
+        elif config.ic_perturbed_channels == "None":
+            pass
+        else:
+            if not isinstance(config.ic_perturbed_channels, list):
+                config.ic_perturbed_channels = [config.ic_perturbed_channels]
+            channel_list = model.channel_set.list_channels()
+            indices = torch.tensor([channel_list.index(channel) for channel in config.ic_perturbed_channels])
+            x[:, :, indices, :, :] += noise[:, :, indices, :, :]
         return x
 
     return perturb
