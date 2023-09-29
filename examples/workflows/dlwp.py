@@ -61,7 +61,6 @@ print(ds)
 # %% Post-process
 # %% Post-process
 import matplotlib.pyplot as plt
-from scipy.signal import periodogram
 
 output = f"{dirname(dirname(abspath(__file__)))}/outputs/workflows"
 os.makedirs(output, exist_ok=True)
