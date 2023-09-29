@@ -363,7 +363,6 @@ class EnsembleRun(pydantic.BaseModel):
     output_path: Optional[str] = None
     restart_frequency: Optional[int] = None
 
-
     def get_weather_event(self) -> weather_events.WeatherEvent:
         if self.forecast_name:
             return weather_events.read(self.forecast_name)
