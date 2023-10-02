@@ -42,11 +42,6 @@ def get_input_from_xarray(task_config, example_batch):
 
 
 # %%
-
-# on selene
-root = "/lustre/fsw/sw_earth2_ml/graphcast/"
-
-# elsewhere
 # https://console.cloud.google.com/storage/browser/dm_graphcast/dataset?pageState=(%22StorageObjectListTable%22:(%22f%22:%22%255B%255D%22))&prefix=&forceOnObjectsSortingFiltering=false
 root = "gs://dm_graphcast"
 package = Package(root, seperator="/")
@@ -59,8 +54,6 @@ with open(dataset_filename, "rb") as f:
     example_batch = xarray.load_dataset(f).compute()
 
 # %%
-
-
 task_config = time_loop.task_config
 target_codes = channels.get_codes(
     task_config.target_variables, task_config.pressure_levels, [0]
