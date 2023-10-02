@@ -177,6 +177,20 @@ class GraphcastTimeLoop(TimeLoop):
     def _input_codes(self):
         return list(get_codes(self.task_config))
 
+    def step(self, rng, time, s):
+        s = self.set_forcings(s, time - 1 * self.history_time_step, 0)
+        s = self.set_forcings(s, time, 1)
+        s = self.set_forcings(s, time + self.history_time_step, 2)
+
+        x = (s - self.mean) / self.scale
+        d = self.forward(rng=rng, x=x)
+        x_next = self.get_prognostic(s, 1) + d * self.diff_scale
+
+        # update array
+        s = self.set_prognostic(s, 0, self.get_prognostic(s, 1))
+        s = self.set_prognostic(s, 1, x_next)
+        return s
+
     def __call__(self, time, x, restart=None):
         assert not restart, "not implemented"
         ngrid = np.prod(self.grid.shape)
@@ -198,18 +212,7 @@ class GraphcastTimeLoop(TimeLoop):
         while True:
             # TODO will need to change update rule for diagnostics outputs
             yield time, self._to_latlon(self.get_prognostic(s, 1)), None
-
-            s = self.set_forcings(s, time - 1 * self.history_time_step, 0)
-            s = self.set_forcings(s, time, 1)
-            s = self.set_forcings(s, time + self.history_time_step, 2)
-
-            x = (s - self.mean) / self.scale
-            d = self.forward(rng=rng, x=x)
-            x_next = self.get_prognostic(s, 1) + d * self.diff_scale
-
-            # update array
-            s = self.set_prognostic(s, 0, self.get_prognostic(s, 1))
-            s = self.set_prognostic(s, 1, x_next)
+            s = self.step(rng, time, s)
             time = time + self.time_step
 
 
