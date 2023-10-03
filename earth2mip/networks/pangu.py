@@ -33,6 +33,8 @@ import os
 import datetime
 import torch
 import subprocess
+import os
+import json
 
 import numpy as np
 import onnxruntime as ort
@@ -254,40 +256,49 @@ class PanguInference(torch.nn.Module):
                 yield time0, x0, restart_data
 
 
-def _download_checkpoint():
-    # First set up a pangu folder
+def _download_default_package(
+    package,
+    default_package_name: str = "pangu",
+    entry_point: str = "earth2mip.networks.pangu:load",
+):
     model_registry = os.environ["MODEL_REGISTRY"]
-    if not os.path.isdir(os.path.join(model_registry, "pangu")):
-        print("Downloading Pangu 6hr + 24hr model checkpoints, this may take a bit")
-        pangu_registry = os.path.join(os.environ["MODEL_REGISTRY"], "pangu")
+    pangu_registry = os.path.join(model_registry, default_package_name)
+    if str(pangu_registry) != str(package.root):
+        print("Custom package pangu found, aborting default package")
+        return
+
+    if not os.path.isdir(package.root):
+        print("Downloading Pangu 6hr / 24hr model checkpoints, this may take a bit")
         os.makedirs(pangu_registry, exist_ok=True)
         # Wget onnx files
-        subprocess.run(
-            [
-                "wget",
-                "-nc",
-                "-P",
-                f"{pangu_registry}",
-                "https://get.ecmwf.int/repository/test-data/ai-models/pangu-weather/pangu_weather_24.onnx",
-            ],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.STDOUT,
-        )
-        subprocess.run(
-            [
-                "wget",
-                "-nc",
-                "-P",
-                f"{pangu_registry}",
-                "https://get.ecmwf.int/repository/test-data/ai-models/pangu-weather/pangu_weather_6.onnx",
-            ],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.STDOUT,
-        )
-
+        if package.name == "pangu" or package.name == "pangu_24":
+            subprocess.run(
+                [
+                    "wget",
+                    "-nc",
+                    "-P",
+                    f"{pangu_registry}",
+                    "https://get.ecmwf.int/repository/test-data/ai-models/pangu-weather/pangu_weather_24.onnx",
+                ],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.STDOUT,
+            )
+        if package.name == "pangu" or package.name == "pangu_6":
+            subprocess.run(
+                [
+                    "wget",
+                    "-nc",
+                    "-P",
+                    f"{pangu_registry}",
+                    "https://get.ecmwf.int/repository/test-data/ai-models/pangu-weather/pangu_weather_6.onnx",
+                ],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.STDOUT,
+            )
+        # Technically not needed
         with open(os.path.join(pangu_registry, "metadata.json"), "w") as outfile:
             json.dump(
-                {"entrypoint": {"name": "earth2mip.networks.pangu:load"}},
+                {"entrypoint": {"name": entry_point}},
                 outfile,
                 indent=2,
             )
@@ -299,7 +310,7 @@ def load(package, *, pretrained=True, device="doesn't matter"):
     """Load the sub-stepped pangu weather inference"""
     assert pretrained
     # Download model if needed
-    _download_checkpoint()
+    _download_default_package(package)
 
     p6 = package.get("pangu_weather_6.onnx")
     p24 = package.get("pangu_weather_24.onnx")
@@ -314,21 +325,57 @@ def load_single_model(
 ):
     """Load a single time-step pangu weather"""
     assert pretrained
+    # Download model if needed
     _download_checkpoint()
 
+    if time_step_hours == 6:
+        load_6(package, pretrained, device)
+    elif time_step_hours == 24:
+        load_24(package, pretrained, device)
+    else:
+        raise ValueError(f"time_step_hours must be 6 or 24, got {time_step_hours}")
+
+
+def load_24(package, *, pretrained=True, device="cuda:0"):
+    """Load a 24 hour time-step pangu weather"""
+    assert pretrained
+    _download_default_package(package, "pangu_24", "earth2mip.networks.pangu:load_24")
+
     with torch.cuda.device(device):
-        if time_step_hours == 6:
-            p = package.get("pangu_weather_6.onnx")
-        elif time_step_hours == 24:
-            p = package.get("pangu_weather_24.onnx")
-        else:
-            raise ValueError(f"time_step_hours must be 6 or 24, got {time_step_hours}")
+        p = package.get("pangu_weather_24.onnx")
         model = PanguStacked(PanguWeather(p))
         channel_names = model.channel_names()
         center = np.zeros([len(channel_names)])
         scale = np.ones([len(channel_names)])
         grid = schema.Grid.grid_721x1440
-        dt = datetime.timedelta(hours=time_step_hours)
+        dt = datetime.timedelta(hours=24)
+        inference = networks.Inference(
+            model,
+            channels=None,
+            center=center,
+            scale=scale,
+            grid=grid,
+            channel_names=channel_names,
+            channel_set=schema.ChannelSet.var_pangu,
+            time_step=dt,
+        )
+        inference.to(device)
+        return inference
+
+
+def load_6(package, *, pretrained=True, device="cuda:0"):
+    """Load a 6 hour time-step pangu weather"""
+    assert pretrained
+    _download_default_package(package, "pangu_6", "earth2mip.networks.pangu:load_6")
+
+    with torch.cuda.device(device):
+        p = package.get("pangu_weather_6.onnx")
+        model = PanguStacked(PanguWeather(p))
+        channel_names = model.channel_names()
+        center = np.zeros([len(channel_names)])
+        scale = np.ones([len(channel_names)])
+        grid = schema.Grid.grid_721x1440
+        dt = datetime.timedelta(hours=6)
         inference = networks.Inference(
             model,
             channels=None,

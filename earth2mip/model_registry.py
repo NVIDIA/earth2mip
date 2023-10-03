@@ -98,7 +98,8 @@ class Package:
 
     """
 
-    def __init__(self, root: str, seperator: str):
+    def __init__(self, name: str, root: str, seperator: str):
+        self.name = name
         self.root = root
         self.seperator = seperator
 
@@ -125,7 +126,7 @@ class ModelRegistry:
         return [os.path.basename(f) for f in filesystem.ls(self.path)]
 
     def get_model(self, name: str):
-        return Package(self.get_path(name), seperator=self.SEPERATOR)
+        return Package(name, self.get_path(name), seperator=self.SEPERATOR)
 
     def get_path(self, name, *args):
         return self.SEPERATOR.join([self.path, name, *args])

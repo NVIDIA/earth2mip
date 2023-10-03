@@ -39,9 +39,15 @@ from modulus.models.fcn_mip_plugin import _fix_state_dict_keys
 import earth2mip.networks.fcnv2 as fcnv2
 
 
-def _download_checkpoint():
+def _download_default_package(package):
+
     model_registry = os.environ["MODEL_REGISTRY"]
-    if not os.path.isdir(os.path.join(model_registry, "fcnv2_sm")):
+    fcn_registry = os.path.join(model_registry, "fcnv2_sm")
+    if str(fcn_registry) != str(package.root):
+        print("Custom package fcnv2_sm found, aborting default package")
+        return
+
+    if not os.path.isdir(package.root):
         print("Downloading FCNv2 small checkpoint, this may take a bit")
         subprocess.run(
             [
@@ -65,7 +71,7 @@ def _download_checkpoint():
 def load(package, *, pretrained=True, device="cuda"):
     assert pretrained
     # Download model if needed
-    _download_checkpoint()
+    _download_default_package(package)
 
     config_path = pathlib.Path(__file__).parent / "fcnv2" / "sfnonet.yaml"
     params = fcnv2.YParams(config_path.as_posix(), "sfno_73ch")

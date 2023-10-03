@@ -17,4 +17,14 @@
 # !/usr/bin/env python
 from setuptools import setup
 
-setup()
+setup(
+    entry_points={
+        "earth2mip.networks": [
+            "dlwp = earth2mip.networks.dlwp:load",
+            "pangu = earth2mip.networks.pangu:load",
+            "pangu_6 = earth2mip.networks.pangu:load_6",
+            "pangu_24 = earth2mip.networks.pangu:load_24",
+            "fcnv2_sm = earth2mip.networks.fcnv2_sm:load",
+        ],
+    }
+)

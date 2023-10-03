@@ -21,6 +21,7 @@ import numpy as np
 import xarray
 import json
 import subprocess
+import os
 from earth2mip import registry, schema, networks, config, initial_conditions, geometry
 from earth2mip.time_loop import TimeLoop
 from earth2mip.schema import Grid
@@ -137,9 +138,15 @@ class _DLWPWrapper(torch.nn.Module):
         return self.prepare_output(y)
 
 
-def _download_checkpoint():
+def _download_default_package(package):
+
     model_registry = os.environ["MODEL_REGISTRY"]
-    if not os.path.isdir(os.path.join(model_registry, "dlwp")):
+    dlwp_registry = os.path.join(model_registry, "dlwp")
+    if str(dlwp_registry) != str(package.root):
+        print("Custom package DLWP found, aborting default package")
+        return
+
+    if not os.path.isdir(package.root):
         print("Downloading DLWP model checkpoint, this may take a bit")
         subprocess.run(
             [
@@ -169,7 +176,7 @@ def _download_checkpoint():
 def load(package, *, pretrained=True, device="cuda"):
     assert pretrained
     # Download model if needed
-    _download_checkpoint()
+    _download_default_package(package)
 
     # load static datasets
     lsm = xarray.open_dataset(package.get("land_sea_mask_rs_cs.nc"))["lsm"].values

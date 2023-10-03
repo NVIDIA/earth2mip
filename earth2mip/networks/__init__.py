@@ -21,6 +21,8 @@ import itertools
 from typing import Optional, Tuple, Any, Iterator
 import sys
 import datetime
+import pkg_resources
+import os
 
 import torch
 import einops
@@ -322,7 +324,17 @@ def _default_inference(package, metadata, device):
 
 
 def _load_package(package, metadata, device) -> time_loop.TimeLoop:
+    # Attempt to see if Earth2 MIP has entry point registered already
     if metadata is None:
+        group = "earth2mip.networks"
+        entrypoints = pkg_resources.iter_entry_points(group)
+        for entry_point in entrypoints:
+            if entry_point.name == package.name:
+                inference_loader = entry_point.load()
+                return inference_loader(package, device=device)
+
+    # Read meta data from file if not present
+    if metadata is None and os.path.exists(package.get("metadata.json")):
         local_path = package.get("metadata.json")
         with open(local_path) as f:
             metadata = schema.Model.parse_raw(f.read())

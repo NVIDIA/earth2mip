@@ -26,7 +26,7 @@
     },
     "output_path": "../outputs/01_ensemble_notebook",
     "output_frequency": 1,
-    "weather_model": "fcnv2_sm",
+    "weather_model": "pangu_24",
     "seed": 12345,
     "use_cuda_graphs": false,
     "ensemble_batch_size": 1,
