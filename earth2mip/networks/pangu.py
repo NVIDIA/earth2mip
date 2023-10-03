@@ -32,6 +32,7 @@ import logging
 import os
 import datetime
 import torch
+import subprocess
 
 import numpy as np
 import onnxruntime as ort
@@ -253,9 +254,52 @@ class PanguInference(torch.nn.Module):
                 yield time0, x0, restart_data
 
 
+def _download_checkpoint():
+    # First set up a pangu folder
+    model_registry = os.environ["MODEL_REGISTRY"]
+    if not os.path.isdir(os.path.join(model_registry, "pangu")):
+        print("Downloading Pangu 6hr + 24hr model checkpoints, this may take a bit")
+        pangu_registry = os.path.join(os.environ["MODEL_REGISTRY"], "pangu")
+        os.makedirs(pangu_registry, exist_ok=True)
+        # Wget onnx files
+        subprocess.run(
+            [
+                "wget",
+                "-nc",
+                "-P",
+                f"{pangu_registry}",
+                "https://get.ecmwf.int/repository/test-data/ai-models/pangu-weather/pangu_weather_24.onnx",
+            ],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.STDOUT,
+        )
+        subprocess.run(
+            [
+                "wget",
+                "-nc",
+                "-P",
+                f"{pangu_registry}",
+                "https://get.ecmwf.int/repository/test-data/ai-models/pangu-weather/pangu_weather_6.onnx",
+            ],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.STDOUT,
+        )
+
+        with open(os.path.join(pangu_registry, "metadata.json"), "w") as outfile:
+            json.dump(
+                {"entrypoint": {"name": "earth2mip.networks.pangu:load"}},
+                outfile,
+                indent=2,
+            )
+    else:
+        print("Pangu package already found, skipping download")
+
+
 def load(package, *, pretrained=True, device="doesn't matter"):
     """Load the sub-stepped pangu weather inference"""
     assert pretrained
+    # Download model if needed
+    _download_checkpoint()
 
     p6 = package.get("pangu_weather_6.onnx")
     p24 = package.get("pangu_weather_24.onnx")
@@ -270,6 +314,8 @@ def load_single_model(
 ):
     """Load a single time-step pangu weather"""
     assert pretrained
+    _download_checkpoint()
+
     with torch.cuda.device(device):
         if time_step_hours == 6:
             p = package.get("pangu_weather_6.onnx")

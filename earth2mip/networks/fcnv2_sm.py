@@ -26,6 +26,7 @@ import datetime
 import torch
 import json
 import pathlib
+import subprocess
 
 import numpy as np
 import onnxruntime as ort
@@ -38,8 +39,33 @@ from modulus.models.fcn_mip_plugin import _fix_state_dict_keys
 import earth2mip.networks.fcnv2 as fcnv2
 
 
+def _download_checkpoint():
+    model_registry = os.environ["MODEL_REGISTRY"]
+    if not os.path.isdir(os.path.join(model_registry, "fcnv2_sm")):
+        print("Downloading FCNv2 small checkpoint, this may take a bit")
+        subprocess.run(
+            [
+                "wget",
+                "-nc",
+                "-P",
+                f"{model_registry}",
+                "https://api.ngc.nvidia.com/v2/models/nvidia/modulus/modulus_fcnv2_sm/versions/v0.2/files/fcnv2_sm.zip",
+            ],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.STDOUT,
+        )
+        subprocess.run(
+            ["unzip", "-u", f"{model_registry}/fcnv2_sm.zip", "-d", f"{model_registry}"]
+        )
+        subprocess.run(["rm", f"{model_registry}/fcnv2_sm.zip"])
+    else:
+        print("FCNv2 small package already found, skipping download")
+
+
 def load(package, *, pretrained=True, device="cuda"):
     assert pretrained
+    # Download model if needed
+    _download_checkpoint()
 
     config_path = pathlib.Path(__file__).parent / "fcnv2" / "sfnonet.yaml"
     params = fcnv2.YParams(config_path.as_posix(), "sfno_73ch")

@@ -107,7 +107,7 @@ conda activate earth2mip
 Next we need to clone and install Earth-2 MIP:
 
 ```bash
-git clone git@github.com:NVIDIA/earth2mip.git && cd earth2mip 
+git clone git@github.com:NVIDIA/earth2mip.git && cd earth2mip
 pip install .
 ```
 
@@ -150,4 +150,14 @@ The workflows can then be excuted using python, e.g.
 ```bash
 cd workflows/
 python pangu_24.py
+```
+
+## Running Recipes
+
+To run a the config:
+
+```bash
+export MODEL_REGISTRY=$PWD/models
+
+python earth2mip.inference_ensemble recipes/ensemble_fcnv2sm_cds.json
 ```
