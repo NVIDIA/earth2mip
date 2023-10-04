@@ -316,6 +316,7 @@ class PerturbationStrategy(Enum):
     correlated = "correlated"
     gaussian = "gaussian"
     bred_vector = "bred_vector"
+    spherical_grf = "spherical_grf"
 
 
 class EnsembleRun(pydantic.BaseModel):
@@ -339,6 +340,9 @@ class EnsembleRun(pydantic.BaseModel):
         output_dir (optional): The directory to save the output files in (alternative to `output_path`).
         output_path (optional): The path to the output file (alternative to `output_dir`).
         restart_frequency: if provided save at end and at the specified frequency. 0 = only save at end.
+        grf_noise_alpha: tuning parameter of the Gaussian random field, see ensemble_utils.generate_noise_grf for details
+        grf_noise_sigma: tuning parameter of the Gaussian random field, see ensemble_utils.generate_noise_grf for details
+        grf_noise_tau: tuning parameter of the Gaussian random field, see ensemble_utils.generate_noise_grf for details
 
     """  # noqa
 
@@ -362,6 +366,9 @@ class EnsembleRun(pydantic.BaseModel):
     output_dir: Optional[str] = None
     output_path: Optional[str] = None
     restart_frequency: Optional[int] = None
+    grf_noise_alpha: float = 2.0
+    grf_noise_sigma: float = 5.0
+    grf_noise_tau: float = 2.0
 
     def get_weather_event(self) -> weather_events.WeatherEvent:
         if self.forecast_name:

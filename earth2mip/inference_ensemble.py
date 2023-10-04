@@ -39,6 +39,7 @@ from earth2mip import initial_conditions, time_loop
 from earth2mip.ensemble_utils import (
     generate_noise_correlated,
     generate_bred_vector,
+    generate_noise_grf,
 )
 from earth2mip.netcdf import finalize_netcdf, initialize_netcdf, update_netcdf
 from earth2mip.networks import get_model, Inference
@@ -240,6 +241,14 @@ def get_initializer(
                 device=device,
                 noise_amplitude=config.noise_amplitude,
             )
+        elif config.perturbation_strategy == PerturbationStrategy.spherical_grf:
+            noise = generate_noise_grf(
+                shape,
+                model.grid,
+                sigma=config.grf_noise_sigma,
+                alpha=config.grf_noise_alpha,
+                tau=config.grf_noise_tau,
+            ).to(device)
         elif config.perturbation_strategy == PerturbationStrategy.bred_vector:
             noise = generate_bred_vector(
                 x,
