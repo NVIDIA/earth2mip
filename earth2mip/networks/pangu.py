@@ -278,16 +278,16 @@ def _download_default_package(
             urllib.request.urlretrieve(
                 "https://get.ecmwf.int/repository/test-data/ai-models/pangu-weather/"
                 + "pangu_weather_24.onnx",
-                f"{model_registry}/pangu_weather_24.onnx",
+                f"{package.root}/pangu_weather_24.onnx",
             )
         if name == "pangu" or name == "pangu_6":
             urllib.request.urlretrieve(
                 "https://get.ecmwf.int/repository/test-data/ai-models/pangu-weather/"
                 + "pangu_weather_6.onnx",
-                f"{model_registry}/pangu_weather_6.onnx",
+                f"{package.root}/pangu_weather_6.onnx",
             )
         # Technically not needed
-        with open(os.path.join(pangu_registry, "metadata.json"), "w") as outfile:
+        with open(os.path.join(package.root, "metadata.json"), "w") as outfile:
             json.dump(
                 {"entrypoint": {"name": entry_point}},
                 outfile,
@@ -318,9 +318,9 @@ def load_single_model(
     assert pretrained
 
     if time_step_hours == 6:
-        load_6(package, pretrained, device)
+        load_6(package, pretrained=pretrained, device=device)
     elif time_step_hours == 24:
-        load_24(package, pretrained, device)
+        load_24(package, pretrained=pretrained, device=device)
     else:
         raise ValueError(f"time_step_hours must be 6 or 24, got {time_step_hours}")
 
