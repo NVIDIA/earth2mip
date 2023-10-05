@@ -20,7 +20,6 @@ import torch
 import numpy as np
 import xarray
 import json
-import os
 import logging
 from earth2mip import registry, schema, networks, config, initial_conditions, geometry
 from earth2mip.time_loop import TimeLoop

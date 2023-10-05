@@ -29,15 +29,11 @@ adapted from https://raw.githubusercontent.com/ecmwf-lab/ai-models-panguweather/
 # %%
 from typing import List
 import logging
-import os
 import datetime
 import torch
-import os
-import json
 import numpy as np
 import onnxruntime as ort
 import dataclasses
-import urllib.request
 from earth2mip import registry, schema, networks, config, initial_conditions, geometry
 
 logger = logging.getLogger(__file__)

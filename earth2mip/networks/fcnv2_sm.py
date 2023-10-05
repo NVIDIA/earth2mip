@@ -21,7 +21,6 @@ This model is an outdated version of FCN v2 (SFNO), a more recent one is present
 """
 from typing import List
 import logging
-import os
 import datetime
 import torch
 import json
