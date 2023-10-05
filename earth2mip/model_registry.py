@@ -121,6 +121,30 @@ class Package:
 
 
 # TODO: Replace with concept of NGC model registry
+class FCNPackage(Package):
+    def __init__(self, root: str, seperator: str):
+        super().__init__(root, seperator)
+        self._load_model_package()
+
+    def _load_model_package(self):
+        model_registry = os.path.dirname(self.root)
+        if not os.path.isdir(self.root):
+            logger.info("Downloading FCN model checkpoint, this may take a bit")
+            urllib.request.urlretrieve(
+                "https://api.ngc.nvidia.com/v2/models/nvidia/modulus/modulus_fcn/"
+                + "versions/v0.1/files/fcn.zip",
+                f"{model_registry}/fcn.zip",
+            )
+            # Unzip
+            with zipfile.ZipFile(f"{model_registry}/fcn.zip", "r") as zip_ref:
+                zip_ref.extractall(model_registry)
+            # Clean up zip
+            os.remove(f"{model_registry}/fcn.zip")
+        else:
+            logger.info("FCN package already found, skipping download")
+
+
+# TODO: Replace with concept of NGC model registry
 class DLWPPackage(Package):
     def __init__(self, root: str, seperator: str):
         super().__init__(root, seperator)
@@ -132,7 +156,7 @@ class DLWPPackage(Package):
             logger.info("Downloading DLWP model checkpoint, this may take a bit")
             urllib.request.urlretrieve(
                 "https://api.ngc.nvidia.com/v2/models/nvidia/modulus/"
-                + "modulus_dlwp_cubesphere/versions/v0.1/files/dlwp_cubesphere.zip",
+                + "modulus_dlwp_cubesphere/versions/v0.2/files/dlwp_cubesphere.zip",
                 f"{model_registry}/dlwp_cubesphere.zip",
             )
             # Unzip
@@ -232,6 +256,8 @@ class ModelRegistry:
         """Built in models that have globally buildable packages"""
         # TODO: Add unique name prefix for built in packages?
         name = name.replace("e2mip://", "")
+        if name == "fcn":
+            return FCNPackage(self.get_path(name), seperator=self.SEPERATOR)
         if name == "fcnv2_sm":
             return FCNv2Package(self.get_path(name), seperator=self.SEPERATOR)
         elif name == "dlwp":
