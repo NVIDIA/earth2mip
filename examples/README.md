@@ -107,7 +107,7 @@ conda activate earth2mip
 Next we need to clone and install Earth-2 MIP:
 
 ```bash
-git clone git@github.com:NVIDIA/earth2mip.git && cd earth2mip 
+git clone git@github.com:NVIDIA/earth2mip.git && cd earth2mip
 pip install .
 ```
 
@@ -150,4 +150,17 @@ The workflows can then be excuted using python, e.g.
 ```bash
 cd workflows/
 python pangu_24.py
+```
+
+## Running Sample Configs
+
+Sets of configs are also provided for running Earth-2 MIP CLI commands.
+To run a config, follow the environment setup steps above and ensure Earth-2 MIP is
+installed.
+
+```bash
+export MODEL_REGISTRY=$PWD/models
+
+cd configs/
+python -m earth2mip.inference_ensemble ensemble_pangu24_cds.json
 ```

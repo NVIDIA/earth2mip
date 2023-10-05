@@ -38,7 +38,7 @@ from os.path import dirname, abspath, join
 # %% Load model package and data source
 device = DistributedManager().device
 print(f"Loading dlwp model onto {device}, this can take a bit")
-package = registry.get_model("dlwp")
+package = registry.get_model("e2mip://dlwp")
 inferencer = dlwp.load(package, device=device)
 cds_data_source = cds.DataSource(inferencer.in_channel_names)
 # Stack two data-sources together for double timestep inputs

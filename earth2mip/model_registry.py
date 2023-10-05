@@ -83,10 +83,15 @@ can be stabilized and packaged within fcn-mip for long-term archival.
 
 """
 import os
+import logging
+import zipfile
+import urllib
+import json
 
 from earth2mip import schema
 from earth2mip import filesystem
 
+logger = logging.getLogger(__file__)
 
 METADATA = "metadata.json"
 
@@ -115,6 +120,99 @@ class Package:
             return schema.Model.parse_raw(f.read())
 
 
+# TODO: Replace with concept of NGC model registry
+class DLWPPackage(Package):
+    def __init__(self, root: str, seperator: str):
+        super().__init__(root, seperator)
+        self._load_model_package()
+
+    def _load_model_package(self):
+        model_registry = os.path.dirname(self.root)
+        if not os.path.isdir(self.root):
+            logger.info("Downloading DLWP model checkpoint, this may take a bit")
+            urllib.request.urlretrieve(
+                "https://api.ngc.nvidia.com/v2/models/nvidia/modulus/"
+                + "modulus_dlwp_cubesphere/versions/v0.1/files/dlwp_cubesphere.zip",
+                f"{model_registry}/dlwp_cubesphere.zip",
+            )
+            # Unzip
+            with zipfile.ZipFile(
+                f"{model_registry}/dlwp_cubesphere.zip", "r"
+            ) as zip_ref:
+                zip_ref.extractall(model_registry)
+            # Clean up zip
+            os.remove(f"{model_registry}/dlwp_cubesphere.zip")
+        else:
+            logger.info("DLWP package already found, skipping download")
+
+
+# TODO: Replace with concept of NGC model registry
+class FCNv2Package(Package):
+    def __init__(self, root: str, seperator: str):
+        super().__init__(root, seperator)
+        self._load_model_package()
+
+    def _load_model_package(self):
+        model_registry = os.path.dirname(self.root)
+        if not os.path.isdir(self.root):
+            logger.info("Downloading FCNv2 small checkpoint, this may take a bit")
+            urllib.request.urlretrieve(
+                "https://api.ngc.nvidia.com/v2/models/nvidia/modulus/modulus_fcnv2_sm/"
+                + "versions/v0.2/files/fcnv2_sm.zip",
+                f"{model_registry}/fcnv2_sm.zip",
+            )
+            # Unzip
+            with zipfile.ZipFile(f"{model_registry}/fcnv2_sm.zip", "r") as zip_ref:
+                zip_ref.extractall(model_registry)
+            # Clean up zip
+            os.remove(f"{model_registry}/fcnv2_sm.zip")
+        else:
+            logger.info("FCNv2 small package already found, skipping download")
+
+
+class PanguPackage(Package):
+    def __init__(self, root: str, seperator: str):
+        super().__init__(root, seperator)
+        self._load_model_package()
+
+    def _load_model_package(self):
+        name = self.root.split(self.seperator)[-1]
+        if not os.path.isdir(self.root):
+            logger.info(
+                "Downloading Pangu 6hr / 24hr model checkpoints, this may take a bit"
+            )
+            os.makedirs(self.root, exist_ok=True)
+            # Wget onnx files
+            if name == "pangu" or name == "pangu_24":
+                urllib.request.urlretrieve(
+                    "https://get.ecmwf.int/repository/test-data/ai-models/"
+                    + "pangu-weather/pangu_weather_24.onnx",
+                    f"{self.root}/pangu_weather_24.onnx",
+                )
+            if name == "pangu" or name == "pangu_6":
+                urllib.request.urlretrieve(
+                    "https://get.ecmwf.int/repository/test-data/ai-models/"
+                    + "pangu-weather/pangu_weather_6.onnx",
+                    f"{self.root}/pangu_weather_6.onnx",
+                )
+            # For completeness and compatability
+            if name == "pangu":
+                entry_point = "earth2mip.networks.pangu:load"
+            elif name == "pangu_24":
+                entry_point = "earth2mip.networks.pangu:load_24"
+            else:
+                entry_point = "earth2mip.networks.pangu:load_6"
+
+            with open(os.path.join(self.root, "metadata.json"), "w") as outfile:
+                json.dump(
+                    {"entrypoint": {"name": entry_point}},
+                    outfile,
+                    indent=2,
+                )
+        else:
+            logger.info("Pangu package already found, skipping download")
+
+
 class ModelRegistry:
     SEPERATOR: str = "/"
 
@@ -125,7 +223,23 @@ class ModelRegistry:
         return [os.path.basename(f) for f in filesystem.ls(self.path)]
 
     def get_model(self, name: str):
+        if name.startswith("e2mip://"):
+            return self.get_builtin_model(name)
+
         return Package(self.get_path(name), seperator=self.SEPERATOR)
+
+    def get_builtin_model(self, name: str):
+        """Built in models that have globally buildable packages"""
+        # TODO: Add unique name prefix for built in packages?
+        name = name.replace("e2mip://", "")
+        if name == "fcnv2_sm":
+            return FCNv2Package(self.get_path(name), seperator=self.SEPERATOR)
+        elif name == "dlwp":
+            return DLWPPackage(self.get_path(name), seperator=self.SEPERATOR)
+        elif name == "pangu" or name == "pangu_24" or name == "pangu_6":
+            return PanguPackage(self.get_path(name), seperator=self.SEPERATOR)
+        else:
+            raise ValueError(f"Model {name} not registered in e2mip package registry")
 
     def get_path(self, name, *args):
         return self.SEPERATOR.join([self.path, name, *args])

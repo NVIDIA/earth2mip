@@ -20,6 +20,7 @@ import torch
 import numpy as np
 import xarray
 import json
+import logging
 from earth2mip import registry, schema, networks, config, initial_conditions, geometry
 from earth2mip.time_loop import TimeLoop
 from earth2mip.schema import Grid
@@ -29,6 +30,7 @@ from modulus.models.dlwp import DLWP
 from modulus.utils.filesystem import Package
 from modulus.utils.sfno.zenith_angle import cos_zenith_angle
 
+logger = logging.getLogger(__file__)
 
 # TODO: Added here explicitly for better access. This will be imported from:
 # modulus repo after this PR is merged: https://github.com/NVIDIA/modulus/pull/138
