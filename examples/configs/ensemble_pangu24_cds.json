@@ -26,7 +26,7 @@
     },
     "output_path": "../outputs/pangu_24",
     "output_frequency": 1,
-    "weather_model": "pangu_24",
+    "weather_model": "e2mip://pangu_24",
     "seed": 12345,
     "use_cuda_graphs": false,
     "ensemble_batch_size": 1,

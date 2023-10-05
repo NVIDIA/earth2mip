@@ -223,14 +223,21 @@ class ModelRegistry:
         return [os.path.basename(f) for f in filesystem.ls(self.path)]
 
     def get_model(self, name: str):
+        if name.startswith("e2mip://"):
+            return self.get_builtin_model(name)
+
+        return Package(self.get_path(name), seperator=self.SEPERATOR)
+
+    def get_builtin_model(self, name: str):
+        """Built in models that have globally buildable packages"""
+        # TODO: Add unique name prefix for built in packages?
+        name = name.replace("e2mip://", "")
         if name == "fcnv2_sm":
             return FCNv2Package(self.get_path(name), seperator=self.SEPERATOR)
         elif name == "dlwp":
             return DLWPPackage(self.get_path(name), seperator=self.SEPERATOR)
         elif name == "pangu" or name == "pangu_24" or name == "pangu_6":
             return PanguPackage(self.get_path(name), seperator=self.SEPERATOR)
-
-        return Package(self.get_path(name), seperator=self.SEPERATOR)
 
     def get_path(self, name, *args):
         return self.SEPERATOR.join([self.path, name, *args])
