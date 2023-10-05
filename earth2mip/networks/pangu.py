@@ -32,13 +32,12 @@ import logging
 import os
 import datetime
 import torch
-import subprocess
 import os
 import json
 import numpy as np
 import onnxruntime as ort
 import dataclasses
-
+import urllib.request
 from earth2mip import registry, schema, networks, config, initial_conditions, geometry
 
 logger = logging.getLogger(__file__)
@@ -275,28 +274,16 @@ def _download_default_package(
         os.makedirs(pangu_registry, exist_ok=True)
         # Wget onnx files
         if package.name == "pangu" or package.name == "pangu_24":
-            subprocess.run(
-                [
-                    "wget",
-                    "-nc",
-                    "-P",
-                    f"{pangu_registry}",
-                    "https://get.ecmwf.int/repository/test-data/ai-models/pangu-weather/pangu_weather_24.onnx",
-                ],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.STDOUT,
+            urllib.request.urlretrieve(
+                "https://get.ecmwf.int/repository/test-data/ai-models/pangu-weather/"
+                + "pangu_weather_24.onnx",
+                f"{model_registry}/pangu_weather_24.onnx",
             )
         if package.name == "pangu" or package.name == "pangu_6":
-            subprocess.run(
-                [
-                    "wget",
-                    "-nc",
-                    "-P",
-                    f"{pangu_registry}",
-                    "https://get.ecmwf.int/repository/test-data/ai-models/pangu-weather/pangu_weather_6.onnx",
-                ],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.STDOUT,
+            urllib.request.urlretrieve(
+                "https://get.ecmwf.int/repository/test-data/ai-models/pangu-weather/"
+                + "pangu_weather_6.onnx",
+                f"{model_registry}/pangu_weather_6.onnx",
             )
         # Technically not needed
         with open(os.path.join(pangu_registry, "metadata.json"), "w") as outfile:

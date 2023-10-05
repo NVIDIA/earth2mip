@@ -20,10 +20,10 @@ import torch
 import numpy as np
 import xarray
 import json
-import subprocess
 import os
 import logging
 import zipfile
+import urllib.request
 from earth2mip import registry, schema, networks, config, initial_conditions, geometry
 from earth2mip.time_loop import TimeLoop
 from earth2mip.schema import Grid
@@ -151,16 +151,10 @@ def _download_default_package(package):
 
     if not os.path.isdir(package.root):
         logger.info("Downloading DLWP model checkpoint, this may take a bit")
-        subprocess.run(
-            [
-                "wget",
-                "-nc",
-                "-P",
-                f"{model_registry}",
-                "https://api.ngc.nvidia.com/v2/models/nvidia/modulus/modulus_dlwp_cubesphere/versions/v0.1/files/dlwp_cubesphere.zip",
-            ],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.STDOUT,
+        urllib.request.urlretrieve(
+            "https://api.ngc.nvidia.com/v2/models/nvidia/modulus/"
+            + "modulus_dlwp_cubesphere/versions/v0.1/files/dlwp_cubesphere.zip",
+            f"{model_registry}/dlwp_cubesphere.zip",
         )
         # Unzip
         with zipfile.ZipFile(f"{model_registry}/dlwp_cubesphere.zip", "r") as zip_ref:

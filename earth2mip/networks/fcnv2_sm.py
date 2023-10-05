@@ -26,7 +26,6 @@ import datetime
 import torch
 import json
 import pathlib
-import subprocess
 import numpy as np
 import onnxruntime as ort
 import dataclasses
@@ -51,16 +50,10 @@ def _download_default_package(package):
 
     if not os.path.isdir(package.root):
         logger.info("Downloading FCNv2 small checkpoint, this may take a bit")
-        subprocess.run(
-            [
-                "wget",
-                "-nc",
-                "-P",
-                f"{model_registry}",
-                "https://api.ngc.nvidia.com/v2/models/nvidia/modulus/modulus_fcnv2_sm/versions/v0.2/files/fcnv2_sm.zip",
-            ],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.STDOUT,
+        urllib.request.urlretrieve(
+            "https://api.ngc.nvidia.com/v2/models/nvidia/modulus/modulus_fcnv2_sm/"
+            + "versions/v0.2/files/fcnv2_sm.zip",
+            f"{model_registry}/fcnv2_sm.zip",
         )
         # Unzip
         with zipfile.ZipFile(f"{model_registry}/fcnv2_sm.zip", "r") as zip_ref:
