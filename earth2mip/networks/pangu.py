@@ -256,52 +256,9 @@ class PanguInference(torch.nn.Module):
                 yield time0, x0, restart_data
 
 
-def _download_default_package(
-    package,
-    default_package_name: str = "pangu",
-    entry_point: str = "earth2mip.networks.pangu:load",
-):
-    model_registry = os.environ["MODEL_REGISTRY"]
-    pangu_registry = os.path.join(model_registry, default_package_name)
-    if str(pangu_registry) != str(package.root):
-        logger.info("Custom package pangu found, aborting default package")
-        return
-
-    name = package.root.split(package.seperator)[-1]
-    if not os.path.isdir(package.root):
-        logger.info(
-            "Downloading Pangu 6hr / 24hr model checkpoints, this may take a bit"
-        )
-        os.makedirs(pangu_registry, exist_ok=True)
-        # Wget onnx files
-        if name == "pangu" or name == "pangu_24":
-            urllib.request.urlretrieve(
-                "https://get.ecmwf.int/repository/test-data/ai-models/pangu-weather/"
-                + "pangu_weather_24.onnx",
-                f"{package.root}/pangu_weather_24.onnx",
-            )
-        if name == "pangu" or name == "pangu_6":
-            urllib.request.urlretrieve(
-                "https://get.ecmwf.int/repository/test-data/ai-models/pangu-weather/"
-                + "pangu_weather_6.onnx",
-                f"{package.root}/pangu_weather_6.onnx",
-            )
-        # Technically not needed
-        with open(os.path.join(package.root, "metadata.json"), "w") as outfile:
-            json.dump(
-                {"entrypoint": {"name": entry_point}},
-                outfile,
-                indent=2,
-            )
-    else:
-        logger.info("Pangu package already found, skipping download")
-
-
 def load(package, *, pretrained=True, device="doesn't matter"):
     """Load the sub-stepped pangu weather inference"""
     assert pretrained
-    # Download model if needed
-    _download_default_package(package)
 
     p6 = package.get("pangu_weather_6.onnx")
     p24 = package.get("pangu_weather_24.onnx")
@@ -318,9 +275,9 @@ def load_single_model(
     assert pretrained
 
     if time_step_hours == 6:
-        load_6(package, pretrained=pretrained, device=device)
+        return load_6(package, pretrained=pretrained, device=device)
     elif time_step_hours == 24:
-        load_24(package, pretrained=pretrained, device=device)
+        return load_24(package, pretrained=pretrained, device=device)
     else:
         raise ValueError(f"time_step_hours must be 6 or 24, got {time_step_hours}")
 
@@ -328,7 +285,6 @@ def load_single_model(
 def load_24(package, *, pretrained=True, device="cuda:0"):
     """Load a 24 hour time-step pangu weather"""
     assert pretrained
-    _download_default_package(package, "pangu_24", "earth2mip.networks.pangu:load_24")
 
     with torch.cuda.device(device):
         p = package.get("pangu_weather_24.onnx")
@@ -355,7 +311,6 @@ def load_24(package, *, pretrained=True, device="cuda:0"):
 def load_6(package, *, pretrained=True, device="cuda:0"):
     """Load a 6 hour time-step pangu weather"""
     assert pretrained
-    _download_default_package(package, "pangu_6", "earth2mip.networks.pangu:load_6")
 
     with torch.cuda.device(device):
         p = package.get("pangu_weather_6.onnx")

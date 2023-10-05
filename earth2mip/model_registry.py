@@ -86,6 +86,7 @@ import os
 import logging
 import zipfile
 import urllib
+import json
 
 from earth2mip import schema
 from earth2mip import filesystem
@@ -169,6 +170,49 @@ class FCNv2Package(Package):
             logger.info("FCNv2 small package already found, skipping download")
 
 
+class PanguPackage(Package):
+    def __init__(self, root: str, seperator: str):
+        super().__init__(root, seperator)
+        self._load_model_package()
+
+    def _load_model_package(self):
+        name = self.root.split(self.seperator)[-1]
+        if not os.path.isdir(self.root):
+            logger.info(
+                "Downloading Pangu 6hr / 24hr model checkpoints, this may take a bit"
+            )
+            os.makedirs(self.root, exist_ok=True)
+            # Wget onnx files
+            if name == "pangu" or name == "pangu_24":
+                urllib.request.urlretrieve(
+                    "https://get.ecmwf.int/repository/test-data/ai-models/"
+                    + "pangu-weather/pangu_weather_24.onnx",
+                    f"{self.root}/pangu_weather_24.onnx",
+                )
+            if name == "pangu" or name == "pangu_6":
+                urllib.request.urlretrieve(
+                    "https://get.ecmwf.int/repository/test-data/ai-models/"
+                    + "pangu-weather/pangu_weather_6.onnx",
+                    f"{self.root}/pangu_weather_6.onnx",
+                )
+            # For completeness and compatability
+            if name == "pangu":
+                entry_point = "earth2mip.networks.pangu:load"
+            elif name == "pangu_24":
+                entry_point = "earth2mip.networks.pangu:load_24"
+            else:
+                entry_point = "earth2mip.networks.pangu:load_6"
+
+            with open(os.path.join(self.root, "metadata.json"), "w") as outfile:
+                json.dump(
+                    {"entrypoint": {"name": entry_point}},
+                    outfile,
+                    indent=2,
+                )
+        else:
+            logger.info("Pangu package already found, skipping download")
+
+
 class ModelRegistry:
     SEPERATOR: str = "/"
 
@@ -183,6 +227,9 @@ class ModelRegistry:
             return FCNv2Package(self.get_path(name), seperator=self.SEPERATOR)
         elif name == "dlwp":
             return DLWPPackage(self.get_path(name), seperator=self.SEPERATOR)
+        elif name == "pangu" or name == "pangu_24" or name == "pangu_6":
+            return PanguPackage(self.get_path(name), seperator=self.SEPERATOR)
+
         return Package(self.get_path(name), seperator=self.SEPERATOR)
 
     def get_path(self, name, *args):
