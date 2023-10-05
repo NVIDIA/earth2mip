@@ -152,7 +152,7 @@ cd workflows/
 python pangu_24.py
 ```
 
-## Running Recipes
+## Running Sample Configs
 
 Sets of configs are also provided for running Earth-2 MIP CLI commands.
 To run a config, follow the environment setup steps above and ensure Earth-2 MIP is
@@ -161,5 +161,5 @@ installed.
 ```bash
 export MODEL_REGISTRY=$PWD/models
 
-python -m earth2mip.inference_ensemble recipes/ensemble_fcnv2sm_cds.json
+python -m earth2mip.inference_ensemble configs/ensemble_pangu24_cds.json
 ```
