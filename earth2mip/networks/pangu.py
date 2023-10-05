@@ -28,6 +28,7 @@ adapted from https://raw.githubusercontent.com/ecmwf-lab/ai-models-panguweather/
 """
 # %%
 from typing import List
+import os
 import logging
 import datetime
 import torch

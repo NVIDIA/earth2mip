@@ -161,5 +161,6 @@ installed.
 ```bash
 export MODEL_REGISTRY=$PWD/models
 
-python -m earth2mip.inference_ensemble configs/ensemble_pangu24_cds.json
+cd configs/
+python -m earth2mip.inference_ensemble ensemble_pangu24_cds.json
 ```
