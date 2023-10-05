@@ -152,7 +152,7 @@ metadata_with_entrypoint = schema.Model(
 
 
 def test__load_package_entrypoint():
-    package = Package("phoo", "", seperator="/")
+    package = Package("", seperator="/")
     obj = networks._load_package(package, metadata_with_entrypoint, device="cpu")
     assert isinstance(obj, MyTestInference)
     assert obj.kwargs == metadata_with_entrypoint.entrypoint.kwargs

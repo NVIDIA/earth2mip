@@ -23,7 +23,7 @@ def test_package(tmp_path):
     afile.write_text(string)
 
     path = "file://" + tmp_path.as_posix()
-    package = Package("phoo", path, seperator="/")
+    package = Package(path, seperator="/")
     path = package.get("a.txt")
     with open(path) as f:
         ans = f.read()

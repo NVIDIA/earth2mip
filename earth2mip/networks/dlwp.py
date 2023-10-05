@@ -22,8 +22,6 @@ import xarray
 import json
 import os
 import logging
-import zipfile
-import urllib.request
 from earth2mip import registry, schema, networks, config, initial_conditions, geometry
 from earth2mip.time_loop import TimeLoop
 from earth2mip.schema import Grid
@@ -141,34 +139,8 @@ class _DLWPWrapper(torch.nn.Module):
         return self.prepare_output(y)
 
 
-def _download_default_package(package):
-
-    model_registry = os.environ["MODEL_REGISTRY"]
-    dlwp_registry = os.path.join(model_registry, "dlwp")
-    if str(dlwp_registry) != str(package.root):
-        logger.info("Custom package DLWP found, aborting default package")
-        return
-
-    if not os.path.isdir(package.root):
-        logger.info("Downloading DLWP model checkpoint, this may take a bit")
-        urllib.request.urlretrieve(
-            "https://api.ngc.nvidia.com/v2/models/nvidia/modulus/"
-            + "modulus_dlwp_cubesphere/versions/v0.1/files/dlwp_cubesphere.zip",
-            f"{model_registry}/dlwp_cubesphere.zip",
-        )
-        # Unzip
-        with zipfile.ZipFile(f"{model_registry}/dlwp_cubesphere.zip", "r") as zip_ref:
-            zip_ref.extractall(model_registry)
-        # Clean up zip
-        os.remove(f"{model_registry}/dlwp_cubesphere.zip")
-    else:
-        logger.info("DLWP package already found, skipping download")
-
-
 def load(package, *, pretrained=True, device="cuda"):
     assert pretrained
-    # Download model if needed
-    _download_default_package(package)
 
     # load static datasets
     lsm = xarray.open_dataset(package.get("land_sea_mask_rs_cs.nc"))["lsm"].values

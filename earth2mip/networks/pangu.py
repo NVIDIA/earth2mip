@@ -267,19 +267,20 @@ def _download_default_package(
         logger.info("Custom package pangu found, aborting default package")
         return
 
+    name = package.root.split(package.seperator)[-1]
     if not os.path.isdir(package.root):
         logger.info(
             "Downloading Pangu 6hr / 24hr model checkpoints, this may take a bit"
         )
         os.makedirs(pangu_registry, exist_ok=True)
         # Wget onnx files
-        if package.name == "pangu" or package.name == "pangu_24":
+        if name == "pangu" or name == "pangu_24":
             urllib.request.urlretrieve(
                 "https://get.ecmwf.int/repository/test-data/ai-models/pangu-weather/"
                 + "pangu_weather_24.onnx",
                 f"{model_registry}/pangu_weather_24.onnx",
             )
-        if package.name == "pangu" or package.name == "pangu_6":
+        if name == "pangu" or name == "pangu_6":
             urllib.request.urlretrieve(
                 "https://get.ecmwf.int/repository/test-data/ai-models/pangu-weather/"
                 + "pangu_weather_6.onnx",
@@ -315,8 +316,6 @@ def load_single_model(
 ):
     """Load a single time-step pangu weather"""
     assert pretrained
-    # Download model if needed
-    _download_checkpoint()
 
     if time_step_hours == 6:
         load_6(package, pretrained, device)

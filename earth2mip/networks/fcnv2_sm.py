@@ -29,7 +29,6 @@ import pathlib
 import numpy as np
 import onnxruntime as ort
 import dataclasses
-import zipfile
 
 from earth2mip import registry, schema, networks, config, initial_conditions, geometry
 from modulus.models.fcn_mip_plugin import _fix_state_dict_keys
@@ -40,34 +39,8 @@ import earth2mip.networks.fcnv2 as fcnv2
 logger = logging.getLogger(__file__)
 
 
-def _download_default_package(package):
-
-    model_registry = os.environ["MODEL_REGISTRY"]
-    fcn_registry = os.path.join(model_registry, "fcnv2_sm")
-    if str(fcn_registry) != str(package.root):
-        logger.info("Custom package fcnv2_sm found, aborting default package")
-        return
-
-    if not os.path.isdir(package.root):
-        logger.info("Downloading FCNv2 small checkpoint, this may take a bit")
-        urllib.request.urlretrieve(
-            "https://api.ngc.nvidia.com/v2/models/nvidia/modulus/modulus_fcnv2_sm/"
-            + "versions/v0.2/files/fcnv2_sm.zip",
-            f"{model_registry}/fcnv2_sm.zip",
-        )
-        # Unzip
-        with zipfile.ZipFile(f"{model_registry}/fcnv2_sm.zip", "r") as zip_ref:
-            zip_ref.extractall(model_registry)
-        # Clean up zip
-        os.remove(f"{model_registry}/fcnv2_sm.zip")
-    else:
-        logger.info("FCNv2 small package already found, skipping download")
-
-
 def load(package, *, pretrained=True, device="cuda"):
     assert pretrained
-    # Download model if needed
-    _download_default_package(package)
 
     config_path = pathlib.Path(__file__).parent / "fcnv2" / "sfnonet.yaml"
     params = fcnv2.YParams(config_path.as_posix(), "sfno_73ch")
