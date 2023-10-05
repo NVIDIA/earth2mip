@@ -76,7 +76,7 @@ from os.path import dirname, abspath, join
 
 # %% Load model package and data source
 print("Loading pangu model, this can take a bit")
-package = registry.get_model("pangu")
+package = registry.get_model("e2mip://pangu_24")
 # Load just the 24 hour model (also supports 6 hour)
 inferener = pangu.load_single_model(package, time_step_hours=24)
 data_source = cds.DataSource(inferener.in_channel_names)

@@ -1,0 +1,36 @@
+{
+    "ensemble_members": 4,
+    "noise_amplitude": 0.05,
+    "simulation_length": 10,
+    "weather_event": {
+        "properties": {
+            "name": "Globe",
+            "start_time": "2018-01-01 00:00:00",
+            "initial_condition_source": "cds"
+        },
+        "domains": [
+            {
+                "name": "global",
+                "type": "Window",
+                "diagnostics": [
+                    {
+                        "type": "raw",
+                        "channels": [
+                            "t2m",
+                            "u10m"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "output_path": "../outputs/pangu_24",
+    "output_frequency": 1,
+    "weather_model": "e2mip://pangu_24",
+    "seed": 12345,
+    "use_cuda_graphs": false,
+    "ensemble_batch_size": 1,
+    "autocast_fp16": false,
+    "perturbation_strategy": "correlated",
+    "noise_reddening": 2.0
+}

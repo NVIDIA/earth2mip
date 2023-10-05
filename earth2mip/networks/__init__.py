@@ -21,23 +21,25 @@ import itertools
 from typing import Optional, Tuple, Any, Iterator
 import sys
 import datetime
+import os
 
 import torch
 import einops
 import numpy as np
 import contextlib
-
-from earth2mip import registry, ModelRegistry, model_registry
-from earth2mip import filesystem, loaders, time_loop, schema
 import modulus
+
+
 from modulus.utils.sfno.zenith_angle import cos_zenith_angle
 from modulus.distributed.manager import DistributedManager
 from earth2mip.loaders import LoaderProtocol
+from earth2mip import registry, ModelRegistry, model_registry
+from earth2mip import filesystem, loaders, time_loop, schema
 
 if sys.version_info < (3, 10):
-    from importlib_metadata import EntryPoint
+    from importlib_metadata import EntryPoint, entry_points
 else:
-    from importlib.metadata import EntryPoint
+    from importlib.metadata import EntryPoint, entry_points
 
 
 __all__ = ["get_model"]
@@ -322,10 +324,22 @@ def _default_inference(package, metadata, device):
 
 
 def _load_package(package, metadata, device) -> time_loop.TimeLoop:
+    # Attempt to see if Earth2 MIP has entry point registered already
+    if metadata is None:
+        group = "earth2mip.networks"
+        entrypoints = entry_points(group=group)
+        for entry_point in entrypoints:
+            name = package.root.split(package.seperator)[-1]
+            if entry_point.name == name:
+                inference_loader = entry_point.load()
+                return inference_loader(package, device=device)
+
+    # Read meta data from file if not present
     if metadata is None:
         local_path = package.get("metadata.json")
         with open(local_path) as f:
             metadata = schema.Model.parse_raw(f.read())
+
     if metadata.entrypoint:
         ep = EntryPoint(name=None, group=None, value=metadata.entrypoint.name)
         inference_loader = ep.load()
@@ -365,7 +379,7 @@ def get_model(
 
     """
     url = urllib.parse.urlparse(model)
-    if url.scheme == "":
+    if url.scheme == "" or url.scheme == "e2mip":
         package = registry.get_model(model)
     else:
         package = model_registry.Package(root=model, seperator="/")

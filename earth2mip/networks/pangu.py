@@ -28,16 +28,16 @@ adapted from https://raw.githubusercontent.com/ecmwf-lab/ai-models-panguweather/
 """
 # %%
 from typing import List
-import logging
 import os
+import logging
 import datetime
 import torch
-
 import numpy as np
 import onnxruntime as ort
 import dataclasses
-
 from earth2mip import registry, schema, networks, config, initial_conditions, geometry
+
+logger = logging.getLogger(__file__)
 
 
 class PanguWeather:
@@ -270,19 +270,53 @@ def load_single_model(
 ):
     """Load a single time-step pangu weather"""
     assert pretrained
+
+    if time_step_hours == 6:
+        return load_6(package, pretrained=pretrained, device=device)
+    elif time_step_hours == 24:
+        return load_24(package, pretrained=pretrained, device=device)
+    else:
+        raise ValueError(f"time_step_hours must be 6 or 24, got {time_step_hours}")
+
+
+def load_24(package, *, pretrained=True, device="cuda:0"):
+    """Load a 24 hour time-step pangu weather"""
+    assert pretrained
+
     with torch.cuda.device(device):
-        if time_step_hours == 6:
-            p = package.get("pangu_weather_6.onnx")
-        elif time_step_hours == 24:
-            p = package.get("pangu_weather_24.onnx")
-        else:
-            raise ValueError(f"time_step_hours must be 6 or 24, got {time_step_hours}")
+        p = package.get("pangu_weather_24.onnx")
         model = PanguStacked(PanguWeather(p))
         channel_names = model.channel_names()
         center = np.zeros([len(channel_names)])
         scale = np.ones([len(channel_names)])
         grid = schema.Grid.grid_721x1440
-        dt = datetime.timedelta(hours=time_step_hours)
+        dt = datetime.timedelta(hours=24)
+        inference = networks.Inference(
+            model,
+            channels=None,
+            center=center,
+            scale=scale,
+            grid=grid,
+            channel_names=channel_names,
+            channel_set=schema.ChannelSet.var_pangu,
+            time_step=dt,
+        )
+        inference.to(device)
+        return inference
+
+
+def load_6(package, *, pretrained=True, device="cuda:0"):
+    """Load a 6 hour time-step pangu weather"""
+    assert pretrained
+
+    with torch.cuda.device(device):
+        p = package.get("pangu_weather_6.onnx")
+        model = PanguStacked(PanguWeather(p))
+        channel_names = model.channel_names()
+        center = np.zeros([len(channel_names)])
+        scale = np.ones([len(channel_names)])
+        grid = schema.Grid.grid_721x1440
+        dt = datetime.timedelta(hours=6)
         inference = networks.Inference(
             model,
             channels=None,
