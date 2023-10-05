@@ -170,7 +170,7 @@ def _download_default_package(package):
                 f"{model_registry}",
             ]
         )
-        subprocess.run(["rm", f"{model_registry}/dlwp_cubesphere.zip"])
+        os.remove(f"{model_registry}/dlwp_cubesphere.zip")
     else:
         logger.info("DLWP package already found, skipping download")
 

@@ -64,7 +64,7 @@ def _download_default_package(package):
         subprocess.run(
             ["unzip", "-u", f"{model_registry}/fcnv2_sm.zip", "-d", f"{model_registry}"]
         )
-        subprocess.run(["rm", f"{model_registry}/fcnv2_sm.zip"])
+        os.remove(f"{model_registry}/fcnv2_sm.zip")
     else:
         logger.info("FCNv2 small package already found, skipping download")
 
