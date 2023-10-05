@@ -18,7 +18,6 @@
 import os
 import numpy as np
 import datetime
-import subprocess
 
 # Set number of GPUs to use to 1
 os.environ["WORLD_SIZE"] = "1"
@@ -26,25 +25,6 @@ os.environ["WORLD_SIZE"] = "1"
 model_registry = os.path.join(os.path.dirname(os.path.realpath(os.getcwd())), "models")
 os.makedirs(model_registry, exist_ok=True)
 os.environ["MODEL_REGISTRY"] = model_registry
-
-# Download the model checkpoint
-if not os.path.isdir(os.path.join(model_registry, "fcn")):
-    print("Downloading model checkpoint, this may take a bit")
-    subprocess.run(
-        [
-            "wget",
-            "-nc",
-            "-P",
-            f"{model_registry}",
-            "https://api.ngc.nvidia.com/v2/models/nvidia/modulus/modulus_fcn/versions/v0.1/files/fcn.zip",  # noqa
-        ],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.STDOUT,
-    )
-    subprocess.run(
-        ["unzip", "-u", f"{model_registry}/fcn.zip", "-d", f"{model_registry}"]
-    )
-    subprocess.run(["rm", f"{model_registry}/fcn.zip"])
 
 import earth2mip.networks.fcn as fcn
 from earth2mip import registry, inference_ensemble
