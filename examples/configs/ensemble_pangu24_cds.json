@@ -5,7 +5,7 @@
     "weather_event": {
         "properties": {
             "name": "Globe",
-            "start_time": "2018-06-01 00:00:00",
+            "start_time": "2018-01-01 00:00:00",
             "initial_condition_source": "cds"
         },
         "domains": [
@@ -24,7 +24,7 @@
             }
         ]
     },
-    "output_path": "../outputs/01_ensemble_notebook",
+    "output_path": "../outputs/pangu_24",
     "output_frequency": 1,
     "weather_model": "pangu_24",
     "seed": 12345,

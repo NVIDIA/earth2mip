@@ -334,10 +334,11 @@ def _load_package(package, metadata, device) -> time_loop.TimeLoop:
                 return inference_loader(package, device=device)
 
     # Read meta data from file if not present
-    if metadata is None and os.path.exists(package.get("metadata.json")):
+    if metadata is None:
         local_path = package.get("metadata.json")
         with open(local_path) as f:
             metadata = schema.Model.parse_raw(f.read())
+
     if metadata.entrypoint:
         ep = EntryPoint(name=None, group=None, value=metadata.entrypoint.name)
         inference_loader = ep.load()

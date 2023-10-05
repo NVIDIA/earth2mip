@@ -22,6 +22,7 @@ import xarray
 import json
 import subprocess
 import os
+import logging
 from earth2mip import registry, schema, networks, config, initial_conditions, geometry
 from earth2mip.time_loop import TimeLoop
 from earth2mip.schema import Grid
@@ -31,6 +32,7 @@ from modulus.models.dlwp import DLWP
 from modulus.utils.filesystem import Package
 from modulus.utils.sfno.zenith_angle import cos_zenith_angle
 
+logger = logging.getLogger(__file__)
 
 # TODO: Added here explicitly for better access. This will be imported from:
 # modulus repo after this PR is merged: https://github.com/NVIDIA/modulus/pull/138
@@ -143,11 +145,11 @@ def _download_default_package(package):
     model_registry = os.environ["MODEL_REGISTRY"]
     dlwp_registry = os.path.join(model_registry, "dlwp")
     if str(dlwp_registry) != str(package.root):
-        print("Custom package DLWP found, aborting default package")
+        logger.info("Custom package DLWP found, aborting default package")
         return
 
     if not os.path.isdir(package.root):
-        print("Downloading DLWP model checkpoint, this may take a bit")
+        logger.info("Downloading DLWP model checkpoint, this may take a bit")
         subprocess.run(
             [
                 "wget",
@@ -170,7 +172,7 @@ def _download_default_package(package):
         )
         subprocess.run(["rm", f"{model_registry}/dlwp_cubesphere.zip"])
     else:
-        print("DLWP package already found, skipping download")
+        logger.info("DLWP package already found, skipping download")
 
 
 def load(package, *, pretrained=True, device="cuda"):

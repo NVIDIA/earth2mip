@@ -27,7 +27,6 @@ import torch
 import json
 import pathlib
 import subprocess
-
 import numpy as np
 import onnxruntime as ort
 import dataclasses
@@ -38,17 +37,19 @@ from modulus.models.fcn_mip_plugin import _fix_state_dict_keys
 # TODO: Update to new arch in Modulus!
 import earth2mip.networks.fcnv2 as fcnv2
 
+logger = logging.getLogger(__file__)
+
 
 def _download_default_package(package):
 
     model_registry = os.environ["MODEL_REGISTRY"]
     fcn_registry = os.path.join(model_registry, "fcnv2_sm")
     if str(fcn_registry) != str(package.root):
-        print("Custom package fcnv2_sm found, aborting default package")
+        logger.info("Custom package fcnv2_sm found, aborting default package")
         return
 
     if not os.path.isdir(package.root):
-        print("Downloading FCNv2 small checkpoint, this may take a bit")
+        logger.info("Downloading FCNv2 small checkpoint, this may take a bit")
         subprocess.run(
             [
                 "wget",
@@ -65,7 +66,7 @@ def _download_default_package(package):
         )
         subprocess.run(["rm", f"{model_registry}/fcnv2_sm.zip"])
     else:
-        print("FCNv2 small package already found, skipping download")
+        logger.info("FCNv2 small package already found, skipping download")
 
 
 def load(package, *, pretrained=True, device="cuda"):

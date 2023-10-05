@@ -35,12 +35,13 @@ import torch
 import subprocess
 import os
 import json
-
 import numpy as np
 import onnxruntime as ort
 import dataclasses
 
 from earth2mip import registry, schema, networks, config, initial_conditions, geometry
+
+logger = logging.getLogger(__file__)
 
 
 class PanguWeather:
@@ -264,11 +265,13 @@ def _download_default_package(
     model_registry = os.environ["MODEL_REGISTRY"]
     pangu_registry = os.path.join(model_registry, default_package_name)
     if str(pangu_registry) != str(package.root):
-        print("Custom package pangu found, aborting default package")
+        logger.info("Custom package pangu found, aborting default package")
         return
 
     if not os.path.isdir(package.root):
-        print("Downloading Pangu 6hr / 24hr model checkpoints, this may take a bit")
+        logger.info(
+            "Downloading Pangu 6hr / 24hr model checkpoints, this may take a bit"
+        )
         os.makedirs(pangu_registry, exist_ok=True)
         # Wget onnx files
         if package.name == "pangu" or package.name == "pangu_24":
@@ -303,7 +306,7 @@ def _download_default_package(
                 indent=2,
             )
     else:
-        print("Pangu package already found, skipping download")
+        logger.info("Pangu package already found, skipping download")
 
 
 def load(package, *, pretrained=True, device="doesn't matter"):
