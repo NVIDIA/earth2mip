@@ -30,6 +30,7 @@ import subprocess
 import numpy as np
 import onnxruntime as ort
 import dataclasses
+import zipfile
 
 from earth2mip import registry, schema, networks, config, initial_conditions, geometry
 from modulus.models.fcn_mip_plugin import _fix_state_dict_keys
@@ -61,9 +62,10 @@ def _download_default_package(package):
             stdout=subprocess.DEVNULL,
             stderr=subprocess.STDOUT,
         )
-        subprocess.run(
-            ["unzip", "-u", f"{model_registry}/fcnv2_sm.zip", "-d", f"{model_registry}"]
-        )
+        # Unzip
+        with zipfile.ZipFile(f"{model_registry}/fcnv2_sm.zip", "r") as zip_ref:
+            zip_ref.extractall(model_registry)
+        # Clean up zip
         os.remove(f"{model_registry}/fcnv2_sm.zip")
     else:
         logger.info("FCNv2 small package already found, skipping download")

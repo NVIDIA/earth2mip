@@ -23,6 +23,7 @@ import json
 import subprocess
 import os
 import logging
+import zipfile
 from earth2mip import registry, schema, networks, config, initial_conditions, geometry
 from earth2mip.time_loop import TimeLoop
 from earth2mip.schema import Grid
@@ -161,15 +162,10 @@ def _download_default_package(package):
             stdout=subprocess.DEVNULL,
             stderr=subprocess.STDOUT,
         )
-        subprocess.run(
-            [
-                "unzip",
-                "-u",
-                f"{model_registry}/dlwp_cubesphere.zip",
-                "-d",
-                f"{model_registry}",
-            ]
-        )
+        # Unzip
+        with zipfile.ZipFile(f"{model_registry}/dlwp_cubesphere.zip", "r") as zip_ref:
+            zip_ref.extractall(model_registry)
+        # Clean up zip
         os.remove(f"{model_registry}/dlwp_cubesphere.zip")
     else:
         logger.info("DLWP package already found, skipping download")
