@@ -329,9 +329,7 @@ def _load_package(package, metadata, device) -> time_loop.TimeLoop:
         group = "earth2mip.networks"
         entrypoints = entry_points(group=group)
         for entry_point in entrypoints:
-
             name = package.root.split(package.seperator)[-1]
-            print(entry_point.name, name)
             if entry_point.name == name:
                 inference_loader = entry_point.load()
                 return inference_loader(package, device=device)
