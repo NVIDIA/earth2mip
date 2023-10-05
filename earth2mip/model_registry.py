@@ -238,6 +238,8 @@ class ModelRegistry:
             return DLWPPackage(self.get_path(name), seperator=self.SEPERATOR)
         elif name == "pangu" or name == "pangu_24" or name == "pangu_6":
             return PanguPackage(self.get_path(name), seperator=self.SEPERATOR)
+        else:
+            raise ValueError(f"Model {name} not registered in e2mip package registry")
 
     def get_path(self, name, *args):
         return self.SEPERATOR.join([self.path, name, *args])
