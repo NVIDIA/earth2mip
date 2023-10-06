@@ -53,17 +53,25 @@ class GFSChunk:
         return ":".join([self.variable_name, self.meta_data])
 
 
+def _get_index_url(time):
+    return (
+        "https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/"
+        + "prod/gfs."
+        + time.strftime("%Y%m%d")
+        + "/"
+        + time.strftime("%H")
+        + "/atmos/gfs.t"
+        + time.strftime("%H")
+        + "z.pgrb2.0p25.f000.idx"
+    )
+
+
 def gfs_available(
     time: datetime.datetime,
 ) -> bool:
     nearest_hour = time.hour - time.hour % 6
     time_gfs = datetime.datetime(time.year, time.month, time.day, nearest_hour)
-
-    index_url = (
-        f"https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/"
-        + f'prod/gfs.{time_gfs.strftime("%Y%m%d")}/{time_gfs.strftime("%H")}'
-        + f'/atmos/gfs.t{time_gfs.strftime("%H")}z.pgrb2.0p25.f000.idx'
-    )
+    index_url = _get_index_url(time_gfs)
     try:
         r = requests.get(index_url, timeout=5)
         r.raise_for_status()
@@ -75,12 +83,7 @@ def gfs_available(
 def get_gfs_chunks(
     time: datetime.datetime,
 ):
-    index_url = (
-        f"https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/"
-        + f'prod/gfs.{time.strftime("%Y%m%d")}/{time.strftime("%H")}'
-        + f'/atmos/gfs.t{time.strftime("%H")}z.pgrb2.0p25.f000.idx'
-    )
-
+    index_url = _get_index_url(time)
     try:
         r = requests.get(index_url, timeout=5)
         r.raise_for_status()
@@ -127,9 +130,14 @@ def get_gfs_grib_file(
     output_file: str,
 ):
     gfs_url = (
-        f"https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/"
-        + f'prod/gfs.{time.strftime("%Y%m%d")}/{time.strftime("%H")}'
-        + f'/atmos/gfs.t{time.strftime("%H")}z.pgrb2.0p25.f000'
+        "https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/"
+        + "prod/gfs."
+        + time.strftime("%Y%m%d")
+        + "/"
+        + time.strftime("%H")
+        + "/atmos/gfs.t"
+        + time.strftime("%H")
+        + "z.pgrb2.0p25.f000"
     )
 
     # Get chunk data for this variable
