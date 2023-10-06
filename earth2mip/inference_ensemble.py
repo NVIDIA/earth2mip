@@ -25,7 +25,7 @@ import json
 import numpy as np
 import torch
 import tqdm
-from typing import Optional, Any, Dict
+from typing import Optional, Any, Mapping
 from datetime import datetime
 from modulus.distributed.manager import DistributedManager
 from netCDF4 import Dataset as DS
@@ -267,7 +267,7 @@ def get_initializer(
 def run_basic_inference(
     model: time_loop.TimeLoop,
     n: int,
-    data_source: Dict[datetime, xarray.Dataset],
+    data_source: Mapping[datetime, xarray.Dataset],
     time: datetime,
 ):
     """Run a basic inference"""
