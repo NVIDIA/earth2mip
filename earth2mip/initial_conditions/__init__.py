@@ -25,6 +25,7 @@ from earth2mip.initial_conditions import ifs
 from earth2mip.initial_conditions import cds
 from earth2mip.initial_conditions import gfs
 from earth2mip.initial_conditions import hrmip
+from earth2mip.regrid import xarray_regrid
 
 # TODO remove this fcn-mip import
 from earth2mip.datasets.era5 import METADATA
@@ -131,17 +132,4 @@ def ic(
     source: schema.InitialConditionSource,
 ):
     ds = get(n_history, time, channel_set, source)
-
-    # TODO collect grid logic in one place
-    # Subsample / interpolate lat lon grid
-    if np.isin(grid.lat, ds.coords["lat"].values).all():
-        ds = ds.sel(lat=grid.lat)
-    else:
-        ds = ds.interp(lat=grid.lat)
-
-    if np.isin(grid.lon, ds.coords["lon"].values).all():
-        ds = ds.sel(lon=grid.lon)
-    else:
-        ds = ds.interp(lon=grid.lon)
-
-    return ds
+    return xarray_regrid(ds, grid)
