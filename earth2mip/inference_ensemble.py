@@ -25,7 +25,7 @@ import json
 import numpy as np
 import torch
 import tqdm
-from typing import Optional, Any
+from typing import Optional, Any, Dict
 from datetime import datetime
 from modulus.distributed.manager import DistributedManager
 from netCDF4 import Dataset as DS
@@ -264,20 +264,15 @@ def get_initializer(
     return perturb
 
 
-def run_basic_inference(model: time_loop.TimeLoop, n: int, data_source, time):
+def run_basic_inference(
+    model: time_loop.TimeLoop,
+    n: int,
+    data_source: Dict[datetime, xarray.Dataset],
+    time: datetime,
+):
     """Run a basic inference"""
     ds = data_source[time].sel(channel=model.in_channel_names)
 
-    # Subsample / interpolate lat lon grid
-    if not np.isin(model.grid.lat, ds.coords["lat"].values).all():
-        ds = ds.interp(lat=model.grid.lat)
-    else:
-        ds = ds.sel(lat=model.grid.lat)
-
-    if not np.isin(model.grid.lon, ds.coords["lon"].values).all():
-        ds = ds.interp(lon=model.grid.lon)
-    else:
-        ds = ds.sel(lon=model.grid.lon)
     # TODO make the dtype flexible
     x = torch.from_numpy(ds.values).cuda().type(torch.float)
     # need a batch dimension of length 1

@@ -131,10 +131,17 @@ def ic(
     source: schema.InitialConditionSource,
 ):
     ds = get(n_history, time, channel_set, source)
+
     # TODO collect grid logic in one place
-    if grid == schema.Grid.grid_720x1440:
-        return ds.isel(lat=slice(0, -1))
-    elif grid == schema.Grid.grid_721x1440:
-        return ds
+    # Subsample / interpolate lat lon grid
+    if np.isin(grid.lat, ds.coords["lat"].values).all():
+        ds = ds.sel(lat=grid.lat)
     else:
-        raise NotImplementedError(f"Grid {grid} not supported")
+        ds = ds.interp(lat=grid.lat)
+
+    if np.isin(grid.lon, ds.coords["lon"].values).all():
+        ds = ds.sel(lon=grid.lon)
+    else:
+        ds = ds.interp(lon=grid.lon)
+
+    return ds
