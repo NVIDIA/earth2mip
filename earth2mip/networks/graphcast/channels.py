@@ -1,8 +1,24 @@
+# SPDX-FileCopyrightText: Copyright (c) 2023 NVIDIA CORPORATION & AFFILIATES.
+# SPDX-FileCopyrightText: All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 # see ecwmf parameter table https://codes.ecmwf.int/grib/param-db/?&filter=grib1&table=128
 from typing import List
 from earth2mip.initial_conditions import cds
 import numpy as np
-from modulus.utils.sfno.zenith_angle import cos_zenith_angle
+from modulus.utils.zenith_angle import cos_zenith_angle_from_timestamp
 from graphcast.graphcast import TaskConfig
 import xarray
 
@@ -124,10 +140,10 @@ def get_codes(variables: List[str], levels: List[int], time_levels: List[int]):
     return output
 
 
-def toa_incident_solar_radiation(time, lat, lon):
+def toa_incident_solar_radiation(timestamp, lat, lon):
     # TODO validate this code against the ECWMF data
     solar_constant = 1361  #  W/m²
-    z = cos_zenith_angle(time, lon, lat)
+    z = cos_zenith_angle_from_timestamp(timestamp, lon, lat)
     return np.maximum(0, z) * solar_constant
 
 
