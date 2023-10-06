@@ -41,12 +41,15 @@ from earth2mip.ensemble_utils import (
     generate_bred_vector,
     generate_noise_grf,
 )
+
 from earth2mip.netcdf import finalize_netcdf, initialize_netcdf, update_netcdf
 from earth2mip.networks import get_model, Inference
 from earth2mip.schema import EnsembleRun, Grid, PerturbationStrategy
 from earth2mip.time import convert_to_datetime
+from earth2mip.time_loop import TimeLoop
 from earth2mip import regrid
-
+from earth2mip._channel_means import channel_means
+from earth2mip._channel_stds import channel_stds
 
 logger = logging.getLogger("inference")
 
@@ -68,7 +71,7 @@ def run_ensembles(
     *,
     n_steps: int,
     weather_event,
-    model,
+    model: TimeLoop,
     perturb,
     nc,
     domains,
@@ -114,7 +117,6 @@ def run_ensembles(
         batch_size = min(batch_size, n_ensemble - batch_id)
 
         x = torch.from_numpy(ds.values)[None].to(device)
-        x = model.normalize(x)
         x = x.repeat(batch_size, 1, 1, 1, 1)
         perturb(x, rank, batch_id, device)
         # restart_dir = weather_event.properties.restart
@@ -132,7 +134,7 @@ def run_ensembles(
         #         time=time,
         #     )
 
-        iterator = model(time, x, normalize=False)
+        iterator = model(time, x)
 
         # Check if stdout is connected to a terminal
         if sys.stderr.isatty() and progress:
@@ -258,7 +260,12 @@ def get_initializer(
             )
         if rank == 0 and batch_id == 0:  # first ens-member is deterministic
             noise[0, :, :, :, :] = 0
+        # maybe numpy arrays, check shape, noise[batch, time, channel, lat, lon] 
+        center = [channel_means[channel] for channel in model.in_channel_names]
+        scale = [channel_stds[channel] for channel in model.in_channel_names]
+        x = (x - center) / scale
         x += noise
+        x = (x * scale) + center
         return x
 
     return perturb
