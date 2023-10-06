@@ -16,6 +16,8 @@
 
 import torch
 import pytest
+import xarray
+import numpy as np
 from earth2mip import regrid
 from earth2mip import schema
 
@@ -31,3 +33,23 @@ def test_get_regridder():
     y = f(x)
     assert y.shape == (1, 1, 121, 240)
     assert torch.allclose(y, torch.ones_like(y))
+
+
+def test_xarray_regridder():
+
+    dest = schema.Grid.grid_720x1440
+
+    lat = np.linspace(90, -90.0, 721)
+    lon = np.linspace(0, 359.75, 1440)
+    time = [0, 1, 2, 3]
+    # Create random data array with dimensions (time, lat, lon)
+    data = np.random.rand(len(time), len(lat), len(lon))
+    ds = xarray.Dataset(
+        {"random_data": (["time", "lat", "lon"], data)},
+        coords={"time": time, "lat": lat, "lon": lon},
+    )
+
+    out = regrid.xarray_regrid(ds, dest)
+    assert np.array_equal(out.lat, dest.lat)
+    assert np.array_equal(out.lon, dest.lon)
+    assert out.random_data.shape == (len(time), dest.lat.shape[0], dest.lon.shape[0])
