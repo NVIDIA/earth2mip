@@ -18,7 +18,7 @@
 from typing import List
 from earth2mip.initial_conditions import cds
 import numpy as np
-from modulus.utils.zenith_angle import cos_zenith_angle_from_timestamp
+from modulus.utils.sfno.zenith_angle import cos_zenith_angle
 from graphcast.graphcast import TaskConfig
 import xarray
 
@@ -140,10 +140,10 @@ def get_codes(variables: List[str], levels: List[int], time_levels: List[int]):
     return output
 
 
-def toa_incident_solar_radiation(timestamp, lat, lon):
+def toa_incident_solar_radiation(time, lat, lon):
     # TODO validate this code against the ECWMF data
     solar_constant = 1361  #  W/m²
-    z = cos_zenith_angle_from_timestamp(timestamp, lon, lat)
+    z = cos_zenith_angle(time, lon, lat)
     return np.maximum(0, z) * solar_constant
 
 
