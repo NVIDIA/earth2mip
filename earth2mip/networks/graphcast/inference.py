@@ -115,8 +115,13 @@ class GraphcastTimeLoop(TimeLoop):
         scale,
         diff_scale,
         task_config,
+        # TODO move into grid
+        lat: np.ndarray,
+        lon: np.ndarray,
     ):
         in_codes, t_codes = channels.get_codes_from_task_config(task_config)
+        self.lon = lon
+        self.lat = lat
         self.task_config = task_config
         self.forward = forward
         self._static_variables = static_variables
@@ -127,7 +132,7 @@ class GraphcastTimeLoop(TimeLoop):
         self.prog_levels = [
             [in_codes.index((t, c)) for _, c in t_codes] for t in range(2)
         ]
-        self.out_channel_names = [str(c) for _, c in t_codes]
+        self.in_channel_names = self.out_channel_names = [str(c) for _, c in t_codes]
 
     def set_static(self, array, field, arr):
         k = self.in_codes.index(field)
@@ -145,7 +150,7 @@ class GraphcastTimeLoop(TimeLoop):
 
     def set_forcings(self, x, time: datetime.datetime, t: int):
         seconds = time.timestamp()
-        lat, lon = np.meshgrid(self.grid.lat, self.grid.lon, indexing="ij")
+        lat, lon = np.meshgrid(self.lat, self.lon, indexing="ij")
 
         lat = lat.reshape([-1, 1])
         lon = lon.reshape([-1, 1])
@@ -169,7 +174,7 @@ class GraphcastTimeLoop(TimeLoop):
         return array[:, :, index]
 
     def _to_latlon(self, array):
-        array = einops.rearrange(array, "(y x) b c -> b c y x", y=self.grid.shape[0])
+        array = einops.rearrange(array, "(y x) b c -> b c y x", y=len(self.lat))
         p = jax.dlpack.to_dlpack(array)
         pt = torch.from_dlpack(p)
         return torch.flip(pt, [-2])
@@ -193,7 +198,7 @@ class GraphcastTimeLoop(TimeLoop):
 
     def __call__(self, time, x, restart=None):
         assert not restart, "not implemented"
-        ngrid = np.prod(self.grid.shape)
+        ngrid = len(self.lon) * len(self.lat)
         array = torch.empty([ngrid, 1, len(self.in_codes)], device=x.device)
 
         # set input data
@@ -286,4 +291,6 @@ def load_time_loop(package, pretrained=True, device="cuda:0"):
         scale,
         diff_scale,
         task_config,
+        lat=GraphcastTimeLoop.grid.lat,
+        lon=GraphcastTimeLoop.grid.lon,
     )
