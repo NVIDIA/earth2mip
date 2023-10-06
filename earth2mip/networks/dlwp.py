@@ -20,13 +20,12 @@ import torch
 import numpy as np
 import xarray
 import json
+import modulus
 import logging
 from earth2mip import registry, schema, networks, config, initial_conditions, geometry
 from earth2mip.time_loop import TimeLoop
 from earth2mip.schema import Grid
 
-from modulus.models.fcn_mip_plugin import _fix_state_dict_keys
-from modulus.models.dlwp import DLWP
 from modulus.utils.filesystem import Package
 from modulus.utils.sfno.zenith_angle import cos_zenith_angle
 
@@ -154,44 +153,31 @@ def load(package, *, pretrained=True, device="cuda"):
     cs_to_ll_mapfile_path = package.get("map_CS64_LL721x1440.nc")
 
     with torch.cuda.device(device):
-        # p = package.get("model.onnx")
-        with open(package.get("config.json")) as json_file:
-            config = json.load(json_file)
-            core_model = DLWP(
-                nr_input_channels=config["nr_input_channels"],
-                nr_output_channels=config["nr_output_channels"],
-            )
+        core_model = modulus.Module.from_checkpoint(package.get("dlwp.mdlus"))
+        model = _DLWPWrapper(
+            core_model,
+            lsm,
+            longrid,
+            latgrid,
+            topographic_height,
+            ll_to_cs_mapfile_path,
+            cs_to_ll_mapfile_path,
+        )
 
-            if pretrained:
-                weights_path = package.get("weights.pt")
-                weights = torch.load(weights_path)
-                fixed_weights = _fix_state_dict_keys(weights, add_module=False)
-                core_model.load_state_dict(fixed_weights)
-
-            model = _DLWPWrapper(
-                core_model,
-                lsm,
-                longrid,
-                latgrid,
-                topographic_height,
-                ll_to_cs_mapfile_path,
-                cs_to_ll_mapfile_path,
-            )
-
-            channel_names = ["t850", "z1000", "z700", "z500", "z300", "tcwv", "t2m"]
-            center = np.load(package.get("global_means.npy"))
-            scale = np.load(package.get("global_stds.npy"))
-            grid = schema.Grid.grid_721x1440
-            dt = datetime.timedelta(hours=12)
-            inference = networks.Inference(
-                model,
-                channels=None,
-                center=center,
-                scale=scale,
-                grid=grid,
-                channel_names=channel_names,
-                time_step=dt,
-                n_history=1,
-            )
-            inference.to(device)
-            return inference
+        channel_names = ["t850", "z1000", "z700", "z500", "z300", "tcwv", "t2m"]
+        center = np.load(package.get("global_means.npy"))
+        scale = np.load(package.get("global_stds.npy"))
+        grid = schema.Grid.grid_721x1440
+        dt = datetime.timedelta(hours=12)
+        inference = networks.Inference(
+            model,
+            channels=None,
+            center=center,
+            scale=scale,
+            grid=grid,
+            channel_names=channel_names,
+            time_step=dt,
+            n_history=1,
+        )
+        inference.to(device)
+        return inference
