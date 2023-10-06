@@ -53,7 +53,6 @@ async def lagged_average_simple(
     lags=2,
     n=10,
 ):
-
     scores = {}
     async for (j, l), ensemble, obs in core.yield_lagged_ensembles(
         observations=observations,

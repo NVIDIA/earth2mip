@@ -15,7 +15,7 @@
 # limitations under the License.
 
 """
-Pangu Weathe adapter
+Pangu Weather adapter
 
 adapted from https://raw.githubusercontent.com/ecmwf-lab/ai-models-panguweather/main/ai_models_panguweather/model.py
 
@@ -28,16 +28,16 @@ adapted from https://raw.githubusercontent.com/ecmwf-lab/ai-models-panguweather/
 """
 # %%
 from typing import List
-import logging
 import os
+import logging
 import datetime
 import torch
-
 import numpy as np
 import onnxruntime as ort
 import dataclasses
-
 from earth2mip import registry, schema, networks, config, initial_conditions, geometry
+
+logger = logging.getLogger(__file__)
 
 
 class PanguWeather:
@@ -55,7 +55,6 @@ class PanguWeather:
         ["z", "q", "t", "u", "v"],
         [1000, 925, 850, 700, 600, 500, 400, 300, 250, 200, 150, 100, 50],
     )
-
     # Output
     expver = "pguw"
     # providers=['CUDAExecutionProvider', 'CPUExecutionProvider']
@@ -89,8 +88,8 @@ class PanguWeather:
         )
 
     def __call__(self, fields_pl, fields_sfc):
-        assert fields_pl.dype == torch.float32
-        assert fields_sl.dype == torch.float32
+        assert fields_pl.dtype == torch.float32
+        assert fields_sfc.dtype == torch.float32
         # from https://onnxruntime.ai/docs/api/python/api_summary.html
         binding = self.ort_session.io_binding()
 
@@ -174,6 +173,7 @@ class PanguInference(torch.nn.Module):
         super().__init__()
         self.model_6 = model_6
         self.model_24 = model_24
+        self.channels = None
 
     def to(self, device):
         return self
@@ -183,15 +183,31 @@ class PanguInference(torch.nn.Module):
 
     @property
     def in_channel_names(self):
-        return self.model_6.channel_names()
+        return self.channel_names
 
     @property
     def out_channel_names(self):
-        return self.model_6.channel_names()
+        return self.channel_names
 
     @property
     def grid(self):
         return schema.Grid.grid_721x1440
+
+    @property
+    def channel_set(self):
+        return schema.ChannelSet.var_pangu
+
+    @property
+    def channel_names(self):
+        return schema.ChannelSet.var_pangu.list_channels()
+
+    @property
+    def n_history(self):
+        return 0
+
+    def normalize(self, x):
+        # No normalization for pangu
+        return x
 
     def run_steps_with_restart(self, x, n, normalize=True, time=None):
         """Yield (time, unnormalized data, restart) tuples
@@ -207,7 +223,9 @@ class PanguInference(torch.nn.Module):
             if k == n:
                 break
 
-    def __call__(self, time, x, restart=None):
+        yield from self.__call__(time, x)
+
+    def __call__(self, time, x, normalize=False, restart=None):
         """Yield (time, unnormalized data, restart) tuples
 
         restart = (time, unnormalized data)
@@ -235,17 +253,44 @@ class PanguInference(torch.nn.Module):
                 yield time0, x0, restart_data
 
 
-def load(package, *, time_step_hours: int, pretrained=True, device="not used"):
+def load(package, *, pretrained=True, device="doesn't matter"):
+    """Load the sub-stepped pangu weather inference"""
+    assert pretrained
+
+    p6 = package.get("pangu_weather_6.onnx")
+    p24 = package.get("pangu_weather_24.onnx")
+
+    model_6 = PanguStacked(PanguWeather(p6))
+    model_24 = PanguStacked(PanguWeather(p24))
+    return PanguInference(model_6, model_24)
+
+
+def load_single_model(
+    package, *, time_step_hours: int = 24, pretrained=True, device="cuda:0"
+):
     """Load a single time-step pangu weather"""
     assert pretrained
+
+    if time_step_hours == 6:
+        return load_6(package, pretrained=pretrained, device=device)
+    elif time_step_hours == 24:
+        return load_24(package, pretrained=pretrained, device=device)
+    else:
+        raise ValueError(f"time_step_hours must be 6 or 24, got {time_step_hours}")
+
+
+def load_24(package, *, pretrained=True, device="cuda:0"):
+    """Load a 24 hour time-step pangu weather"""
+    assert pretrained
+
     with torch.cuda.device(device):
-        p = package.get("model.onnx")
+        p = package.get("pangu_weather_24.onnx")
         model = PanguStacked(PanguWeather(p))
         channel_names = model.channel_names()
         center = np.zeros([len(channel_names)])
         scale = np.ones([len(channel_names)])
         grid = schema.Grid.grid_721x1440
-        dt = datetime.timedelta(hours=time_step_hours)
+        dt = datetime.timedelta(hours=24)
         inference = networks.Inference(
             model,
             channels=None,
@@ -253,19 +298,34 @@ def load(package, *, time_step_hours: int, pretrained=True, device="not used"):
             scale=scale,
             grid=grid,
             channel_names=channel_names,
+            channel_set=schema.ChannelSet.var_pangu,
             time_step=dt,
         )
         inference.to(device)
         return inference
 
 
-def load_24substep6(package, pretrained=True, device="doesn't matter"):
-    """Load the sub-stepped pangu weather inference"""
+def load_6(package, *, pretrained=True, device="cuda:0"):
+    """Load a 6 hour time-step pangu weather"""
     assert pretrained
-    with torch.cuda.device(device):
-        p6 = package.get("model_6.onnx")
-        p24 = package.get("model_24.onnx")
 
-        model_6 = PanguStacked(PanguWeather(p6))
-        model_24 = PanguStacked(PanguWeather(p24))
-        return PanguInference(model_6, model_24)
+    with torch.cuda.device(device):
+        p = package.get("pangu_weather_6.onnx")
+        model = PanguStacked(PanguWeather(p))
+        channel_names = model.channel_names()
+        center = np.zeros([len(channel_names)])
+        scale = np.ones([len(channel_names)])
+        grid = schema.Grid.grid_721x1440
+        dt = datetime.timedelta(hours=6)
+        inference = networks.Inference(
+            model,
+            channels=None,
+            center=center,
+            scale=scale,
+            grid=grid,
+            channel_names=channel_names,
+            channel_set=schema.ChannelSet.var_pangu,
+            time_step=dt,
+        )
+        inference.to(device)
+        return inference

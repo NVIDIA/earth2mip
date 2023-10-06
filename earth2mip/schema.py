@@ -88,8 +88,10 @@ class ChannelSet(Enum):
 
     """
 
+    var26 = "26var"
     var34 = "34var"
     var73 = "73var"
+    var_pangu = "var_pangu"
 
     def list_channels(self) -> List[str]:
         """List channel names corresponding to the vocabulary"""
@@ -172,6 +174,77 @@ _channels = {
         "r925",
         "r1000",
     ],
+    ChannelSet.var_pangu: [
+        "z1000",
+        "z925",
+        "z850",
+        "z700",
+        "z600",
+        "z500",
+        "z400",
+        "z300",
+        "z250",
+        "z200",
+        "z150",
+        "z100",
+        "z50",
+        "q1000",
+        "q925",
+        "q850",
+        "q700",
+        "q600",
+        "q500",
+        "q400",
+        "q300",
+        "q250",
+        "q200",
+        "q150",
+        "q100",
+        "q50",
+        "t1000",
+        "t925",
+        "t850",
+        "t700",
+        "t600",
+        "t500",
+        "t400",
+        "t300",
+        "t250",
+        "t200",
+        "t150",
+        "t100",
+        "t50",
+        "u1000",
+        "u925",
+        "u850",
+        "u700",
+        "u600",
+        "u500",
+        "u400",
+        "u300",
+        "u250",
+        "u200",
+        "u150",
+        "u100",
+        "u50",
+        "v1000",
+        "v925",
+        "v850",
+        "v700",
+        "v600",
+        "v500",
+        "v400",
+        "v300",
+        "v250",
+        "v200",
+        "v150",
+        "v100",
+        "v50",
+        "msl",
+        "u10m",
+        "v10m",
+        "t2m",
+    ],
     ChannelSet.var34: [
         "u10m",
         "v10m",
@@ -207,6 +280,34 @@ _channels = {
         "v900",
         "z900",
         "t900",
+    ],
+    ChannelSet.var26: [
+        "u10m",
+        "v10m",
+        "t2m",
+        "sp",
+        "msl",
+        "t850",
+        "u1000",
+        "v1000",
+        "z1000",
+        "u850",
+        "v850",
+        "z850",
+        "u500",
+        "v500",
+        "z500",
+        "t500",
+        "z50",
+        "r500",
+        "r850",
+        "tcwv",
+        "u100m",
+        "v100m",
+        "u250",
+        "v250",
+        "z250",
+        "t250",
     ],
 }
 
@@ -247,23 +348,18 @@ class Model(pydantic.BaseModel):
 class PerturbationStrategy(Enum):
     correlated = "correlated"
     gaussian = "gaussian"
-    gp = "gp"
-    correlated_spherical_grf = "correlated_spherical_grf"
-    spherical_grf = "spherical_grf"
     bred_vector = "bred_vector"
+    spherical_grf = "spherical_grf"
 
 
 class EnsembleRun(pydantic.BaseModel):
     """A configuration for running an ensemble weather forecast
 
     Attributes:
-        fcn_model: The name of the fully convolutional neural network (FCN) model to use for the forecast.
+        weather_model: The name of the fully convolutional neural network (FCN) model to use for the forecast.
         ensemble_members: The number of ensemble members to use in the forecast.
         noise_amplitude: The amplitude of the Gaussian noise to add to the initial conditions.
         noise_reddening: The noise reddening amplitude, 2.0 was the defualt set by A.G. work.
-        grf_noise_alpha: tuning parameter of the Gaussian random field, see ensemble_utils.generate_noise_grf for details
-        grf_noise_sigma: tuning parameter of the Gaussian random field, see ensemble_utils.generate_noise_grf for details
-        grf_noise_tau: tuning parameter of the Gaussian random field, see ensemble_utils.generate_noise_grf for details
         simulation_length: The length of the simulation in timesteps.
         output_frequency: The frequency at which to write the output to file, in timesteps.
         use_cuda_graphs: Whether to use CUDA graphs to optimize the computation.
@@ -276,19 +372,19 @@ class EnsembleRun(pydantic.BaseModel):
         output_dir (optional): The directory to save the output files in (alternative to `output_path`).
         output_path (optional): The path to the output file (alternative to `output_dir`).
         restart_frequency: if provided save at end and at the specified frequency. 0 = only save at end.
+        grf_noise_alpha: tuning parameter of the Gaussian random field, see ensemble_utils.generate_noise_grf for details
+        grf_noise_sigma: tuning parameter of the Gaussian random field, see ensemble_utils.generate_noise_grf for details
+        grf_noise_tau: tuning parameter of the Gaussian random field, see ensemble_utils.generate_noise_grf for details
 
     """  # noqa
 
-    fcn_model: str
+    weather_model: str
     simulation_length: int
     # TODO make perturbation_strategy an Enum (see ChannelSet)
     perturbation_strategy: PerturbationStrategy = PerturbationStrategy.correlated
     single_value_perturbation: bool = True
     noise_reddening: float = 2.0
     noise_amplitude: float = 0.05
-    grf_noise_alpha: float = 2.0
-    grf_noise_sigma: float = 5.0
-    grf_noise_tau: float = 2.0
     output_frequency: int = 1
     output_grid: Optional[Grid] = None
     ensemble_members: int = 1
@@ -301,6 +397,9 @@ class EnsembleRun(pydantic.BaseModel):
     output_dir: Optional[str] = None
     output_path: Optional[str] = None
     restart_frequency: Optional[int] = None
+    grf_noise_alpha: float = 2.0
+    grf_noise_sigma: float = 5.0
+    grf_noise_tau: float = 2.0
 
     def get_weather_event(self) -> weather_events.WeatherEvent:
         if self.forecast_name:

@@ -14,8 +14,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pathlib
-
-METADATA26 = pathlib.Path(__file__).parent / "data26var.json"
-METADATA34 = pathlib.Path(__file__).parent / "data34var.json"
-METADATA73 = pathlib.Path(__file__).parent / "data73var.json"
+from .yparams import YParams
+from .sfnonet import FourierNeuralOperatorNet

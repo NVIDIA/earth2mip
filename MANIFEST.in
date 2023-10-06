@@ -1,0 +1,2 @@
+include earth2mip/networks/fcnv2/sfnonet.yaml
+include earth2mip/datasets/gfs/*.json

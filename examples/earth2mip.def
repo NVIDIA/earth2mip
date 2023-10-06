@@ -1,0 +1,53 @@
+# SPDX-FileCopyrightText: Copyright (c) 2023 NVIDIA CORPORATION & AFFILIATES.
+# SPDX-FileCopyrightText: All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# In the repo root directory
+# To build this : $ apptainer build --fakeroot --sandbox earth2mip.sif ./examples/earth2mip.def
+# To run this: $ apptainer run --writable --nv earth2mip.sif jupyter-lab --no-browser --allow-root --ip=0.0.0.0 --port=8888 --NotebookApp.token="" --notebook-dir=/examples/
+
+Bootstrap: docker
+FROM: nvcr.io/nvidia/modulus/modulus:23.08
+
+%files
+    earth2mip/* /workspace/earth2mip/earth2mip/
+    MANIFEST.in /workspace/earth2mip/MANIFEST.in
+    setup.cfg /workspace/earth2mip/setup.cfg
+    setup.py /workspace/earth2mip/setup.py
+    README.md /workspace/earth2mip/README.md
+    LICENSE.txt /workspace/earth2mip/LICENSE.txt
+    examples/README.md /workspace/earth2mip/examples/README.md
+
+%post
+    cd /workspace/earth2mip && pip3 install .
+    pip3 install cartopy
+    pip3 install --upgrade nbconvert
+
+    apt update -y
+    apt install -y python3.10-venv
+    apt install -y nodejs
+    apt install -y npm
+
+%environment
+    export HOME=/workspace/earth2mip/
+
+%runscript
+    cd ~
+    jupyter-lab --no-browser --ip=0.0.0.0 --port=8888 --NotebookApp.token="" --notebook-dir=/workspace/earth2mip/examples/
+
+%labels
+    AUTHOR NVIDIA Earth-2 and Modulus Team
+
+

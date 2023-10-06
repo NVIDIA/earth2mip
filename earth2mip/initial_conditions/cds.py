@@ -25,6 +25,7 @@ import numpy as np
 import os
 from concurrent.futures import ThreadPoolExecutor
 from cdsapi import Client
+import tempfile
 
 import logging
 
@@ -219,23 +220,23 @@ def _parse_files(
     return xarray.DataArray(array, dims=["channel", "lat", "lon"], coords=coords)
 
 
-def _download_codes(client, codes, time, d):
+def _download_codes(client, codes, time):
+    with tempfile.TemporaryDirectory() as d:
+        files = []
+        format = "grib"
 
-    files = []
-    format = "grib2"
+        def download(arg):
+            name, req = arg
+            path = os.path.join(d, name + ".grib")
+            if not os.path.exists(path):
+                client.retrieve(name, req, path)
+            return path
 
-    def download(arg):
-        name, req = arg
-        path = os.path.join(d, name + ".grib")
-        if not os.path.exists(path):
-            client.retrieve(name, req, path)
-        return path
+        requests = _get_cds_requests(codes, time, format)
+        with ThreadPoolExecutor(4) as pool:
+            files = pool.map(download, requests)
 
-    requests = _get_cds_requests(codes, time, format)
-    with ThreadPoolExecutor(4) as pool:
-        files = pool.map(download, requests)
-
-    darray = _parse_files(codes, files)
+        darray = _parse_files(codes, files)
 
     return darray
 

@@ -74,7 +74,6 @@ def _get_hdf5(path: str, metadata, time: datetime.datetime) -> xarray.DataArray:
 
 
 def get(time: datetime.datetime, channel_set: schema.ChannelSet) -> xarray.DataArray:
-
     root = config.get_data_root(channel_set)
     path = _get_path(root, time)
     logger.debug(f"Opening {path} for {time}.")

@@ -21,23 +21,25 @@ import itertools
 from typing import Optional, Tuple, Any, Iterator
 import sys
 import datetime
+import os
 
 import torch
 import einops
 import numpy as np
 import contextlib
-
-from earth2mip import registry, ModelRegistry, model_registry
-from earth2mip import filesystem, loaders, time_loop, schema
 import modulus
+
+
 from modulus.utils.sfno.zenith_angle import cos_zenith_angle
 from modulus.distributed.manager import DistributedManager
 from earth2mip.loaders import LoaderProtocol
+from earth2mip import registry, ModelRegistry, model_registry
+from earth2mip import filesystem, loaders, time_loop, schema
 
 if sys.version_info < (3, 10):
-    from importlib_metadata import EntryPoint
+    from importlib_metadata import EntryPoint, entry_points
 else:
-    from importlib.metadata import EntryPoint
+    from importlib.metadata import EntryPoint, entry_points
 
 
 __all__ = ["get_model"]
@@ -73,7 +75,6 @@ class Wrapper(torch.nn.Module):
 
     def forward(self, *args, **kwargs):
         """x: (batch, history, channel, x, y)"""
-
         return self.module(*args, **kwargs)
 
 
@@ -159,8 +160,8 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         self.time_dependent = depends_on_time(model.forward)
 
         # TODO probably delete this line
-        if not isinstance(model, modulus.Module):
-            model = Wrapper(model)
+        # if not isinstance(model, modulus.Module):
+        #     model = Wrapper(model)
 
         # TODO extract this to another place
         model = _SimpleModelAdapter(
@@ -169,6 +170,7 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
 
         self.model = model
         self.channel_set = channel_set
+        self.channel_names = channel_names
         self.grid = grid
         self.time_step = time_step
         self.n_history = n_history
@@ -225,7 +227,11 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
             yield data
 
     def __call__(
-        self, time: datetime.datetime, x: torch.Tensor, restart: Optional[Any] = None
+        self,
+        time: datetime.datetime,
+        x: torch.Tensor,
+        restart: Optional[Any] = None,
+        normalize=True,
     ) -> Iterator[Tuple[datetime.datetime, torch.Tensor, Any]]:
         """
         Args:
@@ -245,7 +251,7 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         if restart:
             yield from self._iterate(**restart)
         else:
-            yield from self._iterate(x=x, time=time, n=None, normalize=True)
+            yield from self._iterate(x=x, time=time, n=None, normalize=normalize)
 
     def run_steps_with_restart(self, x, n, normalize=True, time=None):
         warnings.warn(
@@ -265,7 +271,6 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
             raise ValueError("Time dependent models require ``time``.")
 
         time = time or datetime.datetime(1900, 1, 1)
-
         with torch.no_grad():
             # drop all but the last time point
             # remove channels
@@ -319,7 +324,17 @@ def _default_inference(package, metadata, device):
 
 
 def _load_package(package, metadata, device) -> time_loop.TimeLoop:
+    # Attempt to see if Earth2 MIP has entry point registered already
+    if metadata is None:
+        group = "earth2mip.networks"
+        entrypoints = entry_points(group=group)
+        for entry_point in entrypoints:
+            name = package.root.split(package.seperator)[-1]
+            if entry_point.name == name:
+                inference_loader = entry_point.load()
+                return inference_loader(package, device=device)
 
+    # Read meta data from file if not present
     if metadata is None:
         local_path = package.get("metadata.json")
         with open(local_path) as f:
@@ -330,6 +345,7 @@ def _load_package(package, metadata, device) -> time_loop.TimeLoop:
         inference_loader = ep.load()
         return inference_loader(package, device=device, **metadata.entrypoint.kwargs)
     else:
+        warnings.warn("No loading entry point found, using default inferencer")
         return _default_inference(package, metadata, device=device)
 
 
@@ -363,7 +379,7 @@ def get_model(
 
     """
     url = urllib.parse.urlparse(model)
-    if url.scheme == "":
+    if url.scheme == "" or url.scheme == "e2mip":
         package = registry.get_model(model)
     else:
         package = model_registry.Package(root=model, seperator="/")
@@ -372,7 +388,7 @@ def get_model(
 
 
 class Identity(torch.nn.Module):
-    def __call__(self, x):
+    def forward(self, x):
         return x
 
 

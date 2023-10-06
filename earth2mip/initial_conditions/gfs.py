@@ -16,7 +16,7 @@
 
 import datetime
 from earth2mip import schema
-from earth2mip.datasets.gfs import METADATA34, METADATA73
+from earth2mip.datasets.gfs import METADATA26, METADATA34, METADATA73
 from modulus.utils.filesystem import LOCAL_CACHE
 import json
 import xarray
@@ -169,7 +169,6 @@ def get(
     time: Union[datetime.datetime, None],
     channel_set: schema.ChannelSet,
 ) -> xarray.DataArray:
-
     # If no time is provided, use current time
     if time is None:
         time = datetime.datetime.now()
@@ -187,7 +186,12 @@ def get(
             + "(needs to be past 10 days)"
         )
 
-    if channel_set == schema.ChannelSet.var34:
+    if channel_set == schema.ChannelSet.var26:
+        # move to earth2mip.channels
+        metadata = json.loads(METADATA26.read_text())
+        channels = metadata["coords"]["channel"]
+        gfs_channels = metadata["gfs_coords"]["channel"]
+    elif channel_set == schema.ChannelSet.var34:
         # move to earth2mip.channels
         metadata = json.loads(METADATA34.read_text())
         channels = metadata["coords"]["channel"]
