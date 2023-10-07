@@ -43,6 +43,8 @@ inferencer = dlwp.load(package, device=device)
 cds_data_source = cds.DataSource(inferencer.in_channel_names)
 # Stack two data-sources together for double timestep inputs
 time = datetime.datetime(2018, 1, 1)
+# TODO refactor this into a function to be shared with graphcast_simple.py, and
+# all the inference scripts or add a history flag to the data source.
 ds1 = cds_data_source[time]
 ds2 = cds_data_source[time - datetime.timedelta(hours=6)]
 ds = xr.concat([ds2, ds1], dim="time")

@@ -25,7 +25,6 @@ import numpy as np
 import os
 from concurrent.futures import ThreadPoolExecutor
 from cdsapi import Client
-import tempfile
 
 import logging
 
@@ -139,6 +138,8 @@ def _get_cds_requests(codes, time, format):
             single_level_names.add(v.id)
 
     if pressure_level_names and levels:
+        # TODO to limit download size for many levels, split this into one
+        # request per variable if there are more than some number of levels.
         yield (
             "reanalysis-era5-pressure-levels",
             {
@@ -183,14 +184,12 @@ def _parse_files(
     """
     arrays = [None] * len(codes)
     for path in files:
-        print(path)
         with open(path) as f:
             while True:
                 gid = eccodes.codes_grib_new_from_file(f)
                 if gid is None:
                     break
                 id = eccodes.codes_get(gid, "paramId")
-                print(id)
                 level = eccodes.codes_get(gid, "level")
                 type_of_level = eccodes.codes_get(gid, "typeOfLevel")
 
@@ -220,25 +219,22 @@ def _parse_files(
     return xarray.DataArray(array, dims=["channel", "lat", "lon"], coords=coords)
 
 
-def _download_codes(client, codes, time):
-    with tempfile.TemporaryDirectory() as d:
-        files = []
-        format = "grib"
+def _download_codes(client, codes, time, d) -> xarray.DataArray:
+    files = []
+    format = "grib"
 
-        def download(arg):
-            name, req = arg
-            path = os.path.join(d, name + ".grib")
-            if not os.path.exists(path):
-                client.retrieve(name, req, path)
-            return path
+    def download(arg):
+        name, req = arg
+        path = os.path.join(d, name + ".grib")
+        if not os.path.exists(path):
+            client.retrieve(name, req, path)
+        return path
 
-        requests = _get_cds_requests(codes, time, format)
-        with ThreadPoolExecutor(4) as pool:
-            files = pool.map(download, requests)
+    requests = _get_cds_requests(codes, time, format)
+    with ThreadPoolExecutor(4) as pool:
+        files = pool.map(download, requests)
 
-        darray = _parse_files(codes, files)
-
-    return darray
+    return _parse_files(codes, files)
 
 
 def _get_channels(client, time: datetime.datetime, channels: List[str], d):

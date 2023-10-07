@@ -32,6 +32,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import xarray
+from earth2mip.initial_conditions import cds
 
 from earth2mip.model_registry import Package
 from earth2mip.networks.graphcast import channels, inference
@@ -80,13 +81,24 @@ target_codes = channels.get_codes(
 )
 
 # TODO use one of the builtin data sources
-array = get_input_from_xarray(task_config, example_batch)
-pt = torch.from_numpy(array).cuda()
+# array = get_input_from_xarray(task_config, example_batch)
 
+data_source = cds.DataSource(time_loop.in_channel_names)
 time = datetime.datetime(2018, 1, 1)
-i = time_loop.out_channel_names.index("tp06")
+arrays = [
+    data_source[time - k * time_loop.history_time_step].sel(
+        channel=time_loop.in_channel_names
+    )
+    for k in range(time_loop.n_history_levels)
+]
+array = np.concatenate(arrays)
+# TODO make the dtype flexible
+x = torch.from_numpy(array).cuda().type(torch.float)
+# need a batch dimension of length 1
+x = x[None]
 
-for k, (time, x, _) in enumerate(time_loop(time, pt)):
+i = time_loop.out_channel_names.index("tp06")
+for k, (time, x, _) in enumerate(time_loop(time, x)):
     print(k)
     plt.pcolormesh(x[0, i].cpu().numpy())
     plt.savefig(f"{k:03d}.png")
