@@ -25,7 +25,7 @@ import json
 import numpy as np
 import torch
 import tqdm
-from typing import Optional, Any
+from typing import Optional, Any, Mapping
 from datetime import datetime
 from modulus.distributed.manager import DistributedManager
 from netCDF4 import Dataset as DS
@@ -278,9 +278,15 @@ def get_initializer(
     return perturb
 
 
-def run_basic_inference(model: time_loop.TimeLoop, n: int, data_source, time):
+def run_basic_inference(
+    model: time_loop.TimeLoop,
+    n: int,
+    data_source: Mapping[datetime, xarray.Dataset],
+    time: datetime,
+):
     """Run a basic inference"""
     ds = data_source[time].sel(channel=model.in_channel_names)
+
     # TODO make the dtype flexible
     x = torch.from_numpy(ds.values).cuda().type(torch.float)
     # need a batch dimension of length 1
