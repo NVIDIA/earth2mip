@@ -260,8 +260,14 @@ def get_initializer(
             )
         if rank == 0 and batch_id == 0:  # first ens-member is deterministic
             noise[0, :, :, :, :] = 0
-        center = torch.tensor([channel_means[channel] for channel in model.in_channel_names], device=x.device)
-        scale = torch.tensor([channel_stds[channel] for channel in model.in_channel_names], device=x.device)
+        center = torch.tensor(
+            [channel_means[channel] for channel in model.in_channel_names],
+            device=x.device,
+        )
+        scale = torch.tensor(
+            [channel_stds[channel] for channel in model.in_channel_names],
+            device=x.device,
+        )
         center_reshaped = center[None, None, :, None, None]
         scale_reshaped = scale[None, None, :, None, None]
         x = (x - center_reshaped) / scale_reshaped
