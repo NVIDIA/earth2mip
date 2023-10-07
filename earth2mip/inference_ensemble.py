@@ -118,7 +118,7 @@ def run_ensembles(
 
         x = torch.from_numpy(ds.values)[None].to(device)
         x = x.repeat(batch_size, 1, 1, 1, 1)
-        perturb(x, rank, batch_id, device)
+        x = perturb(x, rank, batch_id, device)
         # restart_dir = weather_event.properties.restart
 
         # TODO: figure out if needed
@@ -260,12 +260,13 @@ def get_initializer(
             )
         if rank == 0 and batch_id == 0:  # first ens-member is deterministic
             noise[0, :, :, :, :] = 0
-        # maybe numpy arrays, check shape, noise[batch, time, channel, lat, lon] 
-        center = [channel_means[channel] for channel in model.in_channel_names]
-        scale = [channel_stds[channel] for channel in model.in_channel_names]
-        x = (x - center) / scale
+        center = torch.tensor([channel_means[channel] for channel in model.in_channel_names], device=x.device)
+        scale = torch.tensor([channel_stds[channel] for channel in model.in_channel_names], device=x.device)
+        center_reshaped = center[None, None, :, None, None]
+        scale_reshaped = scale[None, None, :, None, None]
+        x = (x - center_reshaped) / scale_reshaped
         x += noise
-        x = (x * scale) + center
+        x = (x * scale_reshaped) + center_reshaped
         return x
 
     return perturb
