@@ -13,6 +13,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from typing import Literal
+import dataclasses
 import datetime
 import functools
 import os
@@ -143,10 +145,24 @@ class GraphcastTimeLoop(TimeLoop):
         self.scale = scale
         self.diff_scale = diff_scale
         self.in_codes = in_codes
+        self.target_codes = t_codes
+
         self.prog_levels = [
-            [in_codes.index((t, c)) for _, c in t_codes] for t in range(2)
+            [in_codes.index(k) for k in channels.get_state_codes(task_config, t)]
+            for t in range(2)
         ]
-        self.in_channel_names = self.out_channel_names = [str(c) for _, c in t_codes]
+
+        self.in_channel_names = [
+            str(c) for _, c in channels.get_state_codes(task_config, 0)
+        ]
+
+        # setup output names
+        state_codes = channels.get_state_codes(self.task_config, 0)
+        state_names = [str(c) for _, c in state_codes]
+        self._diagnostic_names = [
+            str(c) for _, c in self.target_codes if str(c) not in state_names
+        ]
+        self.out_channel_names = state_names + self._diagnostic_names
 
     def set_static(self, array, field, arr):
         k = self.in_codes.index(field)
@@ -187,6 +203,14 @@ class GraphcastTimeLoop(TimeLoop):
         index = self.prog_levels[t]
         return array[:, :, index]
 
+    def split_target(self, target):
+        state_codes = channels.get_state_codes(self.task_config, 0)
+        index = np.array([c in state_codes for c in self.target_codes])
+
+        state_increment = target[:, :, index]
+        diagnostics = target[:, :, ~index]
+        return state_increment, diagnostics
+
     def _to_latlon(self, array):
         array = einops.rearrange(array, "(y x) b c -> b c y x", y=len(self.lat))
         p = jax.dlpack.to_dlpack(array)
@@ -202,13 +226,18 @@ class GraphcastTimeLoop(TimeLoop):
         s = self.set_forcings(s, time + self.history_time_step, 2)
 
         x = (s - self.mean) / self.scale
-        d = self.forward(rng=rng, x=x)
-        x_next = self.get_prognostic(s, 1) + d * self.diff_scale
+        # TODO rename to target scale
+        d = self.forward(rng=rng, x=x) * self.diff_scale
+        diff, diagnostics = self.split_target(d)
+        x_next = self.get_prognostic(s, 1) + diff
 
         # update array
         s = self.set_prognostic(s, 0, self.get_prognostic(s, 1))
         s = self.set_prognostic(s, 1, x_next)
-        return s
+
+        # add state to output diagnostics
+        diagnostics = jnp.concatenate([x_next, diagnostics], axis=-1)
+        return s, diagnostics
 
     def __call__(self, time, x, restart=None):
         assert not restart, "not implemented"
@@ -216,7 +245,7 @@ class GraphcastTimeLoop(TimeLoop):
         array = torch.empty([ngrid, 1, len(self.in_codes)], device=x.device)
 
         # set input data
-        x_codes = self._input_codes()
+        x_codes = [cds.parse_channel(name) for name in self.in_channel_names]
         for t in range(2):
             index_in_input = [self.in_codes.index((t, c)) for c in x_codes]
             array[:, :, index_in_input] = einops.rearrange(
@@ -228,10 +257,11 @@ class GraphcastTimeLoop(TimeLoop):
         rng = jax.random.PRNGKey(0)
         s = torch_to_jax(array)
 
+        # TODO fill in state for the first time step
+        diagnostics = jnp.full([ngrid, x.shape[0], len(self.out_channel_names)], np.nan)
         while True:
-            # TODO will need to change update rule for diagnostics outputs
-            yield time, self._to_latlon(self.get_prognostic(s, 1)), None
-            s = self.step(rng, time, s)
+            yield time, self._to_latlon(diagnostics), None
+            s, diagnostics = self.step(rng, time, s)
             time = time + self.time_step
 
 
@@ -249,13 +279,59 @@ def get_codes(task_config):
     return codes
 
 
-def load_time_loop(package, pretrained=True, device="cuda:0"):
+@dataclasses.dataclass
+class GraphcastDescription:
+    checkpoint: str
+    resolution: float
+    nlevels: int
+
+
+def get_static_data(package, resolution):
+    dataset_location = {
+        0.25: "dataset/source-era5_date-2022-01-01_res-0.25_levels-37_steps-01.nc",
+        1.0: "dataset/source-era5_date-2022-01-01_res-1.0_levels-13_steps-01.nc",
+    }[resolution]
+
+    static_data_path = package.get(dataset_location)
+
+    with open(static_data_path, "rb") as f:
+        example_batch = xarray.load_dataset(f).compute()
+    return {
+        key: example_batch[key].values
+        for key in ["land_sea_mask", "geopotential_at_surface"]
+    }
+
+
+def load_time_loop(
+    package,
+    pretrained=True,
+    device="cuda:0",
+    version: Literal["paper", "operational", "small"] = "paper",
+):
     def join(*args):
         return package.get(os.path.join(*args))
 
-    model_name = "GraphCast - ERA5 1979-2017 - resolution 0.25 - pressure levels 37 - mesh 2to6 - precipitation input and output.npz"
+    models = {
+        "paper": GraphcastDescription(
+            "GraphCast - ERA5 1979-2017 - resolution 0.25 - pressure levels 37 - mesh 2to6 - precipitation input and output.npz",
+            0.25,
+            37,
+        ),
+        "operational": GraphcastDescription(
+            "GraphCast_operational - ERA5-HRES 1979-2021 - resolution 0.25 - pressure levels 13 - mesh 2to6 - precipitation output only.npz",
+            0.25,
+            13,
+        ),
+        # TODO for small need to add a new grid
+        "small": GraphcastDescription(
+            "GraphCast_small - ERA5 1979-2015 - resolution 1.0 - pressure levels 13 - mesh 2to5 - precipitation input and output.npz",
+            1.0,
+            13,
+        ),
+    }
+    model = models[version]
 
-    checkpoint_path = join("params", model_name)
+    checkpoint_path = join("params", model.checkpoint)
     # load checkpoint:
     with open(checkpoint_path, "rb") as f:
         ckpt = checkpoint.load(f, graphcast.CheckPoint)
@@ -264,19 +340,7 @@ def load_time_loop(package, pretrained=True, device="cuda:0"):
             ckpt, grid=GraphcastTimeLoop.grid
         )
 
-    dataset_filename = package.get(
-        "dataset/source-era5_date-2022-01-01_res-0.25_levels-37_steps-01.nc"
-    )
-    with open(dataset_filename, "rb") as f:
-        example_batch = xarray.load_dataset(f).compute()
-
-    in_codes, t_codes = channels.get_codes_from_task_config(task_config)
-
-    # declare static variables
-    static_variables = {
-        key: example_batch[key].values
-        for key in ["land_sea_mask", "geopotential_at_surface"]
-    }
+    static_variables = get_static_data(package, model.resolution)
 
     # load stats
     with open(join("stats/diffs_stddev_by_level.nc"), "rb") as f:
@@ -286,6 +350,8 @@ def load_time_loop(package, pretrained=True, device="cuda:0"):
     with open(join("stats/stddev_by_level.nc"), "rb") as f:
         stddev_by_level = xarray.load_dataset(f).compute()
 
+    # select needed channels from stats
+    in_codes, t_codes = channels.get_codes_from_task_config(task_config)
     mean = np.array(
         [channels.get_data_for_code_scalar(code, mean_by_level) for code in in_codes]
     )

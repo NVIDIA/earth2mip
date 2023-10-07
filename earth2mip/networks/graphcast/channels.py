@@ -140,6 +140,15 @@ def get_codes(variables: List[str], levels: List[int], time_levels: List[int]):
     return output
 
 
+def get_state_codes(task_config: TaskConfig, time_level: int = 0):
+    state_variables = [
+        v for v in task_config.target_variables if v in task_config.input_variables
+    ]
+    return get_codes(
+        state_variables, levels=task_config.pressure_levels, time_levels=[time_level]
+    )
+
+
 def toa_incident_solar_radiation(time, lat, lon):
     # TODO validate this code against the ECWMF data
     solar_constant = 1361  #  W/m²

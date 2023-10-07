@@ -16,13 +16,16 @@
 
 from earth2mip.networks.graphcast import channels, inference
 
-from graphcast.graphcast import TASK
+from graphcast.graphcast import TASK, TASK_13_PRECIP_OUT, TASK_13
 import torch
 import datetime
 import numpy as np
 
+import pytest
 
-def test_graphcast_time_loop():
+
+@pytest.mark.parametrize("task", [TASK, TASK_13_PRECIP_OUT, TASK_13])
+def test_graphcast_time_loop(task):
     nlat = 4
     nlon = 8
     ngrid = nlat * nlon
@@ -40,7 +43,7 @@ def test_graphcast_time_loop():
         "geopotential_at_surface": np.zeros((nlat, nlon)),
     }
 
-    in_codes, target_codes = channels.get_codes_from_task_config(TASK)
+    in_codes, target_codes = channels.get_codes_from_task_config(task)
     mean = np.zeros(len(in_codes))
     scale = np.ones(len(in_codes))
     diff_scale = np.ones(len(target_codes))
@@ -50,7 +53,7 @@ def test_graphcast_time_loop():
         mean,
         scale,
         diff_scale,
-        task_config=TASK,
+        task_config=task,
         lat=lat,
         lon=lon,
     )
