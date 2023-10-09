@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `metadata` argument to `earth2mip.networks.get_model`.
 - Save year in name of the folder of ensemble predictions
 - Sort the ensemble files before opening them with `glob` in `earth2mip/score_ensemble_outputs.py`
+- Add deepmind graphcast
 
 ### Deprecated
 
