@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from earth2mip.networks.graphcast import channels, inference
+from earth2mip.networks import graphcast
 
 from graphcast.graphcast import TASK, TASK_13_PRECIP_OUT, TASK_13
 import torch
@@ -45,11 +45,11 @@ def test_graphcast_time_loop(task):
         "geopotential_at_surface": np.zeros((nlat, nlon)),
     }
 
-    in_codes, target_codes = channels.get_codes_from_task_config(task)
+    in_codes, target_codes = graphcast.get_codes_from_task_config(task)
     mean = np.zeros(len(in_codes))
     scale = np.ones(len(in_codes))
     diff_scale = np.ones(len(target_codes))
-    loop = inference.GraphcastTimeLoop(
+    loop = graphcast.GraphcastTimeLoop(
         forward,
         static_variables,
         mean,
@@ -73,5 +73,5 @@ def test_graphcast_time_loop(task):
 def test_load_time_loop():
     root = "gs://dm_graphcast"
     package = Package(root, seperator="/")
-    time_loop = inference.load_time_loop(package, version="operational")
-    assert isinstance(time_loop, inference.GraphcastTimeLoop)
+    time_loop = graphcast.load_time_loop(package, version="operational")
+    assert isinstance(time_loop, graphcast.GraphcastTimeLoop)

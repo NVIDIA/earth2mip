@@ -21,7 +21,7 @@ Run like::
 
     pip install -r requirements.txt
     pip install -e .[graphcast]
-    python3 examples/graphcast_simple.py
+    python3 examples/workflows/graphcast_simple.py
 
 """
 # %%
@@ -36,13 +36,13 @@ import torch
 from earth2mip.initial_conditions import cds
 
 from earth2mip.model_registry import Package
-from earth2mip.networks.graphcast import inference
+from earth2mip.networks import graphcast
 
 # %%
 # https://console.cloud.google.com/storage/browser/dm_graphcast/dataset?pageState=(%22StorageObjectListTable%22:(%22f%22:%22%255B%255D%22))&prefix=&forceOnObjectsSortingFiltering=false
 root = "gs://dm_graphcast"
 package = Package(root, seperator="/")
-time_loop = inference.load_time_loop(package, version="operational")
+time_loop = graphcast.load_time_loop(package, version="operational")
 
 # %%
 data_source = cds.DataSource(time_loop.in_channel_names)

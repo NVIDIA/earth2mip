@@ -13,11 +13,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from typing import Literal
 import dataclasses
 import datetime
 import functools
 import os
+from typing import List, Literal
 
 import einops
 import haiku as hk
@@ -28,13 +28,177 @@ import numpy as np
 import torch
 import xarray
 from graphcast import checkpoint, data_utils, graphcast
+from graphcast.graphcast import TaskConfig
+from modulus.utils.sfno.zenith_angle import cos_zenith_angle
 
 from earth2mip import schema
 from earth2mip.initial_conditions import cds
-from earth2mip.networks.graphcast import channels
 from earth2mip.time_loop import TimeLoop
 
 __all__ = ["load_time_loop"]
+
+# see ecwmf parameter table https://codes.ecmwf.int/grib/param-db/?&filter=grib1&table=128
+CODE_TO_GRAPHCAST_NAME = {
+    167: "2m_temperature",
+    151: "mean_sea_level_pressure",
+    166: "10m_v_component_of_wind",
+    165: "10m_u_component_of_wind",
+    260267: "total_precipitation_6hr",
+    212: "toa_incident_solar_radiation",
+    130: "temperature",
+    129: "geopotential",
+    131: "u_component_of_wind",
+    132: "v_component_of_wind",
+    135: "vertical_velocity",
+    133: "specific_humidity",
+    162051: "geopotential_at_surface",
+    172: "land_sea_mask",
+}
+
+sl_inputs = {
+    "2m_temperature": 167,
+    "mean_sea_level_pressure": 151,
+    "10m_v_component_of_wind": 166,
+    "10m_u_component_of_wind": 165,
+    "toa_incident_solar_radiation": 212,
+}
+
+pl_inputs = {
+    "temperature": 130,
+    "geopotential": 129,
+    "u_component_of_wind": 131,
+    "v_component_of_wind": 132,
+    "vertical_velocity": 135,
+    "specific_humidity": 133,
+}
+
+static_inputs = {
+    "geopotential_at_surface": 162051,
+    "land_sea_mask": "172",
+}
+
+levels = [
+    1,
+    2,
+    3,
+    5,
+    7,
+    10,
+    20,
+    30,
+    50,
+    70,
+    100,
+    125,
+    150,
+    175,
+    200,
+    225,
+    250,
+    300,
+    350,
+    400,
+    450,
+    500,
+    550,
+    600,
+    650,
+    700,
+    750,
+    775,
+    800,
+    825,
+    850,
+    875,
+    900,
+    925,
+    950,
+    975,
+    1000,
+]
+
+time_dependent = {
+    "toa_incident_solar_radiation": None,
+    "year_progress_sin": None,
+    "year_progress_cos": None,
+    "day_progress_sin": None,
+    "day_progress_cos": None,
+}
+
+
+def get_codes(variables: List[str], levels: List[int], time_levels: List[int]):
+    lookup_code = cds.keys_to_vals(CODE_TO_GRAPHCAST_NAME)
+    output = []
+    for v in sorted(variables):
+        if v in time_dependent:
+            for history in time_levels:
+                output.append((history, v))
+        elif v in static_inputs:
+            output.append(v)
+        elif v in lookup_code:
+            code = lookup_code[v]
+            if v in pl_inputs:
+                for history in time_levels:
+                    for level in levels:
+                        output.append(
+                            (history, cds.PressureLevelCode(code, level=level))
+                        )
+            else:
+                for history in time_levels:
+                    output.append((history, cds.SingleLevelCode(code)))
+        else:
+            raise NotImplementedError(v)
+    return output
+
+
+def get_state_codes(task_config: TaskConfig, time_level: int = 0):
+    state_variables = [
+        v for v in task_config.target_variables if v in task_config.input_variables
+    ]
+    return get_codes(
+        state_variables, levels=task_config.pressure_levels, time_levels=[time_level]
+    )
+
+
+def toa_incident_solar_radiation(time, lat, lon):
+    # TODO validate this code against the ECWMF data
+    solar_constant = 1361  #  W/m²
+    z = cos_zenith_angle(time, lon, lat)
+    return np.maximum(0, z) * solar_constant
+
+
+def get_data_for_code_scalar(code, scalar):
+    match code:
+        case _, cds.PressureLevelCode(id, level):
+            arr = scalar[CODE_TO_GRAPHCAST_NAME[id]].sel(level=level).values
+        case _, cds.SingleLevelCode(id):
+            arr = scalar[CODE_TO_GRAPHCAST_NAME[id]].values
+        case "land_sea_mask":
+            arr = scalar[code].values
+        case "geopotential_at_surface":
+            arr = scalar[code].values
+        case _, str(s):
+            arr = scalar[s].values
+    return arr
+
+
+def get_codes_from_task_config(task_config: TaskConfig):
+    x_codes = get_codes(
+        task_config.input_variables,
+        levels=task_config.pressure_levels,
+        time_levels=[0, 1],
+    )
+    f_codes = get_codes(
+        task_config.forcing_variables,
+        levels=task_config.pressure_levels,
+        time_levels=[2],
+    )
+    t_codes = get_codes(
+        task_config.target_variables,
+        levels=task_config.pressure_levels,
+        time_levels=[0],
+    )
+    return x_codes + f_codes, t_codes
 
 
 def torch_to_jax(x):
@@ -72,6 +236,26 @@ class NoXarrayGraphcast(graphcast.GraphCast):
 
 
 def load_run_forward_from_checkpoint(checkpoint, grid):
+    """
+    This fucntion is mostly copied from
+    https://github.com/google-deepmind/graphcast/tree/main
+
+    License info:
+
+    # Copyright 2023 DeepMind Technologies Limited.
+    #
+    # Licensed under the Apache License, Version 2.0 (the "License");
+    # you may not use this file except in compliance with the License.
+    # You may obtain a copy of the License at
+    #
+    #      http://www.apache.org/licenses/LICENSE-2.0
+    #
+    # Unless required by applicable law or agreed to in writing, software
+    # distributed under the License is distributed on an "AS-IS" BASIS,
+    # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    # See the License for the specific language governing permissions and
+    # limitations under the License.
+    """
     state = {}
     params = checkpoint.params
     model_config = checkpoint.model_config
@@ -135,7 +319,7 @@ class GraphcastTimeLoop(TimeLoop):
         lat: np.ndarray,
         lon: np.ndarray,
     ):
-        in_codes, t_codes = channels.get_codes_from_task_config(task_config)
+        in_codes, t_codes = get_codes_from_task_config(task_config)
         self.lon = lon
         self.lat = lat
         self.task_config = task_config
@@ -148,16 +332,14 @@ class GraphcastTimeLoop(TimeLoop):
         self.target_codes = t_codes
 
         self.prog_levels = [
-            [in_codes.index(k) for k in channels.get_state_codes(task_config, t)]
+            [in_codes.index(k) for k in get_state_codes(task_config, t)]
             for t in range(2)
         ]
 
-        self.in_channel_names = [
-            str(c) for _, c in channels.get_state_codes(task_config, 0)
-        ]
+        self.in_channel_names = [str(c) for _, c in get_state_codes(task_config, 0)]
 
         # setup output names
-        state_codes = channels.get_state_codes(self.task_config, 0)
+        state_codes = get_state_codes(self.task_config, 0)
         state_names = [str(c) for _, c in state_codes]
         self._diagnostic_names = [
             str(c) for _, c in self.target_codes if str(c) not in state_names
@@ -192,7 +374,7 @@ class GraphcastTimeLoop(TimeLoop):
         x = self.set_forcing(x, "year_progress_sin", t, np.sin(year_progress))
         x = self.set_forcing(x, "year_progress_cos", t, np.cos(year_progress))
 
-        tisr = channels.toa_incident_solar_radiation(time, lat, lon)
+        tisr = toa_incident_solar_radiation(time, lat, lon)
         return self.set_forcing(x, "toa_incident_solar_radiation", t, tisr)
 
     def set_prognostic(self, array, t: int, data):
@@ -204,7 +386,7 @@ class GraphcastTimeLoop(TimeLoop):
         return array[:, :, index]
 
     def split_target(self, target):
-        state_codes = channels.get_state_codes(self.task_config, 0)
+        state_codes = get_state_codes(self.task_config, 0)
         index = np.array([c in state_codes for c in self.target_codes])
 
         state_increment = target[:, :, index]
@@ -337,18 +519,15 @@ def load_time_loop(
         stddev_by_level = xarray.load_dataset(f).compute()
 
     # select needed channels from stats
-    in_codes, t_codes = channels.get_codes_from_task_config(task_config)
+    in_codes, t_codes = get_codes_from_task_config(task_config)
     mean = np.array(
-        [channels.get_data_for_code_scalar(code, mean_by_level) for code in in_codes]
+        [get_data_for_code_scalar(code, mean_by_level) for code in in_codes]
     )
     scale = np.array(
-        [channels.get_data_for_code_scalar(code, stddev_by_level) for code in in_codes]
+        [get_data_for_code_scalar(code, stddev_by_level) for code in in_codes]
     )
     diff_scale = np.array(
-        [
-            channels.get_data_for_code_scalar(code, diffs_stddev_by_level)
-            for code in t_codes
-        ]
+        [get_data_for_code_scalar(code, diffs_stddev_by_level) for code in t_codes]
     )
     return GraphcastTimeLoop(
         run_forward,
