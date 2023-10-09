@@ -23,6 +23,8 @@ import numpy as np
 
 import pytest
 
+from earth2mip.model_registry import Package
+
 
 @pytest.mark.parametrize("task", [TASK, TASK_13_PRECIP_OUT, TASK_13])
 def test_graphcast_time_loop(task):
@@ -65,3 +67,11 @@ def test_graphcast_time_loop(task):
         assert isinstance(y, torch.Tensor)
         if k == 1:
             break
+
+
+@pytest.mark.slow
+def test_load_time_loop():
+    root = "gs://dm_graphcast"
+    package = Package(root, seperator="/")
+    time_loop = inference.load_time_loop(package, version="operational")
+    assert isinstance(time_loop, inference.GraphcastTimeLoop)
