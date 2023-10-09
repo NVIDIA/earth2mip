@@ -35,7 +35,9 @@ from earth2mip import schema
 from earth2mip.initial_conditions import cds
 from earth2mip.time_loop import TimeLoop
 
-__all__ = ["load_time_loop"]
+import logging
+
+__all__ = ["load_time_loop", "load_time_loop_operational", "load_time_loop_small"]
 
 # see ecwmf parameter table https://codes.ecmwf.int/grib/param-db/?&filter=grib1&table=128
 CODE_TO_GRAPHCAST_NAME = {
@@ -470,34 +472,15 @@ def get_static_data(package, resolution):
     }
 
 
-def load_time_loop(
+def _load_time_loop_from_description(
     package,
+    model: GraphcastDescription,
     pretrained=True,
     device="cuda:0",
     version: Literal["paper", "operational", "small"] = "paper",
 ):
     def join(*args):
         return package.get(os.path.join(*args))
-
-    models = {
-        "paper": GraphcastDescription(
-            "GraphCast - ERA5 1979-2017 - resolution 0.25 - pressure levels 37 - mesh 2to6 - precipitation input and output.npz",
-            0.25,
-            37,
-        ),
-        "operational": GraphcastDescription(
-            "GraphCast_operational - ERA5-HRES 1979-2021 - resolution 0.25 - pressure levels 13 - mesh 2to6 - precipitation output only.npz",
-            0.25,
-            13,
-        ),
-        # TODO for small need to add a new grid
-        "small": GraphcastDescription(
-            "GraphCast_small - ERA5 1979-2015 - resolution 1.0 - pressure levels 13 - mesh 2to5 - precipitation input and output.npz",
-            1.0,
-            13,
-        ),
-    }
-    model = models[version]
 
     checkpoint_path = join("params", model.checkpoint)
     # load checkpoint:
@@ -507,6 +490,9 @@ def load_time_loop(
         run_forward = load_run_forward_from_checkpoint(
             ckpt, grid=GraphcastTimeLoop.grid
         )
+
+    size = os.path.getsize(checkpoint_path)
+    logging.info(f"Checkpoint Size in MB: {size / 1e6}")
 
     static_variables = get_static_data(package, model.resolution)
 
@@ -539,3 +525,47 @@ def load_time_loop(
         lat=GraphcastTimeLoop.grid.lat,
         lon=GraphcastTimeLoop.grid.lon,
     )
+
+
+# explicit graphcast versions
+def load_time_loop(
+    package,
+    pretrained=True,
+    device="cuda:0",
+):
+
+    description = GraphcastDescription(
+        "GraphCast - ERA5 1979-2017 - resolution 0.25 - pressure levels 37 - mesh 2to6 - precipitation input and output.npz",
+        0.25,
+        37,
+    )
+    return _load_time_loop_from_description(package, description, device)
+
+
+def load_time_loop_small(
+    package,
+    pretrained=True,
+    device="cuda:0",
+):
+
+    description = GraphcastDescription(
+        "GraphCast_small - ERA5 1979-2015 - resolution 1.0 - pressure levels 13 - mesh 2to5 - precipitation input and output.npz",
+        1.0,
+        13,
+    )
+    return _load_time_loop_from_description(package, description, device)
+
+
+def load_time_loop_operational(
+    package,
+    pretrained=True,
+    device="cuda:0",
+):
+
+    description = GraphcastDescription(
+        "GraphCast_operational - ERA5-HRES 1979-2021 - resolution 0.25 - pressure levels 13 - mesh 2to6 - precipitation output only.npz",
+        0.25,
+        13,
+    )
+
+    return _load_time_loop_from_description(package, description, device)

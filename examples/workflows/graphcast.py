@@ -39,10 +39,15 @@ from earth2mip.model_registry import Package
 from earth2mip.networks import graphcast
 
 # %%
+# Can review the data in graphcast Google storage bucket here:
 # https://console.cloud.google.com/storage/browser/dm_graphcast/dataset?pageState=(%22StorageObjectListTable%22:(%22f%22:%22%255B%255D%22))&prefix=&forceOnObjectsSortingFiltering=false
 root = "gs://dm_graphcast"
 package = Package(root, seperator="/")
 time_loop = graphcast.load_time_loop(package, version="operational")
+
+# Can also load like this for simplicity:
+# from earth2mip.networks import get_model
+# time_loop = get_model("e2mip://graphcast_operational")
 
 # %%
 data_source = cds.DataSource(time_loop.in_channel_names)

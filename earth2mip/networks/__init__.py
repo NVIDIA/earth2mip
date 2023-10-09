@@ -323,17 +323,17 @@ def _default_inference(package, metadata, device):
     return inference
 
 
+def _load_package_builtin(package, device, name) -> time_loop.TimeLoop:
+    group = "earth2mip.networks"
+    entrypoints = entry_points(group=group)
+    for entry_point in entrypoints:
+        if entry_point.name == name:
+            inference_loader = entry_point.load()
+            return inference_loader(package, device=device)
+
+
 def _load_package(package, metadata, device) -> time_loop.TimeLoop:
     # Attempt to see if Earth2 MIP has entry point registered already
-    if metadata is None:
-        group = "earth2mip.networks"
-        entrypoints = entry_points(group=group)
-        for entry_point in entrypoints:
-            name = package.root.split(package.seperator)[-1]
-            if entry_point.name == name:
-                inference_loader = entry_point.load()
-                return inference_loader(package, device=device)
-
     # Read meta data from file if not present
     if metadata is None:
         local_path = package.get("metadata.json")
@@ -379,12 +379,16 @@ def get_model(
 
     """
     url = urllib.parse.urlparse(model)
-    if url.scheme == "" or url.scheme == "e2mip":
+
+    if url.scheme == "e2mip":
         package = registry.get_model(model)
+        return _load_package_builtin(package, device, name=url.netloc)
+    elif url.scheme == "":
+        package = registry.get_model(model)
+        return _load_package(package, metadata, device)
     else:
         package = model_registry.Package(root=model, seperator="/")
-
-    return _load_package(package, metadata, device)
+        return _load_package(package, metadata, device)
 
 
 class Identity(torch.nn.Module):
