@@ -73,5 +73,5 @@ def test_graphcast_time_loop(task):
 def test_load_time_loop():
     root = "gs://dm_graphcast"
     package = Package(root, seperator="/")
-    time_loop = graphcast.load_time_loop(package, version="operational")
+    time_loop = graphcast.load_time_loop_operational(package)
     assert isinstance(time_loop, graphcast.GraphcastTimeLoop)
