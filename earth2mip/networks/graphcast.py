@@ -315,7 +315,7 @@ class GraphcastTimeLoop(TimeLoop):
         static_variables,
         mean,
         scale,
-        diff_scale,
+        target_scale: np.ndarray,
         task_config,
         # TODO move into grid
         lat: np.ndarray,
@@ -329,7 +329,7 @@ class GraphcastTimeLoop(TimeLoop):
         self._static_variables = static_variables
         self.mean = mean
         self.scale = scale
-        self.diff_scale = diff_scale
+        self.target_scale = target_scale
         self.in_codes = in_codes
         self.target_codes = t_codes
 
@@ -410,8 +410,7 @@ class GraphcastTimeLoop(TimeLoop):
         s = self.set_forcings(s, time + self.history_time_step, 2)
 
         x = (s - self.mean) / self.scale
-        # TODO rename to target scale
-        d = self.forward(rng=rng, x=x) * self.diff_scale
+        d = self.forward(rng=rng, x=x) * self.target_scale
         diff, diagnostics = self.split_target(d)
         x_next = self.get_prognostic(s, 1) + diff
 
@@ -512,7 +511,7 @@ def _load_time_loop_from_description(
     scale = np.array(
         [get_data_for_code_scalar(code, stddev_by_level) for code in in_codes]
     )
-    diff_scale = np.array(
+    target_scale = np.array(
         [get_data_for_code_scalar(code, diffs_stddev_by_level) for code in t_codes]
     )
     return GraphcastTimeLoop(
@@ -520,7 +519,7 @@ def _load_time_loop_from_description(
         static_variables,
         mean,
         scale,
-        diff_scale,
+        target_scale,
         task_config,
         lat=GraphcastTimeLoop.grid.lat,
         lon=GraphcastTimeLoop.grid.lon,
