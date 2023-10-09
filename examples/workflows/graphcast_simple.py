@@ -19,6 +19,8 @@ pip install -r earth2mip/networks/graphcast/requirements.txt
 
 Run like::
 
+    pip install -r requirements.txt
+    pip install -e .[graphcast]
     python3 examples/graphcast_simple.py
 
 """
