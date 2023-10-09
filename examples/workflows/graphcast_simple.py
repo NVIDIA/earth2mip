@@ -31,36 +31,10 @@ import datetime
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-import xarray
 from earth2mip.initial_conditions import cds
 
 from earth2mip.model_registry import Package
-from earth2mip.networks.graphcast import channels, inference
-
-
-def get_input_from_xarray(task_config, example_batch):
-    arrays = []
-    levels = list(task_config.pressure_levels)
-    # needs to be compatible with earth2mip.networks.graphcast.inference.get_code
-    # TODO remove the possibility of this bug
-    state_variables = [
-        v for v in task_config.target_variables if v in task_config.input_variables
-    ]
-    for v in sorted(state_variables):
-        if channels.is_3d(v):
-            # b, h, p, y, x
-            arr = example_batch[v].sel(level=levels).isel(time=slice(0, 2)).values
-            assert arr.ndim == 5
-            arrays.append(arr)
-        else:
-            arr = example_batch[v].isel(time=slice(0, 2)).values
-            assert arr.ndim == 4
-            arr = np.expand_dims(arr, 2)
-            arrays.append(arr)
-
-    array = np.concatenate(arrays, axis=2)
-    return np.flip(array, axis=-2).copy()
-
+from earth2mip.networks.graphcast import inference
 
 # %%
 # https://console.cloud.google.com/storage/browser/dm_graphcast/dataset?pageState=(%22StorageObjectListTable%22:(%22f%22:%22%255B%255D%22))&prefix=&forceOnObjectsSortingFiltering=false
@@ -68,21 +42,7 @@ root = "gs://dm_graphcast"
 package = Package(root, seperator="/")
 time_loop = inference.load_time_loop(package, version="operational")
 
-dataset_filename = package.get(
-    "dataset/source-era5_date-2022-01-01_res-0.25_levels-37_steps-01.nc"
-)
-with open(dataset_filename, "rb") as f:
-    example_batch = xarray.load_dataset(f).compute()
-
 # %%
-task_config = time_loop.task_config
-target_codes = channels.get_codes(
-    task_config.target_variables, task_config.pressure_levels, [0]
-)
-
-# TODO use one of the builtin data sources
-# array = get_input_from_xarray(task_config, example_batch)
-
 data_source = cds.DataSource(time_loop.in_channel_names)
 time = datetime.datetime(2018, 1, 1)
 arrays = [

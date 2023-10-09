@@ -111,10 +111,6 @@ time_dependent = {
 }
 
 
-def is_3d(name):
-    return name in pl_inputs
-
-
 def get_codes(variables: List[str], levels: List[int], time_levels: List[int]):
     lookup_code = cds.keys_to_vals(CODE_TO_GRAPHCAST_NAME)
     output = []
@@ -188,20 +184,3 @@ def get_codes_from_task_config(task_config: TaskConfig):
         time_levels=[0],
     )
     return x_codes + f_codes, t_codes
-
-
-if __name__ == "__main__":
-    from earth2mip.initial_conditions import cds
-    import datetime
-    import xarray
-
-    channels = list(yield_channels())
-    client = cds.Client()
-    ds = cds.DataSource(channels, client=client)
-    time = datetime.datetime(2018, 1, 1)
-
-    try:
-        ds = xarray.open_dataset("output.nc")
-    except FileNotFoundError:
-        ds = ds[time]
-        ds.rename("fields").to_netcdf("output.nc")

@@ -265,20 +265,6 @@ class GraphcastTimeLoop(TimeLoop):
             time = time + self.time_step
 
 
-def get_codes(task_config):
-    codes = []
-    levels = list(task_config.pressure_levels)
-    lookup = cds.keys_to_vals(channels.CODE_TO_GRAPHCAST_NAME)
-    for v in task_config.target_variables:
-        id = lookup[v]
-        if channels.is_3d(v):
-            for lev in levels:
-                yield cds.PressureLevelCode(id, level=lev)
-        else:
-            yield cds.SingleLevelCode(id)
-    return codes
-
-
 @dataclasses.dataclass
 class GraphcastDescription:
     checkpoint: str
