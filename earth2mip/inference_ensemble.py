@@ -268,8 +268,8 @@ def get_initializer(
             [channel_stds[channel] for channel in model.in_channel_names],
             device=x.device,
         )
-        center_reshaped = center[None, None, :, None, None]
-        scale_reshaped = scale[None, None, :, None, None]
+        center_reshaped = center[:, None, None]
+        scale_reshaped = scale[:, None, None]
         x = (x - center_reshaped) / scale_reshaped
         x += noise
         x = (x * scale_reshaped) + center_reshaped
