@@ -260,6 +260,7 @@ def get_initializer(
             )
         if rank == 0 and batch_id == 0:  # first ens-member is deterministic
             noise[0, :, :, :, :] = 0
+
         def get_channel_stats(channel, channel_stats):
             try:
                 return channel_stats[channel]
@@ -267,11 +268,13 @@ def get_initializer(
                 raise ValueError(f"Channel {channel} not found in channel_stats!")
 
         center = torch.tensor(
-            [get_channel_stats(channel, channel_means) for channel in model.in_channel_names],
+            [get_channel_stats(channel, channel_means)
+                for channel in model.in_channel_names],
             device=x.device,
         )
         scale = torch.tensor(
-            [get_channel_stats(channel, channel_stds) for channel in model.in_channel_names],
+            [get_channel_stats(channel, channel_stds)
+                for channel in model.in_channel_names],
             device=x.device,
         )
         center_reshaped = center[:, None, None]
