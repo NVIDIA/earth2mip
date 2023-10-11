@@ -48,7 +48,6 @@ from earth2mip.schema import EnsembleRun, Grid, PerturbationStrategy
 from earth2mip.time import convert_to_datetime
 from earth2mip.time_loop import TimeLoop
 from earth2mip import regrid
-from earth2mip._channel_means import channel_means
 from earth2mip._channel_stds import channel_stds
 
 logger = logging.getLogger("inference")
@@ -261,19 +260,11 @@ def get_initializer(
         if rank == 0 and batch_id == 0:  # first ens-member is deterministic
             noise[0, :, :, :, :] = 0
 
-        center = torch.tensor(
-            [channel_means[channel] for channel in model.in_channel_names],
-            device=x.device,
-        )
         scale = torch.tensor(
             [channel_stds[channel] for channel in model.in_channel_names],
             device=x.device,
         )
-        center_reshaped = center[:, None, None]
-        scale_reshaped = scale[:, None, None]
-        x = (x - center_reshaped) / scale_reshaped
-        x += noise
-        x = (x * scale_reshaped) + center_reshaped
+        x += noise * scale[:, None, None]
         return x
 
     return perturb
