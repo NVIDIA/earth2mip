@@ -35,7 +35,7 @@ from os.path import dirname, abspath, join
 # %% Load model package and data source
 device = DistributedManager().device
 print(f"Loading FCNv2 small model onto {device}, this can take a bit")
-package = registry.get_model("fcnv2_sm")
+package = registry.get_model("e2mip://fcnv2_sm")
 sfno_inference_model = fcnv2.load(package, device=device)
 
 data_source = cds.DataSource(sfno_inference_model.in_channel_names)
