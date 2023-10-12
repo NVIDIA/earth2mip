@@ -18,6 +18,8 @@ import netCDF4 as nc
 import einops
 import torch
 import pathlib
+import xarray
+import numpy as np
 from earth2mip.schema import Grid
 from earth2mip._config import Settings
 
@@ -74,3 +76,28 @@ def get_regridder(src: Grid, dest: Grid):
     else:
         return _get_tempest_regridder(src, dest)
     raise NotImplementedError()
+
+
+def xarray_regrid(src: xarray.Dataset, dest: Grid):
+    """Simple function for regridding an xarray dataset to a grid.
+    The xarray dataset must have lat and lon coords
+
+    Parameters
+    ----------
+    src : xr.Dataset
+        Input xarray data set
+    dest : Grid
+        Target grid scheme
+    """
+    # Subsample / interpolate lat lon grid
+    if np.isin(dest.lat, src.coords["lat"].values).all():
+        src = src.sel(lat=dest.lat)
+    else:
+        src = src.interp(lat=dest.lat)
+
+    if np.isin(dest.lon, src.coords["lon"].values).all():
+        src = src.sel(lon=dest.lon)
+    else:
+        src = src.interp(lon=dest.lon)
+
+    return src

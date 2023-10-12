@@ -16,8 +16,8 @@
 
 # %%
 import os
+import numpy as np
 import datetime
-import xarray as xr
 
 # Set number of GPUs to use to 1
 os.environ["WORLD_SIZE"] = "1"
@@ -26,47 +26,60 @@ model_registry = os.path.join(os.path.dirname(os.path.realpath(os.getcwd())), "m
 os.makedirs(model_registry, exist_ok=True)
 os.environ["MODEL_REGISTRY"] = model_registry
 
-import earth2mip.networks.dlwp as dlwp
-from earth2mip import (
-    registry,
-    inference_ensemble,
-)
-from earth2mip.initial_conditions import cds
+import earth2mip.networks.fcn as fcn
+from earth2mip import registry, inference_ensemble
+from earth2mip.initial_conditions import ic
+import earth2mip.schema as schema
 from modulus.distributed import DistributedManager
 from os.path import dirname, abspath, join
 
 # %% Load model package and data source
 device = DistributedManager().device
-print(f"Loading dlwp model onto {device}, this can take a bit")
-package = registry.get_model("e2mip://dlwp")
-inferencer = dlwp.load(package, device=device)
-cds_data_source = cds.DataSource(inferencer.in_channel_names)
-# Stack two data-sources together for double timestep inputs
-time = datetime.datetime(2018, 1, 1)
-ds1 = cds_data_source[time]
-ds2 = cds_data_source[time - datetime.timedelta(hours=6)]
-ds = xr.concat([ds2, ds1], dim="time")
-data_source = {time: ds}
-time = datetime.datetime(2018, 1, 1)
+print(f"Loading FCN model onto {device}, this can take a bit")
+package = registry.get_model("e2mip://fcn")
+sfno_inference_model = fcn.load(package, device=device)
 
-# %% Run inference
+# Use IC method to get data source, this will regrid the data if needed
+time = datetime.datetime(2018, 1, 1)
+data_source = ic(
+    time,
+    sfno_inference_model.grid,
+    n_history=0,
+    channel_set=sfno_inference_model.channel_set,
+    source=schema.InitialConditionSource.cds,
+)
+
 ds = inference_ensemble.run_basic_inference(
-    inferencer,
-    n=12,
-    data_source=data_source,
+    sfno_inference_model,
+    n=1,
+    data_source={time: data_source},
     time=time,
 )
-print(ds)
 
 # %% Post-process
-# %% Post-process
 import matplotlib.pyplot as plt
+from scipy.signal import periodogram
 
 output = f"{dirname(dirname(abspath(__file__)))}/outputs/workflows"
 os.makedirs(output, exist_ok=True)
 
-arr = ds.sel(channel="t2m").values
-fig, axs = plt.subplots(1, 13, figsize=(13 * 5, 5))
-for i in range(13):
-    axs[i].imshow(arr[i, 0])
-plt.savefig(join(output, "t2m_field_dlwp.png"), bbox_inches="tight")
+arr = ds.sel(channel="u100m").values
+f, pw = periodogram(arr, axis=-1, fs=1)
+pw = pw.mean(axis=(1, 2))
+
+l = ds.time - ds.time[0]  # noqa
+days = l / (ds.time[-1] - ds.time[0])
+cm = plt.cm.get_cmap("viridis")
+for k in range(ds.sizes["time"]):
+    day = (ds.time[k] - ds.time[0]) / np.timedelta64(1, "D")
+    day = day.item()
+    plt.loglog(f, pw[k], color=cm(days[k]), label=day)
+plt.legend()
+plt.ylim(bottom=1e-8)
+plt.grid()
+plt.savefig(join(output, "u200_spectra_fcn.png"), bbox_inches="tight")
+
+# %%
+day = (ds.time - ds.time[0]) / np.timedelta64(1, "D")
+plt.semilogy(day, pw[:, 100:].mean(-1), "o-")
+plt.savefig(join(output, "u200_high_wave_fcn.png"), bbox_inches="tight")

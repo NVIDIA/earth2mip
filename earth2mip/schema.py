@@ -20,6 +20,7 @@ from earth2mip import weather_events
 from earth2mip.weather_events import InitialConditionSource, WeatherEvent
 from enum import Enum
 import datetime
+import numpy as np
 
 __all__ = ["InitialConditionSource", "WeatherEvent"]
 
@@ -39,6 +40,30 @@ class Grid(Enum):
             return (181, 360)
         else:
             raise ValueError(f"Unknown grid {self}")
+
+    @property
+    def lat(self):
+        return _grids[self]["lat"]
+
+    @property
+    def lon(self):
+        return _grids[self]["lon"]
+
+
+_grids = {
+    Grid.grid_721x1440: {
+        "lat": np.linspace(90, -90.0, 721),
+        "lon": np.linspace(0, 359.75, 1440),
+    },
+    Grid.grid_720x1440: {
+        "lat": np.linspace(89.75, -90.0, 720),
+        "lon": np.linspace(0, 359.75, 1440),
+    },
+    Grid.s2s_challenge: {
+        "lat": np.linspace(90, -90.0, 181),
+        "lon": np.linspace(0, 359, 360),
+    },
+}
 
 
 # Enum of channels
@@ -316,6 +341,7 @@ class PerturbationStrategy(Enum):
     correlated = "correlated"
     gaussian = "gaussian"
     bred_vector = "bred_vector"
+    spherical_grf = "spherical_grf"
 
 
 class EnsembleRun(pydantic.BaseModel):
@@ -340,6 +366,9 @@ class EnsembleRun(pydantic.BaseModel):
         output_path (optional): The path to the output file (alternative to `output_dir`).
         restart_frequency: if provided save at end and at the specified frequency. 0 = only save at end.
         noise_injection: Flag for applying a brown noise between model steps as model perturbation
+        grf_noise_alpha: tuning parameter of the Gaussian random field, see ensemble_utils.generate_noise_grf for details
+        grf_noise_sigma: tuning parameter of the Gaussian random field, see ensemble_utils.generate_noise_grf for details
+        grf_noise_tau: tuning parameter of the Gaussian random field, see ensemble_utils.generate_noise_grf for details
 
     """  # noqa
 
@@ -364,6 +393,9 @@ class EnsembleRun(pydantic.BaseModel):
     output_path: Optional[str] = None
     restart_frequency: Optional[int] = None
     noise_injection: Optional[bool] = False
+    grf_noise_alpha: float = 2.0
+    grf_noise_sigma: float = 5.0
+    grf_noise_tau: float = 2.0
 
     def get_weather_event(self) -> weather_events.WeatherEvent:
         if self.forecast_name:

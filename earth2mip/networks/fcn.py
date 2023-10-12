@@ -15,51 +15,34 @@
 # limitations under the License.
 
 """
-FCN v2 Small adapter
-
-This model is an outdated version of FCN v2 (SFNO), a more recent one is present in Modulus.
+FCN adapter from Modulus
 """
 from typing import List
 import logging
+import os
 import datetime
 import torch
 import json
 import pathlib
+
 import numpy as np
 import onnxruntime as ort
 import dataclasses
+import modulus
 
 from earth2mip import registry, schema, networks, config, initial_conditions, geometry
-from modulus.models.fcn_mip_plugin import _fix_state_dict_keys
-
-# TODO: Update to new arch in Modulus!
-import earth2mip.networks.fcnv2 as fcnv2
-
-logger = logging.getLogger(__file__)
 
 
 def load(package, *, pretrained=True, device="cuda"):
     assert pretrained
 
-    config_path = pathlib.Path(__file__).parent / "fcnv2" / "sfnonet.yaml"
-    params = fcnv2.YParams(config_path.as_posix(), "sfno_73ch")
-    params.img_crop_shape_x = 721
-    params.img_crop_shape_y = 1440
-    params.N_in_channels = 73
-    params.N_out_channels = 73
-
-    core_model = fcnv2.FourierNeuralOperatorNet(params).to(device)
-
     local_center = np.load(package.get("global_means.npy"))
     local_std = np.load(package.get("global_stds.npy"))
 
-    weights_path = package.get("weights.tar")
-    weights = torch.load(weights_path, map_location=device)
-    fixed_weights = _fix_state_dict_keys(weights["model_state"], add_module=False)
-    core_model.load_state_dict(fixed_weights)
+    core_model = modulus.Module.from_checkpoint(package.get("fcn.mdlus"))
 
-    grid = schema.Grid.grid_721x1440
-    channel_set = schema.ChannelSet.var73
+    grid = schema.Grid.grid_720x1440
+    channel_set = schema.ChannelSet.var26
     dt = datetime.timedelta(hours=6)
 
     inference = networks.Inference(

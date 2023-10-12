@@ -25,7 +25,7 @@ from functools import partial
 import numpy as np
 import torch
 import tqdm
-from typing import Optional, Any
+from typing import Optional, Any, Mapping
 from datetime import datetime
 from modulus.distributed.manager import DistributedManager
 from netCDF4 import Dataset as DS
@@ -40,6 +40,7 @@ from earth2mip.ensemble_utils import (
     generate_noise_correlated,
     generate_bred_vector,
     generate_model_noise_correlated,
+    generate_noise_grf,
 )
 from earth2mip.netcdf import finalize_netcdf, initialize_netcdf, update_netcdf
 from earth2mip.networks import get_model, Inference
@@ -245,6 +246,14 @@ def get_perturbator(
                 device=device,
                 noise_amplitude=config.noise_amplitude,
             )
+        elif config.perturbation_strategy == PerturbationStrategy.spherical_grf:
+            noise = generate_noise_grf(
+                shape,
+                model.grid,
+                sigma=config.grf_noise_sigma,
+                alpha=config.grf_noise_alpha,
+                tau=config.grf_noise_tau,
+            ).to(device)
         elif config.perturbation_strategy == PerturbationStrategy.bred_vector:
             noise = generate_bred_vector(
                 x,
@@ -260,6 +269,7 @@ def get_perturbator(
     return perturb
 
 
+<<<<<<< HEAD
 def get_noise_injection(
     config,
     device,
@@ -276,8 +286,17 @@ def get_noise_injection(
 
 
 def run_basic_inference(model: time_loop.TimeLoop, n: int, data_source, time):
+=======
+def run_basic_inference(
+    model: time_loop.TimeLoop,
+    n: int,
+    data_source: Mapping[datetime, xarray.Dataset],
+    time: datetime,
+):
+>>>>>>> main
     """Run a basic inference"""
     ds = data_source[time].sel(channel=model.in_channel_names)
+
     # TODO make the dtype flexible
     x = torch.from_numpy(ds.values).cuda().type(torch.float)
     # need a batch dimension of length 1
