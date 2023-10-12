@@ -269,7 +269,6 @@ def get_perturbator(
     return perturb
 
 
-<<<<<<< HEAD
 def get_noise_injection(
     config,
     device,
@@ -285,15 +284,12 @@ def get_noise_injection(
     return noise_injection
 
 
-def run_basic_inference(model: time_loop.TimeLoop, n: int, data_source, time):
-=======
 def run_basic_inference(
     model: time_loop.TimeLoop,
     n: int,
     data_source: Mapping[datetime, xarray.Dataset],
     time: datetime,
 ):
->>>>>>> main
     """Run a basic inference"""
     ds = data_source[time].sel(channel=model.in_channel_names)
 

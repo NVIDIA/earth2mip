@@ -148,6 +148,7 @@ class GaussianRandomFieldS2(torch.nn.Module):
 
         return self
 
+
 # TODO change all noise funcs to update x and not return noise and unify functions
 def generate_model_noise_correlated(x,
                                     time_step,
@@ -158,7 +159,8 @@ def generate_model_noise_correlated(x,
     shape = x.shape
     dt = torch.tensor(time_step.total_seconds()) / 3600.0
     noise = noise_injection_amplitude * dt * brown_noise(shape, reddening).to(device)
-    return x*(1.0 + noise)
+    return x * (1.0 + noise)
+
 
 def generate_noise_correlated(shape, *, reddening, device, noise_amplitude):
     return noise_amplitude * brown_noise(shape, reddening).to(device)
