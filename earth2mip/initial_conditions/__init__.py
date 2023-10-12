@@ -25,6 +25,7 @@ from earth2mip.initial_conditions import ifs
 from earth2mip.initial_conditions import cds
 from earth2mip.initial_conditions import gfs
 from earth2mip.initial_conditions import hrmip
+from earth2mip.regrid import xarray_regrid
 
 # TODO remove this fcn-mip import
 from earth2mip.datasets.era5 import METADATA
@@ -131,10 +132,4 @@ def ic(
     source: schema.InitialConditionSource,
 ):
     ds = get(n_history, time, channel_set, source)
-    # TODO collect grid logic in one place
-    if grid == schema.Grid.grid_720x1440:
-        return ds.isel(lat=slice(0, -1))
-    elif grid == schema.Grid.grid_721x1440:
-        return ds
-    else:
-        raise NotImplementedError(f"Grid {grid} not supported")
+    return xarray_regrid(ds, grid)
