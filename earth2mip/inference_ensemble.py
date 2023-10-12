@@ -42,12 +42,14 @@ from earth2mip.ensemble_utils import (
     generate_model_noise_correlated,
     generate_noise_grf,
 )
+
 from earth2mip.netcdf import finalize_netcdf, initialize_netcdf, update_netcdf
 from earth2mip.networks import get_model, Inference
 from earth2mip.schema import EnsembleRun, Grid, PerturbationStrategy
 from earth2mip.time import convert_to_datetime
+from earth2mip.time_loop import TimeLoop
 from earth2mip import regrid
-
+from earth2mip._channel_stds import channel_stds
 
 logger = logging.getLogger("inference")
 
@@ -69,7 +71,7 @@ def run_ensembles(
     *,
     n_steps: int,
     weather_event,
-    model,
+    model: TimeLoop,
     perturb,
     nc,
     domains,
@@ -115,9 +117,8 @@ def run_ensembles(
         batch_size = min(batch_size, n_ensemble - batch_id)
 
         x = torch.from_numpy(ds.values)[None].to(device)
-        x = model.normalize(x)
         x = x.repeat(batch_size, 1, 1, 1, 1)
-        perturb(x, rank, batch_id, device)
+        x = perturb(x, rank, batch_id, device)
         # restart_dir = weather_event.properties.restart
 
         # TODO: figure out if needed
@@ -132,8 +133,7 @@ def run_ensembles(
         #         normalize=False,
         #         time=time,
         #     )
-        
-        iterator = model(time, x, normalize=False)
+        iterator = model(time, x)
 
         # Check if stdout is connected to a terminal
         if sys.stderr.isatty() and progress:
@@ -263,7 +263,12 @@ def get_perturbator(
             )
         if rank == 0 and batch_id == 0:  # first ens-member is deterministic
             noise[0, :, :, :, :] = 0
-        x += noise
+
+        scale = torch.tensor(
+            [channel_stds[channel] for channel in model.in_channel_names],
+            device=x.device,
+        )
+        x += noise * scale[:, None, None]
         return x
 
     return perturb

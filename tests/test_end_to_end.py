@@ -28,6 +28,7 @@ from earth2mip import (
     inference_medium_range,
 )
 import pytest
+from earth2mip._channel_stds import channel_stds
 
 
 def checksum_reduce_precision(arr, digits=3):
@@ -58,6 +59,9 @@ def test_inference_ensemble(tmp_path):
     inference = persistence(package=None)
     data_source = get_data_source(inference)
     time = datetime.datetime(2018, 1, 1)
+    channel_stds["a"] = 0.0
+    channel_stds["b"] = 0.0
+    channel_stds["c"] = 0.0
     config = schema.EnsembleRun(
         weather_model="dummy",
         simulation_length=40,
