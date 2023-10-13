@@ -20,7 +20,7 @@ import numpy as np
 import xarray
 import modulus
 import logging
-from earth2mip import schema, networks, geometry
+from earth2mip import schema, networks
 import torch
 
 from modulus.utils.filesystem import Package
@@ -134,7 +134,7 @@ class _DLWPWrapper(torch.nn.Module):
         return self.prepare_output(y)
 
 
-def load(package, *, pretrained=True, device="cuda"):
+def load(package: Package, *, pretrained=True, device="cuda"):
     assert pretrained
 
     # load static datasets

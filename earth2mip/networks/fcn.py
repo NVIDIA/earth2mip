@@ -17,20 +17,12 @@
 """
 FCN adapter from Modulus
 """
-from typing import List
-import logging
-import os
 import datetime
-import torch
-import json
-import pathlib
 
 import numpy as np
-import onnxruntime as ort
-import dataclasses
 import modulus
 
-from earth2mip import registry, schema, networks, config, initial_conditions, geometry
+from earth2mip import schema, networks
 
 
 CHANNELS = [
