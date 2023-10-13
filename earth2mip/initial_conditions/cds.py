@@ -14,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import warnings
 import eccodes
 from typing import List, Union
 import datetime
@@ -80,6 +79,7 @@ def parse_channel(channel: str) -> Union[PressureLevelCode, SingleLevelCode]:
 @dataclasses.dataclass
 class DataSource:
     channel_names: List[str]
+    grid: schema.Grid = schema.Grid.grid_721x1440
     client: Client = dataclasses.field(
         default_factory=lambda: Client(progress=False, quiet=False)
     )
@@ -90,15 +90,6 @@ class DataSource:
 
     def __getitem__(self, time: datetime.datetime):
         return _get_channels(self.client, time, self.channel_names)
-
-
-def get(time: datetime.datetime, channel_set: schema.ChannelSet):
-    warnings.warn(
-        DeprecationWarning("Will be removed. Please use CDSDataSource instead.")
-    )
-    channels = channel_set.list_channels()
-    ds = DataSource(channels)
-    return ds[time]
 
 
 def _get_cds_requests(codes, time, format):

@@ -12,10 +12,22 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
-# limitations under the License.
+# limitations under the License.from typing import Protocol, List, runtime_checkable
 
-import pathlib
+from typing import List, runtime_checkable, Protocol
+import datetime
+from earth2mip import schema
+import numpy as np
 
-METADATA26 = pathlib.Path(__file__).parent / "data26var.json"
-METADATA34 = pathlib.Path(__file__).parent / "data34var.json"
-METADATA73 = pathlib.Path(__file__).parent / "data73var.json"
+
+@runtime_checkable
+class DataSource(Protocol):
+
+    grid: schema.Grid
+
+    @property
+    def channel_names(self) -> List[str]:
+        pass
+
+    def __getitem__(self, time: datetime.datetime) -> np.ndarray:
+        pass
