@@ -209,9 +209,9 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         if restart:
             yield from self._iterate(**restart)
         else:
-            yield from self._iterate(x=x, time=time, n=None, normalize=normalize)
+            yield from self._iterate(x=x, time=time)
 
-    def _iterate(self, x, n, normalize=True, time=None):
+    def _iterate(self, x, normalize=True, time=None):
         """Yield (time, unnormalized data, restart) tuples
 
         restart = (time, unnormalized data)
@@ -234,7 +234,7 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
             restart = dict(x=x, normalize=False, time=time)
             yield time, self.scale * x[:, -1] + self.center, restart
 
-            for i in range(n) if n else itertools.count():
+            while True:
                 x = self.model(x, time)
                 time = time + self.time_step
 
