@@ -265,7 +265,7 @@ def get_initializer(
             device=x.device,
         )
 
-        if config.ic_perturbed_channels == "all":
+        if config.ic_perturbed_channels[0] == "all_channels":
             x += noise * scale[:, None, None]
         else:
             if not isinstance(config.ic_perturbed_channels, list):
