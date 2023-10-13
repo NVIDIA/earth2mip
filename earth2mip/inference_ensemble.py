@@ -270,9 +270,6 @@ def get_initializer(
         if config.ic_perturbed_channels[0] == "all_channels":
             x += noise * scale[:, None, None]
         else:
-            if not isinstance(config.ic_perturbed_channels, list):
-                config.ic_perturbed_channels = [config.ic_perturbed_channels]
-            
             channel_list = model.channel_set.list_channels()
             indices = torch.tensor(
                 [channel_list.index(channel) for channel in
