@@ -19,17 +19,13 @@ FCN v2 Small adapter
 
 This model is an outdated version of FCN v2 (SFNO), a more recent one is present in Modulus.
 """
-from typing import List
 import logging
 import datetime
 import torch
-import json
 import pathlib
 import numpy as np
-import onnxruntime as ort
-import dataclasses
 
-from earth2mip import registry, schema, networks, config, initial_conditions, geometry
+from earth2mip import schema, networks
 from modulus.models.fcn_mip_plugin import _fix_state_dict_keys
 
 # TODO: Update to new arch in Modulus!

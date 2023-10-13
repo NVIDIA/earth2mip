@@ -27,15 +27,13 @@ adapted from https://raw.githubusercontent.com/ecmwf-lab/ai-models-panguweather/
 # nor does it submit to any jurisdiction.
 """
 # %%
-from typing import List
 import os
 import logging
 import datetime
 import torch
 import numpy as np
 import onnxruntime as ort
-import dataclasses
-from earth2mip import registry, schema, networks, config, initial_conditions, geometry
+from earth2mip import schema, networks
 
 logger = logging.getLogger(__file__)
 
