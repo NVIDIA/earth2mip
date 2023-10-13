@@ -204,6 +204,7 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         """The expected size of the second dimension"""
         return self.n_history + 1
 
+    @property
     def device(self) -> torch.device:
         return self.scale.device
 
