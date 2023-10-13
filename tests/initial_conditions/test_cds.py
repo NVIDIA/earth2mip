@@ -12,10 +12,7 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
-# limitations under the License.
-
 from earth2mip.initial_conditions import cds
-from earth2mip import schema
 import datetime
 import random
 
@@ -54,6 +51,6 @@ def test_parse_channel_with_level():
     assert cds.parse_channel(channel_string).level == channel_level
 
 
-@pytest.mark.parametrize("c", schema.ChannelSet.var73.list_channels())
-def test_parse_known_channels(c):
+@pytest.mark.parametrize("c", ["t850", "t2m", "u10", "z100"])
+def test_parse_known_channels(c: str):
     assert cds.parse_channel(c)

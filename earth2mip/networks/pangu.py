@@ -173,7 +173,6 @@ class PanguInference(torch.nn.Module):
         super().__init__()
         self.model_6 = model_6
         self.model_24 = model_24
-        self.channels = None
 
     def to(self, device):
         return self
@@ -183,23 +182,15 @@ class PanguInference(torch.nn.Module):
 
     @property
     def in_channel_names(self):
-        return self.channel_names
+        return self.model_6.channel_names()
 
     @property
     def out_channel_names(self):
-        return self.channel_names
+        return self.in_channel_names
 
     @property
     def grid(self):
         return schema.Grid.grid_721x1440
-
-    @property
-    def channel_set(self):
-        return schema.ChannelSet.var_pangu
-
-    @property
-    def channel_names(self):
-        return schema.ChannelSet.var_pangu.list_channels()
 
     @property
     def n_history(self):
@@ -293,12 +284,10 @@ def load_24(package, *, pretrained=True, device="cuda:0"):
         dt = datetime.timedelta(hours=24)
         inference = networks.Inference(
             model,
-            channels=None,
             center=center,
             scale=scale,
             grid=grid,
             channel_names=channel_names,
-            channel_set=schema.ChannelSet.var_pangu,
             time_step=dt,
         )
         inference.to(device)
@@ -319,12 +308,10 @@ def load_6(package, *, pretrained=True, device="cuda:0"):
         dt = datetime.timedelta(hours=6)
         inference = networks.Inference(
             model,
-            channels=None,
             center=center,
             scale=scale,
             grid=grid,
             channel_names=channel_names,
-            channel_set=schema.ChannelSet.var_pangu,
             time_step=dt,
         )
         inference.to(device)

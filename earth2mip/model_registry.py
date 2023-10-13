@@ -45,7 +45,6 @@ The `metadata.json` file contains data necessary to use the model for forecasts:
     {
         "architecture": "sfno_73ch",
         "n_history": 0,
-        "channel_set": "73var",
         "grid": "721x1440",
         "in_channels": [
             0,

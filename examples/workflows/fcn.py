@@ -28,8 +28,7 @@ os.environ["MODEL_REGISTRY"] = model_registry
 
 import earth2mip.networks.fcn as fcn
 from earth2mip import registry, inference_ensemble
-from earth2mip.initial_conditions import ic
-import earth2mip.schema as schema
+from earth2mip.initial_conditions import cds
 from modulus.distributed import DistributedManager
 from os.path import dirname, abspath, join
 
@@ -41,13 +40,7 @@ sfno_inference_model = fcn.load(package, device=device)
 
 # Use IC method to get data source, this will regrid the data if needed
 time = datetime.datetime(2018, 1, 1)
-data_source = ic(
-    time,
-    sfno_inference_model.grid,
-    n_history=0,
-    channel_set=sfno_inference_model.channel_set,
-    source=schema.InitialConditionSource.cds,
-)
+data_source = cds.DataSource(channel_names=sfno_inference_model.in_channel_names)
 
 ds = inference_ensemble.run_basic_inference(
     sfno_inference_model,

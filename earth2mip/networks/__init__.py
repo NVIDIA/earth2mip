@@ -14,11 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pathlib
 import urllib
 import warnings
 import itertools
-from typing import Optional, Tuple, Any, Iterator
+from typing import Optional, Tuple, Any, Iterator, List
 import sys
 import datetime
 import os
@@ -126,8 +125,6 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         center: np.array,
         scale: np.array,
         grid: schema.Grid,
-        channels=None,
-        channel_set: Optional[schema.ChannelSet] = None,
         n_history: int = 0,
         time_step=datetime.timedelta(hours=6),
         channel_names=None,
@@ -144,19 +141,12 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
                 the stds. The shape is NOT `len(channels)`.
             grid: metadata about the grid, which should be used to pass the
                 correct data to this object.
-            channels: a list of integers taken from [0, n_channels in data -
-                1]. This is used to subset the input data.
-            channel_set: optional metadata about the channel-set, that can be
-                used to figure out what the channel names are.
-            channel_names: if provided overrides the ``channel_set`` and
-                ``channels``. If this is provided then mean/scale are assumed to
-                match this.
+            channel_names: The names of the prognostic channels.
             n_history: whether `model` was trained with history.
             time_step: the time-step `model` was trained with.
 
         """  # noqa
         super().__init__()
-        self.channel_set = channel_set
         self.time_dependent = depends_on_time(model.forward)
 
         # TODO probably delete this line
@@ -169,7 +159,6 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         )
 
         self.model = model
-        self.channel_set = channel_set
         self.channel_names = channel_names
         self.grid = grid
         self.time_step = time_step
@@ -181,23 +170,10 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         self.register_buffer("center_org", center)
 
         # infer channel names
-        if channel_names is not None:
-            self.in_channel_names = self.out_channel_names = channel_names
-            self.channels = list(range(len(channel_names)))
-            self.register_buffer("scale", scale[:, None, None])
-            self.register_buffer("center", center[:, None, None])
-        elif channel_set is not None:
-            data_channel_names = channel_set.list_channels()
-            self.channels = channels
-            self.in_channel_names = self.out_channel_names = [
-                data_channel_names[i] for i in channels
-            ]
-            self.register_buffer("scale", scale[self.channels, None, None])
-            self.register_buffer("center", center[self.channels, None, None])
-        else:
-            raise ValueError(
-                "Cannot infer channel names. Please provide channel_names or both channels and channel_set."  # noqa
-            )
+        self.in_channel_names = self.out_channel_names = channel_names
+        self.channels = list(range(len(channel_names)))
+        self.register_buffer("scale", scale[:, None, None])
+        self.register_buffer("center", center[:, None, None])
 
     @property
     def n_history_levels(self) -> int:
@@ -296,7 +272,7 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
                 yield time, out, restart
 
 
-def _default_inference(package, metadata, device):
+def _default_inference(package, metadata: schema.Model, device):
     if metadata.architecture == "pickle":
         loader = loaders.pickle
     elif metadata.architecture_entrypoint:
@@ -310,13 +286,14 @@ def _default_inference(package, metadata, device):
     center_path = package.get("global_means.npy")
     scale_path = package.get("global_stds.npy")
 
+    assert metadata.in_channels_names == metadata.out_channels_names
+
     inference = Inference(
         model=model,
-        channels=metadata.in_channels,
+        channel_names=metadata.in_channels_names,
         center=np.load(center_path),
         scale=np.load(scale_path),
         grid=metadata.grid,
-        channel_set=metadata.channel_set,
         n_history=metadata.n_history,
         time_step=metadata.time_step,
     )
