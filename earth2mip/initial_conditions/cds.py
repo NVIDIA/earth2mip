@@ -88,8 +88,8 @@ class DataSource:
     def time_means(self):
         raise NotImplementedError()
 
-    def __getitem__(self, time: datetime.datetime):
-        return _get_channels(self.client, time, self.channel_names)
+    def __getitem__(self, time: datetime.datetime) -> np.ndarray:
+        return _get_channels(self.client, time, self.channel_names).values
 
 
 def _get_cds_requests(codes, time, format):
