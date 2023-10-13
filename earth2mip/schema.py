@@ -376,7 +376,6 @@ class EnsembleRun(pydantic.BaseModel):
     # TODO make perturbation_strategy an Enum (see ChannelSet)
     perturbation_strategy: PerturbationStrategy = PerturbationStrategy.correlated
     ic_perturbed_channels: Union[str, List[str]] = 'all'
-    single_value_perturbation: bool = False
     noise_reddening: float = 2.0
     noise_amplitude: float = 0.05
     output_frequency: int = 1
