@@ -278,11 +278,13 @@ def run_basic_inference(
 ):
     """Run a basic inference"""
     ds = data_source[time].sel(channel=model.in_channel_names)
+    regridder = regrid.get_regridder(data_source.grid, model.grid).to(model.device)
 
     # TODO make the dtype flexible
     x = torch.from_numpy(ds.values).cuda().type(torch.float)
     # need a batch dimension of length 1
     x = x[None]
+    x = regridder(x)
 
     arrays = []
     times = []
@@ -293,7 +295,7 @@ def run_basic_inference(
             break
 
     stacked = np.stack(arrays)
-    coords = {**ds.coords}
+    coords = dict(lat=model.grid.lat, lon=model.grid.lon)
     coords["channel"] = model.out_channel_names
     coords["time"] = times
     return xarray.DataArray(
