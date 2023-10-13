@@ -19,7 +19,9 @@ import torch
 import xarray
 import hashlib
 import numpy as np
-from earth2mip.networks import persistence
+from earth2mip.initial_conditions import cds
+from earth2mip.inference_ensemble import run_basic_inference
+from earth2mip.networks import persistence, get_model
 from earth2mip import (
     schema,
     weather_events,
@@ -40,6 +42,7 @@ def checksum_reduce_precision(arr, digits=3):
 
 
 class get_data_source:
+    grid = schema.Grid.grid_721x1440
     def __init__(self, inference):
         arr = xarray.DataArray(
             np.ones([1, len(inference.in_channel_names), 721, 1440]),
@@ -129,3 +132,11 @@ def test_inference_medium_range(tmpdir, regtest):
         metrics.rmse, digits=3
     )
     metrics.info(regtest)
+
+
+@pytest.mark.dlow
+def test_run_basic_inference():
+    time_loop  = get_model("e2mip://fcn", device="cuda:0")
+    data_source = get_data_source(time_loop)
+    ds = run_basic_inference(time_loop, n=10, data_source=data_source, time=datetime.datetime(2018, 1, 1))
+    print(ds)
