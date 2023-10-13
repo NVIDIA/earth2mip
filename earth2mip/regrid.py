@@ -59,7 +59,7 @@ class Identity(torch.nn.Module):
         return x
 
 
-class DropLast(torch.nn.Module):
+class DropSouthPole(torch.nn.Module):
     def forward(self, x):
         return x[..., :-1, :]
 
@@ -75,12 +75,11 @@ def _get_tempest_regridder(src: Grid, dest: Grid) -> TempestRegridder:
     return TempestRegridder(map_file.as_posix())
 
 
-
 def get_regridder(src: Grid, dest: Grid):
     if src == dest:
         return Identity()
     elif (src, dest) == (Grid.grid_721x1440, Grid.grid_720x1440):
-        return DropLast()
+        return DropSouthPole()
     else:
         return _get_tempest_regridder(src, dest)
     raise NotImplementedError()
