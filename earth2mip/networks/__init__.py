@@ -184,25 +184,6 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
     def device(self) -> torch.device:
         return self.scale.device
 
-    def normalize(self, x):
-        warnings.warn(
-            DeprecationWarning(
-                ".normalize does not follow the TimeLoop API. It will be removed soon."
-            )
-        )
-        return (x - self.center_org[None, :, None, None]) / self.scale_org[
-            None, :, None, None
-        ]
-
-    def run_steps(self, x, n, normalize=True, time=None):
-        warnings.warn(
-            DeprecationWarning(
-                ".run_steps does not follow the TimeLoop API. It will be removed soon."
-            )
-        )
-        for _, data, _ in self.run_steps_with_restart(x, n, normalize, time):
-            yield data
-
     def __call__(
         self,
         time: datetime.datetime,
@@ -229,15 +210,6 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
             yield from self._iterate(**restart)
         else:
             yield from self._iterate(x=x, time=time, n=None, normalize=normalize)
-
-    def run_steps_with_restart(self, x, n, normalize=True, time=None):
-        warnings.warn(
-            DeprecationWarning(
-                ".run_steps_with_restart does not follow the TimeLoop API. It will be removed soon."  # noqa
-            )
-        )
-        x = x[:, :, self.channels]
-        yield from self._iterate(x, n, normalize=normalize, time=time)
 
     def _iterate(self, x, n, normalize=True, time=None):
         """Yield (time, unnormalized data, restart) tuples
