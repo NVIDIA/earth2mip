@@ -16,9 +16,8 @@
 
 import datetime
 from earth2mip import schema
-from earth2mip.datasets.gfs import METADATA26, METADATA34, METADATA73
+from earth2mip.initial_conditions import base
 from modulus.utils.filesystem import LOCAL_CACHE
-import json
 import xarray
 import numpy as np
 import shutil
@@ -27,8 +26,12 @@ import os
 import requests
 import warnings
 from dataclasses import dataclass
-from typing import List, Union
+from typing import List, Union, Dict
 from tqdm import tqdm
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Max byte check of any one field
 # Will error if larger
@@ -167,8 +170,8 @@ def get_gfs_grib_file(
 
 def get(
     time: Union[datetime.datetime, None],
-    channel_set: schema.ChannelSet,
-) -> xarray.DataArray:
+    gfs_channels: List[str],
+) -> np.ndarray:
     # If no time is provided, use current time
     if time is None:
         time = datetime.datetime.now()
@@ -186,56 +189,212 @@ def get(
             + "(needs to be past 10 days)"
         )
 
-    if channel_set == schema.ChannelSet.var26:
-        # move to earth2mip.channels
-        metadata = json.loads(METADATA26.read_text())
-        channels = metadata["coords"]["channel"]
-        gfs_channels = metadata["gfs_coords"]["channel"]
-    elif channel_set == schema.ChannelSet.var34:
-        # move to earth2mip.channels
-        metadata = json.loads(METADATA34.read_text())
-        channels = metadata["coords"]["channel"]
-        gfs_channels = metadata["gfs_coords"]["channel"]
-    elif channel_set == schema.ChannelSet.var73:
-        # move to earth2mip.channels
-        metadata = json.loads(METADATA73.read_text())
-        channels = metadata["coords"]["channel"]
-        gfs_channels = metadata["gfs_coords"]["channel"]
-    else:
-        raise NotImplementedError(channel_set)
-
     # Make temp grib folder
     pathlib.Path(GFS_CACHE).mkdir(parents=True, exist_ok=True)
     # Get index file
     gfs_chunks = get_gfs_chunks(time_gfs)
 
     # Loop through channels and download grib of each
-    print(f"Downloading {len(channels)} grib files:")
-    for idname, outname in zip(tqdm(gfs_channels), channels):
-        get_gfs_grib_file(time_gfs, gfs_chunks, idname, f"{GFS_CACHE}/{outname}.grb")
+    logger.info(f"Downloading {len(gfs_channels)} grib files:")
+    for idname in tqdm(gfs_channels):
+        get_gfs_grib_file(time_gfs, gfs_chunks, idname, f"{GFS_CACHE}/{idname}.grb")
 
     # Convert gribs to xarray dataset
-    data = np.empty((1, len(channels), 721, 1440))
-    gfsds = xarray.Dataset(
-        {"fields": (["time", "channel", "lat", "lon"], data)},
-        coords={
-            "time": [time_gfs],
-            "channel": metadata["coords"]["channel"],
-            "lat": metadata["coords"]["lat"],
-            "lon": metadata["coords"]["lon"],
-        },
-    )
-
-    print(f"Processing {len(channels)} grib files:")
-    for i, name in enumerate(tqdm(channels)):
+    data = np.empty((1, len(gfs_channels), 721, 1440))
+    logger.info(f"Processing {len(gfs_channels)} grib files:")
+    for i, name in enumerate(tqdm(gfs_channels)):
         ds = xarray.open_dataset(f"{GFS_CACHE}/{name}.grb", engine="cfgrib")
-        field = ds[list(ds.keys())[0]]
+
+        for v in ds:
+            field = ds[v]
+            break
+
         # If geopotential height multiply by gravity to get geopotential
-        if name[0] == "z":
+        if name.startswith("HGT") == "z":
             field = field * 9.81
-        gfsds["fields"][0, i] = field
+        data[0, i] = field
 
     # Clean up
     shutil.rmtree(GFS_CACHE)
 
-    return gfsds["fields"]
+    return data
+
+
+def _get_gfs_name_dict() -> Dict[str, str]:
+    """
+
+    Returns:
+        out: out[channel] = gfs_channel
+
+
+    """
+
+    gfs_channels = [
+        "UGRD:10 m above ground",
+        "VGRD:10 m above ground",
+        "UGRD:100 m above ground",
+        "VGRD:100 m above ground",
+        "TMP:2 m above ground",
+        "PRES:surface",
+        "PRMSL:",
+        "PWAT:entire atmosphere",
+        "UGRD:50 mb",
+        "UGRD:100 mb",
+        "UGRD:150 mb",
+        "UGRD:200 mb",
+        "UGRD:250 mb",
+        "UGRD:300 mb",
+        "UGRD:400 mb",
+        "UGRD:500 mb",
+        "UGRD:600 mb",
+        "UGRD:700 mb",
+        "UGRD:850 mb",
+        "UGRD:925 mb",
+        "UGRD:1000 mb",
+        "VGRD:50 mb",
+        "VGRD:100 mb",
+        "VGRD:150 mb",
+        "VGRD:200 mb",
+        "VGRD:250 mb",
+        "VGRD:300 mb",
+        "VGRD:400 mb",
+        "VGRD:500 mb",
+        "VGRD:600 mb",
+        "VGRD:700 mb",
+        "VGRD:850 mb",
+        "VGRD:925 mb",
+        "VGRD:1000 mb",
+        "HGT:50 mb",
+        "HGT:100 mb",
+        "HGT:150 mb",
+        "HGT:200 mb",
+        "HGT:250 mb",
+        "HGT:300 mb",
+        "HGT:400 mb",
+        "HGT:500 mb",
+        "HGT:600 mb",
+        "HGT:700 mb",
+        "HGT:850 mb",
+        "HGT:925 mb",
+        "HGT:1000 mb",
+        "TMP:50 mb",
+        "TMP:100 mb",
+        "TMP:150 mb",
+        "TMP:200 mb",
+        "TMP:250 mb",
+        "TMP:300 mb",
+        "TMP:400 mb",
+        "TMP:500 mb",
+        "TMP:600 mb",
+        "TMP:700 mb",
+        "TMP:850 mb",
+        "TMP:925 mb",
+        "TMP:1000 mb",
+        "RH:50 mb",
+        "RH:100 mb",
+        "RH:150 mb",
+        "RH:200 mb",
+        "RH:250 mb",
+        "RH:300 mb",
+        "RH:400 mb",
+        "RH:500 mb",
+        "RH:600 mb",
+        "RH:700 mb",
+        "RH:850 mb",
+        "RH:925 mb",
+        "RH:1000 mb",
+    ]
+
+    channels = [
+        "u10m",
+        "v10m",
+        "u100m",
+        "v100m",
+        "t2m",
+        "sp",
+        "msl",
+        "tcwv",
+        "u50",
+        "u100",
+        "u150",
+        "u200",
+        "u250",
+        "u300",
+        "u400",
+        "u500",
+        "u600",
+        "u700",
+        "u850",
+        "u925",
+        "u1000",
+        "v50",
+        "v100",
+        "v150",
+        "v200",
+        "v250",
+        "v300",
+        "v400",
+        "v500",
+        "v600",
+        "v700",
+        "v850",
+        "v925",
+        "v1000",
+        "z50",
+        "z100",
+        "z150",
+        "z200",
+        "z250",
+        "z300",
+        "z400",
+        "z500",
+        "z600",
+        "z700",
+        "z850",
+        "z925",
+        "z1000",
+        "t50",
+        "t100",
+        "t150",
+        "t200",
+        "t250",
+        "t300",
+        "t400",
+        "t500",
+        "t600",
+        "t700",
+        "t850",
+        "t925",
+        "t1000",
+        "r50",
+        "r100",
+        "r150",
+        "r200",
+        "r250",
+        "r300",
+        "r400",
+        "r500",
+        "r600",
+        "r700",
+        "r850",
+        "r925",
+        "r1000",
+    ]
+    return dict(zip(channels, gfs_channels))
+
+
+class DataSource(base.DataSource):
+
+    grid: schema.Grid = schema.Grid.grid_721x1440
+
+    def __init__(self, channels: List[str]) -> None:
+        lookup = _get_gfs_name_dict()
+        self._gfs_channels = [lookup[c] for c in channels]
+        self._channel_names = channels
+
+    @property
+    def channel_names(self) -> List[str]:
+        return self._channel_names
+
+    def __getitem__(self, time: datetime.datetime) -> np.ndarray:
+        return get(time, self._gfs_channels)

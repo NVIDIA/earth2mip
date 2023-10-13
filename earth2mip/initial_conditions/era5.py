@@ -28,6 +28,7 @@ import numpy as np
 
 from earth2mip import config, filesystem, schema
 from earth2mip.datasets import era5
+from earth2mip.initial_conditions import base
 
 __all__ = ["open_era5_xarray"]
 
@@ -36,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 
 @dataclasses.dataclass
-class HDF5DataSource:
+class HDF5DataSource(base.DataSource):
     root: str
     metadata: Any
     n_history: int = 0
