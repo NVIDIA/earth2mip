@@ -342,6 +342,7 @@ class PerturbationStrategy(Enum):
     gaussian = "gaussian"
     bred_vector = "bred_vector"
     spherical_grf = "spherical_grf"
+    none = "none"
 
 
 class EnsembleRun(pydantic.BaseModel):

@@ -257,6 +257,8 @@ def get_initializer(
                 config.noise_amplitude,
                 time=config.weather_event.properties.start_time,
             )
+        elif config.perturbation_strategy == PerturbationStrategy.none:
+            return x
         if rank == 0 and batch_id == 0:  # first ens-member is deterministic
             noise[0, :, :, :, :] = 0
 
