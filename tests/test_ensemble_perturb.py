@@ -20,7 +20,7 @@ import datetime
 
 from earth2mip.ensemble_utils import generate_noise_correlated, generate_bred_vector
 from earth2mip import networks
-from earth2mip.schema import Grid, ChannelSet
+from earth2mip.schema import Grid
 
 
 @pytest.mark.slow
@@ -43,7 +43,6 @@ def test_bred_vector():
     device = "cpu"
     model = Dummy().to(device)
     initial_time = datetime.datetime(2018, 1, 1)
-    channels = [0, 1]
     center = [0, 0]
     scale = [1, 1]
 
@@ -52,10 +51,9 @@ def test_bred_vector():
     model = networks.Inference(
         model,
         center=center,
-        channels=channels,
         scale=scale,
         grid=Grid.grid_720x1440,
-        channel_set=ChannelSet.var34,
+        channel_names=["a", "b"],
     ).to(device)
 
     noise_amplitude = 0.01

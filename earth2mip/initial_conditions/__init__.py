@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import List
 from earth2mip import config
 import datetime
 from earth2mip import schema, regrid, time_loop
@@ -27,15 +28,12 @@ __all__ = ["open_era5_xarray", "get_data_source"]
 def get_data_source(
     n_history,
     grid,
-    channel_set: schema.ChannelSet,
+    channel_names: List[str],
     netcdf="",
     initial_condition_source=schema.InitialConditionSource.era5,
 ) -> base.DataSource:
-    channel_names = channel_set.list_channels()
     if initial_condition_source == schema.InitialConditionSource.era5:
-        return HDF5DataSource.from_path(
-            root=config.get_data_root(channel_set), n_history=n_history
-        )
+        return HDF5DataSource.from_path(root=config.ERA5_HDF5, n_history=n_history)
     elif initial_condition_source == schema.InitialConditionSource.cds:
         return cds.DataSource(channel_names)
     elif initial_condition_source == schema.InitialConditionSource.gfs:
@@ -43,7 +41,7 @@ def get_data_source(
     elif initial_condition_source == schema.InitialConditionSource.ifs:
         return ifs.DataSource(channel_names)
     elif initial_condition_source == schema.InitialConditionSource.hrmip:
-        return hrmip.HDFPlSl(path=config.get_data_root(channel_set))
+        return hrmip.HDFPlSl(path=config.ERA5_HDF5)
     else:
         raise NotImplementedError(initial_condition_source)
 

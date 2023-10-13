@@ -14,10 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pathlib
 import argparse
 import numpy as np
-import datetime
 
 import torch
 from earth2mip import schema, model_registry, networks, _cli_utils
@@ -46,52 +44,13 @@ def _mock_registry_with_metadata(metadata, model_name, tmp_path):
 
     # save stats
     def save_ones(path):
-        out = np.ones((len(metadata.in_channels),))
+        out = np.ones((len(metadata.in_channels_names),))
         np.save(path, out)
 
     save_ones(registry.get_scale_path(model_name))
     save_ones(registry.get_center_path(model_name))
 
     return registry
-
-
-def test_pickle(tmp_path: pathlib.Path):
-
-    model_name = "model"
-    # use a baseline AFNO model as a mock
-    model = torch.nn.Conv2d(3, 3, 1)
-
-    # Save the model to the registry with appropriate metadata
-    metadata = schema.Model(
-        architecture="pickle",
-        n_history=0,
-        channel_set=schema.ChannelSet.var34,
-        grid=schema.Grid.grid_720x1440,
-        in_channels=list(range(3)),
-        out_channels=list(range(3)),
-    )
-
-    registry = _mock_registry_with_metadata(metadata, model_name, tmp_path)
-
-    # save model weights
-    torch.save(model, registry.get_weight_path(model_name))
-
-    # make sure it works
-    loaded = networks.get_model(model_name, registry)
-    assert loaded.in_channel_names == [
-        metadata.channel_set.list_channels()[i] for i in metadata.in_channels
-    ]
-
-    # only do following if cuda enabled, it's too slow on the cpu
-    n_history = 0
-    ic = torch.ones(1, n_history + 1, len(metadata.in_channels), 2, 4)
-    time = datetime.datetime(1, 1, 1)
-
-    for k, (_, b, _) in enumerate(loaded(time, ic)):
-        if k > 10:
-            break
-
-    assert b.shape == ic[:, 0].shape
 
 
 def MockLoader(package, pretrained):
@@ -104,10 +63,9 @@ def test_get_model_architecture_entrypoint(tmp_path):
     metadata = schema.Model(
         architecture_entrypoint="tests.test_models:MockLoader",
         n_history=0,
-        channel_set=schema.ChannelSet.var34,
         grid=schema.Grid.grid_720x1440,
-        in_channels=list(range(3)),
-        out_channels=list(range(3)),
+        in_channels_names=["a", "b", "c"],
+        out_channels_names=["a", "b", "c"],
     )
 
     model_name = "model"

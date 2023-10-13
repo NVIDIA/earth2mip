@@ -97,11 +97,6 @@ class Diagnostics:
     ):
         raise NotImplementedError
 
-    def finalize(
-        self,
-    ):
-        raise NotImplementedError
-
 
 class Raw(Diagnostics):
     def __init__(
@@ -129,9 +124,6 @@ class Raw(Diagnostics):
             self.subgroup[channel][batch_id : batch_id + batch_size, time_index] = (
                 output[:, c].cpu().numpy()
             )
-
-    def finalize(self, *args):
-        pass
 
 
 DiagnosticTypes = {

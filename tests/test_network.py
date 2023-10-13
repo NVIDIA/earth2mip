@@ -27,7 +27,6 @@ class Identity(torch.nn.Module):
 
 def test_inference_run_with_restart():
     model = Identity()
-    channels = [0, 1]
     center = [0, 0]
     scale = [1, 1]
 
@@ -36,10 +35,9 @@ def test_inference_run_with_restart():
     model = networks.Inference(
         model,
         center=center,
-        channels=channels,
         scale=scale,
         grid=schema.Grid.grid_720x1440,
-        channel_set=schema.ChannelSet.var34,
+        channel_names=["a", "b"],
     )
 
     step1 = []
