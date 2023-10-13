@@ -360,7 +360,7 @@ class EnsembleRun(pydantic.BaseModel):
         ensemble_batch_size: The batch size to use for the ensemble.
         autocast_fp16: Whether to use automatic mixed precision (AMP) with FP16 data types.
         perturbation_strategy: The strategy to use for perturbing the initial conditions.
-        ic_perturbed_channels: channel(s) perturbed by the initial condition (ic) perturbation strategy, defaults to `all_channels`
+        perturbation_channels: channel(s) perturbed by the initial condition perturbation strategy, None = all channels
         forecast_name (optional): The name of the forecast to use (alternative to `weather_event`).
         weather_event (optional): The weather event to use for the forecast (alternative to `forecast_name`).
         output_dir (optional): The directory to save the output files in (alternative to `output_path`).
@@ -376,7 +376,7 @@ class EnsembleRun(pydantic.BaseModel):
     simulation_length: int
     # TODO make perturbation_strategy an Enum (see ChannelSet)
     perturbation_strategy: PerturbationStrategy = PerturbationStrategy.correlated
-    ic_perturbed_channels: Optional[List[str]] = ['all_channels']
+    perturbation_channels: Optional[List[str]] = None
     noise_reddening: float = 2.0
     noise_amplitude: float = 0.05
     output_frequency: int = 1

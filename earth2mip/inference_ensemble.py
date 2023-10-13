@@ -267,13 +267,13 @@ def get_initializer(
             device=x.device,
         )
 
-        if config.ic_perturbed_channels[0] == "all_channels":
+        if config.perturbation_channels is None:
             x += noise * scale[:, None, None]
         else:
             channel_list = model.channel_set.list_channels()
             indices = torch.tensor(
                 [channel_list.index(channel) for channel in
-                 config.ic_perturbed_channels if channel in channel_list])
+                 config.perturbation_channels if channel in channel_list])
             x[:, :, indices, :, :] += (noise[:, :, indices, :, :]
                                        * scale[indices, None, None])
         return x
