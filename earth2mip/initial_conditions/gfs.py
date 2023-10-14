@@ -303,6 +303,19 @@ def _get_gfs_name_dict() -> Dict[str, str]:
         "RH:850 mb",
         "RH:925 mb",
         "RH:1000 mb",
+        "SPFH:50 mb",
+        "SPFH:100 mb",
+        "SPFH:150 mb",
+        "SPFH:200 mb",
+        "SPFH:250 mb",
+        "SPFH:300 mb",
+        "SPFH:400 mb",
+        "SPFH:500 mb",
+        "SPFH:600 mb",
+        "SPFH:700 mb",
+        "SPFH:850 mb",
+        "SPFH:925 mb",
+        "SPFH:1000 mb",
     ]
 
     channels = [
@@ -379,6 +392,19 @@ def _get_gfs_name_dict() -> Dict[str, str]:
         "r850",
         "r925",
         "r1000",
+        "q50",
+        "q100",
+        "q150",
+        "q200",
+        "q250",
+        "q300",
+        "q400",
+        "q500",
+        "q600",
+        "q700",
+        "q850",
+        "q925",
+        "q1000",
     ]
     return dict(zip(channels, gfs_channels))
 
