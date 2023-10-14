@@ -101,6 +101,7 @@ class DataSource:
     client: Client = dataclasses.field(
         default_factory=lambda: Client(progress=False, quiet=False)
     )
+    # TODO invalidate cache when new channel added.
     _cache: str = ".cds/"
 
     @property
