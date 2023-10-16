@@ -257,6 +257,8 @@ def get_initializer(
                 config.noise_amplitude,
                 time=config.weather_event.properties.start_time,
             )
+        elif config.perturbation_strategy == PerturbationStrategy.none:
+            return x
         if rank == 0 and batch_id == 0:  # first ens-member is deterministic
             noise[0, :, :, :, :] = 0
 
@@ -264,7 +266,21 @@ def get_initializer(
             [channel_stds[channel] for channel in model.in_channel_names],
             device=x.device,
         )
-        x += noise * scale[:, None, None]
+
+        if config.perturbation_channels is None:
+            x += noise * scale[:, None, None]
+        else:
+            channel_list = model.channel_set.list_channels()
+            indices = torch.tensor(
+                [
+                    channel_list.index(channel)
+                    for channel in config.perturbation_channels
+                    if channel in channel_list
+                ]
+            )
+            x[:, :, indices, :, :] += (
+                noise[:, :, indices, :, :] * scale[indices, None, None]
+            )
         return x
 
     return perturb
