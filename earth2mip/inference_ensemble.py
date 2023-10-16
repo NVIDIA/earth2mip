@@ -272,10 +272,15 @@ def get_initializer(
         else:
             channel_list = model.channel_set.list_channels()
             indices = torch.tensor(
-                [channel_list.index(channel) for channel in
-                 config.perturbation_channels if channel in channel_list])
-            x[:, :, indices, :, :] += (noise[:, :, indices, :, :]
-                                       * scale[indices, None, None])
+                [
+                    channel_list.index(channel)
+                    for channel in config.perturbation_channels
+                    if channel in channel_list
+                ]
+            )
+            x[:, :, indices, :, :] += (
+                noise[:, :, indices, :, :] * scale[indices, None, None]
+            )
         return x
 
     return perturb
