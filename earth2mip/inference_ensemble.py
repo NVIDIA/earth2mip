@@ -261,6 +261,8 @@ def get_perturbator(
                 config.noise_amplitude,
                 time=config.weather_event.properties.start_time,
             )
+        elif config.perturbation_strategy == PerturbationStrategy.none:
+            return x
         if rank == 0 and batch_id == 0:  # first ens-member is deterministic
             noise[0, :, :, :, :] = 0
 
@@ -268,7 +270,21 @@ def get_perturbator(
             [channel_stds[channel] for channel in model.in_channel_names],
             device=x.device,
         )
-        x += noise * scale[:, None, None]
+
+        if config.perturbation_channels is None:
+            x += noise * scale[:, None, None]
+        else:
+            channel_list = model.channel_set.list_channels()
+            indices = torch.tensor(
+                [
+                    channel_list.index(channel)
+                    for channel in config.perturbation_channels
+                    if channel in channel_list
+                ]
+            )
+            x[:, :, indices, :, :] += (
+                noise[:, :, indices, :, :] * scale[indices, None, None]
+            )
         return x
 
     return perturb
@@ -297,11 +313,13 @@ def run_basic_inference(
 ):
     """Run a basic inference"""
     ds = data_source[time].sel(channel=model.in_channel_names)
+    regridder = regrid.get_regridder(data_source.grid, model.grid).to(model.device)
 
     # TODO make the dtype flexible
     x = torch.from_numpy(ds.values).cuda().type(torch.float)
     # need a batch dimension of length 1
     x = x[None]
+    x = regridder(x)
 
     arrays = []
     times = []
@@ -312,7 +330,7 @@ def run_basic_inference(
             break
 
     stacked = np.stack(arrays)
-    coords = {**ds.coords}
+    coords = dict(lat=model.grid.lat, lon=model.grid.lon)
     coords["channel"] = model.out_channel_names
     coords["time"] = times
     return xarray.DataArray(

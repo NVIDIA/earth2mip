@@ -59,6 +59,11 @@ class Identity(torch.nn.Module):
         return x
 
 
+class DropSouthPole(torch.nn.Module):
+    def forward(self, x):
+        return x[..., :-1, :]
+
+
 def _get_tempest_regridder(src: Grid, dest: Grid) -> TempestRegridder:
     # TODO map data needs to be available for S2S scoring
     config = Settings()
@@ -73,6 +78,8 @@ def _get_tempest_regridder(src: Grid, dest: Grid) -> TempestRegridder:
 def get_regridder(src: Grid, dest: Grid):
     if src == dest:
         return Identity()
+    elif (src, dest) == (Grid.grid_721x1440, Grid.grid_720x1440):
+        return DropSouthPole()
     else:
         return _get_tempest_regridder(src, dest)
     raise NotImplementedError()
@@ -89,6 +96,7 @@ def xarray_regrid(src: xarray.Dataset, dest: Grid):
     dest : Grid
         Target grid scheme
     """
+    # TODO refactor this into a regridder
     # Subsample / interpolate lat lon grid
     if np.isin(dest.lat, src.coords["lat"].values).all():
         src = src.sel(lat=dest.lat)
