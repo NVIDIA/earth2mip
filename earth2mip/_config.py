@@ -15,8 +15,13 @@
 # limitations under the License.
 
 from typing import List
-from pydantic import BaseSettings
+from pydantic import BaseSettings, Field
 from earth2mip import schema
+import os
+
+
+def _default_local_cache():
+    return os.path.join(os.environ["HOME"], ".cache", "earth2mip")
 
 
 class Settings(BaseSettings):
@@ -34,7 +39,7 @@ class Settings(BaseSettings):
     ERA5_HDF5_34: str = ""
     ERA5_HDF5_73: str = ""
     MODEL_REGISTRY: str = ""
-    LOCAL_CACHE: str = ""
+    LOCAL_CACHE: str = Field(default_factory=_default_local_cache)
 
     # used for scoring (score-ifs.py, inference-medium-range)
     TIME_MEAN: str = ""

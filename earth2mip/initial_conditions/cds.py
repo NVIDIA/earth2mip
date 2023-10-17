@@ -24,6 +24,8 @@ from earth2mip import schema, config
 import xarray
 import numpy as np
 import os
+import shutil
+from typing import Optional
 from concurrent.futures import ThreadPoolExecutor
 from cdsapi import Client
 
@@ -31,6 +33,8 @@ import logging
 
 logging.getLogger("cdsapi").setLevel(logging.WARNING)
 import urllib3
+
+logger = logging.getLogger(__name__)
 
 urllib3.disable_warnings(
     urllib3.exceptions.InsecureRequestWarning
@@ -102,7 +106,7 @@ class DataSource:
     client: Client = dataclasses.field(
         default_factory=lambda: Client(progress=False, quiet=False)
     )
-    _cache: str = ".cds/"
+    _cache: Optional[str] = None
 
     @property
     def time_means(self):
@@ -110,7 +114,10 @@ class DataSource:
 
     @property
     def cache(self):
-        return os.path.join(config.LOCAL_CACHE, self._cache)
+        if self._cache:
+            return self._cache
+        else:
+            return os.path.join(config.LOCAL_CACHE, "cds")
 
     def __getitem__(self, time: datetime.datetime):
         os.makedirs(self.cache, exist_ok=True)
@@ -235,7 +242,11 @@ def _download_codes(client, codes, time, d) -> xarray.DataArray:
         filename = name + ".grib"
         path = os.path.join(dirname, filename)
         if not os.path.exists(path):
-            client.retrieve(name, req, path)
+            logger.info(f"Data not found in cache. Downloading {name} to {path}")
+            client.retrieve(name, req, path + ".tmp")
+            shutil.move(path + ".tmp", path)
+        else:
+            logger.info(f"Found data in cache. Using {path}.")
         return path
 
     requests = _get_cds_requests(codes, time, format)
