@@ -30,7 +30,7 @@ import contextlib
 import modulus
 
 
-from modulus.utils.sfno.zenith_angle import cos_zenith_angle
+from modulus.utils.zenith_angle import cos_zenith_angle
 from modulus.distributed.manager import DistributedManager
 from earth2mip.loaders import LoaderProtocol
 from earth2mip import registry, ModelRegistry, model_registry

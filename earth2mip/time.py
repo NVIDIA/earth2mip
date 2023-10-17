@@ -16,8 +16,15 @@
 
 import datetime
 import numpy as np
+import pytz
 
 
 def convert_to_datetime(time) -> datetime.datetime:
     dt = datetime.datetime.fromisoformat(np.datetime_as_string(time, "s"))
     return dt
+
+
+def datetime_to_timestamp(time: datetime.datetime) -> float:
+    if time.tzinfo is None:
+        time = time.replace(tzinfo=pytz.utc)
+    return time.timestamp()

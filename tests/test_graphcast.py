@@ -17,7 +17,6 @@
 from earth2mip.networks import graphcast
 
 from graphcast.graphcast import TASK, TASK_13_PRECIP_OUT, TASK_13
-from earth2mip.initial_conditions import cds
 import torch
 import datetime
 import numpy as np
@@ -76,40 +75,3 @@ def test_load_time_loop():
     package = Package(root, seperator="/")
     time_loop = graphcast.load_time_loop_operational(package)
     assert isinstance(time_loop, graphcast.GraphcastTimeLoop)
-
-
-@pytest.mark.slow
-def test_tisr_matches_cds():
-    import matplotlib.pyplot as plt
-
-    time = datetime.datetime(2018, 1, 1)
-    ds = cds.DataSource(channel_names=["tisr"])
-    data = ds[time]
-    fig, (a, b, c) = plt.subplots(nrows=3)
-    tisr = graphcast.toa_incident_solar_radiation(time, data.lat, data.lon) / 3600
-
-    tisr_era5 = data.sel(channel="tisr")[0] / 3600
-
-    vmax = 1500
-    print(tisr_era5 / tisr)
-
-    im = a.pcolormesh(tisr, vmin=0, vmax=vmax)
-    b.pcolormesh(tisr_era5, vmin=0, vmax=vmax)
-    plt.colorbar(im, ax=[a, b])
-    im = c.pcolormesh(tisr - tisr_era5)
-
-    n = tisr - tisr_era5
-    rmse = np.sqrt(np.mean(n * n)).item()
-    c.set_title(f"RMSE (W/m2): {rmse:.02f}")
-    plt.colorbar(im, ax=c)
-
-    fig.savefig("out.png")
-
-    plt.figure()
-    i = 300
-    plt.plot(data.lon, tisr_era5[i], label="era5")
-    plt.plot(data.lon, tisr[i], label="computed")
-    plt.legend()
-    plt.savefig("line.png")
-
-    return tisr_era5, tisr
