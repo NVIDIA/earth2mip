@@ -472,7 +472,6 @@ class GraphcastTimeLoop(TimeLoop):
 class GraphcastDescription:
     checkpoint: str
     resolution: float
-    nlevels: int
 
 
 def get_static_data(package, resolution):
@@ -493,16 +492,15 @@ def get_static_data(package, resolution):
 
 def _load_time_loop_from_description(
     package,
-    checkpoint: str,
+    checkpoint_path: str,
     resolution: float,
-    nlevels,
     pretrained=True,
     device="cuda:0",
 ):
     def join(*args):
         return package.get(os.path.join(*args))
 
-    checkpoint_path = join("params", model.checkpoint)
+    checkpoint_path = join("params", checkpoint_path)
     # load checkpoint:
     with open(checkpoint_path, "rb") as f:
         ckpt = checkpoint.load(f, graphcast.CheckPoint)
@@ -514,7 +512,7 @@ def _load_time_loop_from_description(
     size = os.path.getsize(checkpoint_path)
     logging.info(f"Checkpoint Size in MB: {size / 1e6}")
 
-    static_variables = get_static_data(package, model.resolution)
+    static_variables = get_static_data(package, resolution)
 
     # load stats
     with open(join("stats/diffs_stddev_by_level.nc"), "rb") as f:
@@ -555,9 +553,8 @@ def load_time_loop(
 ):
     return _load_time_loop_from_description(
         package=package,
-        checkpoint="GraphCast - ERA5 1979-2017 - resolution 0.25 - pressure levels 37 - mesh 2to6 - precipitation input and output.npz",
+        checkpoint_path="GraphCast - ERA5 1979-2017 - resolution 0.25 - pressure levels 37 - mesh 2to6 - precipitation input and output.npz",
         resolution=0.25,
-        levels=37,
         pretrained=pretrained,
         device=device,
     )
@@ -570,9 +567,8 @@ def load_time_loop_small(
 ):
     return _load_time_loop_from_description(
         package=package,
-        checkpoint="GraphCast_small - ERA5 1979-2015 - resolution 1.0 - pressure levels 13 - mesh 2to5 - precipitation input and output.npz",
+        checkpoint_path="GraphCast_small - ERA5 1979-2015 - resolution 1.0 - pressure levels 13 - mesh 2to5 - precipitation input and output.npz",
         resolution=1.0,
-        levels=13,
         pretrained=pretrained,
         device=device,
     )
@@ -585,9 +581,8 @@ def load_time_loop_operational(
 ):
     return _load_time_loop_from_description(
         package=package,
-        checkpoint="GraphCast_operational - ERA5-HRES 1979-2021 - resolution 0.25 - pressure levels 13 - mesh 2to6 - precipitation output only.npz",
+        checkpoint_path="GraphCast_operational - ERA5-HRES 1979-2021 - resolution 0.25 - pressure levels 13 - mesh 2to6 - precipitation output only.npz",
         resolution=0.25,
-        levels=13,
         pretrained=pretrained,
         device=device,
     )
