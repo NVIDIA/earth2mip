@@ -36,14 +36,17 @@ import torch
 from earth2mip.initial_conditions import cds
 
 from earth2mip.model_registry import Package
-from earth2mip.networks import graphcast
+import earth2mip.networks.graphcast
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 # %%
 # Can review the data in graphcast Google storage bucket here:
 # https://console.cloud.google.com/storage/browser/dm_graphcast/dataset?pageState=(%22StorageObjectListTable%22:(%22f%22:%22%255B%255D%22))&prefix=&forceOnObjectsSortingFiltering=false
 root = "gs://dm_graphcast"
 package = Package(root, seperator="/")
-time_loop = graphcast.load_time_loop(package, version="operational")
+time_loop = earth2mip.networks.graphcast.load_time_loop_operational(package)
 
 # Can also load like this for simplicity:
 # from earth2mip.networks import get_model
