@@ -18,6 +18,7 @@ from earth2mip import networks, schema
 import torch
 import torch.nn
 import numpy as np
+import datetime
 
 
 class Identity(torch.nn.Module):
@@ -27,7 +28,6 @@ class Identity(torch.nn.Module):
 
 def test_inference_run_with_restart():
     model = Identity()
-    channels = [0, 1]
     center = [0, 0]
     scale = [1, 1]
 
@@ -36,19 +36,22 @@ def test_inference_run_with_restart():
     model = networks.Inference(
         model,
         center=center,
-        channels=channels,
         scale=scale,
         grid=schema.Grid.grid_720x1440,
-        channel_set=schema.ChannelSet.var34,
+        channel_names=["a", "b"],
     )
 
     step1 = []
-    for _, state, restart in model.run_steps_with_restart(x, 3):
+    time = datetime.datetime(2018, 1, 1)
+    for k, (_, state, restart) in enumerate(model(time, x)):
         step1.append(restart)
+        if k == 3:
+            break
     assert len(step1) == 4
 
     # start run from 50% done
-    for _, final_state, _ in model.run_steps_with_restart(n=2, **step1[1]):
-        pass
+    for k, (_, final_state, _) in enumerate(model(time, x=None, restart=step1[1])):
+        if k == 2:
+            break
 
     np.testing.assert_array_equal(final_state.numpy(), state.numpy())

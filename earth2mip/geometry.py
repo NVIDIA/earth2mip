@@ -17,21 +17,8 @@
 """Routines for working with geometry"""
 import numpy as np
 import torch
-import xarray as xr
 
 LAT_AVERAGE = "LatitudeAverage"
-
-
-def sel_channel(model, channel_info, data, channels):
-    channels = np.asarray(channels)
-    # TODO: Whats the point of model.channels here, needs clearer name!!!
-    if model.channels is not None:
-        torch_indices = list(model.channels)
-        channels_in_data = np.asarray(channel_info)[torch_indices].tolist()
-    else:
-        channels_in_data = np.asarray(channel_info).tolist()
-    index_to_select = [channels_in_data.index(ch) for ch in channels]
-    return data[:, index_to_select]
 
 
 def get_batch_size(data):
@@ -66,19 +53,6 @@ def select_space(data, lat, lon, domain):
         np.testing.assert_array_equal(domain.lat, lat[i])
         np.testing.assert_array_equal(domain.lon, lon[j])
         return lat[i], lon[j], data[:, :, i, j]
-    elif domain_type == "CWBDomain":
-        cwb_path = "/lustre/fsw/sw_climate_fno/nbrenowitz/2023-01-24-cwb-4years.zarr"
-        xlat = xr.open_zarr(cwb_path)["XLAT"]
-        xlong = xr.open_zarr(cwb_path)["XLONG"]
-        array = data.cpu().numpy()
-        diagnostic = domain["diagnostics"][0]
-        darray = xr.DataArray(
-            array,
-            dims=["batch", "channel", "lat", "lon"],
-            coords={"lat": lat, "lon": lon, "channel": diagnostic.channels},
-        )
-        interpolated = darray.interp(lat=xlat, lon=xlong)
-        return xlat, xlong, torch.from_numpy(interpolated.values)
     else:
         raise ValueError(
             f"domain {domain_type} is not supported. Check the weather_events.json"

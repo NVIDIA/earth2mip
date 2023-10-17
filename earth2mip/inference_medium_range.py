@@ -24,7 +24,7 @@ import numpy as np
 import datetime
 import sys
 from earth2mip import config
-from earth2mip import schema, time_loop
+from earth2mip import schema, time_loop, initial_conditions
 from earth2mip.initial_conditions.era5 import HDF5DataSource
 from earth2mip import _cli_utils
 from modulus.distributed.manager import DistributedManager
@@ -112,7 +112,12 @@ def flat_map(func, seq, *args):
 
 
 def run_forecast(
-    model: time_loop.TimeLoop, n, initial_times, device, data_source, mean
+    model: time_loop.TimeLoop,
+    n,
+    initial_times,
+    device,
+    data_source: initial_conditions.base.DataSource,
+    mean,
 ):
     mean = mean.squeeze()
     assert mean.ndim == 3
@@ -124,8 +129,7 @@ def run_forecast(
     mean = mean[channels, :nlat]
     mean = torch.from_numpy(mean).to(device)
 
-    ds = data_source[initial_times[0]]
-    lat = np.deg2rad(ds.lat).values
+    lat = np.deg2rad(model.grid.lat)
     assert lat.ndim == 1
     weight = np.cos(lat)[:, np.newaxis]
     weight_torch = torch.from_numpy(weight).to(device)
@@ -138,9 +142,10 @@ def run_forecast(
 
     def process(initial_time):
         logger.info(f"Running {initial_time}")
-        initial_condition = data_source[initial_time]
+        x = initial_conditions.get_initial_condition_for_model(
+            time_loop=model, data_source=data_source, time=initial_time
+        )
         logger.debug("Initial Condition Loaded.")
-        x = torch.from_numpy(initial_condition.values[None, :, channels]).to(device)
         i = -1
         for valid_time, data, _ in model(x=x, time=initial_time):
             assert data.shape[1] == len(model.out_channel_names)
@@ -151,9 +156,11 @@ def run_forecast(
             lead_time = valid_time - initial_time
             logger.debug(f"{valid_time}")
             # TODO may need to fix n_history here
-            v = data_source[valid_time]
-            verification = v.values[:, channels, :nlat, :]
-            verification_torch = torch.from_numpy(verification).to(device)
+            verification_torch = initial_conditions.get_initial_condition_for_model(
+                time_loop=model, data_source=data_source, time=valid_time
+            )
+            # select first history level
+            verification_torch = verification_torch[:, 0]
 
             output = {}
             for name, metric in metrics.items():

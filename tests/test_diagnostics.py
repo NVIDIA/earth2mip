@@ -37,7 +37,6 @@ def test_diagnostic(cls: str, tmp_path: pathlib.Path):
     lon = np.array([0, 1, 2])
     n_ensemble = 2
     path = tmp_path / "a.nc"
-    weather_event = weather_events.read("EastCoast")
     with nc.Dataset(path.as_posix(), "w") as ncfile:
         total_diagnostics = netcdf.initialize_netcdf(
             ncfile,
@@ -59,12 +58,6 @@ def test_diagnostic(cls: str, tmp_path: pathlib.Path):
             batch_id = 0
             batch_size = n_ensemble
             diagnostic.update(data, time_index, batch_id, batch_size)
-
-            # TODO Fix input data issues with crps, skill
-            if not (cls in ["crps", "skill"]):
-                diagnostic.finalize(
-                    np.array([time_index]), weather_event, schema.ChannelSet.var34
-                )
 
         if cls == "skill":
             assert "tcwv" in ncfile["Test"]["skill"].variables

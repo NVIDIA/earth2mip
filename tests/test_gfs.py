@@ -14,8 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pathlib
+from earth2mip.initial_conditions import gfs
+import datetime
+import pytest
 
-METADATA26 = pathlib.Path(__file__).parent / "data26var.json"
-METADATA34 = pathlib.Path(__file__).parent / "data34var.json"
-METADATA73 = pathlib.Path(__file__).parent / "data73var.json"
+
+@pytest.mark.slow
+def test_gfs():
+    t = datetime.datetime.today() - datetime.timedelta(days=1)
+    ds = gfs.DataSource(["t850"])
+    out = ds[t]
+    assert out.shape == (1, 1, 721, 1440)

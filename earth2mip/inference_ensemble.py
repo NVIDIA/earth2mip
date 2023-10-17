@@ -25,7 +25,7 @@ import json
 import numpy as np
 import torch
 import tqdm
-from typing import Optional, Any, Mapping
+from typing import Optional, Any
 from datetime import datetime
 from modulus.distributed.manager import DistributedManager
 from netCDF4 import Dataset as DS
@@ -42,10 +42,9 @@ from earth2mip.ensemble_utils import (
     generate_noise_grf,
 )
 
-from earth2mip.netcdf import finalize_netcdf, initialize_netcdf, update_netcdf
-from earth2mip.networks import get_model, Inference
+from earth2mip.netcdf import initialize_netcdf, update_netcdf
+from earth2mip.networks import get_model
 from earth2mip.schema import EnsembleRun, Grid, PerturbationStrategy
-from earth2mip.time import convert_to_datetime
 from earth2mip.time_loop import TimeLoop
 from earth2mip import regrid
 from earth2mip._channel_stds import channel_stds
@@ -72,9 +71,9 @@ def run_ensembles(
     weather_event,
     model: TimeLoop,
     perturb,
+    x,
     nc,
     domains,
-    ds,
     n_ensemble: int,
     batch_size: int,
     device: str,
@@ -92,30 +91,23 @@ def run_ensembles(
 
     regridder = regrid.get_regridder(model.grid, output_grid).to(device)
 
-    # TODO infer this from the model
-    ds = ds.astype(np.float32)
-    assert not np.any(np.isnan(ds))
+    if not output_grid:
+        output_grid = model.grid
 
-    if output_grid == model.grid:
-        lat = ds.lat.values
-        lon = ds.lon.values
-    else:
-        lat, lon = regridder.lat, regridder.lon
+    lat, lon = output_grid.lat, output_grid.lon
 
     diagnostics = initialize_netcdf(
         nc, domains, output_grid, lat, lon, n_ensemble, device
     )
-    time = convert_to_datetime(ds.time[-1])
-    time_units = time.strftime("hours since %Y-%m-%d %H:%M:%S")
+    initial_time = date_obj
+    time_units = initial_time.strftime("hours since %Y-%m-%d %H:%M:%S")
     nc["time"].units = time_units
     nc["time"].calendar = "standard"
 
     for batch_id in range(0, n_ensemble, batch_size):
         logger.info(f"ensemble members {batch_id+1}-{batch_id+batch_size}/{n_ensemble}")
-        time = convert_to_datetime(ds.time[-1])
         batch_size = min(batch_size, n_ensemble - batch_id)
 
-        x = torch.from_numpy(ds.values)[None].to(device)
         x = x.repeat(batch_size, 1, 1, 1, 1)
         x = perturb(x, rank, batch_id, device)
         # restart_dir = weather_event.properties.restart
@@ -133,7 +125,7 @@ def run_ensembles(
         #         time=time,
         #     )
 
-        iterator = model(time, x)
+        iterator = model(initial_time, x)
 
         # Check if stdout is connected to a terminal
         if sys.stderr.isatty() and progress:
@@ -166,7 +158,7 @@ def run_ensembles(
                     model,
                     lat,
                     lon,
-                    ds.channel,
+                    model.out_channel_names,
                 )
 
             if k == n_steps:
@@ -179,8 +171,6 @@ def run_ensembles(
         #         batch_id,
         #         path=os.path.join(output_path, "restart", "end"),
         #     )
-
-    finalize_netcdf(diagnostics, nc, domains, weather_event, model.channel_set)
 
 
 def main(config=None):
@@ -289,18 +279,12 @@ def get_initializer(
 def run_basic_inference(
     model: time_loop.TimeLoop,
     n: int,
-    data_source: Mapping[datetime, xarray.Dataset],
+    data_source: Any,
     time: datetime,
 ):
     """Run a basic inference"""
-    ds = data_source[time].sel(channel=model.in_channel_names)
-    regridder = regrid.get_regridder(data_source.grid, model.grid).to(model.device)
 
-    # TODO make the dtype flexible
-    x = torch.from_numpy(ds.values).cuda().type(torch.float)
-    # need a batch dimension of length 1
-    x = x[None]
-    x = regridder(x)
+    x = initial_conditions.get_initial_condition_for_model(model, data_source, time)
 
     arrays = []
     times = []
@@ -320,7 +304,7 @@ def run_basic_inference(
 
 
 def run_inference(
-    model: Inference,
+    model: TimeLoop,
     config: EnsembleRun,
     perturb: Any = None,
     group: Any = None,
@@ -346,14 +330,15 @@ def run_inference(
 
     if not data_source:
         data_source = initial_conditions.get_data_source(
-            model.n_history,
+            model.n_history_levels - 1,
             model.grid,
-            model.channel_set,
+            model.in_channel_names,
             initial_condition_source=weather_event.properties.initial_condition_source,
             netcdf=weather_event.properties.netcdf,
         )
 
-    ds = data_source[weather_event.properties.start_time]
+    date_obj = weather_event.properties.start_time
+    x = initial_conditions.get_initial_condition_for_model(model, data_source, date_obj)
 
     dist = DistributedManager()
     n_ensemble_global = config.ensemble_members
@@ -366,8 +351,6 @@ def run_inference(
     seed = config.seed
     torch.manual_seed(seed + dist.rank)
     np.random.seed(seed + dist.rank)
-
-    date_obj = convert_to_datetime(ds.time[-1])
 
     if config.output_dir:
         date_str = "{:%Y_%m_%d_%H_%M_%S}".format(date_obj)
@@ -410,7 +393,7 @@ def run_inference(
             perturb=perturb,
             nc=nc,
             domains=weather_event.domains,
-            ds=ds,
+            x=x,
             n_ensemble=n_ensemble,
             n_steps=config.simulation_length,
             output_frequency=config.output_frequency,
