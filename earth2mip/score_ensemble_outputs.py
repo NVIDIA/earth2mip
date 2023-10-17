@@ -20,7 +20,7 @@ import argparse
 import xarray
 import pathlib
 import earth2mip.time
-from earth2mip import weather_events, schema
+from earth2mip import weather_events
 from earth2mip.initial_conditions.era5 import open_era5_xarray
 import xskillscore
 
@@ -46,8 +46,8 @@ def open_ensemble(path, group):
     return xarray.concat([_open(f, group) for f in ensemble_files], dim="ensemble")
 
 
-def open_verification(time, channel_set):
-    v = open_era5_xarray(time, channel_set)
+def open_verification(time):
+    v = open_era5_xarray(time)
     v = v.to_dataset("channel")
     v = v.chunk({"time": 1})
     return v
@@ -81,7 +81,6 @@ def main(
         if domain.type != "Window":
             continue
         ds = open_ensemble(input_path, domain.name)
-        channel_set = schema.ChannelSet.var73
         ds.attrs["time_averaging_window"] = time_averaging_window
         if time_averaging_window:
             ds = ds.resample(time=time_averaging_window).mean(
@@ -100,7 +99,7 @@ def main(
         if score:
             logger.info("Scoring")
             date_obj = earth2mip.time.convert_to_datetime(ds.time[0])
-            v = open_verification(date_obj, channel_set=channel_set)
+            v = open_verification(date_obj)
             shared = set(v) & set(ds)
             verification = v[list(shared)]
             ds = ds[list(shared)]

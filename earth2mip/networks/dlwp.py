@@ -15,16 +15,13 @@
 # limitations under the License.
 
 import datetime
-import torch
 
 import numpy as np
 import xarray
-import json
 import modulus
 import logging
-from earth2mip import registry, schema, networks, config, initial_conditions, geometry
-from earth2mip.time_loop import TimeLoop
-from earth2mip.schema import Grid
+from earth2mip import schema, networks
+import torch
 
 from modulus.utils.filesystem import Package
 from modulus.utils.sfno.zenith_angle import cos_zenith_angle
@@ -137,7 +134,7 @@ class _DLWPWrapper(torch.nn.Module):
         return self.prepare_output(y)
 
 
-def load(package, *, pretrained=True, device="cuda"):
+def load(package: Package, *, pretrained=True, device="cuda"):
     assert pretrained
 
     # load static datasets

@@ -20,13 +20,12 @@ import numpy as np
 import torch
 from typing import List, Iterable
 import xarray as xr
-import cftime
 from earth2mip import geometry
 from earth2mip.weather_events import Domain
 
 from earth2mip.diagnostics import DiagnosticTypes, Diagnostics
 
-__all__ = ["initialize_netcdf", "update_netcdf", "finalize_netcdf"]
+__all__ = ["initialize_netcdf", "update_netcdf"]
 
 
 def _assign_lat_attributes(nc_variable):
@@ -132,7 +131,7 @@ def update_netcdf(
     model,
     lat,
     lon,
-    channel,
+    channel_names_of_data: List[str],
 ):
     assert len(total_diagnostics) == len(domains), (total_diagnostics, domains)
 
@@ -142,20 +141,10 @@ def update_netcdf(
 
         domain_diagnostics = total_diagnostics[d_index]
         for diagnostic in domain_diagnostics:
-            output = geometry.sel_channel(
-                model, channel, regional_data, diagnostic.diagnostic.channels
-            )
+
+            index = [
+                channel_names_of_data.index(c) for c in diagnostic.diagnostic.channels
+            ]
+            output = data[:, index]
             diagnostic.update(output, time_count, batch_id, batch_size)
-    return
-
-
-def finalize_netcdf(total_diagnostics, nc, domains, weather_event, channel_set):
-    times = cftime.num2date(nc["time"][:], nc["time"].units)
-    for d_index, domain in enumerate(domains):
-        domain_diagnostics = total_diagnostics[d_index]
-        for diagnostic in domain_diagnostics:
-            diagnostic.finalize(times, weather_event, channel_set)
-        for diagnostic in domain_diagnostics:
-            if hasattr(diagnostic, "tmpdir"):
-                diagnostic.tmpdir.cleanup()
     return

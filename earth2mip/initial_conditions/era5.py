@@ -26,8 +26,9 @@ import s3fs
 import xarray
 import numpy as np
 
-from earth2mip import config, filesystem, schema
+from earth2mip import config, filesystem
 from earth2mip.datasets import era5
+from earth2mip.initial_conditions import base
 
 __all__ = ["open_era5_xarray"]
 
@@ -36,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 
 @dataclasses.dataclass
-class HDF5DataSource:
+class HDF5DataSource(base.DataSource):
     root: str
     metadata: Any
     n_history: int = 0
@@ -93,11 +94,9 @@ def _get_path(path: str, time) -> str:
     return files[filename]
 
 
-def open_era5_xarray(
-    time: datetime.datetime, channel_set: schema.ChannelSet
-) -> xarray.DataArray:
+def open_era5_xarray(time: datetime.datetime) -> xarray.DataArray:
     warnings.warn(DeprecationWarning("This function will be removed"))
-    root = config.get_data_root(channel_set)
+    root = config.ERA5_HDF5
     path = _get_path(root, time)
     logger.debug(f"Opening {path} for {time}.")
 
@@ -109,14 +108,12 @@ def open_era5_xarray(
             f = fs.open(path)
         else:
             f = None
-        if channel_set == schema.ChannelSet.var34:
-            ds = era5.open_34_vars(path, f=f)
-        else:
-            metadata_path = os.path.join(config.ERA5_HDF5_73, "data.json")
-            metadata_path = filesystem.download_cached(metadata_path)
-            with open(metadata_path) as mf:
-                metadata = json.load(mf)
-            ds = era5.open_hdf5(path=path, f=f, metadata=metadata)
+
+        metadata_path = os.path.join(config.ERA5_HDF5, "data.json")
+        metadata_path = filesystem.download_cached(metadata_path)
+        with open(metadata_path) as mf:
+            metadata = json.load(mf)
+        ds = era5.open_hdf5(path=path, f=f, metadata=metadata)
 
     elif path.endswith(".nc"):
         ds = xarray.open_dataset(path).fields
