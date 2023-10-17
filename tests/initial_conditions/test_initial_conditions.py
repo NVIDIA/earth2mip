@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from earth2mip import initial_conditions, schema
+from earth2mip.initial_conditions import cds
 from earth2mip.initial_conditions.base import DataSource
 from earth2mip import config
 import pytest
@@ -30,6 +31,12 @@ def test_get_data_source(
         and not config.ERA5_HDF5
     ):
         pytest.skip(f"Need HDF5 data to test {source}")
+
+    if source == schema.InitialConditionSource:
+        try:
+            cds.Client()
+        except Exception:
+            pytest.skip("Could not initialize client")
 
     ds = initial_conditions.get_data_source(
         n_history=0,
