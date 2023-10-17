@@ -125,12 +125,7 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         center: np.array,
         scale: np.array,
         grid: schema.Grid,
-<<<<<<< HEAD
         noise_injection=None,
-        channels=None,
-        channel_set: Optional[schema.ChannelSet] = None,
-=======
->>>>>>> main
         n_history: int = 0,
         time_step=datetime.timedelta(hours=6),
         channel_names=None,
@@ -242,11 +237,9 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
             restart = dict(x=x, normalize=False, time=time)
             yield time, self.scale * x[:, -1] + self.center, restart
 
-            for i in range(n) if n else itertools.count():
+            while True:
                 if self.noise_injection:
                     x = self.noise_injection(x, self.time_step)
-
-            while True:
                 x = self.model(x, time)
                 time = time + self.time_step
 
