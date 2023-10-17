@@ -131,6 +131,18 @@ time_dependent = {
 
 
 def get_codes(variables: List[str], levels: List[int], time_levels: List[int]):
+    """This defines a precise notion of input and output channels. Describing the
+    input and output channels of graphcast requires a tuple of
+
+    - The time level: t-1, t, or t+1
+    - The ECWMF parameter ID
+    - The pressure level if applicable
+
+    For convenience and backwards compatibility, it is nice to have a string
+    representation of this tuple (e.g. "t850" -> (id=130, level=850)).
+    earth2mip.initial_conditions.cds has utilities for doing this, but does not
+    include "history". please note there is no I/O in this code.
+    """
     lookup_code = cds.keys_to_vals(CODE_TO_GRAPHCAST_NAME)
     output = []
     for v in sorted(variables):
@@ -481,10 +493,11 @@ def get_static_data(package, resolution):
 
 def _load_time_loop_from_description(
     package,
-    model: GraphcastDescription,
+    checkpoint: str,
+    resolution: float,
+    nlevels,
     pretrained=True,
     device="cuda:0",
-    version: Literal["paper", "operational", "small"] = "paper",
 ):
     def join(*args):
         return package.get(os.path.join(*args))
@@ -540,13 +553,14 @@ def load_time_loop(
     pretrained=True,
     device="cuda:0",
 ):
-
-    description = GraphcastDescription(
-        "GraphCast - ERA5 1979-2017 - resolution 0.25 - pressure levels 37 - mesh 2to6 - precipitation input and output.npz",
-        0.25,
-        37,
+    return _load_time_loop_from_description(
+        package=package,
+        checkpoint="GraphCast - ERA5 1979-2017 - resolution 0.25 - pressure levels 37 - mesh 2to6 - precipitation input and output.npz",
+        resolution=0.25,
+        levels=37,
+        pretrained=pretrained,
+        device=device,
     )
-    return _load_time_loop_from_description(package, description, device)
 
 
 def load_time_loop_small(
@@ -554,13 +568,14 @@ def load_time_loop_small(
     pretrained=True,
     device="cuda:0",
 ):
-
-    description = GraphcastDescription(
-        "GraphCast_small - ERA5 1979-2015 - resolution 1.0 - pressure levels 13 - mesh 2to5 - precipitation input and output.npz",
-        1.0,
-        13,
+    return _load_time_loop_from_description(
+        package=package,
+        checkpoint="GraphCast_small - ERA5 1979-2015 - resolution 1.0 - pressure levels 13 - mesh 2to5 - precipitation input and output.npz",
+        resolution=1.0,
+        levels=13,
+        pretrained=pretrained,
+        device=device,
     )
-    return _load_time_loop_from_description(package, description, device)
 
 
 def load_time_loop_operational(
@@ -568,11 +583,11 @@ def load_time_loop_operational(
     pretrained=True,
     device="cuda:0",
 ):
-
-    description = GraphcastDescription(
-        "GraphCast_operational - ERA5-HRES 1979-2021 - resolution 0.25 - pressure levels 13 - mesh 2to6 - precipitation output only.npz",
-        0.25,
-        13,
+    return _load_time_loop_from_description(
+        package=package,
+        checkpoint="GraphCast_operational - ERA5-HRES 1979-2021 - resolution 0.25 - pressure levels 13 - mesh 2to6 - precipitation output only.npz",
+        resolution=0.25,
+        levels=13,
+        pretrained=pretrained,
+        device=device,
     )
-
-    return _load_time_loop_from_description(package, description, device)
