@@ -34,9 +34,7 @@ def test_cds_data_source():
     dataset = source[time]
 
     assert source.channel_names == channels
-    correct_dims = {"time": 1, "channel": len(channels), "lat": 721, "lon": 1440}
-    assert dataset.dims == tuple(correct_dims.keys())
-    assert dataset.shape == tuple(correct_dims.values())
+    assert dataset.shape == (1, len(channels), 721, 1440)
 
 
 def test_make_request(regtest):
