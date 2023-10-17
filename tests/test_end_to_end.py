@@ -44,18 +44,13 @@ class get_data_source:
     grid = schema.Grid.grid_721x1440
 
     def __init__(self, inference):
-        arr = xarray.DataArray(
-            np.ones([1, len(inference.in_channel_names), 721, 1440]),
-            dims=["time", "channel", "lat", "lon"],
-        )
-        arr["channel"] = inference.in_channel_names
-        arr["lat"] = np.linspace(90, -90, 721)
-        arr["lon"] = np.linspace(0, 360, 1440, endpoint=False)
+        self.channel_names = inference.in_channel_names
+        arr = np.ones([1, len(inference.in_channel_names), 721, 1440])
         self.arr = arr
         self.channel_names = inference.out_channel_names
 
-    def __getitem__(self, time):
-        return self.arr.assign_coords(time=[time])
+    def __getitem__(self, time) -> np.ndarray:
+        return self.arr
 
 
 def test_inference_ensemble(tmp_path):

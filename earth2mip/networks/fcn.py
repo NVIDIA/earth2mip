@@ -17,20 +17,42 @@
 """
 FCN adapter from Modulus
 """
-from typing import List
-import logging
-import os
 import datetime
-import torch
-import json
-import pathlib
 
 import numpy as np
-import onnxruntime as ort
-import dataclasses
 import modulus
 
-from earth2mip import registry, schema, networks, config, initial_conditions, geometry
+from earth2mip import schema, networks
+
+
+CHANNELS = [
+    "u10m",
+    "v10m",
+    "t2m",
+    "sp",
+    "msl",
+    "t850",
+    "u1000",
+    "v1000",
+    "z1000",
+    "u850",
+    "v850",
+    "z850",
+    "u500",
+    "v500",
+    "z500",
+    "t500",
+    "z50",
+    "r500",
+    "r850",
+    "tcwv",
+    "u100m",
+    "v100m",
+    "u250",
+    "v250",
+    "z250",
+    "t250",
+]
 
 
 def load(package, *, pretrained=True, device="cuda"):
@@ -42,17 +64,14 @@ def load(package, *, pretrained=True, device="cuda"):
     core_model = modulus.Module.from_checkpoint(package.get("fcn.mdlus"))
 
     grid = schema.Grid.grid_720x1440
-    channel_set = schema.ChannelSet.var26
     dt = datetime.timedelta(hours=6)
 
     inference = networks.Inference(
         core_model,
-        channels=None,
         center=local_center,
         scale=local_std,
         grid=grid,
-        channel_names=channel_set.list_channels(),
-        channel_set=channel_set,
+        channel_names=CHANNELS,
         time_step=dt,
     )
     inference.to(device)
