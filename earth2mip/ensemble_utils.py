@@ -25,6 +25,7 @@ from earth2mip.networks import Inference  # noqa
 from datetime import datetime
 from timeit import default_timer  # noqa
 from typing import Union
+from earth2mip.time_loop import TimeLoop
 
 
 class GaussianRandomFieldS2(torch.nn.Module):
@@ -200,28 +201,40 @@ def brown_noise(shape, reddening=2):
 
 def generate_bred_vector(
     x: torch.Tensor,
-    model: Inference,
-    noise_amplitude: float = 0.15,
+    model: TimeLoop,
+    noise_amplitude: torch.Tensor,
     time: Union[datetime, None] = None,
     integration_steps: int = 40,
     inflate=False,
-):
+) -> torch.Tensor:
     # Assume x has shape [ENSEMBLE, TIME, CHANNEL, LAT, LON]
+
+    if isinstance(noise_amplitude, float):
+        noise_amplitude = torch.tensor([noise_amplitude])
+
+    assert (noise_amplitude.shape[0] == x.shape[2]) or (
+        torch.numel(noise_amplitude) == 1
+    )
+
     x0 = x[:1]
 
     # Get control forecast
-    for data in model.run_steps(x0, n=1, normalize=False, time=time):
+    for _, data, _ in model(time, x0):
         xd = data
+        break
 
     # Unsqueeze if time has been collapsed.
     if xd.ndim != x0.ndim:
         xd = xd.unsqueeze(1)
 
-    dx = noise_amplitude * torch.randn(x.shape, device=x.device, dtype=x.dtype)
+    dx = noise_amplitude[:, None, None] * torch.randn(
+        x.shape, device=x.device, dtype=x.dtype
+    )
     for _ in range(integration_steps):
         x1 = x + dx
-        for data in model.run_steps(x1, n=1, normalize=False, time=time):
+        for _, data, _ in model(time, x1):
             x2 = data
+            break
 
         # Unsqueeze if time has been collapsed.
         if x2.ndim != x1.ndim:

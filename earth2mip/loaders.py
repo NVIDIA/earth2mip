@@ -23,15 +23,6 @@ class LoaderProtocol(Protocol):
         return
 
 
-def pickle(package, pretrained=True):
-    """
-    load a checkpoint into a model
-    """
-    assert pretrained
-    p = package.get("weights.tar")
-    return torch.load(p)
-
-
 def torchscript(package, pretrained=True):
     """
     load a checkpoint into a model

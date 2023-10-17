@@ -14,17 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from earth2mip import schema
-import json
+from earth2mip.initial_conditions import gfs
+import datetime
+import pytest
 
 
-def test_model():
-    obj = schema.Model(
-        architecture="some_arch",
-        n_history=0,
-        grid=schema.Grid.grid_720x1440,
-        in_channels=[0, 1],
-        out_channels=[0, 1],
-    )
-    loaded = json.loads(obj.json())
-    assert loaded
+@pytest.mark.slow
+def test_gfs():
+    t = datetime.datetime.today() - datetime.timedelta(days=1)
+    ds = gfs.DataSource(["t850"])
+    out = ds[t]
+    assert out.shape == (1, 1, 721, 1440)
