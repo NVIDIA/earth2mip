@@ -203,6 +203,17 @@ def torch_to_jax(x):
 
 
 class NoXarrayGraphcast(graphcast.GraphCast):
+    """A graphcast model that does not use xarray
+
+    When initially developing this feature, the xarray logic was introducing
+    NaNs that were difficult to track down.  For this reason, we wrap the core
+    graphcast ML model which takes a single array of inputs with shape [nlat*nlon, batch, channels].
+
+    Here is the original __call__ implementation:
+    https://github.com/google-deepmind/graphcast/blob/858301cde5de5c728f8172f782dafba1ea07ac2e/graphcast/graphcast.py#L357
+
+    """
+
     def __call__(self, grid_node_features, lat, lon):
         # Transfer data for the grid to the mesh,
         # [num_mesh_nodes, batch, latent_size], [num_grid_nodes, batch, latent_size]
