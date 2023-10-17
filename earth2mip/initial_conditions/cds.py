@@ -15,11 +15,12 @@
 # limitations under the License.
 
 import warnings
+import hashlib
 import eccodes
 from typing import List, Union
 import datetime
 import dataclasses
-from earth2mip import schema
+from earth2mip import schema, config
 import xarray
 import numpy as np
 import os
@@ -101,17 +102,19 @@ class DataSource:
     client: Client = dataclasses.field(
         default_factory=lambda: Client(progress=False, quiet=False)
     )
-    # TODO invalidate cache when new channel added.
     _cache: str = ".cds/"
 
     @property
     def time_means(self):
         raise NotImplementedError()
 
+    @property
+    def cache(self):
+        return os.path.join(config.LOCAL_CACHE, self._cache)
+
     def __getitem__(self, time: datetime.datetime):
-        d = os.path.join(self._cache, time.isoformat())
-        os.makedirs(d, exist_ok=True)
-        return _get_channels(self.client, time, self.channel_names, d)
+        os.makedirs(self.cache, exist_ok=True)
+        return _get_channels(self.client, time, self.channel_names, self.cache)
 
 
 def get(time: datetime.datetime, channel_set: schema.ChannelSet):
@@ -226,7 +229,11 @@ def _download_codes(client, codes, time, d) -> xarray.DataArray:
 
     def download(arg):
         name, req = arg
-        path = os.path.join(d, name + ".grib")
+        hash_ = hashlib.sha256(str(req).encode()).hexdigest()
+        dirname = os.path.join(d, hash_)
+        os.makedirs(dirname, exist_ok=True)
+        filename = name + ".grib"
+        path = os.path.join(dirname, filename)
         if not os.path.exists(path):
             client.retrieve(name, req, path)
         return path
