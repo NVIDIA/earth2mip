@@ -32,7 +32,7 @@ def test_get_data_source(
     ):
         pytest.skip(f"Need HDF5 data to test {source}")
 
-    if source == schema.InitialConditionSource:
+    if source == schema.InitialConditionSource.cds:
         try:
             cds.Client()
         except Exception:
