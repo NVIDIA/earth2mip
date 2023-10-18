@@ -17,7 +17,6 @@
 # %%
 import os
 import datetime
-import xarray as xr
 
 # Set number of GPUs to use to 1
 os.environ["WORLD_SIZE"] = "1"
@@ -40,13 +39,7 @@ device = DistributedManager().device
 print(f"Loading dlwp model onto {device}, this can take a bit")
 package = registry.get_model("e2mip://dlwp")
 inferencer = dlwp.load(package, device=device)
-cds_data_source = cds.DataSource(inferencer.in_channel_names)
-# Stack two data-sources together for double timestep inputs
-time = datetime.datetime(2018, 1, 1)
-ds1 = cds_data_source[time]
-ds2 = cds_data_source[time - datetime.timedelta(hours=6)]
-ds = xr.concat([ds2, ds1], dim="time")
-data_source = {time: ds}
+data_source = cds.DataSource(inferencer.in_channel_names)
 time = datetime.datetime(2018, 1, 1)
 
 # %% Run inference
