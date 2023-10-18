@@ -252,10 +252,13 @@ def get_initializer(
         if rank == 0 and batch_id == 0:  # first ens-member is deterministic
             noise[0, :, :, :, :] = 0
 
-        scale = torch.tensor(
-            [channel_stds[channel] for channel in model.in_channel_names],
-            device=x.device,
-        )
+        scale = []
+        for i, channel in enumerate(model.in_channel_names):
+            if channel in channel_stds:
+                scale.append(channel_stds[channel])
+            else:
+                scale.append(0)
+        scale = torch.tensor(scale, device=x.device)
 
         if config.perturbation_channels is None:
             x += noise * scale[:, None, None]

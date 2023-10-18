@@ -194,6 +194,10 @@ class PanguInference(torch.nn.Module):
     def n_history(self):
         return 0
 
+    @property
+    def device(self) -> torch.device:
+        return "cuda"
+
     def normalize(self, x):
         # No normalization for pangu
         return x
