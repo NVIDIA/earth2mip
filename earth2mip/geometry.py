@@ -25,11 +25,11 @@ LAT_AVERAGE = "LatitudeAverage"
 def sel_channel(model, channel_info, data, channels):
     channels = np.asarray(channels)
     # TODO: Whats the point of model.channels here, needs clearer name!!!
-    if model.channels is not None:
-        torch_indices = list(model.channels)
-        channels_in_data = np.asarray(channel_info)[torch_indices].tolist()
-    else:
-        channels_in_data = np.asarray(channel_info).tolist()
+    # if model.channels is not None:
+    #     torch_indices = list(model.channels)
+    #     channels_in_data = np.asarray(channel_info)[torch_indices].tolist()
+    # else:
+    channels_in_data = np.asarray(channel_info).tolist()
     index_to_select = [channels_in_data.index(ch) for ch in channels]
     return data[:, index_to_select]
 
