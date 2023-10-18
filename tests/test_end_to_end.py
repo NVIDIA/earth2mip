@@ -130,8 +130,9 @@ def test_inference_medium_range(tmpdir, regtest):
 
 
 @pytest.mark.slow
-def test_run_basic_inference():
-    time_loop = get_model("e2mip://fcn", device="cuda:0")
+@pytest.mark.parametrize("url", ["e2mip://fcn", "e2mip://dlwp"])
+def test_run_basic_inference(url):
+    time_loop = get_model(url, device="cuda:0")
     data_source = get_data_source(time_loop)
     ds = run_basic_inference(
         time_loop, n=10, data_source=data_source, time=datetime.datetime(2018, 1, 1)
