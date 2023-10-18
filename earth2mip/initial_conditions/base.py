@@ -12,19 +12,22 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
-# limitations under the License.
+# limitations under the License.from typing import Protocol, List, runtime_checkable
 
+from typing import List, runtime_checkable, Protocol
+import datetime
 from earth2mip import schema
-import json
+import numpy as np
 
 
-def test_model():
-    obj = schema.Model(
-        architecture="some_arch",
-        n_history=0,
-        grid=schema.Grid.grid_720x1440,
-        in_channels=[0, 1],
-        out_channels=[0, 1],
-    )
-    loaded = json.loads(obj.json())
-    assert loaded
+@runtime_checkable
+class DataSource(Protocol):
+
+    grid: schema.Grid
+
+    @property
+    def channel_names(self) -> List[str]:
+        pass
+
+    def __getitem__(self, time: datetime.datetime) -> np.ndarray:
+        pass

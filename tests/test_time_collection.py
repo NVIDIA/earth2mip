@@ -36,7 +36,6 @@ def create_model_package(tmp_path):
     metadata = {
         "architecture_entrypoint": "mock_plugin:load",
         "n_history": 0,
-        "channel_set": "73var",
         "grid": "721x1440",
         "in_channels": list(range(73)),
         "out_channels": list(range(73)),

@@ -16,7 +16,6 @@
 
 from typing import List
 from pydantic import BaseSettings, Field
-from earth2mip import schema
 import os
 
 
@@ -36,14 +35,12 @@ class Settings(BaseSettings):
     SCALE: str = ""
 
     # Key configurations
-    ERA5_HDF5_34: str = ""
-    ERA5_HDF5_73: str = ""
+    ERA5_HDF5: str = ""
     MODEL_REGISTRY: str = ""
     LOCAL_CACHE: str = Field(default_factory=_default_local_cache)
 
     # used for scoring (score-ifs.py, inference-medium-range)
     TIME_MEAN: str = ""
-    TIME_MEAN_73: str = ""
 
     # used in score-ifs.py
     # TODO refactor to a command line argument of that script
@@ -58,26 +55,3 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"
-
-    def get_data_root(self, channel_set: schema.ChannelSet) -> str:
-        if channel_set == schema.ChannelSet.var34:
-            val = self.ERA5_HDF5_34
-            if not val:
-                raise ValueError(
-                    "Please configure ERA5_HDF5_34 to point to the 34 channel data."  # noqa
-                )
-            return val
-        elif channel_set == schema.ChannelSet.var73:
-            val = self.ERA5_HDF5_73
-            if not val:
-                raise ValueError("Please configure ERA5_HDF5_73.")
-        else:
-            raise NotImplementedError(channel_set)
-
-        return val
-
-    def get_time_mean(self, channel_set: schema.ChannelSet) -> str:
-        return {
-            schema.ChannelSet.var34: self.TIME_MEAN,
-            schema.ChannelSet.var73: self.TIME_MEAN_73,
-        }[channel_set]

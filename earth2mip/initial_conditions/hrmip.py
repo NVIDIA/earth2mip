@@ -14,9 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import List
+from earth2mip.initial_conditions.base import DataSource
 import os
 import datetime
-import xarray
 import json
 from earth2mip import filesystem, schema, config
 import logging
@@ -40,10 +41,10 @@ def _get_time(time: datetime.datetime) -> int:
     return int(hours_since_jan_01 / 6)
 
 
-def _get_hdf5(path: str, metadata, time: datetime.datetime) -> xarray.DataArray:
+def _get_hdf5(path: str, metadata, time: datetime.datetime) -> np.ndarray:
     dims = metadata["dims"]
     h5_path = metadata["h5_path"]
-    variables = []
+    variables: List[str] = []
     ic = _get_time(time)
     with h5py.File(path, "r") as f:
         for nm in h5_path:
@@ -54,33 +55,30 @@ def _get_hdf5(path: str, metadata, time: datetime.datetime) -> xarray.DataArray:
 
     assert "pl" in locals() and "sl" in locals()
 
-    pl_list = []
+    pl_list: List[str] = []
     for var_idx in range(pl.shape[1]):
         pl_list.append(pl[:, var_idx])
     pl = np.concatenate(pl_list, axis=1)  # pressure level vars flattened
     data = np.concatenate([pl, sl], axis=1)
-    ds = xarray.DataArray(
-        data,
-        dims=["time", "channel", "lat", "lon"],
-        coords={
-            "time": [time],
-            "channel": metadata["coords"]["channel"],
-            "lat": metadata["coords"]["lat"],
-            "lon": metadata["coords"]["lon"],
-        },
-        name="fields",
-    )
-    return ds
+    return data
 
 
-def get(time: datetime.datetime, channel_set: schema.ChannelSet) -> xarray.DataArray:
-    root = config.get_data_root(channel_set)
-    path = _get_path(root, time)
-    logger.debug(f"Opening {path} for {time}.")
+class HDFPlSl(DataSource):
 
-    metadata_path = os.path.join(config.ERA5_HDF5_73, "data.json")
-    metadata_path = filesystem.download_cached(metadata_path)
-    with open(metadata_path) as mf:
-        metadata = json.load(mf)
-    ds = _get_hdf5(path=path, metadata=metadata, time=time)
-    return ds
+    grid: schema.Grid = schema.Grid.grid_721x1440
+
+    def __init__(self, path: str) -> None:
+        self.path = path
+        metadata_path = os.path.join(config.ERA5_HDF5_73, "data.json")
+        metadata_path = filesystem.download_cached(metadata_path)
+        with open(metadata_path) as mf:
+            self.metadata = json.load(mf)
+
+    @property
+    def channel_names(self) -> List[str]:
+        return self.metadata["coords"]["channel"]
+
+    def __getitem__(self, time: datetime.datetime) -> np.ndarray:
+        path = _get_path(self.path, time)
+        logger.debug(f"Opening {path} for {time}.")
+        return _get_hdf5(path=self.path, metadata=self.metadata, time=time)

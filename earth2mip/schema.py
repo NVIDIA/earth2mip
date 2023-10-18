@@ -74,244 +74,6 @@ class Grid(Enum):
         return np.arange(n) * self._lon_spacing
 
 
-# Enum of channels
-class ChannelSet(Enum):
-    """An Enum of standard sets of channels
-
-    These correspond to the post-processed outputs in .h5 files like this:
-
-        73var: /lustre/fsw/sw_climate_fno/test_datasets/73var-6hourly
-        34var: /lustre/fsw/sw_climate_fno/34Vars
-
-    This concept is needed to map from integer channel numbers (e.g. [0, 1, 2]
-    to physical variables).
-
-    """
-
-    var26 = "26var"
-    var34 = "34var"
-    var73 = "73var"
-    var_pangu = "var_pangu"
-
-    def list_channels(self) -> List[str]:
-        """List channel names corresponding to the vocabulary"""
-        return _channels[self]
-
-
-_channels = {
-    ChannelSet.var73: [
-        "u10m",
-        "v10m",
-        "u100m",
-        "v100m",
-        "t2m",
-        "sp",
-        "msl",
-        "tcwv",
-        "u50",
-        "u100",
-        "u150",
-        "u200",
-        "u250",
-        "u300",
-        "u400",
-        "u500",
-        "u600",
-        "u700",
-        "u850",
-        "u925",
-        "u1000",
-        "v50",
-        "v100",
-        "v150",
-        "v200",
-        "v250",
-        "v300",
-        "v400",
-        "v500",
-        "v600",
-        "v700",
-        "v850",
-        "v925",
-        "v1000",
-        "z50",
-        "z100",
-        "z150",
-        "z200",
-        "z250",
-        "z300",
-        "z400",
-        "z500",
-        "z600",
-        "z700",
-        "z850",
-        "z925",
-        "z1000",
-        "t50",
-        "t100",
-        "t150",
-        "t200",
-        "t250",
-        "t300",
-        "t400",
-        "t500",
-        "t600",
-        "t700",
-        "t850",
-        "t925",
-        "t1000",
-        "r50",
-        "r100",
-        "r150",
-        "r200",
-        "r250",
-        "r300",
-        "r400",
-        "r500",
-        "r600",
-        "r700",
-        "r850",
-        "r925",
-        "r1000",
-    ],
-    ChannelSet.var_pangu: [
-        "z1000",
-        "z925",
-        "z850",
-        "z700",
-        "z600",
-        "z500",
-        "z400",
-        "z300",
-        "z250",
-        "z200",
-        "z150",
-        "z100",
-        "z50",
-        "q1000",
-        "q925",
-        "q850",
-        "q700",
-        "q600",
-        "q500",
-        "q400",
-        "q300",
-        "q250",
-        "q200",
-        "q150",
-        "q100",
-        "q50",
-        "t1000",
-        "t925",
-        "t850",
-        "t700",
-        "t600",
-        "t500",
-        "t400",
-        "t300",
-        "t250",
-        "t200",
-        "t150",
-        "t100",
-        "t50",
-        "u1000",
-        "u925",
-        "u850",
-        "u700",
-        "u600",
-        "u500",
-        "u400",
-        "u300",
-        "u250",
-        "u200",
-        "u150",
-        "u100",
-        "u50",
-        "v1000",
-        "v925",
-        "v850",
-        "v700",
-        "v600",
-        "v500",
-        "v400",
-        "v300",
-        "v250",
-        "v200",
-        "v150",
-        "v100",
-        "v50",
-        "msl",
-        "u10m",
-        "v10m",
-        "t2m",
-    ],
-    ChannelSet.var34: [
-        "u10m",
-        "v10m",
-        "t2m",
-        "sp",
-        "msl",
-        "t850",
-        "u1000",
-        "v1000",
-        "z1000",
-        "u850",
-        "v850",
-        "z850",
-        "u500",
-        "v500",
-        "z500",
-        "t500",
-        "z50",
-        "r500",
-        "r850",
-        "tcwv",
-        "u100m",
-        "v100m",
-        "u250",
-        "v250",
-        "z250",
-        "t250",
-        "u100",
-        "v100",
-        "z100",
-        "t100",
-        "u900",
-        "v900",
-        "z900",
-        "t900",
-    ],
-    ChannelSet.var26: [
-        "u10m",
-        "v10m",
-        "t2m",
-        "sp",
-        "msl",
-        "t850",
-        "u1000",
-        "v1000",
-        "z1000",
-        "u850",
-        "v850",
-        "z850",
-        "u500",
-        "v500",
-        "z500",
-        "t500",
-        "z50",
-        "r500",
-        "r850",
-        "tcwv",
-        "u100m",
-        "v100m",
-        "u250",
-        "v250",
-        "z250",
-        "t250",
-    ],
-}
-
-
 class InferenceEntrypoint(pydantic.BaseModel):
     """
     Attrs:
@@ -335,10 +97,9 @@ class Model(pydantic.BaseModel):
     """
 
     n_history: int = 0
-    channel_set: ChannelSet = ChannelSet.var34
     grid: Grid = Grid.grid_720x1440
-    in_channels: List[int] = pydantic.Field(default_factory=list)
-    out_channels: List[int] = pydantic.Field(default_factory=list)
+    in_channels_names: List[str] = pydantic.Field(default_factory=list)
+    out_channels_names: List[str] = pydantic.Field(default_factory=list)
     architecture: str = ""
     architecture_entrypoint: str = ""
     time_step: datetime.timedelta = datetime.timedelta(hours=6)
@@ -350,6 +111,7 @@ class PerturbationStrategy(Enum):
     gaussian = "gaussian"
     bred_vector = "bred_vector"
     spherical_grf = "spherical_grf"
+    none = "none"
 
 
 class EnsembleRun(pydantic.BaseModel):
@@ -367,6 +129,7 @@ class EnsembleRun(pydantic.BaseModel):
         ensemble_batch_size: The batch size to use for the ensemble.
         autocast_fp16: Whether to use automatic mixed precision (AMP) with FP16 data types.
         perturbation_strategy: The strategy to use for perturbing the initial conditions.
+        perturbation_channels: channel(s) perturbed by the initial condition perturbation strategy, None = all channels
         forecast_name (optional): The name of the forecast to use (alternative to `weather_event`).
         weather_event (optional): The weather event to use for the forecast (alternative to `forecast_name`).
         output_dir (optional): The directory to save the output files in (alternative to `output_path`).
@@ -382,7 +145,7 @@ class EnsembleRun(pydantic.BaseModel):
     simulation_length: int
     # TODO make perturbation_strategy an Enum (see ChannelSet)
     perturbation_strategy: PerturbationStrategy = PerturbationStrategy.correlated
-    single_value_perturbation: bool = True
+    perturbation_channels: Optional[List[str]] = None
     noise_reddening: float = 2.0
     noise_amplitude: float = 0.05
     output_frequency: int = 1
