@@ -260,7 +260,7 @@ def get_initializer(
         if config.perturbation_channels is None:
             x += noise * scale[:, None, None]
         else:
-            channel_list = model.channel_set.list_channels()
+            channel_list = model.in_channel_names
             indices = torch.tensor(
                 [
                     channel_list.index(channel)
