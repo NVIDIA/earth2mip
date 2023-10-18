@@ -31,7 +31,6 @@ def get_data_source(
     netcdf="",
     initial_condition_source=schema.InitialConditionSource.era5,
 ) -> base.DataSource:
-    # TODO fix netcdf option
     if initial_condition_source == schema.InitialConditionSource.era5:
         return HDF5DataSource.from_path(root=config.ERA5_HDF5)
     elif initial_condition_source == schema.InitialConditionSource.cds:
