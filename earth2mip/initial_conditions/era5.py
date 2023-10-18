@@ -42,6 +42,15 @@ class HDF5DataSource(base.DataSource):
     metadata: Any
     n_history: int = 0
 
+    def __post_init__(self):
+        # warn if n_history is nonzero
+        if self.n_history != 0:
+            warnings.warn(
+                DeprecationWarning(
+                    "n_history is deprecated. Use earth2mip.initial_conditions.get_initial_condition_for_model instead."  # noqa
+                )
+            )
+
     @classmethod
     def from_path(cls, root: str, **kwargs: Any) -> "HDF5DataSource":
         metadata_path = os.path.join(root, "data.json")
