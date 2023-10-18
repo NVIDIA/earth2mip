@@ -1,18 +1,19 @@
 import torch
 import numpy as np
+from typing import Literal
+from modulus.distributed import DistributedManager
 from earth2mip import config
 from earth2mip.schema import Grid
 from earth2mip.model_registry import Package
-from earth2mip.diagnostic.base import DiagnosticBase
+from earth2mip.diagnostic.base import DiagnosticBase, DiagnosticConfigBase
 from earth2mip.model_registry import ModelRegistry
 
 # Temp custom package for the model
 try:
     from e2mipgust import restore_checkpoint
-    from e2mipgust.network.precip_sfno import PercipSFNO # TODO: Eliminate
+    from e2mipgust.network.precip_sfno import PercipSFNO  # TODO: Eliminate
 except:
     restore_checkpoint = None
-
 
 IN_CHANNELS = [
     "u10m",
@@ -90,22 +91,32 @@ IN_CHANNELS = [
     "r1000",
 ]
 
-OUT_CHANNELS = [
-    "10fg"
-]
+OUT_CHANNELS = ["10fg"]
+
 
 class WindGust(DiagnosticBase):
     """Wind gust diagnostic model
 
+    TODO: This can likely be generalized to a general network diagnostic model but
+    probably not worth it.
+
     Example
     -------
+    >>> package = WingGust.load_package()
+    >>> windgust = WindGust.load_diagnostic(package)
+    >>> x = torch.randn(1, 73, 721, 1440)
+    >>> out = windgust(x)
+    >>> out.shape
+    (1, 1, 721, 1440)
     """
-    def __init__(self, 
+
+    def __init__(
+        self,
         model: torch.nn.Module,
         in_center: torch.Tensor,
         in_scale: torch.Tensor,
         out_center: torch.Tensor,
-        out_scale: torch.Tensor
+        out_scale: torch.Tensor,
     ):
         super().__init__()
         self.grid = Grid.grid_721x1440
@@ -140,6 +151,7 @@ class WindGust(DiagnosticBase):
         x = (x - self.in_center) / self.in_scale
         out = self.model(x)
         out = self.out_scale * out + self.out_center
+        print(out.shape)
         return out
 
     @classmethod
@@ -148,18 +160,30 @@ class WindGust(DiagnosticBase):
         return registry.get_model("gustnet")
 
     @classmethod
-    def load_diagnostic(cls, package:Package, device = "cuda:0"):
+    def load_diagnostic(cls, package: Package, device="cuda:0"):
 
         if restore_checkpoint is None:
             raise ImportError("Failed to import e2mipgust package")
 
-        model = PercipSFNO().to(device) # TODO: Eliminate with 1 method for instan and loading of weights
-        model = restore_checkpoint(package.get('best_ckpt_mp0.tar'), model)
-        input_center = torch.Tensor(np.load(package.get('global_means.npy')))
-        input_scale = torch.Tensor(np.load(package.get('global_stds.npy')))
+        model = PercipSFNO().to(
+            device
+        )  # TODO: Eliminate with 1 method for instan and loading of weights
+        model = restore_checkpoint(package.get("best_ckpt_mp0.tar"), model)
+        input_center = torch.Tensor(np.load(package.get("global_means.npy")))
+        input_scale = torch.Tensor(np.load(package.get("global_stds.npy")))
         # Todo: change this so its not a dict and is uniform with inputs
-        diag_norms = np.load(package.get('diagnostic_norms.npy'), allow_pickle=True)[()]
+        diag_norms = np.load(package.get("diagnostic_norms.npy"), allow_pickle=True)[()]
         out_center = torch.Tensor([diag_norms["fg10"]["mean"]])[:, None, None]
         out_std = torch.Tensor([diag_norms["fg10"]["std"]])[:, None, None]
 
         return cls(model, input_center, input_scale, out_center, out_std).to(device)
+
+
+class WindGustConfig(DiagnosticConfigBase):
+
+    type: Literal["WindGust"] = "WindGust"
+
+    def initialize(self):
+        dm = DistributedManager()
+        package = WindGust.load_package()
+        return WindGust.load_diagnostic(package, device=dm.device)

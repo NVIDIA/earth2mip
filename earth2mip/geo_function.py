@@ -3,6 +3,7 @@ from typing import Protocol
 from abc import abstractmethod
 from earth2mip.schema import Grid
 
+
 class GeoFunction(Protocol):
     """Geo Function
 
@@ -21,7 +22,7 @@ class GeoFunction(Protocol):
     Geo Function is a concept not full adopted in Earth-2 MIP and is being adopted
     progressively.
     """
-    
+
     @property
     def in_channels(self) -> list[str]:
         pass

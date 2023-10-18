@@ -27,7 +27,7 @@ import torch.distributed
 from distributed import Client
 
 from earth2mip import inference_ensemble, networks, score_ensemble_outputs
-from earth2mip.schema import EnsembleRun
+from earth2mip.ensemble_schema import EnsembleRun
 
 logging.basicConfig(
     format="%(asctime)s:%(levelname)-s:%(name)s:%(message)s",

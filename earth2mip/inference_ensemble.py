@@ -44,10 +44,13 @@ from earth2mip.ensemble_utils import (
 
 from earth2mip.netcdf import initialize_netcdf, update_netcdf
 from earth2mip.networks import get_model
-from earth2mip.schema import EnsembleRun, Grid, PerturbationStrategy
+from earth2mip.schema import Grid, PerturbationStrategy
+from earth2mip.ensemble_schema import EnsembleRun
 from earth2mip.time_loop import TimeLoop
 from earth2mip import regrid
 from earth2mip._channel_stds import channel_stds
+from earth2mip.diagnostic import Diagnostic
+from earth2mip.diagnostic.base import DiagnosticBase
 
 logger = logging.getLogger("inference")
 
@@ -70,6 +73,7 @@ def run_ensembles(
     n_steps: int,
     weather_event,
     model: TimeLoop,
+    diagnostic: DiagnosticBase,
     perturb,
     x,
     nc,
@@ -79,26 +83,21 @@ def run_ensembles(
     device: str,
     rank: int,
     output_frequency: int,
-    output_grid: Optional[Grid],
+    io_grid: Optional[Grid],
     date_obj: datetime,
     restart_frequency: Optional[int],
     output_path: str,
     restart_initial_directory: str = "",
     progress: bool = True,
 ):
-    if not output_grid:
-        output_grid = model.grid
+    if not io_grid:
+        io_grid = diagnostic.out_grid
 
-    regridder = regrid.get_regridder(model.grid, output_grid).to(device)
-
-    if not output_grid:
-        output_grid = model.grid
-
-    lat, lon = output_grid.lat, output_grid.lon
-
+    regridder = regrid.get_regridder(diagnostic.out_grid, io_grid).to(device)
     diagnostics = initialize_netcdf(
-        nc, domains, output_grid, lat, lon, n_ensemble, device
+        nc, domains, io_grid, io_grid.lat, io_grid.lon, n_ensemble, device
     )
+
     initial_time = date_obj
     time_units = initial_time.strftime("hours since %Y-%m-%d %H:%M:%S")
     nc["time"].units = time_units
@@ -136,6 +135,9 @@ def run_ensembles(
         # for time, data, restart in iterator:
 
         for k, (time, data, _) in enumerate(iterator):
+
+            diagnostic_data = diagnostic(data)
+            data = torch.cat([data, diagnostic_data], dim=1)
             # if restart_frequency and k % restart_frequency == 0:
             #     save_restart(
             #         restart,
@@ -156,9 +158,9 @@ def run_ensembles(
                     batch_id,
                     time_count,
                     model,
-                    lat,
-                    lon,
-                    model.out_channel_names,
+                    io_grid.lat,
+                    io_grid.lon,
+                    model.out_channel_names + diagnostic.out_channels,
                 )
 
             if k == n_steps:
@@ -185,10 +187,13 @@ def main(config=None):
 
     # If config is a file
     if os.path.exists(config):
-        config: EnsembleRun = EnsembleRun.parse_file(config)
+        with open(config) as f:
+            # Cant do strict here because need to convert str to enums
+            config: EnsembleRun = EnsembleRun.model_validate(json.load(f))
     # If string, assume JSON string
     elif isinstance(config, str):
-        config: EnsembleRun = EnsembleRun.parse_obj(json.loads(config))
+        # Cant do strict here because need to convert str to enums
+        config: EnsembleRun = EnsembleRun.model_validate(json.load(config))
     # Otherwise assume parsable obj
     else:
         raise ValueError(
@@ -363,6 +368,11 @@ def run_inference(
     else:
         output_path = config.output_path
 
+    # Set up diagnostic
+    diagnostic = Diagnostic(in_channels=model.out_channel_names, in_grid=model.grid)
+    if config.diagnostic:
+        diagnostic.from_config(config.diagnostic)
+
     if not os.path.exists(output_path):
         # Avoid race condition across ranks
         os.makedirs(output_path, exist_ok=True)
@@ -371,7 +381,7 @@ def run_inference(
         # Only rank 0 copies config files over
         config_path = os.path.join(output_path, "config.json")
         with open(config_path, "w") as f:
-            f.write(config.json())
+            f.write(config.model_dump_json())
 
     model.to(dist.device)
     group_rank = torch.distributed.get_group_rank(group, dist.rank)
@@ -380,8 +390,8 @@ def run_inference(
     with DS(output_file_path, "w", format="NETCDF4") as nc:
         # assign global attributes
         nc.model = config.weather_model
-        nc.config = config.json()
-        nc.weather_event = weather_event.json()
+        nc.config = config.model_dump_json()
+        nc.weather_event = weather_event.model_dump_json()
         nc.date_created = datetime.now().isoformat()
         nc.history = " ".join(sys.argv)
         nc.institution = "NVIDIA"
@@ -390,6 +400,7 @@ def run_inference(
         run_ensembles(
             weather_event=weather_event,
             model=model,
+            diagnostic=diagnostic,
             perturb=perturb,
             nc=nc,
             domains=weather_event.domains,
@@ -403,7 +414,7 @@ def run_inference(
             date_obj=date_obj,
             restart_frequency=config.restart_frequency,
             output_path=output_path,
-            output_grid=config.output_grid,
+            io_grid=config.output_grid,
             progress=progress,
         )
     if torch.distributed.is_initialized():

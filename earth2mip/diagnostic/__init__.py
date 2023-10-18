@@ -1,37 +1,26 @@
 import torch
+from typing import Union
 from earth2mip.schema import Grid
 from earth2mip.geo_function import GeoFunction
-from earth2mip.diagnostic.base import DiagnosticBase
-from earth2mip.diagnostic.identity import Identity
-from earth2mip.diagnostic.filter import Filter
-from earth2mip.diagnostic.wind_speed import WindSpeed
+from earth2mip.diagnostic.base import DiagnosticBase, DiagnosticConfigBase
+from earth2mip.diagnostic.identity import IdentityConfig, Identity
+from earth2mip.diagnostic.filter import FilterConfig, Filter
+from earth2mip.diagnostic.wind_speed import WindSpeedConfig
+from earth2mip.diagnostic.wind_gust import WindGustConfig
+
+DiagnosticTypes = Union[
+    IdentityConfig,
+    FilterConfig,
+    WindSpeedConfig,
+    WindGustConfig,
+]
+
 
 class Diagnostic(GeoFunction):
-    """Diagnostic factory class. This is useful for constructing a chain of diagnostic
-    operations either by Python or from configs.
-
-    Note
-    ----
-    This requires new diagnostic functions to be added with a construction function
-    here, as well as config support (TODO)
-
-    Args:
-        in_channels (list[str]): Input channels
-        in_grid (Grid): Input grid
-    """
-
-    def __init__(self, in_channels: list[str], in_grid: Grid):
-        self.diaglist = DiagnosticList(in_channels, in_grid)
-
-
-    def wind_speed(self, level:str, grid:Grid):
-        WindSpeed.load_package()
-        
-
-
-class DiagnosticList(GeoFunction):
     """List of diagnostic functions that are executed in sequential order. This is
     useful for building compositions of functions to create complex outputs.
+
+    TODO: Add concat feature
 
     Note
     ----
@@ -44,23 +33,35 @@ class DiagnosticList(GeoFunction):
         in_grid (Grid): Input grid
     """
 
-
-    def __init__(self, in_channels: list[str], in_grid: Grid):
+    def __init__(self, in_channels: list[str], in_grid: Grid, device="cuda:0"):
         self.diagnostics = [Identity(in_channels, in_grid)]
-
+        self.device = device
 
     def add(self, diagfunc: DiagnosticBase):
-        """Add 
+        """Add
 
         Args:
-            diagfunc (DiagnosticBase): _description_
+            diagfunc (DiagnosticBase): Diagnostic function
         """
         # Create filter to transition between diagnostics
-        dfilter = Filter(self.diagnostics[-1].out_channels, diagfunc.in_channels)
+        dfilter = Filter.load_diagnostic(
+            in_channels=self.diagnostics[-1].out_channels,
+            out_channels=diagfunc.in_channels,
+            grid=diagfunc.in_grid,
+            device=self.device,
+        )
 
         self.diagnostics.append(dfilter)
         self.diagnostics.append(diagfunc)
 
+    def from_config(self, cfg: DiagnosticConfigBase):
+        """Adds a diagnostic function from a config object
+
+        Args:
+            cfg (DiagnosticConfigBase): Diagnostic config
+        """
+        diagnostic = cfg.initialize()
+        self.add(diagnostic)
 
     @property
     def in_channels(self) -> list[str]:
@@ -86,4 +87,3 @@ class DiagnosticList(GeoFunction):
         for diag in self.diagnostics:
             x = diag(x)
         return x
-

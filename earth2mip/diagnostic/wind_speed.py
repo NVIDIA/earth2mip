@@ -1,6 +1,8 @@
 import torch
+from typing import Literal
 from earth2mip.schema import Grid
-from earth2mip.diagnostic.base import DiagnosticBase
+from earth2mip.diagnostic.base import DiagnosticBase, DiagnosticConfigBase
+
 
 class WindSpeed(DiagnosticBase):
     """Computes the wind speed at a given level
@@ -8,17 +10,18 @@ class WindSpeed(DiagnosticBase):
     Example
     -------
     >>> windspeed = WindSpeed('10m', Grid.grid_721x1440)
-    >>> x = np.randn(1, 2, 721, 1440)
+    >>> x = torch.randn(1, 2, 721, 1440)
     >>> out = windspeed(x)
     >>> out.shape
     (1, 1, 721, 1440)
     """
-    def __init__(self, level:str, grid:Grid):
+
+    def __init__(self, level: str, grid: Grid):
         super().__init__()
         self.grid = grid
 
-        self._in_channels = [f'u{level}', f'v{level}']
-        self._out_channels = [f'ws{level}']
+        self._in_channels = [f"u{level}", f"v{level}"]
+        self._out_channels = [f"ws{level}"]
 
     @property
     def in_channels(self) -> list[str]:
@@ -37,8 +40,18 @@ class WindSpeed(DiagnosticBase):
         return self.grid
 
     def __call__(self, x: torch.Tensor) -> torch.Tensor:
-        return torch.sqrt(x[:,0:1,...]**2 + x[:,1:2,...]**2)
+        return torch.sqrt(x[:, 0:1, ...] ** 2 + x[:, 1:2, ...] ** 2)
 
     @classmethod
-    def load_diagnostic(cls, level:str, grid:Grid):
+    def load_diagnostic(cls, level: str, grid: Grid):
         return cls(level, grid)
+
+
+class WindSpeedConfig(DiagnosticConfigBase):
+
+    type: Literal["WindSpeed"] = "WindSpeed"
+    level: str = "10m"
+    grid: Grid = Grid.grid_721x1440
+
+    def initialize(self):
+        return WindSpeed.load_diagnostic(self.level, self.grid)
