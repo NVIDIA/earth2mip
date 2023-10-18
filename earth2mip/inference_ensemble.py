@@ -330,8 +330,6 @@ def run_inference(
 
     if not data_source:
         data_source = initial_conditions.get_data_source(
-            model.n_history_levels - 1,
-            model.grid,
             model.in_channel_names,
             initial_condition_source=weather_event.properties.initial_condition_source,
             netcdf=weather_event.properties.netcdf,
