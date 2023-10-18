@@ -49,7 +49,6 @@ def get_initial_condition_for_model(
     time_loop: time_loop.TimeLoop, data_source: base.DataSource, time: datetime
 ) -> torch.Tensor:
 
-    # TODO remove/deprecate history from era5 data source, or don't use it
     dt = time_loop.history_time_step
     arrays = []
     for i in range(time_loop.n_history_levels - 1, -1, -1):
