@@ -14,7 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import dataclasses
 import datetime
+from typing import List
+from earth2mip.initial_conditions import base
 from modulus.utils import filesystem
 from earth2mip import schema
 from earth2mip.datasets.era5 import METADATA
@@ -44,7 +47,7 @@ def _get_channel(c: str, **kwargs) -> xarray.DataArray:
         return kwargs[varcode].interp(isobaricInhPa=pressure_level)
 
 
-def get(time: datetime.datetime, channel_set: schema.ChannelSet):
+def get(time: datetime.datetime, channels: List[str]):
     root = "https://ecmwf-forecasts.s3.eu-central-1.amazonaws.com/"
     path = root + _get_filename(time, "0h")
     local_path = filesystem.download_cached(path)
@@ -55,13 +58,6 @@ def get(time: datetime.datetime, channel_set: schema.ChannelSet):
     path = root + _get_filename(time - datetime.timedelta(hours=12), "12h")
     local_path = filesystem.download_cached(path)
     forecast_12h = xarray.open_dataset(local_path, engine="cfgrib")
-
-    if channel_set == schema.ChannelSet.var34:
-        # move to earth2mip.channels
-        metadata = json.loads(METADATA.read_text())
-        channels = metadata["coords"]["channel"]
-    else:
-        raise NotImplementedError(channel_set)
 
     channel_data = [
         _get_channel(
@@ -95,3 +91,30 @@ def get(time: datetime.datetime, channel_set: schema.ChannelSet):
         },
     )
     return darray
+
+
+@dataclasses.dataclass
+class DataSource(base.DataSource):
+
+    grid: schema.Grid = schema.Grid.grid_721x1440
+
+    def __init__(self, channel_names: List[str]):
+        self._channel_names = channel_names
+
+    @property
+    def channel_names(self) -> List[str]:
+        return self._channel_names
+
+    def __getitem__(self, time: datetime.datetime) -> np.ndarray:
+        ds = get(time, self.channel_names)
+        ds = ds.expand_dims("time", axis=0)
+        # move to earth2mip.channels
+
+        # TODO refactor interpolation to another place
+        metadata = json.loads(METADATA.read_text())
+        lat = np.array(metadata["coords"]["lat"])
+        lon = np.array(metadata["coords"]["lon"])
+        ds = ds.roll(lon=len(ds.lon) // 2, roll_coords=True)
+        ds["lon"] = ds.lon.where(ds.lon >= 0, ds.lon + 360)
+        assert min(ds.lon) >= 0, min(ds.lon)
+        return ds.interp(lat=lat, lon=lon, kwargs={"fill_value": "extrapolate"})

@@ -43,12 +43,12 @@ def test__get_path_key_error():
 def test_initial_conditions_get():
     time = datetime.datetime(2018, 1, 1)
 
-    if not config.ERA5_HDF5_73:
+    if not config.ERA5_HDF5:
         pytest.skip("No data location configured.")
 
     data = get_data_source(
         n_history=0,
-        channel_set=schema.ChannelSet.var73,
+        channel_names=["t850"],
         initial_condition_source=schema.InitialConditionSource.era5,
         grid=schema.Grid.grid_721x1440,
     )

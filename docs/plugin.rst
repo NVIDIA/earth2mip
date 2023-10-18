@@ -56,7 +56,6 @@ Then, you can create a model package in ``/abs/path/to/persistence/``
     {
         "architecture_entrypoint": "my_package.plugin:load_persistence_module"
         },
-        "channel_set": "var73",
         "grid": "721x1440",
         "in_channels": [0, 1, 2],
         "out_channels": [0, 1, 2],
