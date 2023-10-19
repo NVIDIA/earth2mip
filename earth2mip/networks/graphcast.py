@@ -338,8 +338,10 @@ class GraphcastTimeLoop(TimeLoop):
         # TODO move into grid
         lat: np.ndarray,
         lon: np.ndarray,
+        device=None,
     ):
         in_codes, t_codes = get_codes_from_task_config(task_config)
+        self.device = device
         self.lon = lon
         self.lat = lat
         self.task_config = task_config
@@ -542,6 +544,7 @@ def _load_time_loop_from_description(
         task_config,
         lat=GraphcastTimeLoop.grid.lat,
         lon=GraphcastTimeLoop.grid.lon,
+        device=device,
     )
 
 

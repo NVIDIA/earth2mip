@@ -31,9 +31,7 @@ sys.path.insert(0, "..")
 import datetime
 
 import matplotlib.pyplot as plt
-import numpy as np
-import torch
-from earth2mip.initial_conditions import cds
+from earth2mip.initial_conditions import cds, get_initial_condition_for_model
 
 from earth2mip.model_registry import Package
 import earth2mip.networks.graphcast
@@ -53,19 +51,9 @@ time_loop = earth2mip.networks.graphcast.load_time_loop_operational(package)
 # time_loop = get_model("e2mip://graphcast_operational")
 
 # %%
-data_source = cds.DataSource(time_loop.in_channel_names)
 time = datetime.datetime(2018, 1, 1)
-arrays = [
-    data_source[time - k * time_loop.history_time_step].sel(
-        channel=time_loop.in_channel_names
-    )
-    for k in range(time_loop.n_history_levels)
-]
-array = np.concatenate(arrays)
-# TODO make the dtype flexible
-x = torch.from_numpy(array).cuda().type(torch.float)
-# need a batch dimension of length 1
-x = x[None]
+data_source = cds.DataSource(time_loop.in_channel_names)
+x = get_initial_condition_for_model(time_loop, data_source, time)
 
 i = time_loop.out_channel_names.index("tp06")
 for k, (time, x, _) in enumerate(time_loop(time, x)):
