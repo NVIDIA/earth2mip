@@ -17,6 +17,8 @@ from earth2mip import initial_conditions, schema
 from earth2mip.initial_conditions import cds
 from earth2mip.initial_conditions.base import DataSource
 from earth2mip import config
+import datetime
+import numpy as np
 import pytest
 
 
@@ -39,9 +41,37 @@ def test_get_data_source(
             pytest.skip("Could not initialize client")
 
     ds = initial_conditions.get_data_source(
-        n_history=0,
         channel_names=["t850", "t2m"],
-        grid=schema.Grid.grid_721x1440,
         initial_condition_source=source,
     )
     assert isinstance(ds, DataSource)
+
+
+@pytest.mark.parametrize("n", [1, 2])
+def test_get_initial_conditions_for_model(n):
+    class Model:
+        in_channel_names = ["t850", "t2m"]
+        n_history_levels = n
+        history_time_step = datetime.timedelta(hours=6)
+        grid = schema.Grid.grid_721x1440
+        device = "cpu"
+
+    shape = (1, len(Model.in_channel_names)) + Model.grid.shape
+    time = datetime.datetime(2018, 1, 1)
+
+    class DataSource(dict):
+        channel_names = Model.in_channel_names
+        grid = Model.grid
+
+    data_source = DataSource()
+    dt = Model.history_time_step
+    for i in range(Model.n_history_levels):
+        data_source[time - i * dt] = np.full(shape, fill_value=-i)
+
+    x = initial_conditions.get_initial_condition_for_model(Model, data_source, time)
+    assert (
+        x.shape
+        == (1, Model.n_history_levels, len(Model.in_channel_names)) + Model.grid.shape
+    )
+    for i in range(Model.n_history_levels):
+        assert x[0, -i - 1, 0, 0, 0] == -i

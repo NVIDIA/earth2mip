@@ -252,10 +252,14 @@ def get_initializer(
         if rank == 0 and batch_id == 0:  # first ens-member is deterministic
             noise[0, :, :, :, :] = 0
 
-        scale = torch.tensor(
-            [channel_stds[channel] for channel in model.in_channel_names],
-            device=x.device,
-        )
+        # When field is not in known normalization dictionary set scale to 0
+        scale = []
+        for i, channel in enumerate(model.in_channel_names):
+            if channel in channel_stds:
+                scale.append(channel_stds[channel])
+            else:
+                scale.append(0)
+        scale = torch.tensor(scale, device=x.device)
 
         if config.perturbation_channels is None:
             x += noise * scale[:, None, None]
@@ -330,8 +334,6 @@ def run_inference(
 
     if not data_source:
         data_source = initial_conditions.get_data_source(
-            model.n_history_levels - 1,
-            model.grid,
             model.in_channel_names,
             initial_condition_source=weather_event.properties.initial_condition_source,
             netcdf=weather_event.properties.netcdf,
