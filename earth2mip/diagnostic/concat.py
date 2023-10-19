@@ -87,6 +87,10 @@ class Concat(DiagnosticBase):
     ):
         return cls(diagnostics, axis).to(device)
 
+    @classmethod
+    def load_config_type(cls):
+        return FilterConfig
+
 
 class FilterConfig(DiagnosticConfigBase):
 

@@ -1,5 +1,5 @@
 import torch
-from typing import Literal
+from typing import Literal, Type
 from pydantic import BaseModel, Extra
 from earth2mip.geo_function import GeoFunction
 from earth2mip.model_registry import Package
@@ -22,6 +22,15 @@ class DiagnosticBase(torch.nn.Module, GeoFunction):
         """
         pass
 
+    @classmethod
+    def load_config_type(cls, *args, **kwargs) -> Type[BaseModel]:
+        """Class function used access the Pydantic config class of the diagnostic if
+        one has been implemented. Note this returns a class reference, not instantiated
+        object.
+        """
+        raise NotImplementedError("This diagnostic does not have a config implemented")
+        pass
+
 
 class DiagnosticConfigBase(BaseModel):
     """Diagnostic model config base class"""
@@ -29,7 +38,7 @@ class DiagnosticConfigBase(BaseModel):
     # Used to discrimate between config classes, sub classes should overwrite
     type: Literal["DiagnosticBase"] = "DiagnosticBase"
 
-    def initialize(self) -> DiagnosticBase:
+    def initialize(self) -> GeoFunction:
         package = DiagnosticBase.load_package()
         return DiagnosticBase.load_diagnostic(package)
 

@@ -93,7 +93,7 @@ IN_CHANNELS = [
 OUT_CHANNELS = ["10fg"]
 
 
-class WindGust(DiagnosticBase):
+class ClimateNet(DiagnosticBase):
     """Wind gust diagnostic model
 
     TODO: This can likely be generalized to a general network diagnostic model but
@@ -179,14 +179,14 @@ class WindGust(DiagnosticBase):
 
     @classmethod
     def load_config_type(cls):
-        return WindGustConfig
+        return ClimateNetConfig
 
 
-class WindGustConfig(DiagnosticConfigBase):
+class ClimateNetConfig(DiagnosticConfigBase):
 
-    type: Literal["WindGust"] = "WindGust"
+    type: Literal["ClimateNet"] = "ClimateNet"
 
     def initialize(self):
         dm = DistributedManager()
-        package = WindGust.load_package()
-        return WindGust.load_diagnostic(package, device=dm.device)
+        package = ClimateNet.load_package()
+        return ClimateNet.load_diagnostic(package, device=dm.device)

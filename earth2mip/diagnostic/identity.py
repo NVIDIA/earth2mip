@@ -37,6 +37,10 @@ class Identity(DiagnosticBase):
     def load_diagnostic(cls, in_channels: list[str], grid: Grid):
         return cls(in_channels, grid)
 
+    @classmethod
+    def load_config_type(cls):
+        return IdentityConfig
+
 
 class IdentityConfig(DiagnosticConfigBase):
 
@@ -45,4 +49,4 @@ class IdentityConfig(DiagnosticConfigBase):
     grid: Grid = Grid.grid_721x1440
 
     def initialize(self):
-        return WindSpeed.load_diagnostic(self.in_channels, self.grid)
+        return Identity.load_diagnostic(self.in_channels, self.grid)

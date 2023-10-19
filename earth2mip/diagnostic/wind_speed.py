@@ -46,6 +46,10 @@ class WindSpeed(DiagnosticBase):
     def load_diagnostic(cls, level: str, grid: Grid):
         return cls(level, grid)
 
+    @classmethod
+    def load_config_type(cls):
+        return WindSpeedConfig
+
 
 class WindSpeedConfig(DiagnosticConfigBase):
 
