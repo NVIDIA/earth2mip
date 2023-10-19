@@ -40,8 +40,8 @@ make pytest
 ## Getting Started
 
 The [notebooks](./examples/notebooks/) folder contains reference Jupyter
-notebooks for a few common usecases.
-These are the best way to start exploring Earth-2 MIP:
+notebooks for a few common use cases.
+These are the best ways to start exploring Earth-2 MIP:
 
 1. [Ensemble Inference](./examples/notebooks/01_ensemble_inference.ipynb) - This
 notebook will demonstrate how to perturb the initial conditions to generate ensemble of
@@ -140,7 +140,7 @@ information about Earth-2 MIP, functionality, APIs, etc.
 
 ## Communication
 
-- Github Discussions: Discuss new ideas, model integraiton, support etc.
+- Github Discussions: Discuss new ideas, model integration, support etc.
 - GitHub Issues: Bug reports, feature requests, install issues, etc.
 
 ## License
