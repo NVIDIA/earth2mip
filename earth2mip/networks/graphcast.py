@@ -257,7 +257,7 @@ class NoXarrayGraphcast(graphcast.GraphCast):
 
 def load_run_forward_from_checkpoint(checkpoint, grid):
     """
-    This fucntion is mostly copied from
+    This function is mostly copied from
     https://github.com/google-deepmind/graphcast/tree/main
 
     License info:
