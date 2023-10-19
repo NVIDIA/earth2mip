@@ -252,7 +252,7 @@ def get_initializer(
         if rank == 0 and batch_id == 0:  # first ens-member is deterministic
             noise[0, :, :, :, :] = 0
 
-        # When field is not in known normalization dictionary set scale to 0 
+        # When field is not in known normalization dictionary set scale to 0
         scale = []
         for i, channel in enumerate(model.in_channel_names):
             if channel in channel_stds:
