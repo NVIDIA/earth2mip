@@ -168,7 +168,6 @@ def load(package: Package, *, pretrained=True, device="cuda"):
         dt = datetime.timedelta(hours=12)
         inference = networks.Inference(
             model,
-            channels=None,
             center=center,
             scale=scale,
             grid=grid,
