@@ -132,6 +132,11 @@ def test_inference_medium_range(tmpdir, regtest):
 @pytest.mark.slow
 @pytest.mark.parametrize("url", ["e2mip://fcn", "e2mip://dlwp"])
 def test_run_basic_inference(url):
+    if url == "e2mip://fcn":
+        pytest.xfail(
+            "fcn package is broken. See https://github.com/NVIDIA/earth2mip/issues/75"
+        )
+
     time_loop = get_model(url, device="cuda:0")
     data_source = get_data_source(time_loop)
     ds = run_basic_inference(
