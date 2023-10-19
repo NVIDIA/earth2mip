@@ -40,18 +40,6 @@ def generate_model_noise_correlated(x,
     return x * (1.0 + noise)
 
 
-def get_source(
-    device,
-):
-    
-    source = partial(
-        generate_model_noise_correlated,
-        reddening=2.0,
-        device=device,
-        noise_injection_amplitude=0.003)
-    return source
-
-
 def main(config=None):
     logging.basicConfig(level=logging.INFO)
 
@@ -74,9 +62,6 @@ def main(config=None):
             f"Passed config parameter {config} should be valid file or JSON string"
         )
 
-    # if args and args.weather_model:
-    #     config.weather_model = args.weather_model
-
     # Set up parallel
     DistributedManager.initialize()
     device = DistributedManager().device
@@ -90,9 +75,13 @@ def main(config=None):
         model,
         config,
     )
-    model.source = get_source(device)
-    logging.info(f"Running inference")
-#     time_loop = pangu.PanguInference(perturb=perturb_gaussian) # make time loop
+    model.source = partial(
+        generate_model_noise_correlated,
+        reddening=2.0,
+        device=device,
+        noise_injection_amplitude=0.003,
+    )
+    logging.info("Running inference")
     run_inference(model, config, perturb, group)
 
 

@@ -40,6 +40,10 @@ def apply_gaussian_perturbation(
      gaussian_amplitude,
      modified_channels,
  ):
+    """ Apply a Gaussain perturbation 
+        A = A₀exp( - (x-x₀)²/(2σ₁²) - (y-y₀)²/(2σ₂²) )
+        with prescribed A₀, x₀, y₀, σ₁, σ₂
+        """
     lat = torch.linspace(-90, 90, x.shape[-2])
     lon = torch.linspace(-180, 180, x.shape[-1])
     lat, lon = torch.meshgrid(lat, lon)
@@ -54,25 +58,6 @@ def apply_gaussian_perturbation(
         index_channel = in_channel_names.index(modified_channel)
         x[:, :, index_channel, :, :] += gaussian.to(device)
     return x
-
-
-def get_source(
-    device,
-    model,
-):
-    
-    source = partial(
-        apply_gaussian_perturbation,
-        in_channel_names = model.in_channel_names,
-        device=device,
-        latitute_location=0.0,
-        latitute_sigma=10.0,
-        longitude_location=0.0,
-        longitude_sigma=10.0,
-        gaussian_amplitude=2.0,
-        modified_channels=['t850'],
-    )
-    return source
 
 
 def main(config=None):
@@ -97,9 +82,6 @@ def main(config=None):
             f"Passed config parameter {config} should be valid file or JSON string"
         )
 
-    # if args and args.weather_model:
-    #     config.weather_model = args.weather_model
-
     # Set up parallel
     DistributedManager.initialize()
     device = DistributedManager().device
@@ -113,9 +95,19 @@ def main(config=None):
         model,
         config,
     )
-    model.source = get_source(device, model)
-    logging.info(f"Running inference")
-#     time_loop = pangu.PanguInference(perturb=perturb_gaussian) # make time loop
+#     model.source = get_source(device, model)
+    model.source = partial(
+        apply_gaussian_perturbation,
+        in_channel_names = model.in_channel_names,
+        device=device,
+        latitute_location=0.0,
+        latitute_sigma=10.0,
+        longitude_location=0.0,
+        longitude_sigma=10.0,
+        gaussian_amplitude=2.0,
+        modified_channels=['t850'],
+    )
+    logging.info("Running inference")
     run_inference(model, config, perturb, group)
 
 
