@@ -166,6 +166,7 @@ class PanguStacked:
 class PanguInference(torch.nn.Module):
     n_history_levels = 1
     time_step = datetime.timedelta(hours=6)
+    history_time_step = datetime.timedelta(hours=0)
 
     def __init__(self, model_6: PanguStacked, model_24: PanguStacked):
         super().__init__()
@@ -193,6 +194,10 @@ class PanguInference(torch.nn.Module):
     @property
     def n_history(self):
         return 0
+
+    @property
+    def device(self) -> torch.device:
+        return torch.device("cuda")  # Only supports cuda
 
     def normalize(self, x):
         # No normalization for pangu
