@@ -24,7 +24,7 @@ from earth2mip import schema, networks
 import torch
 
 from modulus.utils.filesystem import Package
-from modulus.utils.sfno.zenith_angle import cos_zenith_angle
+from modulus.utils.zenith_angle import cos_zenith_angle
 
 logger = logging.getLogger(__file__)
 
