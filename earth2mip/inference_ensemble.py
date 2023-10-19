@@ -375,7 +375,6 @@ def run_inference(
         with open(config_path, "w") as f:
             f.write(config.json())
 
-    model.to(dist.device)
     group_rank = torch.distributed.get_group_rank(group, dist.rank)
     output_file_path = os.path.join(output_path, f"ensemble_out_{group_rank}.nc")
 
