@@ -276,10 +276,14 @@ def _default_inference(package, metadata: schema.Model, device):
 def _load_package_builtin(package, device, name) -> time_loop.TimeLoop:
     group = "earth2mip.networks"
     entrypoints = entry_points(group=group)
+
+    names_found = []
     for entry_point in entrypoints:
+        names_found.append(entry_point.name)
         if entry_point.name == name:
             inference_loader = entry_point.load()
             return inference_loader(package, device=device)
+    raise ValueError(f"{name} not in {names_found}.")
 
 
 def _load_package(package, metadata, device) -> time_loop.TimeLoop:
