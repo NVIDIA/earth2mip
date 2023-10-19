@@ -20,20 +20,19 @@ import datetime
 from earth2mip import schema, regrid, time_loop
 from earth2mip.initial_conditions.era5 import open_era5_xarray, HDF5DataSource
 from earth2mip.initial_conditions import ifs, cds, gfs, hrmip, base
+import numpy as np
 import torch
 
 __all__ = ["open_era5_xarray", "get_data_source"]
 
 
 def get_data_source(
-    n_history,
-    grid,
     channel_names: List[str],
     netcdf="",
     initial_condition_source=schema.InitialConditionSource.era5,
 ) -> base.DataSource:
     if initial_condition_source == schema.InitialConditionSource.era5:
-        return HDF5DataSource.from_path(root=config.ERA5_HDF5, n_history=n_history)
+        return HDF5DataSource.from_path(root=config.ERA5_HDF5)
     elif initial_condition_source == schema.InitialConditionSource.cds:
         return cds.DataSource(channel_names)
     elif initial_condition_source == schema.InitialConditionSource.gfs:
@@ -49,15 +48,26 @@ def get_data_source(
 def get_initial_condition_for_model(
     time_loop: time_loop.TimeLoop, data_source: base.DataSource, time: datetime
 ) -> torch.Tensor:
-    array = data_source[time]
+
+    dt = time_loop.history_time_step
+    arrays = []
+    for i in range(time_loop.n_history_levels - 1, -1, -1):
+        arrays.append(data_source[time - i * dt])
+    array = np.stack(arrays, axis=1)
+    assert array.shape == (
+        1,
+        time_loop.n_history_levels,
+        len(data_source.channel_names),
+        *data_source.grid.shape,
+    )
+
     index = [data_source.channel_names.index(c) for c in time_loop.in_channel_names]
-    values = array[:, index]
+    values = array[:, :, index]
     regridder = regrid.get_regridder(data_source.grid, time_loop.grid).to(
         time_loop.device
     )
     # TODO make the dtype flexible
     x = torch.from_numpy(values).cuda().type(torch.float)
     # need a batch dimension of length 1
-    x = x[None]
     x = regridder(x)
     return x
