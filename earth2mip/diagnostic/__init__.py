@@ -40,9 +40,10 @@ def get_config_types():
                 diagnostic_types.append(config_type)
             except NotImplementedError:
                 pass
+    # Returns tuple here so its compatable with the typing.Union[]
+    return tuple(diagnostic_types)
 
-
-DIAGNOSTIC_TYPES = Union[get_config_types()]
+DIAGNOSTIC_TYPES = Union[ get_config_types() ]
 
 
 def get_package(name: str) -> Package:

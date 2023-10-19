@@ -1,6 +1,6 @@
 import torch
 import pytest
-from earth2mip.diagnostic.climatenet import ClimateNet
+from earth2mip.diagnostic.climate_net import ClimateNet
 
 
 @pytest.mark.slow

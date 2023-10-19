@@ -2,7 +2,7 @@ from typing import Optional
 from pydantic import BaseModel
 from earth2mip.schema import Grid, PerturbationStrategy
 from earth2mip import weather_events
-from earth2mip.diagnostic import DiagnosticTypes
+from earth2mip.diagnostic import DIAGNOSTIC_TYPES
 
 
 class EnsembleRun(BaseModel):
@@ -34,7 +34,7 @@ class EnsembleRun(BaseModel):
 
     weather_model: str
     simulation_length: int
-    diagnostic: Optional[DiagnosticTypes] = []
+    diagnostic: Optional[DIAGNOSTIC_TYPES] = []
     # TODO make perturbation_strategy an Enum (see ChannelSet)
     perturbation_strategy: PerturbationStrategy = PerturbationStrategy.correlated
     perturbation_channels: Optional[list[str]] = None

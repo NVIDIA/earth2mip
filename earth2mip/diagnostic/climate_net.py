@@ -582,8 +582,8 @@ class ClimateNet(DiagnosticBase):
         model.load_state_dict(torch.load(weights_path, map_location=device))
         model.eval()
 
-        input_center = torch.Tensor(np.load(package.get("global_means.npy")))
-        input_scale = torch.Tensor(np.load(package.get("global_stds.npy")))
+        input_center = torch.Tensor(np.load(package.get("global_means.npy")))[:, None, None]
+        input_scale = torch.Tensor(np.load(package.get("global_stds.npy")))[:, None, None]
 
         return cls(model, input_center, input_scale).to(device)
 
