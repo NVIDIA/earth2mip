@@ -7,7 +7,7 @@ While one can certainly write their own script using the tools in the
 :ref:`api`, this has overhead. For each script, one will need to
 initialize the torch distributed group if running in parallel, and write a
 submission script if running on the cluster. To simplify deployment, we also
-include CLIs corresonding to the common APIs.
+include CLIs corresponding to the common APIs.
 
 .. list-table::
    :widths: 25 25

@@ -72,7 +72,7 @@ Finally, you should be able to load the model like this in python::
     from earth2mip.networks import get_model
     time_loop = get_model("file://abs/path/to/persistence")
 
-Or if you have a environment variable ``MODEL_REGISTRY=/abs/path/to``::
+Or if you have an environment variable ``MODEL_REGISTRY=/abs/path/to``::
 
     time_loop = get_model("persistence")
 
