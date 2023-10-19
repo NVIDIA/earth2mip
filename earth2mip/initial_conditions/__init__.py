@@ -67,7 +67,7 @@ def get_initial_condition_for_model(
         time_loop.device
     )
     # TODO make the dtype flexible
-    x = torch.from_numpy(values).cuda().type(torch.float)
+    x = torch.from_numpy(values).to(time_loop.device).type(torch.float)
     # need a batch dimension of length 1
     x = regridder(x)
     return x

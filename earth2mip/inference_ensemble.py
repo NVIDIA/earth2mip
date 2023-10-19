@@ -76,7 +76,6 @@ def run_ensembles(
     domains,
     n_ensemble: int,
     batch_size: int,
-    device: str,
     rank: int,
     output_frequency: int,
     output_grid: Optional[Grid],
@@ -89,7 +88,7 @@ def run_ensembles(
     if not output_grid:
         output_grid = model.grid
 
-    regridder = regrid.get_regridder(model.grid, output_grid).to(device)
+    regridder = regrid.get_regridder(model.grid, output_grid).to(model.device)
 
     if not output_grid:
         output_grid = model.grid
@@ -97,7 +96,7 @@ def run_ensembles(
     lat, lon = output_grid.lat, output_grid.lon
 
     diagnostics = initialize_netcdf(
-        nc, domains, output_grid, lat, lon, n_ensemble, device
+        nc, domains, output_grid, lat, lon, n_ensemble, model.device
     )
     initial_time = date_obj
     time_units = initial_time.strftime("hours since %Y-%m-%d %H:%M:%S")
@@ -109,7 +108,7 @@ def run_ensembles(
         batch_size = min(batch_size, n_ensemble - batch_id)
 
         x = x.repeat(batch_size, 1, 1, 1, 1)
-        x = perturb(x, rank, batch_id, device)
+        x = perturb(x, rank, batch_id, model.device)
         # restart_dir = weather_event.properties.restart
 
         # TODO: figure out if needed
@@ -400,7 +399,6 @@ def run_inference(
             output_frequency=config.output_frequency,
             batch_size=config.ensemble_batch_size,
             rank=dist.rank,
-            device=dist.device,
             date_obj=date_obj,
             restart_frequency=config.restart_frequency,
             output_path=output_path,
