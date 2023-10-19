@@ -21,7 +21,6 @@ import sys
 import xarray
 import cftime
 import json
-from functools import partial
 import numpy as np
 import torch
 import tqdm
@@ -39,7 +38,6 @@ from earth2mip import initial_conditions, time_loop
 from earth2mip.ensemble_utils import (
     generate_noise_correlated,
     generate_bred_vector,
-    generate_model_noise_correlated,
     generate_noise_grf,
 )
 
@@ -212,10 +210,6 @@ def main(config=None):
         model,
         config,
     )
-    model.noise_injection = get_noise_injection(
-        config,
-        device,
-    )
     logging.info(f"Running inference")
     run_inference(model, config, perturb, group)
 
@@ -282,21 +276,6 @@ def get_perturbator(
         return x
 
     return perturb
-
-
-def get_noise_injection(
-    config,
-    device,
-):
-    if config.noise_injection:
-        noise_injection = partial(
-            generate_model_noise_correlated,
-            reddening=config.noise_reddening,
-            device=device,
-            noise_injection_amplitude=config.noise_injection_amplitude)
-    else:
-        noise_injection = None
-    return noise_injection
 
 
 def run_basic_inference(
