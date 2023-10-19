@@ -9,7 +9,7 @@ Earth2 MIP has the following concepts:
 * :ref:`Data Sources <data source>` for loading initial conditions and scoring against.
 * :ref:`Python APIs <api>` work with these abstractions to do things like scoring and ensemble inference.
 * :ref:`Model packages <model package>` allow reproducible loading of checkpoints from disk or the cloud.  that work with these abstractions.
-* :ref:`Command line tools <cli>` that allow running scoring jobs in a paralle environment.
+* :ref:`Command line tools <cli>` that allow running scoring jobs in a parallel environment.
 
 .. _model wrappers:
 Model Wrappers
@@ -105,7 +105,7 @@ One advantage is that an archive of forecasts on disk can be represented as a Fo
 This allows using the same code to score both static and streaming forecasts.
 
 Finally, here is a :py:class:`earth2mip.forecasts.Forecast` implementation, for
-an persistence forecast beginning on Jan 1, 2018 and producing ICs every 12
+a persistence forecast beginning on Jan 1, 2018 and producing ICs every 12
 hours and sampling forecasts every 12 hours::
 
     from earth2mip.forecasts import Forecast
