@@ -470,12 +470,6 @@ class GraphcastTimeLoop(TimeLoop):
             time = time + self.time_step
 
 
-@dataclasses.dataclass
-class GraphcastDescription:
-    checkpoint: str
-    resolution: float
-
-
 def get_static_data(package, resolution):
     dataset_location = {
         0.25: "dataset/source-era5_date-2022-01-01_res-0.25_levels-37_steps-01.nc",
