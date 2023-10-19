@@ -28,27 +28,50 @@ from earth2mip.networks import get_model
 from earth2mip.schema import EnsembleRun
 
 
-def generate_model_noise_correlated(x,
-                                    time_step,
-                                    reddening,
-                                    device,
-                                    noise_injection_amplitude,
-                                    ):
-    shape = x.shape
-    dt = torch.tensor(time_step.total_seconds()) / 3600.0
-    noise = noise_injection_amplitude * dt * brown_noise(shape, reddening).to(device)
-    return x * (1.0 + noise)
+def apply_gaussian_perturbation(
+     x,
+     time_step,
+     in_channel_names,
+     device,
+     latitute_location,
+     latitute_sigma,
+     longitude_location,
+     longitude_sigma,
+     gaussian_amplitude,
+     modified_channels,
+ ):
+    lat = torch.linspace(-90, 90, x.shape[-2])
+    lon = torch.linspace(-180, 180, x.shape[-1])
+    lat, lon = torch.meshgrid(lat, lon)
+
+    dt = torch.tensor(time_step.total_seconds()) / 86400.0
+
+    gaussian = dt * gaussian_amplitude * torch.exp(
+        -((lon - latitute_location)**2 / (2 * latitute_sigma**2)
+        + (lat - longitude_location)**2 / (2 * longitude_sigma**2)))
+
+    for modified_channel in modified_channels:
+        index_channel = in_channel_names.index(modified_channel)
+        x[:, :, index_channel, :, :] += gaussian.to(device)
+    return x
 
 
 def get_source(
     device,
+    model,
 ):
     
     source = partial(
-        generate_model_noise_correlated,
-        reddening=2.0,
+        apply_gaussian_perturbation,
+        in_channel_names = model.in_channel_names,
         device=device,
-        noise_injection_amplitude=0.003)
+        latitute_location=0.0,
+        latitute_sigma=10.0,
+        longitude_location=0.0,
+        longitude_sigma=10.0,
+        gaussian_amplitude=2.0,
+        modified_channels=['t850'],
+    )
     return source
 
 
@@ -90,7 +113,7 @@ def main(config=None):
         model,
         config,
     )
-    model.source = get_source(device)
+    model.source = get_source(device, model)
     logging.info(f"Running inference")
 #     time_loop = pangu.PanguInference(perturb=perturb_gaussian) # make time loop
     run_inference(model, config, perturb, group)
