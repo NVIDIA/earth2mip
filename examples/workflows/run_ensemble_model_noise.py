@@ -85,7 +85,7 @@ def main(config=None):
     logging.info(f"Earth-2 MIP config loaded {config}")
     logging.info(f"Loading model onto device {device}")
     model = get_model(config.weather_model, device=device)
-    logging.info(f"Constructing initializer data source")
+    logging.info("Constructing initializer data source")
     perturb = get_initializer(
         model,
         config,
