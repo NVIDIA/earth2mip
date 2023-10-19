@@ -59,10 +59,11 @@ def test_graphcast_time_loop(task):
         lat=lat,
         lon=lon,
     )
-    time = datetime.datetime(2018, 1, 1)
+    initial_time = datetime.datetime(2018, 1, 1)
 
     x = torch.zeros([batch, history, len(loop.in_channel_names), nlat, nlon])
-    for k, (time, y, _) in enumerate(loop(time, x)):
+    for k, (time, y, _) in enumerate(loop(initial_time, x)):
+        assert not np.all(np.isnan(y.numpy()))
         assert y.shape == (batch, len(loop.out_channel_names), nlat, nlon)
         assert isinstance(y, torch.Tensor)
         if k == 1:

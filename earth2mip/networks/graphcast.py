@@ -462,8 +462,12 @@ class GraphcastTimeLoop(TimeLoop):
         rng = jax.random.PRNGKey(0)
         s = torch_to_jax(array)
 
-        # TODO fill in state for the first time step
+        # fill in state for the first time step
+        # the precipitation prediction won't be available until the first timestep
         diagnostics = jnp.full([ngrid, x.shape[0], len(self.out_channel_names)], np.nan)
+        state = self.get_prognostic(s, 1)
+        diagnostics = diagnostics.at[:, :, : state.shape[-1]].set(state)
+
         while True:
             yield time, self._to_latlon(diagnostics), None
             s, diagnostics = self.step(rng, time, s)
