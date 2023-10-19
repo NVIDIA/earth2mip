@@ -69,6 +69,10 @@ class Filter(DiagnosticBase):
     ):
         return cls(in_channels, out_channels, grid).to(device)
 
+    @classmethod
+    def load_config_type(cls):
+        return FilterConfig
+
 
 class FilterConfig(DiagnosticConfigBase):
 

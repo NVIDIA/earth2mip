@@ -1,17 +1,18 @@
 import torch
+import pytest
 import earth2mip.diagnostic as e2diag
 
-
-# @pytest.mark.parametrize("nt", [16, 20])
-def test_wind_gust_config():
-    # cfg = e2diag.load_config_type('windgust')()
+@pytest.mark.slow
+@pytest.mark.xfail
+@pytest.mark.parametrize("device", ["cuda:0"])
+def test_wind_gust_entrypoint(device):
+    # Needs to have internal windgust package installed
     package = e2diag.get_package("windgust")
-    model = e2diag.get_diagnostic("windgust", package, device="cuda:0")
-    # model = cfg.initialize()
+    model = e2diag.get_diagnostic("windgust", package, device=device)
 
     x = torch.randn(
         1, len(model.in_channels), len(model.in_grid.lat), len(model.in_grid.lon)
-    ).to("cuda:0")
+    ).to(device)
     out = model(x)
     assert out.size() == (
         1,

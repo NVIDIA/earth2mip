@@ -89,10 +89,10 @@ class Concat(DiagnosticBase):
 
     @classmethod
     def load_config_type(cls):
-        return FilterConfig
+        return ConcatConfig
 
 
-class FilterConfig(DiagnosticConfigBase):
+class ConcatConfig(DiagnosticConfigBase):
 
     type: Literal["Concat"] = "Concat"
     diagnostics: list[DiagnosticBase]

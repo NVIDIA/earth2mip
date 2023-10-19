@@ -25,10 +25,13 @@ def get_config_types():
     diagnostic_types = []
     # Add known diagnostic models
     for value in DIAGNOSTIC_REGISTY.values():
-        diagnostic_types.append(value.load_config_type())
+        try:
+            diagnostic_types.append(value.load_config_type())
+        except NotImplementedError:
+            pass
 
     # Add any entrypointed
-    group = "earth2mip.diagnostics"
+    group = "earth2mip.diagnostic"
     entrypoints = entry_points(group=group)
     for entry_point in entrypoints:
         if entry_point.name not in DIAGNOSTIC_REGISTY:
@@ -53,9 +56,10 @@ def get_package(name: str) -> Package:
     if name in DIAGNOSTIC_REGISTY:
         return DIAGNOSTIC_REGISTY[name].load_package()
 
-    group = "earth2mip.diagnostics"
+    group = "earth2mip.diagnostic"
     entrypoints = entry_points(group=group)
     for entry_point in entrypoints:
+        print(entry_point.name)
         if entry_point.name not in DIAGNOSTIC_REGISTY:
             return entry_point.load().load_package()
 
@@ -73,7 +77,7 @@ def get_diagnostic(name: str, *args, **kwargs):
     if name in DIAGNOSTIC_REGISTY:
         return DIAGNOSTIC_REGISTY[name].load_diagnostic(*args, **kwargs)
 
-    group = "earth2mip.diagnostics"
+    group = "earth2mip.diagnostic"
     entrypoints = entry_points(group=group)
     for entry_point in entrypoints:
         if entry_point.name not in DIAGNOSTIC_REGISTY:
