@@ -1,5 +1,6 @@
 import torch
 from typing import Literal
+from modulus.distributed import DistributedManager
 from earth2mip.schema import Grid
 from earth2mip.diagnostic.base import DiagnosticBase, DiagnosticConfigBase
 from earth2mip.diagnostic.filter import Filter
@@ -24,33 +25,36 @@ class Concat(DiagnosticBase):
     (1, 1, 721, 1440)
     """
 
-    def __init__(
-        self, diagnostic_1: DiagnosticBase, diagnostic_2: DiagnosticBase, axis: int = 1
-    ):
+    def __init__(self, diagnostics: list[DiagnosticBase], axis: int = 1):
         super().__init__()
-        assert (
-            diagnostic_1.out_grid == diagnostic_2.out_grid
+        assert all(
+            diag.in_grid == diagnostics[0].in_grid for diag in diagnostics
+        ), "Grid mismatch in concat function"
+        assert all(
+            diag.out_grid == diagnostics[0].out_grid for diag in diagnostics
         ), "Grid mismathch in concat function"
-        assert (
-            diagnostic_1.in_grid == diagnostic_2.in_grid
-        ), "Grid mismathch in concat function"
-        self.in_grid = diagnostic_1.in_grid
-        self.out_grid = diagnostic_1.out_grid
+        self.in_grid = diagnostics[0].in_grid
+        self.out_grid = diagnostics[0].out_grid
 
         self.axis = axis
 
-        self.diagnostic_1 = diagnostic_1
-        self.diagnostic_2 = diagnostic_2
-        self._in_channels = list(
-            set(diagnostic_1.in_channels + diagnostic_2.in_channels)
-        )
-        self._out_channels = diagnostic_1.out_channels + diagnostic_2.out_channels
-        self.filter_1 = Filter.load_diagnostic(
-            self._in_channels, diagnostic_1.in_channels, diagnostic_1.in_grid
-        )
-        self.filter_2 = Filter.load_diagnostic(
-            self._in_channels, diagnostic_2.in_channels, diagnostic_2.in_grid
-        )
+        self.diagnostics = diagnostics
+        self._in_channels = []
+        self._out_channels = []
+        for diagnostic in self.diagnostics:
+            self._in_channels.extend(diagnostic.in_channels)
+            self._out_channels.extend(diagnostic.out_channels)
+
+        self._in_channels = list(set(self._in_channels))
+        self._out_channels = list(set(self._out_channels))
+
+        self.filters = []
+        for diagnostic in self.diagnostics:
+            self.filters.append(
+                Filter.load_diagnostic(
+                    self._in_channels, diagnostic.in_channels, diagnostic.in_grid
+                )
+            )
 
     @property
     def in_channels(self) -> list[str]:
@@ -69,30 +73,27 @@ class Concat(DiagnosticBase):
         return self.out_grid
 
     def __call__(self, x: torch.Tensor) -> torch.Tensor:
-        output_1 = self.diagnostic_1(self.filter_1(x))
-        output_2 = self.diagnostic_2(self.filter_2(x))
-        return torch.cat([output_1, output_2], dim=self.axis)
+        outputs = []
+        for dfilter, diagnostic in zip(self.filters, self.diagnostics):
+            outputs.append(diagnostic(dfilter(x)))
+        return torch.cat(outputs, dim=self.axis)
 
     @classmethod
     def load_diagnostic(
         cls,
-        diagnostic_1: DiagnosticBase,
-        diagnostic_2: DiagnosticBase,
+        diagnostics: list[DiagnosticBase],
         axis: int = 1,
         device: str = "cuda:0",
     ):
-        return cls(diagnostic_1, diagnostic_2, axis).to(device)
+        return cls(diagnostics, axis).to(device)
 
 
 class FilterConfig(DiagnosticConfigBase):
 
     type: Literal["Concat"] = "Concat"
-    diagnostic_1: DiagnosticBase
-    diagnostic_2: DiagnosticBase
+    diagnostics: list[DiagnosticBase]
     axis: int = 1
 
     def initialize(self):
         dm = DistributedManager()
-        return Concat.load_diagnostic(
-            self.diagnostic_1, self.diagnostic_2, axis, device=dm.device
-        )
+        return Concat.load_diagnostic(self.diagnostics, self.axis, device=dm.device)
