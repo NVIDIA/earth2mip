@@ -125,7 +125,7 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         center: np.array,
         scale: np.array,
         grid: schema.Grid,
-        noise_injection=None,
+        source=None,
         n_history: int = 0,
         time_step=datetime.timedelta(hours=6),
         channel_names=None,
@@ -140,7 +140,7 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
                 the means. The shape is NOT `len(channels)`.
             scale: a 1d numpy array with shape (n_channels in data) containing
                 the stds. The shape is NOT `len(channels)`.
-            noise_injection: a nudging function that augments the state vector
+            source: a source function that augments the state vector (noise, nudge or other)
             grid: metadata about the grid, which should be used to pass the
                 correct data to this object.
             channel_names: The names of the prognostic channels.
@@ -165,7 +165,7 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         self.grid = grid
         self.time_step = time_step
         self.n_history = n_history
-        self.noise_injection = noise_injection
+        self.source = source
 
         center = torch.from_numpy(np.squeeze(center)).float()
         scale = torch.from_numpy(np.squeeze(scale)).float()
@@ -238,8 +238,8 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
             yield time, self.scale * x[:, -1] + self.center, restart
 
             while True:
-                if self.noise_injection:
-                    x = self.noise_injection(x, self.time_step)
+                if self.source:
+                    x = self.source(x, self.time_step)
                 x = self.model(x, time)
                 time = time + self.time_step
 

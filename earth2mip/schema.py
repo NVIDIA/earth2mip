@@ -113,7 +113,6 @@ class EnsembleRun(pydantic.BaseModel):
         weather_model: The name of the fully convolutional neural network (FCN) model to use for the forecast.
         ensemble_members: The number of ensemble members to use in the forecast.
         noise_amplitude: The amplitude of the Gaussian noise to add to the initial conditions.
-        noise_injection_amplitude: The amplitude of the model noise to add beteen steps with units `var/h`.
         noise_reddening: The noise reddening amplitude, 2.0 was the defualt set by A.G. work.
         simulation_length: The length of the simulation in timesteps.
         output_frequency: The frequency at which to write the output to file, in timesteps.
@@ -128,7 +127,6 @@ class EnsembleRun(pydantic.BaseModel):
         output_dir (optional): The directory to save the output files in (alternative to `output_path`).
         output_path (optional): The path to the output file (alternative to `output_dir`).
         restart_frequency: if provided save at end and at the specified frequency. 0 = only save at end.
-        noise_injection: Flag for applying a brown noise between model steps as model perturbation
         grf_noise_alpha: tuning parameter of the Gaussian random field, see ensemble_utils.generate_noise_grf for details
         grf_noise_sigma: tuning parameter of the Gaussian random field, see ensemble_utils.generate_noise_grf for details
         grf_noise_tau: tuning parameter of the Gaussian random field, see ensemble_utils.generate_noise_grf for details
@@ -142,7 +140,6 @@ class EnsembleRun(pydantic.BaseModel):
     perturbation_channels: Optional[List[str]] = None
     noise_reddening: float = 2.0
     noise_amplitude: float = 0.05
-    noise_injection_amplitude: float = 0.05
     output_frequency: int = 1
     output_grid: Optional[Grid] = None
     ensemble_members: int = 1
@@ -155,7 +152,6 @@ class EnsembleRun(pydantic.BaseModel):
     output_dir: Optional[str] = None
     output_path: Optional[str] = None
     restart_frequency: Optional[int] = None
-    noise_injection: Optional[bool] = False
     grf_noise_alpha: float = 2.0
     grf_noise_sigma: float = 5.0
     grf_noise_tau: float = 2.0
