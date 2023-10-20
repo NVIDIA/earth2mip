@@ -235,6 +235,8 @@ class ModelRegistry:
             return DLWPPackage(self.get_path(name), seperator=self.SEPERATOR)
         elif name == "pangu" or name == "pangu_24" or name == "pangu_6":
             return PanguPackage(self.get_path(name), seperator=self.SEPERATOR)
+        elif name.startswith("graphcast"):
+            return Package("gs://dm_graphcast", seperator="/")
         else:
             raise ValueError(f"Model {name} not registered in e2mip package registry")
 
