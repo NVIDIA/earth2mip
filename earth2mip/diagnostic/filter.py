@@ -14,9 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import torch
-from typing import Literal
+from typing import Literal, Optional
 from modulus.distributed import DistributedManager
 from earth2mip.schema import Grid
+from earth2mip.model_registry import Package
 from earth2mip.diagnostic.base import DiagnosticBase, DiagnosticConfigBase
 
 
@@ -78,6 +79,7 @@ class Filter(DiagnosticBase):
     @classmethod
     def load_diagnostic(
         cls,
+        package: Optional[Package],
         in_channels: list[str],
         out_channels: list[str],
         grid: Grid,
@@ -99,6 +101,7 @@ class FilterConfig(DiagnosticConfigBase):
 
     def initialize(self):
         dm = DistributedManager()
+        package = Filter.load_package()
         return Filter.load_diagnostic(
-            self.in_channels, self.out_channels, self.grid, device=dm.device
+            package, self.in_channels, self.out_channels, self.grid, device=dm.device
         )

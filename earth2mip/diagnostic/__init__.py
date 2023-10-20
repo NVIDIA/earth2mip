@@ -7,6 +7,7 @@ from earth2mip.geo_function import GeoFunction
 from earth2mip.diagnostic.base import DiagnosticBase, DiagnosticConfigBase
 from earth2mip.diagnostic.identity import Identity
 from earth2mip.diagnostic.filter import Filter
+from earth2mip.diagnostic.concat import Concat
 from earth2mip.diagnostic.wind_speed import WindSpeed
 
 if sys.version_info < (3, 10):
@@ -15,7 +16,7 @@ else:
     from importlib.metadata import entry_points
 
 
-DIAGNOSTIC_REGISTY = {"identity": Identity, "filter": Filter, "windspeed": WindSpeed}
+DIAGNOSTIC_REGISTY = {"identity": Identity, "filter": Filter, "concat": Concat, "windspeed": WindSpeed}
 
 
 def get_config_types():
@@ -43,6 +44,7 @@ def get_config_types():
     # Returns tuple here so its compatable with the typing.Union[]
     return tuple(diagnostic_types)
 
+# Build config type dynamically
 DIAGNOSTIC_TYPES = Union[ get_config_types() ]
 
 

@@ -14,8 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import torch
-from typing import Literal
+from typing import Literal, Optional
 from earth2mip.schema import Grid
+from earth2mip.model_registry import Package
 from earth2mip.diagnostic.base import DiagnosticBase, DiagnosticConfigBase
 
 
@@ -49,7 +50,7 @@ class Identity(DiagnosticBase):
         return x
 
     @classmethod
-    def load_diagnostic(cls, in_channels: list[str], grid: Grid):
+    def load_diagnostic(cls, package: Optional[Package], in_channels: list[str], grid: Grid):
         return cls(in_channels, grid)
 
     @classmethod
@@ -64,4 +65,5 @@ class IdentityConfig(DiagnosticConfigBase):
     grid: Grid = Grid.grid_721x1440
 
     def initialize(self):
-        return Identity.load_diagnostic(self.in_channels, self.grid)
+        package = Identity.load_package()
+        return Identity.load_diagnostic(package, self.in_channels, self.grid)

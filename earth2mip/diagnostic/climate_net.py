@@ -48,7 +48,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 import numpy as np
-from typing import Literal
+from typing import Literal, Optional
 from modulus.distributed import DistributedManager
 from earth2mip.schema import Grid
 from earth2mip.model_registry import Package
@@ -572,7 +572,7 @@ class ClimateNet(DiagnosticBase):
         return registry.get_model("climatenet")
 
     @classmethod
-    def load_diagnostic(cls, package: Package, device="cuda:0"):
+    def load_diagnostic(cls, package: Optional[Package], device="cuda:0"):
 
         model = CGNetModule(
             channels=len(IN_CHANNELS),
