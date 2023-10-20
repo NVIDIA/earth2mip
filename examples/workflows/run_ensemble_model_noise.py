@@ -15,10 +15,7 @@
 # limitations under the License.
 
 # %%
-import argparse
 import logging
-import os
-import json
 from functools import partial
 import torch
 from modulus.distributed.manager import DistributedManager
@@ -41,7 +38,7 @@ def generate_model_noise_correlated(x,
 
 
 def main():
-    config = {
+    config_dict = {
         "ensemble_members": 4,
         "noise_amplitude": 0.05,
         "simulation_length": 10,
@@ -77,37 +74,16 @@ def main():
         "perturbation_strategy": "correlated",
         "noise_reddening": 2.0
     }
-    config_str = json.dumps(config)
-    config: EnsembleRun = EnsembleRun.parse_raw(config_str)        
-#     logging.basicConfig(level=logging.INFO)
+    config: EnsembleRun = EnsembleRun.parse_obj(config_dict)
+    logging.basicConfig(level=logging.INFO)
 
-#     if config is None:
-#         parser = argparse.ArgumentParser()
-#         parser.add_argument("config")
-#         parser.add_argument("--weather_model", default=None)
-#         args = parser.parse_args()
-#         config = args.config
-
-#     # If config is a file
-#     if os.path.exists(config):
-#         config: EnsembleRun = EnsembleRun.parse_file(config)
-#     # If string, assume JSON string
-#     elif isinstance(config, str):
-#         config: EnsembleRun = EnsembleRun.parse_obj(json.loads(config))
-#     # Otherwise assume parsable obj
-#     else:
-#         raise ValueError(
-#             f"Passed config parameter {config} should be valid file or JSON string"
-#         )
-
-#     # Set up parallel
-#     DistributedManager.initialize()
+    # Set up parallel
+    DistributedManager.initialize()
     device = DistributedManager().device
-#     group = torch.distributed.group.WORLD
+    group = torch.distributed.group.WORLD
 
-#     logging.info(f"Earth-2 MIP config loaded {config}")
-#     logging.info(f"Loading model onto device {device}")
-    weather_event = config.get_weather_event()
+    logging.info(f"Earth-2 MIP config loaded {config}")
+    logging.info(f"Loading model onto device {device}")
     model = get_model(config.weather_model, device=device)
     logging.info("Constructing initializer data source")
     perturb = get_initializer(
@@ -121,7 +97,7 @@ def main():
         noise_injection_amplitude=0.003,
     )
     logging.info("Running inference")
-    run_inference(model, config, perturb, weather_event.domains)
+    run_inference(model, config, perturb, group)
 
 
 if __name__ == "__main__":
