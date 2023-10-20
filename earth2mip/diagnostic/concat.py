@@ -100,7 +100,7 @@ class Concat(DiagnosticBase):
 class ConcatConfig(DiagnosticConfigBase):
 
     type: Literal["Concat"] = "Concat"
-    diagnostics: list[DiagnosticConfigBase]
+    diagnostics: list[DiagnosticConfigBase] # Doesnt work atm, needs to be child classes
     axis: int = 1
 
     def initialize(self):

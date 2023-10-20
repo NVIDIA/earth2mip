@@ -9,6 +9,7 @@ from earth2mip.diagnostic.identity import Identity
 from earth2mip.diagnostic.filter import Filter
 from earth2mip.diagnostic.concat import Concat
 from earth2mip.diagnostic.wind_speed import WindSpeed
+from earth2mip.diagnostic.climate_net import ClimateNet
 
 if sys.version_info < (3, 10):
     from importlib_metadata import entry_points
@@ -16,7 +17,7 @@ else:
     from importlib.metadata import entry_points
 
 
-DIAGNOSTIC_REGISTY = {"identity": Identity, "filter": Filter, "concat": Concat, "windspeed": WindSpeed}
+DIAGNOSTIC_REGISTY = {"identity": Identity, "filter": Filter, "concat": Concat, "windspeed": WindSpeed, "climatenet": ClimateNet}
 
 
 def get_config_types():
@@ -118,6 +119,7 @@ class Diagnostic(GeoFunction):
         """
         # Create filter to transition between diagnostics
         dfilter = Filter.load_diagnostic(
+            None,
             in_channels=self.diagnostics[-1].out_channels,
             out_channels=diagfunc.in_channels,
             grid=diagfunc.in_grid,

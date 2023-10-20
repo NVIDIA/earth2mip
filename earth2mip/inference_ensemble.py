@@ -73,7 +73,7 @@ def run_ensembles(
     n_steps: int,
     weather_event,
     model: TimeLoop,
-    diagnostic: DiagnosticBase,
+    diag_list: list[DiagnosticBase],
     perturb,
     x,
     nc,
@@ -91,9 +91,9 @@ def run_ensembles(
     progress: bool = True,
 ):
     if not io_grid:
-        io_grid = diagnostic.out_grid
+        io_grid = diag_list[0].out_grid
 
-    regridder = regrid.get_regridder(diagnostic.out_grid, io_grid).to(device)
+    regridder = regrid.get_regridder(diag_list[0].out_grid, io_grid).to(device)
     diagnostics = initialize_netcdf(
         nc, domains, io_grid, io_grid.lat, io_grid.lon, n_ensemble, device
     )
@@ -136,8 +136,10 @@ def run_ensembles(
 
         for k, (time, data, _) in enumerate(iterator):
 
-            diagnostic_data = diagnostic(data)
-            data = torch.cat([data, diagnostic_data], dim=1)
+            output = [data]
+            for func in diag_list:
+                output.append(func(data))
+            data = torch.cat(output, dim=1)
             # if restart_frequency and k % restart_frequency == 0:
             #     save_restart(
             #         restart,
@@ -368,10 +370,12 @@ def run_inference(
     else:
         output_path = config.output_path
 
-    # Set up diagnostic
-    diagnostic = Diagnostic(in_channels=model.out_channel_names, in_grid=model.grid)
-    if config.diagnostic:
-        diagnostic.from_config(config.diagnostic)
+    # Set up list of diagnostic functions
+    diag_list = []
+    for dcfg in config.diagnostic:
+        d = Diagnostic(in_channels=model.out_channel_names, in_grid=model.grid)
+        d.from_config(dcfg)
+        diag_list.append(d)
 
     if not os.path.exists(output_path):
         # Avoid race condition across ranks
@@ -400,7 +404,7 @@ def run_inference(
         run_ensembles(
             weather_event=weather_event,
             model=model,
-            diagnostic=diagnostic,
+            diag_list=diag_list,
             perturb=perturb,
             nc=nc,
             domains=weather_event.domains,

@@ -34,7 +34,7 @@ class EnsembleRun(BaseModel):
 
     weather_model: str
     simulation_length: int
-    diagnostic: Optional[DIAGNOSTIC_TYPES] = []
+    diagnostic: Optional[list[DIAGNOSTIC_TYPES]] = []
     # TODO make perturbation_strategy an Enum (see ChannelSet)
     perturbation_strategy: PerturbationStrategy = PerturbationStrategy.correlated
     perturbation_channels: Optional[list[str]] = None

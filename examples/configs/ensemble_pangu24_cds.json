@@ -18,7 +18,8 @@
                         "channels": [
                             "t2m",
                             "u10m",
-                            "10fg"
+                            "10fg",
+                            "climnet_tc"
                         ]
                     }
                 ]
@@ -28,9 +29,14 @@
     "output_path": "../outputs/fcnv2_sm",
     "output_frequency": 1,
     "weather_model": "e2mip://fcnv2_sm",
-    "diagnostic": {
-        "type": "WindGust"
-    },
+    "diagnostic": [
+        {
+            "type": "WindGust"
+        },
+        {
+            "type": "ClimateNet"
+        }
+    ],
     "seed": 12345,
     "use_cuda_graphs": false,
     "ensemble_batch_size": 1,
