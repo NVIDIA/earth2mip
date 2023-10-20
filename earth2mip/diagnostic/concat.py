@@ -13,17 +13,20 @@ class Concat(DiagnosticBase):
     something complicated, odds are you should be using Python APIs to manually
     implement stuff.
 
-    This only accepts essential fields of the two diagnostics.
-
-    TODO: Concept atm
+    Warning
+    -------
+    This doesn't maintain ordering of inputs at the moment, little dangerous to use
+    alone.
 
     Example
     -------
-    >>> dfilter = Filter(['u10m','t2m'], ['u10m'], Grid.grid_721x1440)
-    >>> x = torch.randn(1, 2, 721, 1440)
-    >>> out = dfilter(x)
+    >>> filter1 = Filter(['u10m','t2m'], ['u10m'], Grid.grid_721x1440)
+    >>> filter2 = Filter(['v10m','tcwv'], ['tcwv'], Grid.grid_721x1440)
+    >>> concat = Concat([filter1, filter2])
+    >>> x = torch.randn(1, 4, 721, 1440)
+    >>> out = concat(x)
     >>> out.shape
-    (1, 1, 721, 1440)
+    (1, 2, 721, 1440)
     """
 
     def __init__(self, diagnostics: list[DiagnosticBase], axis: int = 1):
@@ -46,7 +49,7 @@ class Concat(DiagnosticBase):
             self._in_channels = self._in_channels + diag.in_channels
             self._out_channels = self._out_channels + diag.out_channels
         # For input make sure we only get the unique
-        # WARNING: No garentees on ordering
+        # WARNING: No garentees on ordering. TODO: do this better
         self._in_channels = list(set(self._in_channels))
 
         self.filters = []
@@ -103,4 +106,8 @@ class ConcatConfig(DiagnosticConfigBase):
     def initialize(self):
         dm = DistributedManager()
         package = Concat.load_package()
-        return Concat.load_diagnostic(package, self.diagnostics, self.axis, device=dm.device)
+        # Initialize sub configs to get diagnostic functions
+        funcs = []
+        for diag in self.diagnostics():
+            funcs.append(diag.initialize())
+        return Concat.load_diagnostic(package, funcs, self.axis, device=dm.device)
