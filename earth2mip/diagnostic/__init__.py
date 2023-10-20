@@ -17,7 +17,13 @@ else:
     from importlib.metadata import entry_points
 
 
-DIAGNOSTIC_REGISTY = {"identity": Identity, "filter": Filter, "concat": Concat, "windspeed": WindSpeed, "climatenet": ClimateNet}
+DIAGNOSTIC_REGISTY = {
+    "identity": Identity,
+    "filter": Filter,
+    "concat": Concat,
+    "windspeed": WindSpeed,
+    "climatenet": ClimateNet,
+}
 
 
 def get_config_types():
@@ -45,8 +51,9 @@ def get_config_types():
     # Returns tuple here so its compatable with the typing.Union[]
     return tuple(diagnostic_types)
 
+
 # Build config type dynamically
-DIAGNOSTIC_TYPES = Union[ get_config_types() ]
+DIAGNOSTIC_TYPES = Union[get_config_types()]
 
 
 def get_package(name: str) -> Package:
@@ -90,11 +97,9 @@ def get_diagnostic(name: str, *args, **kwargs):
     raise ValueError(f"Diagnostic {name} not found")
 
 
-class Diagnostic(GeoFunction):
+class DiagnosticList(GeoFunction):
     """List of diagnostic functions that are executed in sequential order. This is
     useful for building compositions of functions to create complex outputs.
-
-    TODO: Add concat feature
 
     Note
     ----
@@ -162,3 +167,75 @@ class Diagnostic(GeoFunction):
         for diag in self.diagnostics:
             x = diag(x)
         return x
+
+
+class DiagnosticCollection(GeoFunction):
+    """A collection of Diagnostic functions that are all executed and concatenated
+    together. This means that all need to output to the same grid.
+
+    Args:
+        in_channels (list[str]): Input channels
+        in_grid (Grid): Input grid
+        axis (int): Collection axis, axis to concat outputs on
+    """
+
+    def __init__(
+        self, in_channels: list[str], in_grid: Grid, axis: int = 1, device="cuda:0"
+    ):
+        self.in_channels = in_channels
+        self.device = device
+        self.collection = []
+        self.axis = axis
+
+    def add(self, diagfunc: DiagnosticBase):
+        """Add
+
+        Args:
+            diagfunc (DiagnosticBase): Diagnostic function
+        """
+        # Create filter to transition between diagnostics
+        if len(self.collection) > 0:
+            assert self.collection[0].out_grid == diagfunc.out_grid
+
+        diaglist = DiagnosticList(self.in_channels, self.grid, self.device)
+        diaglist.add(diagfunc)
+        # Add to collection
+        self.collection.append(diaglist)
+
+    def add_from_config(self, cfg: DiagnosticConfigBase):
+        """Adds a diagnostic function from a config object
+
+        Args:
+            cfg (DiagnosticConfigBase): Diagnostic config
+        """
+        diagnostic = cfg.initialize().to(self.device)
+        self.add(diagnostic)
+
+    @property
+    def in_channels(self) -> list[str]:
+        return self.in_channels
+
+    @property
+    def out_channels(self) -> list[str]:
+        if len(self.collection) > 0:
+            out_channels = []
+            for dfunc in self.collection:
+                out_channels.extend(dfunc.out_channels)
+            return out_channels
+        raise ValueError("No diagnostics added to collection")
+
+    @property
+    def in_grid(self) -> Grid:
+        return self.in_grid
+
+    @property
+    def out_grid(self) -> Grid:
+        if len(self.collection) > 0:
+            return self.collection[-1].out_grid
+        raise ValueError("No diagnostics added to collection")
+
+    def __call__(self, x: torch.Tensor) -> torch.Tensor:
+        outputs = []
+        for dfunc in self.diagnostics:
+            outputs.append(dfunc(x))
+        return torch.cat(outputs, axis=self.axis)

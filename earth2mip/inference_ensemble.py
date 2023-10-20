@@ -49,8 +49,7 @@ from earth2mip.ensemble_schema import EnsembleRun
 from earth2mip.time_loop import TimeLoop
 from earth2mip import regrid
 from earth2mip._channel_stds import channel_stds
-from earth2mip.diagnostic import Diagnostic
-from earth2mip.diagnostic.base import DiagnosticBase
+from earth2mip.diagnostic import DiagnosticCollection
 
 logger = logging.getLogger("inference")
 
@@ -73,7 +72,7 @@ def run_ensembles(
     n_steps: int,
     weather_event,
     model: TimeLoop,
-    diag_list: list[DiagnosticBase],
+    diagnostic: DiagnosticCollection,
     perturb,
     x,
     nc,
@@ -91,9 +90,9 @@ def run_ensembles(
     progress: bool = True,
 ):
     if not io_grid:
-        io_grid = diag_list[0].out_grid
+        io_grid = diagnostic.out_grid
 
-    regridder = regrid.get_regridder(diag_list[0].out_grid, io_grid).to(device)
+    regridder = regrid.get_regridder(diagnostic.out_grid, io_grid).to(device)
     diagnostics = initialize_netcdf(
         nc, domains, io_grid, io_grid.lat, io_grid.lon, n_ensemble, device
     )
@@ -136,10 +135,6 @@ def run_ensembles(
 
         for k, (time, data, _) in enumerate(iterator):
 
-            output = [data]
-            for func in diag_list:
-                output.append(func(data))
-            data = torch.cat(output, dim=1)
             # if restart_frequency and k % restart_frequency == 0:
             #     save_restart(
             #         restart,
@@ -150,6 +145,11 @@ def run_ensembles(
 
             # Saving the output
             if output_frequency and k % output_frequency == 0:
+
+                # Run diagnostic function for output
+                out = diagnostic(data)
+                data = torch.cat([data, out], dim=1)
+
                 time_count += 1
                 logger.debug(f"Saving data at step {k} of {n_steps}.")
                 nc["time"][time_count] = cftime.date2num(time, nc["time"].units)
@@ -371,11 +371,11 @@ def run_inference(
         output_path = config.output_path
 
     # Set up list of diagnostic functions
-    diag_list = []
-    for dcfg in config.diagnostic:
-        d = Diagnostic(in_channels=model.out_channel_names, in_grid=model.grid)
-        d.from_config(dcfg)
-        diag_list.append(d)
+    diagnostic = DiagnosticCollection(
+        in_channels=model.out_channel_names, in_grid=model.grid
+    )
+    for diag_cfg in config.diagnostic:
+        diagnostic.add_from_config(diag_cfg)
 
     if not os.path.exists(output_path):
         # Avoid race condition across ranks
@@ -404,7 +404,7 @@ def run_inference(
         run_ensembles(
             weather_event=weather_event,
             model=model,
-            diag_list=diag_list,
+            diagnostic=diagnostic,
             perturb=perturb,
             nc=nc,
             domains=weather_event.domains,
