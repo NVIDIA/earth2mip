@@ -293,7 +293,8 @@ def get_noise_injection(
             generate_model_noise_correlated,
             reddening=config.noise_reddening,
             device=device,
-            noise_injection_amplitude=config.noise_injection_amplitude)
+            noise_injection_amplitude=config.noise_injection_amplitude,
+        )
     else:
         noise_injection = None
     return noise_injection
