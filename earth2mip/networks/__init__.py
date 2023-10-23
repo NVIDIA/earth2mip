@@ -17,7 +17,7 @@
 import urllib
 import warnings
 import itertools
-from typing import Optional, Tuple, Any, Iterator, List
+from typing import Optional, Tuple, Any, Iterator, List, Callable
 import sys
 import datetime
 import os
@@ -125,7 +125,7 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         center: np.array,
         scale: np.array,
         grid: schema.Grid,
-        source=None,
+        source: Optional[Callable] = None,
         n_history: int = 0,
         time_step=datetime.timedelta(hours=6),
         channel_names=None,
