@@ -40,8 +40,8 @@ make pytest
 ## Getting Started
 
 The [notebooks](./examples/notebooks/) folder contains reference Jupyter
-notebooks for a few common usecases.
-These are the best way to start exploring Earth-2 MIP:
+notebooks for a few common use cases.
+These are the best ways to start exploring Earth-2 MIP:
 
 1. [Ensemble Inference](./examples/notebooks/01_ensemble_inference.ipynb) - This
 notebook will demonstrate how to perturb the initial conditions to generate ensemble of
@@ -97,6 +97,9 @@ table below.
 | pangu_6 | Pangu Weather 6hr Model  |  Vision Transformer | global weather |  [Nature](https://doi.org/10.1038/s41586-023-06185-3) | onnx | 1Gb |
 | pangu_24 | Pangu Weather 24hr Model |  Vision Transformer | global weather |  [Nature](https://doi.org/10.1038/s41586-023-06185-3) | onnx | 1Gb |
 | fcnv2_sm |  FourCastNet v2 | Spherical Harmonics Fourier Neural Operator | global weather |  [Arxiv](https://arxiv.org/abs/2306.03838)  | [modulus](https://catalog.ngc.nvidia.com/orgs/nvidia/teams/modulus/models/modulus_fcnv2_sm) | 3.5Gb |
+| graphcast |  Graphcast, 37 levels, 0.25 deg | Graph neural network | global weather |  [Arxiv](https://arxiv.org/abs/2212.12794)  | [github](https://github.com/google-deepmind/graphcast) | 145MB |
+| graphcast_small |  Graphcast, 13 levels, 1 deg | Graph neural network | global weather |  [Arxiv](https://arxiv.org/abs/2212.12794)  | [github](https://github.com/google-deepmind/graphcast) | 144MB |
+| graphcast_operational |  Graphcast, 13 levels, 0.25 deg| Graph neural network | global weather |  [Arxiv](https://arxiv.org/abs/2212.12794)  | [github](https://github.com/google-deepmind/graphcast) | 144MB |
 <!-- markdownlint-enable -->
 
 \* = coming soon
@@ -140,7 +143,7 @@ information about Earth-2 MIP, functionality, APIs, etc.
 
 ## Communication
 
-- Github Discussions: Discuss new ideas, model integraiton, support etc.
+- Github Discussions: Discuss new ideas, model integration, support etc.
 - GitHub Issues: Bug reports, feature requests, install issues, etc.
 
 ## License

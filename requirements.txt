@@ -1,0 +1,6 @@
+-f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+jax[cuda12_local]==0.4.16
+https://github.com/deepmind/graphcast/archive/e622a15c1b9742d78f9b662f2af262604d58c204.tar.gz
+gcsfs
+# TODO point to modulus main once https://github.com/NVIDIA/modulus/pull/194 is merged
+https://github.com/nbren12/modulus/archive/refs/heads/tisr.tar.gz

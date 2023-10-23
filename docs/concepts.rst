@@ -9,7 +9,7 @@ Earth2 MIP has the following concepts:
 * :ref:`Data Sources <data source>` for loading initial conditions and scoring against.
 * :ref:`Python APIs <api>` work with these abstractions to do things like scoring and ensemble inference.
 * :ref:`Model packages <model package>` allow reproducible loading of checkpoints from disk or the cloud.  that work with these abstractions.
-* :ref:`Command line tools <cli>` that allow running scoring jobs in a paralle environment.
+* :ref:`Command line tools <cli>` that allow running scoring jobs in a parallel environment.
 
 .. _model wrappers:
 Model Wrappers
@@ -26,6 +26,20 @@ Each of these presents increasingly minimal interface.
 We will demonstrate each of these interfaces for the persistence forecast.
 A persistence forecast is one that always returns the initial condition. It is a
 common baseline for a weather forecast.
+
+A design philosphy we follow is that model wrappers should take plain torch
+tensors as inputs and outputs and provide static metadata (e.g. grid, channel,
+time) about how those tensors map onto the planet.
+An alternative philosophy is to use some kind of metadata-aware container either
+custom-built or off-the-shelf like xarray.
+We avoid the latter approach since there is always a temptation to  implement all of
+mathematics on some container type or hide the arrays under several layers of containers.
+At the end of the day, most ML models ultimately take and receive a single multi
+dimesional array of data.
+Finally, ML
+developers are all familiar with basic array-like data types.
+We already need to wrap our models in a stack of abstractions to
+provide a common interface, so we don't need to make the data more complex.
 
 Module
 ^^^^^^
@@ -105,7 +119,7 @@ One advantage is that an archive of forecasts on disk can be represented as a Fo
 This allows using the same code to score both static and streaming forecasts.
 
 Finally, here is a :py:class:`earth2mip.forecasts.Forecast` implementation, for
-an persistence forecast beginning on Jan 1, 2018 and producing ICs every 12
+a persistence forecast beginning on Jan 1, 2018 and producing ICs every 12
 hours and sampling forecasts every 12 hours::
 
     from earth2mip.forecasts import Forecast
