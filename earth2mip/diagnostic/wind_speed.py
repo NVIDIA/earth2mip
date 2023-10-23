@@ -21,7 +21,8 @@ from earth2mip.diagnostic.base import DiagnosticBase, DiagnosticConfigBase
 
 
 class WindSpeed(DiagnosticBase):
-    """Computes the wind speed at a given level
+    """Computes the wind speed at a given level.
+    This is largely just an example of what a diagnostic calculation could look like.
 
     Example
     -------

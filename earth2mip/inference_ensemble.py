@@ -25,7 +25,7 @@ import json
 import numpy as np
 import torch
 import tqdm
-from typing import Optional, Any
+from typing import Optional, Any, List
 from datetime import datetime
 from modulus.distributed.manager import DistributedManager
 from netCDF4 import Dataset as DS
@@ -49,7 +49,8 @@ from earth2mip.ensemble_schema import EnsembleRun
 from earth2mip.time_loop import TimeLoop
 from earth2mip import regrid
 from earth2mip._channel_stds import channel_stds
-from earth2mip.diagnostic import DiagnosticCollection
+from earth2mip.diagnostic.base import DiagnosticBase
+from earth2mip.diagnostic.utils import filer_channels
 
 logger = logging.getLogger("inference")
 
@@ -67,12 +68,25 @@ def save_restart(restart, rank, batch_id, path):
     torch.save(restart, path)
 
 
+def run_diagnostics(
+    input: torch.Tensor(), diagnostics: List[DiagnosticBase], in_channels: List[str]
+):
+    outputs = []
+    out_channels = []
+    for diagnostic in diagnostics:
+        diag_input = filer_channels(input, in_channels.diagnostic.in_channels)
+        outputs.append(diagnostic(diag_input))
+        out_channels.extend(diagnostic.out_channels)
+
+    return torch.cat(outputs, axis=1), out_channels
+
+
 def run_ensembles(
     *,
     n_steps: int,
     weather_event,
     model: TimeLoop,
-    diagnostic: DiagnosticCollection,
+    diagnostic_list: List[DiagnosticBase],
     perturb,
     x,
     nc,
@@ -90,9 +104,9 @@ def run_ensembles(
     progress: bool = True,
 ):
     if not io_grid:
-        io_grid = diagnostic.out_grid
+        io_grid = model.grid
 
-    regridder = regrid.get_regridder(diagnostic.out_grid, io_grid).to(device)
+    regridder = regrid.get_regridder(model.grid, io_grid).to(device)
     diagnostics = initialize_netcdf(
         nc, domains, io_grid, io_grid.lat, io_grid.lon, n_ensemble, device
     )
@@ -147,7 +161,7 @@ def run_ensembles(
             if output_frequency and k % output_frequency == 0:
 
                 # Run diagnostic function for output
-                out = diagnostic(data)
+                out, out_channels = run_diagnostics(data, diagnostic_list)
                 data = torch.cat([data, out], dim=1)
 
                 time_count += 1
@@ -162,7 +176,7 @@ def run_ensembles(
                     model,
                     io_grid.lat,
                     io_grid.lon,
-                    model.out_channel_names + diagnostic.out_channels,
+                    model.out_channel_names + out_channels,
                 )
 
             if k == n_steps:
@@ -371,11 +385,9 @@ def run_inference(
         output_path = config.output_path
 
     # Set up list of diagnostic functions
-    diagnostic = DiagnosticCollection(
-        in_channels=model.out_channel_names, in_grid=model.grid
-    )
+    diagnostic_list = []
     for diag_cfg in config.diagnostic:
-        diagnostic.add_from_config(diag_cfg)
+        diagnostic_list.append(diag_cfg.initialize())
 
     if not os.path.exists(output_path):
         # Avoid race condition across ranks
@@ -404,7 +416,7 @@ def run_inference(
         run_ensembles(
             weather_event=weather_event,
             model=model,
-            diagnostic=diagnostic,
+            diagnostic_list=diagnostic_list,
             perturb=perturb,
             nc=nc,
             domains=weather_event.domains,

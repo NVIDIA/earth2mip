@@ -1,13 +1,6 @@
 import sys
-import torch
 from typing import Union
-from earth2mip.schema import Grid
 from earth2mip.model_registry import Package
-from earth2mip.geo_function import GeoFunction
-from earth2mip.diagnostic.base import DiagnosticBase, DiagnosticConfigBase
-from earth2mip.diagnostic.identity import Identity
-from earth2mip.diagnostic.filter import Filter
-from earth2mip.diagnostic.concat import Concat
 from earth2mip.diagnostic.wind_speed import WindSpeed
 from earth2mip.diagnostic.climate_net import ClimateNet
 
@@ -18,15 +11,12 @@ else:
 
 
 DIAGNOSTIC_REGISTY = {
-    "identity": Identity,
-    "filter": Filter,
-    "concat": Concat,
     "windspeed": WindSpeed,
     "climatenet": ClimateNet,
 }
 
 
-def get_config_types():
+def _get_config_types():
     """Method for getting a list of diagnostic config types for DiagnosticTypes
     which should be used in down stream
     """
@@ -53,7 +43,7 @@ def get_config_types():
 
 
 # Build config type dynamically
-DIAGNOSTIC_TYPES = Union[get_config_types()]
+DIAGNOSTIC_TYPES = Union[_get_config_types()]
 
 
 def get_package(name: str) -> Package:
@@ -70,7 +60,6 @@ def get_package(name: str) -> Package:
     group = "earth2mip.diagnostic"
     entrypoints = entry_points(group=group)
     for entry_point in entrypoints:
-        print(entry_point.name)
         if entry_point.name not in DIAGNOSTIC_REGISTY:
             return entry_point.load().load_package()
 
@@ -95,147 +84,3 @@ def get_diagnostic(name: str, *args, **kwargs):
             return entry_point.load().load_diagnostic(*args, **kwargs)
 
     raise ValueError(f"Diagnostic {name} not found")
-
-
-class DiagnosticList(GeoFunction):
-    """List of diagnostic functions that are executed in sequential order. This is
-    useful for building compositions of functions to create complex outputs.
-
-    Note
-    ----
-    Presently this executes and refines channels greedly. In other words only the output
-    channel of a function is ever preserved. Expanding with concat functions is likely
-    for the future.
-
-    Args:
-        in_channels (list[str]): Input channels
-        in_grid (Grid): Input grid
-    """
-
-    def __init__(self, in_channels: list[str], in_grid: Grid, device="cuda:0"):
-        self.diagnostics = [Identity(in_channels, in_grid)]
-        self.device = device
-
-    def add(self, diagfunc: DiagnosticBase):
-        """Add
-
-        Args:
-            diagfunc (DiagnosticBase): Diagnostic function
-        """
-        # Create filter to transition between diagnostics
-        dfilter = Filter.load_diagnostic(
-            None,
-            in_channels=self.diagnostics[-1].out_channels,
-            out_channels=diagfunc.in_channels,
-            grid=diagfunc.in_grid,
-            device=self.device,
-        )
-
-        self.diagnostics.append(dfilter)
-        self.diagnostics.append(diagfunc)
-
-    def from_config(self, cfg: DiagnosticConfigBase):
-        """Adds a diagnostic function from a config object
-
-        Args:
-            cfg (DiagnosticConfigBase): Diagnostic config
-        """
-        diagnostic = cfg.initialize()
-        self.add(diagnostic)
-
-    @property
-    def in_channels(self) -> list[str]:
-        if len(self.diagnostics) > 0:
-            return self.diagnostics[0].in_channels
-
-    @property
-    def out_channels(self) -> list[str]:
-        if len(self.diagnostics) > 0:
-            return self.diagnostics[-1].out_channels
-
-    @property
-    def in_grid(self) -> Grid:
-        if len(self.diagnostics) > 0:
-            return self.diagnostics[0].in_grid
-
-    @property
-    def out_grid(self) -> Grid:
-        if len(self.diagnostics) > 0:
-            return self.diagnostics[-1].out_grid
-
-    def __call__(self, x: torch.Tensor) -> torch.Tensor:
-        for diag in self.diagnostics:
-            x = diag(x)
-        return x
-
-
-class DiagnosticCollection(GeoFunction):
-    """A collection of Diagnostic functions that are all executed and concatenated
-    together. This means that all need to output to the same grid.
-
-    Args:
-        in_channels (list[str]): Input channels
-        in_grid (Grid): Input grid
-        axis (int): Collection axis, axis to concat outputs on
-    """
-
-    def __init__(
-        self, in_channels: list[str], in_grid: Grid, axis: int = 1, device="cuda:0"
-    ):
-        self.in_channels = in_channels
-        self.device = device
-        self.collection = []
-        self.axis = axis
-
-    def add(self, diagfunc: DiagnosticBase):
-        """Add
-
-        Args:
-            diagfunc (DiagnosticBase): Diagnostic function
-        """
-        # Create filter to transition between diagnostics
-        if len(self.collection) > 0:
-            assert self.collection[0].out_grid == diagfunc.out_grid
-
-        diaglist = DiagnosticList(self.in_channels, self.grid, self.device)
-        diaglist.add(diagfunc)
-        # Add to collection
-        self.collection.append(diaglist)
-
-    def add_from_config(self, cfg: DiagnosticConfigBase):
-        """Adds a diagnostic function from a config object
-
-        Args:
-            cfg (DiagnosticConfigBase): Diagnostic config
-        """
-        diagnostic = cfg.initialize().to(self.device)
-        self.add(diagnostic)
-
-    @property
-    def in_channels(self) -> list[str]:
-        return self.in_channels
-
-    @property
-    def out_channels(self) -> list[str]:
-        if len(self.collection) > 0:
-            out_channels = []
-            for dfunc in self.collection:
-                out_channels.extend(dfunc.out_channels)
-            return out_channels
-        raise ValueError("No diagnostics added to collection")
-
-    @property
-    def in_grid(self) -> Grid:
-        return self.in_grid
-
-    @property
-    def out_grid(self) -> Grid:
-        if len(self.collection) > 0:
-            return self.collection[-1].out_grid
-        raise ValueError("No diagnostics added to collection")
-
-    def __call__(self, x: torch.Tensor) -> torch.Tensor:
-        outputs = []
-        for dfunc in self.diagnostics:
-            outputs.append(dfunc(x))
-        return torch.cat(outputs, axis=self.axis)
