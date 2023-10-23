@@ -25,12 +25,13 @@ from earth2mip.networks import get_model
 from earth2mip.schema import EnsembleRun
 
 
-def generate_model_noise_correlated(x,
-                                    time_step,
-                                    reddening,
-                                    device,
-                                    noise_injection_amplitude,
-                                    ):
+def generate_model_noise_correlated(
+    x,
+    time_step,
+    reddening,
+    device,
+    noise_injection_amplitude,
+):
     shape = x.shape
     dt = torch.tensor(time_step.total_seconds()) / 3600.0
     noise = noise_injection_amplitude * dt * brown_noise(shape, reddening).to(device)
@@ -46,23 +47,15 @@ def main():
             "properties": {
                 "name": "Globe",
                 "start_time": "2018-06-01 00:00:00",
-                "initial_condition_source": "cds"
+                "initial_condition_source": "cds",
             },
             "domains": [
                 {
                     "name": "global",
                     "type": "Window",
-                    "diagnostics": [
-                        {
-                            "type": "raw",
-                            "channels": [
-                                "t2m",
-                                "u10m"
-                            ]
-                        }
-                    ]
+                    "diagnostics": [{"type": "raw", "channels": ["t2m", "u10m"]}],
                 }
-            ]
+            ],
         },
         "output_path": "../outputs/model_noise",
         "output_frequency": 1,
@@ -72,7 +65,7 @@ def main():
         "ensemble_batch_size": 1,
         "autocast_fp16": False,
         "perturbation_strategy": "correlated",
-        "noise_reddening": 2.0
+        "noise_reddening": 2.0,
     }
     config: EnsembleRun = EnsembleRun.parse_obj(config_dict)
     logging.basicConfig(level=logging.INFO)
