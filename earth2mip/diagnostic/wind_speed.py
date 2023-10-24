@@ -14,10 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import torch
-from typing import Literal, Optional
+from typing import Optional
 from earth2mip.schema import Grid
 from earth2mip.model_registry import Package
-from earth2mip.diagnostic.base import DiagnosticBase, DiagnosticConfigBase
+from earth2mip.diagnostic.base import DiagnosticBase
 
 
 class WindSpeed(DiagnosticBase):
@@ -62,18 +62,3 @@ class WindSpeed(DiagnosticBase):
     @classmethod
     def load_diagnostic(cls, package: Optional[Package], level: str, grid: Grid):
         return cls(level, grid)
-
-    @classmethod
-    def load_config_type(cls):
-        return WindSpeedConfig
-
-
-class WindSpeedConfig(DiagnosticConfigBase):
-
-    type: Literal["WindSpeed"] = "WindSpeed"
-    level: str = "10m"
-    grid: Grid = Grid.grid_721x1440
-
-    def initialize(self):
-        package = WindSpeed.load_package()
-        return WindSpeed.load_diagnostic(package, self.level, self.grid)

@@ -48,11 +48,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 import numpy as np
-from typing import Literal, Optional
-from modulus.distributed import DistributedManager
+from typing import Optional
 from earth2mip.schema import Grid
 from earth2mip.model_registry import Package
-from earth2mip.diagnostic.base import DiagnosticBase, DiagnosticConfigBase
+from earth2mip.diagnostic.base import DiagnosticBase
 from earth2mip.model_registry import ModelRegistry
 
 IN_CHANNELS = [
@@ -582,21 +581,11 @@ class ClimateNet(DiagnosticBase):
         model.load_state_dict(torch.load(weights_path, map_location=device))
         model.eval()
 
-        input_center = torch.Tensor(np.load(package.get("global_means.npy")))[:, None, None]
-        input_scale = torch.Tensor(np.load(package.get("global_stds.npy")))[:, None, None]
+        input_center = torch.Tensor(np.load(package.get("global_means.npy")))[
+            :, None, None
+        ]
+        input_scale = torch.Tensor(np.load(package.get("global_stds.npy")))[
+            :, None, None
+        ]
 
         return cls(model, input_center, input_scale).to(device)
-
-    @classmethod
-    def load_config_type(cls):
-        return ClimateNetConfig
-
-
-class ClimateNetConfig(DiagnosticConfigBase):
-
-    type: Literal["ClimateNet"] = "ClimateNet"
-
-    def initialize(self):
-        dm = DistributedManager()
-        package = ClimateNet.load_package()
-        return ClimateNet.load_diagnostic(package, device=dm.device)

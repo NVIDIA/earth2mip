@@ -14,8 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import torch
-from typing import Literal, Type, Optional
-from pydantic import BaseModel, ConfigDict
+from typing import Type, Optional
+from pydantic import BaseModel
 from earth2mip.geo_function import GeoFunction
 from earth2mip.model_registry import Package
 
@@ -51,17 +51,3 @@ class DiagnosticBase(torch.nn.Module, GeoFunction):
         """
         raise NotImplementedError("This diagnostic does not have a config implemented")
         pass
-
-
-class DiagnosticConfigBase(BaseModel):
-    """Diagnostic model config base class"""
-
-    # Used to discrimate between config classes, sub classes should overwrite
-    type: Literal["DiagnosticBase"] = "DiagnosticBase"
-
-    def initialize(self) -> DiagnosticBase:
-        package = DiagnosticBase.load_package()
-        return DiagnosticBase.load_diagnostic(package)
-
-    # Don't allow any extra params in diagnostic configs, be strict
-    model_config = ConfigDict(extra='forbid')
