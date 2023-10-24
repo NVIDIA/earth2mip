@@ -17,26 +17,16 @@
                         "type": "raw",
                         "channels": [
                             "t2m",
-                            "u10m",
-                            "10fg",
-                            "climnet_tc"
+                            "u10m"
                         ]
                     }
                 ]
             }
         ]
     },
-    "output_path": "../outputs/fcnv2_sm",
+    "output_path": "../outputs/pangu_24",
     "output_frequency": 1,
-    "weather_model": "e2mip://fcnv2_sm",
-    "diagnostic": [
-        {
-            "type": "WindGust"
-        },
-        {
-            "type": "ClimateNet"
-        }
-    ],
+    "weather_model": "e2mip://pangu_24",
     "seed": 12345,
     "use_cuda_graphs": false,
     "ensemble_batch_size": 1,
