@@ -80,6 +80,7 @@ Dimensions without coordinates: history
 
 And you can get ACC/RMSE like this:
 ```
+>>> from earth2mip.inference_medium_range import score_deterministic
 >>> scores = score_deterministic(time_loop,
     data_source=data_source,
     n=10,
