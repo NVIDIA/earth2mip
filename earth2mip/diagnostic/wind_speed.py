@@ -41,11 +41,11 @@ class WindSpeed(DiagnosticBase):
         self._out_channels = [f"ws{level}"]
 
     @property
-    def in_channels(self) -> list[str]:
+    def in_channel_names(self) -> list[str]:
         return self._in_channels
 
     @property
-    def out_channels(self) -> list[str]:
+    def out_channel_names(self) -> list[str]:
         return self._out_channels
 
     @property

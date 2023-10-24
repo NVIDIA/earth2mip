@@ -16,7 +16,6 @@
 
 # %%
 import logging
-from functools import partial
 import torch
 import os
 
@@ -26,24 +25,12 @@ os.environ["WORLD_SIZE"] = "1"
 model_registry = os.path.join(os.path.dirname(os.path.realpath(os.getcwd())), "models")
 os.makedirs(model_registry, exist_ok=True)
 os.environ["MODEL_REGISTRY"] = model_registry
+
 from modulus.distributed.manager import DistributedManager
 from earth2mip.inference_ensemble import run_inference, get_initializer
-from earth2mip.ensemble_utils import brown_noise
 from earth2mip.networks import get_model
 from earth2mip.schema import EnsembleRun
-
-
-def generate_model_noise_correlated(
-    x,
-    time_step,
-    reddening,
-    device,
-    noise_injection_amplitude,
-):
-    shape = x.shape
-    dt = torch.tensor(time_step.total_seconds()) / 3600.0
-    noise = noise_injection_amplitude * dt * brown_noise(shape, reddening).to(device)
-    return x * (1.0 + noise)
+from earth2mip.diagnostic import ClimateNet, DiagnosticTimeLoop
 
 
 def main():
@@ -61,13 +48,18 @@ def main():
                 {
                     "name": "global",
                     "type": "Window",
-                    "diagnostics": [{"type": "raw", "channels": ["t2m", "u10m"]}],
+                    "diagnostics": [
+                        {
+                            "type": "raw",
+                            "channels": ["u10m", "climnet_tc", "climnet_ar"],
+                        }
+                    ],
                 }
             ],
         },
-        "output_path": "../outputs/model_noise",
+        "output_path": "../outputs/inference_diagnostic_ensemble",
         "output_frequency": 1,
-        "weather_model": "fcnv2_sm",
+        "weather_model": "e2mip://fcnv2_sm",
         "seed": 12345,
         "use_cuda_graphs": False,
         "ensemble_batch_size": 1,
@@ -75,7 +67,7 @@ def main():
         "perturbation_strategy": "correlated",
         "noise_reddening": 2.0,
     }
-    config = EnsembleRun.parse_obj(config_dict)
+    config: EnsembleRun = EnsembleRun.parse_obj(config_dict)
     logging.basicConfig(level=logging.INFO)
 
     # Set up parallel
@@ -91,14 +83,15 @@ def main():
         model,
         config,
     )
-    model.source = partial(
-        generate_model_noise_correlated,
-        reddening=2.0,
-        device=device,
-        noise_injection_amplitude=0.003,
-    )
+    # Add diagnostic model to
+    logging.info("Loading diagnostic model")
+    package = ClimateNet.load_package()
+    diagnostic = ClimateNet.load_diagnostic(package)
+
+    model_diagnostic = DiagnosticTimeLoop(diagnostics=[diagnostic], model=model)
+
     logging.info("Running inference")
-    run_inference(model, config, perturb, group)
+    run_inference(model_diagnostic, config, perturb, group)
 
 
 if __name__ == "__main__":

@@ -221,7 +221,6 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         """
         if self.time_dependent and not time:
             raise ValueError("Time dependent models require ``time``.")
-
         time = time or datetime.datetime(1900, 1, 1)
         with torch.no_grad():
             # drop all but the last time point

@@ -17,17 +17,41 @@ import torch
 import datetime
 from typing import Optional, Any, Iterator, Tuple, List
 from earth2mip.diagnostic.base import DiagnosticBase
-from earth2mip.time_loop import TimeLooper
+from earth2mip.time_loop import TimeLoop
+from earth2mip.diagnostic.utils import filer_channels
 
 
-class DiagnosticTimeLooper(TimeLooper):
+class DiagnosticTimeLoop(TimeLoop):
     def __init__(
-        self, diagnostics: List[DiagnosticBase], model: TimeLooper, concat: bool = True
+        self, diagnostics: List[DiagnosticBase], model: TimeLoop, concat: bool = True
     ):
 
         self.model = model
         self.diagnostics = diagnostics
         self.concat = concat
+
+    @property
+    def in_channel_names(self):
+        return self.model.in_channel_names
+
+    @property
+    def out_channel_names(self):
+        out_names = []
+        for function in self.diagnostics:
+            out_names.extend(function.out_channel_names)
+
+        if self.concat:
+            out_names = self.model.out_channel_names + out_names
+        return out_names
+
+    @property
+    def grid(self):
+        # TODO: Need to generalize
+        return self.diagnostics[0].out_grid
+
+    @property
+    def device(self):
+        return self.model.device
 
     def __call__(
         self,
@@ -60,14 +84,14 @@ class DiagnosticTimeLooper(TimeLooper):
 
         restart = (time, unnormalized data)
         """
-
-        iterator = self.model(x, time, normalize=normalize)
-
+        iterator = self.model(time, x, normalize=normalize)
         for (time, data, restart) in iterator:
-
             out = []
             for function in self.diagnostics:
-                out.append(function(data))
+                data0 = filer_channels(
+                    data, self.model.out_channel_names, function.in_channel_names
+                )
+                out.append(function(data0))
 
             out = torch.cat(out, axis=1)
             if self.concat:

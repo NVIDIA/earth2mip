@@ -544,11 +544,11 @@ class ClimateNet(DiagnosticBase):
         self.register_buffer("in_scale", in_scale)
 
     @property
-    def in_channels(self) -> list[str]:
+    def in_channel_names(self) -> list[str]:
         return self._in_channels
 
     @property
-    def out_channels(self) -> list[str]:
+    def out_channel_names(self) -> list[str]:
         return self._out_channels
 
     @property

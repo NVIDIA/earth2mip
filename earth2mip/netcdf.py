@@ -141,7 +141,6 @@ def update_netcdf(
 
         domain_diagnostics = total_diagnostics[d_index]
         for diagnostic in domain_diagnostics:
-
             index = [
                 channel_names_of_data.index(c) for c in diagnostic.diagnostic.channels
             ]

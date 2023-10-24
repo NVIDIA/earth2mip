@@ -24,11 +24,11 @@ class GeoFunction(Protocol):
     """
 
     @property
-    def in_channels(self) -> list[str]:
+    def in_channel_names(self) -> list[str]:
         pass
 
     @property
-    def out_channels(self) -> list[str]:
+    def out_channel_names(self) -> list[str]:
         pass
 
     @property

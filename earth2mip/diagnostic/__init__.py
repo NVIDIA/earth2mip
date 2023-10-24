@@ -15,3 +15,4 @@
 # limitations under the License.
 from earth2mip.diagnostic.wind_speed import WindSpeed  # noqa
 from earth2mip.diagnostic.climate_net import ClimateNet  # noqa
+from earth2mip.diagnostic.time_loop import DiagnosticTimeLoop  # noqa
