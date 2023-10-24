@@ -17,7 +17,7 @@
 import urllib
 import warnings
 import itertools
-from typing import Optional, Tuple, Any, Iterator, List
+from typing import Optional, Tuple, Any, Iterator, List, Callable
 import sys
 import datetime
 import os
@@ -29,7 +29,7 @@ import contextlib
 import modulus
 
 
-from modulus.utils.sfno.zenith_angle import cos_zenith_angle
+from modulus.utils.zenith_angle import cos_zenith_angle
 from modulus.distributed.manager import DistributedManager
 from earth2mip.loaders import LoaderProtocol
 from earth2mip import registry, ModelRegistry, model_registry
@@ -125,6 +125,7 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         center: np.array,
         scale: np.array,
         grid: schema.Grid,
+        source: Optional[Callable] = None,
         n_history: int = 0,
         time_step=datetime.timedelta(hours=6),
         channel_names=None,
@@ -139,6 +140,7 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
                 the means. The shape is NOT `len(channels)`.
             scale: a 1d numpy array with shape (n_channels in data) containing
                 the stds. The shape is NOT `len(channels)`.
+            source: a source function that augments the state vector (noise, nudge or other)
             grid: metadata about the grid, which should be used to pass the
                 correct data to this object.
             channel_names: The names of the prognostic channels.
@@ -163,6 +165,7 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         self.grid = grid
         self.time_step = time_step
         self.n_history = n_history
+        self.source = source
 
         center = torch.from_numpy(np.squeeze(center)).float()
         scale = torch.from_numpy(np.squeeze(scale)).float()
@@ -235,6 +238,8 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
             yield time, self.scale * x[:, -1] + self.center, restart
 
             while True:
+                if self.source:
+                    x = self.source(x, self.time_step)
                 x = self.model(x, time)
                 time = time + self.time_step
 
@@ -273,17 +278,21 @@ def _default_inference(package, metadata: schema.Model, device):
     return inference
 
 
+def _load_package_builtin(package, device, name) -> time_loop.TimeLoop:
+    group = "earth2mip.networks"
+    entrypoints = entry_points(group=group)
+
+    names_found = []
+    for entry_point in entrypoints:
+        names_found.append(entry_point.name)
+        if entry_point.name == name:
+            inference_loader = entry_point.load()
+            return inference_loader(package, device=device)
+    raise ValueError(f"{name} not in {names_found}.")
+
+
 def _load_package(package, metadata, device) -> time_loop.TimeLoop:
     # Attempt to see if Earth2 MIP has entry point registered already
-    if metadata is None:
-        group = "earth2mip.networks"
-        entrypoints = entry_points(group=group)
-        for entry_point in entrypoints:
-            name = package.root.split(package.seperator)[-1]
-            if entry_point.name == name:
-                inference_loader = entry_point.load()
-                return inference_loader(package, device=device)
-
     # Read meta data from file if not present
     if metadata is None:
         local_path = package.get("metadata.json")
@@ -329,12 +338,16 @@ def get_model(
 
     """
     url = urllib.parse.urlparse(model)
-    if url.scheme == "" or url.scheme == "e2mip":
+
+    if url.scheme == "e2mip":
         package = registry.get_model(model)
+        return _load_package_builtin(package, device, name=url.netloc)
+    elif url.scheme == "":
+        package = registry.get_model(model)
+        return _load_package(package, metadata, device)
     else:
         package = model_registry.Package(root=model, seperator="/")
-
-    return _load_package(package, metadata, device)
+        return _load_package(package, metadata, device)
 
 
 class Identity(torch.nn.Module):

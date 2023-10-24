@@ -16,7 +16,6 @@
 
 from typing import List, Optional, Mapping, Any
 import pydantic
-from earth2mip import weather_events
 from earth2mip.weather_events import InitialConditionSource, WeatherEvent
 from enum import Enum
 import datetime
@@ -42,28 +41,36 @@ class Grid(Enum):
             raise ValueError(f"Unknown grid {self}")
 
     @property
+    def _lat_spacing(self):
+        if self == Grid.grid_721x1440:
+            return 0.25
+        elif self == Grid.grid_720x1440:
+            return 0.25
+        elif self == Grid.s2s_challenge:
+            return 1.0
+        else:
+            raise ValueError(f"Unknown grid {self}")
+
+    @property
+    def _lon_spacing(self):
+        if self == Grid.grid_721x1440:
+            return 0.25
+        elif self == Grid.grid_720x1440:
+            return 0.25
+        elif self == Grid.s2s_challenge:
+            return 1.0
+        else:
+            raise ValueError(f"Unknown grid {self}")
+
+    @property
     def lat(self):
-        return _grids[self]["lat"]
+        n = self.shape[0]
+        return 90 - np.arange(n) * self._lat_spacing
 
     @property
     def lon(self):
-        return _grids[self]["lon"]
-
-
-_grids = {
-    Grid.grid_721x1440: {
-        "lat": np.linspace(90, -90.0, 721),
-        "lon": np.linspace(0, 359.75, 1440),
-    },
-    Grid.grid_720x1440: {
-        "lat": np.linspace(89.75, -90.0, 720),
-        "lon": np.linspace(0, 359.75, 1440),
-    },
-    Grid.s2s_challenge: {
-        "lat": np.linspace(90, -90.0, 181),
-        "lon": np.linspace(0, 359, 360),
-    },
-}
+        n = self.shape[1]
+        return np.arange(n) * self._lon_spacing
 
 
 class InferenceEntrypoint(pydantic.BaseModel):

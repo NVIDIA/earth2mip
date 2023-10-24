@@ -71,6 +71,9 @@ def download_cached(path: str, recursive: bool = False) -> str:
         elif url.scheme == "file":
             path = os.path.join(url.netloc, url.path)
             return path
+        elif url.scheme:
+            fs = fsspec.filesystem(url.scheme)
+            fs.get(path, cache_path)
         else:
             return path
 

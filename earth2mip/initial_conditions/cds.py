@@ -14,15 +14,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import hashlib
 import eccodes
 from typing import List, Union
 import datetime
 import dataclasses
-from earth2mip import schema
+from earth2mip import schema, config
 import xarray
 import numpy as np
-import tempfile
 import os
+import shutil
+from typing import Optional
 from concurrent.futures import ThreadPoolExecutor
 from cdsapi import Client
 
@@ -30,6 +32,8 @@ import logging
 
 logging.getLogger("cdsapi").setLevel(logging.WARNING)
 import urllib3
+
+logger = logging.getLogger(__name__)
 
 urllib3.disable_warnings(
     urllib3.exceptions.InsecureRequestWarning
@@ -40,6 +44,8 @@ CHANNEL_TO_CODE = {
     "z": 129,
     "u": 131,
     "v": 132,
+    # w = dp/dt, normally called omega
+    "w": 135,
     "t": 130,
     "q": 133,
     "r": 157,
@@ -53,18 +59,35 @@ CHANNEL_TO_CODE = {
     "msl": 151,
     # total precip
     "tp": 228,
+    # total precip accumlated over 6 hours
+    "tp06": 260267,
+    "tisr": 212,
+    "zs": 162051,
+    "lsm": 172,
 }
 
 
-@dataclasses.dataclass
+def keys_to_vals(d):
+    return dict(zip(d.values(), d.keys()))
+
+
+@dataclasses.dataclass(eq=True, order=True, frozen=True)
 class PressureLevelCode:
     id: int
     level: int = 0
 
+    def __str__(self):
+        lookup = keys_to_vals(CHANNEL_TO_CODE)
+        return lookup[self.id] + str(self.level)
 
-@dataclasses.dataclass
+
+@dataclasses.dataclass(eq=True, order=True, frozen=True)
 class SingleLevelCode:
     id: int
+
+    def __str__(self):
+        lookup = keys_to_vals(CHANNEL_TO_CODE)
+        return lookup[self.id]
 
 
 def parse_channel(channel: str) -> Union[PressureLevelCode, SingleLevelCode]:
@@ -83,13 +106,22 @@ class DataSource:
     client: Client = dataclasses.field(
         default_factory=lambda: Client(progress=False, quiet=False)
     )
+    _cache: Optional[str] = None
 
     @property
     def time_means(self):
         raise NotImplementedError()
 
-    def __getitem__(self, time: datetime.datetime) -> np.ndarray:
-        return _get_channels(self.client, time, self.channel_names).values
+    @property
+    def cache(self):
+        if self._cache:
+            return self._cache
+        else:
+            return os.path.join(config.LOCAL_CACHE, "cds")
+
+    def __getitem__(self, time: datetime.datetime):
+        os.makedirs(self.cache, exist_ok=True)
+        return _get_channels(self.client, time, self.channel_names, self.cache).values
 
 
 def _get_cds_requests(codes, time, format):
@@ -108,6 +140,8 @@ def _get_cds_requests(codes, time, format):
             single_level_names.add(v.id)
 
     if pressure_level_names and levels:
+        # TODO to limit download size for many levels, split this into one
+        # request per variable if there are more than some number of levels.
         yield (
             "reanalysis-era5-pressure-levels",
             {
@@ -180,7 +214,6 @@ def _parse_files(
                     continue
 
                 arrays[i] = vals
-
     array = np.stack(arrays)
     coords = {}
     coords["lat"] = lat[:, 0]
@@ -188,30 +221,35 @@ def _parse_files(
     return xarray.DataArray(array, dims=["channel", "lat", "lon"], coords=coords)
 
 
-def _download_codes(client, codes, time):
-    with tempfile.TemporaryDirectory() as d:
-        files = []
-        format = "grib"
+def _download_codes(client, codes, time, d) -> xarray.DataArray:
+    files = []
+    format = "grib"
 
-        def download(arg):
-            f = tempfile.mktemp(dir=d, suffix="." + format)
-            name, req = arg
-            path = os.path.join(d, f)
-            client.retrieve(name, req, path)
-            return path
+    def download(arg):
+        name, req = arg
+        hash_ = hashlib.sha256(str(req).encode()).hexdigest()
+        dirname = os.path.join(d, hash_)
+        os.makedirs(dirname, exist_ok=True)
+        filename = name + ".grib"
+        path = os.path.join(dirname, filename)
+        if not os.path.exists(path):
+            logger.info(f"Data not found in cache. Downloading {name} to {path}")
+            client.retrieve(name, req, path + ".tmp")
+            shutil.move(path + ".tmp", path)
+        else:
+            logger.info(f"Found data in cache. Using {path}.")
+        return path
 
-        requests = _get_cds_requests(codes, time, format)
-        with ThreadPoolExecutor(4) as pool:
-            files = pool.map(download, requests)
+    requests = _get_cds_requests(codes, time, format)
+    with ThreadPoolExecutor(4) as pool:
+        files = pool.map(download, requests)
 
-        darray = _parse_files(codes, files)
-
-    return darray
+    return _parse_files(codes, files)
 
 
-def _get_channels(client, time: datetime.datetime, channels: List[str]):
+def _get_channels(client, time: datetime.datetime, channels: List[str], d):
     codes = [parse_channel(c) for c in channels]
-    darray = _download_codes(client, codes, time)
+    darray = _download_codes(client, codes, time, d)
     return (
         darray.assign_coords(channel=channels)
         .assign_coords(time=time)
