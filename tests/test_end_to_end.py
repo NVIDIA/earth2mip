@@ -23,7 +23,6 @@ from earth2mip.inference_ensemble import run_basic_inference
 from earth2mip.networks import persistence, get_model
 from earth2mip import (
     schema,
-    ensemble_schema,
     weather_events,
     inference_ensemble,
     score_ensemble_outputs,
@@ -61,7 +60,7 @@ def test_inference_ensemble(tmp_path):
     channel_stds["a"] = 0.0
     channel_stds["b"] = 0.0
     channel_stds["c"] = 0.0
-    config = ensemble_schema.EnsembleRun(
+    config = schema.EnsembleRun(
         weather_model="dummy",
         simulation_length=40,
         output_path=tmp_path.as_posix(),
