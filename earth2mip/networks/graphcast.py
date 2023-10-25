@@ -283,11 +283,11 @@ def load_run_forward_from_checkpoint(checkpoint, grid):
     print("Model description:\n", checkpoint.description, "\n")
     print("Model license:\n", checkpoint.license, "\n")
 
+    lat = np.array(grid.lat)
+    lon = np.array(grid.lon)
+
     @hk.transform_with_state
     def run_forward(model_config, task_config, x):
-        lat = grid.lat[::-1]
-        lon = grid.lon
-
         x = x.astype(jnp.float16)
         predictor = NoXarrayGraphcast(model_config, task_config)
         return predictor(x, lat, lon)
