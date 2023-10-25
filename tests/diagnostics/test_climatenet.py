@@ -23,7 +23,7 @@ from earth2mip.diagnostic.climate_net import ClimateNet
 @pytest.mark.parametrize("device", ["cuda:0"])
 def test_climate_net(device):
 
-    package = ClimateNet.load_package()
+    package = ClimateNet.load_package("s3://earth2_server/diagnostics")
     model = ClimateNet.load_diagnostic(package, device)
 
     x = torch.randn(

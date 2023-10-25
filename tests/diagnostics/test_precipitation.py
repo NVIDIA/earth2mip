@@ -23,7 +23,7 @@ from earth2mip.diagnostic import PrecipitationAFNO
 @pytest.mark.parametrize("device", ["cuda:0"])
 def test_precipitation_afno(device):
 
-    package = PrecipitationAFNO.load_package()
+    package = PrecipitationAFNO.load_package("s3://earth2_server/diagnostics")
     model = PrecipitationAFNO.load_diagnostic(package, device)
 
     x = torch.randn(

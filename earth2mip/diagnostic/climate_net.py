@@ -19,7 +19,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 import numpy as np
-from typing import Optional
+from earth2mip import config
 from earth2mip.schema import Grid
 from earth2mip.model_registry import Package
 from earth2mip.diagnostic.base import DiagnosticBase
@@ -541,12 +541,12 @@ class ClimateNet(DiagnosticBase):
         return out
 
     @classmethod
-    def load_package(cls, registry: str = "s3://earth2_server/diagnostics") -> Package:
-        registry = ModelRegistry("s3://earth2_server/diagnostics")
+    def load_package(cls, registry: str = config.MODEL_REGISTRY) -> Package:
+        registry = ModelRegistry(registry)
         return registry.get_model("climatenet")
 
     @classmethod
-    def load_diagnostic(cls, package: Optional[Package], device="cuda:0"):
+    def load_diagnostic(cls, package: Package, device="cuda:0"):
 
         model = CGNetModule(
             channels=len(IN_CHANNELS),
