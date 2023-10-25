@@ -106,7 +106,7 @@ class Model(pydantic.BaseModel):
     entrypoint: Optional[InferenceEntrypoint] = None
 
 
-class PerturbationStrategy(str, Enum):
+class PerturbationStrategy(Enum):
     correlated = "correlated"
     gaussian = "gaussian"
     bred_vector = "bred_vector"
@@ -145,7 +145,7 @@ class EnsembleRun(pydantic.BaseModel):
     simulation_length: int
     # TODO make perturbation_strategy an Enum (see ChannelSet)
     perturbation_strategy: PerturbationStrategy = PerturbationStrategy.correlated
-    perturbation_channels: Optional[list[str]] = None
+    perturbation_channels: Optional[List[str]] = None
     noise_reddening: float = 2.0
     noise_amplitude: float = 0.05
     output_frequency: int = 1
