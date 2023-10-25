@@ -56,4 +56,15 @@ class GeoOperator(Protocol):
 
     @abstractmethod
     def __call__(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Parameters
+        ----------
+        x : torch.Tensor
+            Input tensor of geographic data of shape [..., in_chans, lat, lon]
+
+        Returns
+        -------
+        torch.Tensor
+            Output tensor of geographic data of shape [..., out_chans, lat, lon]
+        """
         pass

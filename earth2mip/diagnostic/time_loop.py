@@ -18,7 +18,7 @@ import datetime
 from typing import Optional, Any, Iterator, Tuple, List
 from earth2mip.diagnostic.base import DiagnosticBase
 from earth2mip.time_loop import TimeLoop
-from earth2mip.diagnostic.utils import filer_channels
+from earth2mip.diagnostic.utils import filter_channels
 
 
 class DiagnosticTimeLoop(TimeLoop):
@@ -88,7 +88,7 @@ class DiagnosticTimeLoop(TimeLoop):
         for (time, data, restart) in iterator:
             out = []
             for function in self.diagnostics:
-                data0 = filer_channels(
+                data0 = filter_channels(
                     data, self.model.out_channel_names, function.in_channel_names
                 )
                 out.append(function(data0))

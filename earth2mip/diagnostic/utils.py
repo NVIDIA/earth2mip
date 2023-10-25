@@ -16,29 +16,23 @@
 import torch
 
 
-def filer_channels(
+def filter_channels(
     input: torch.Tensor, in_channels: list[str], out_channels: list[str]
 ) -> torch.Tensor:
-    """Utility function used for selecting a sub set of channels from
+    """Utility function used for selecting a sub set of channels
+
+    Note
+    ----
+    Right now this assumes that the channels are in the thirds to last axis.
 
     Parameters
     ----------
     input : torch.Tensor
-        _description_
+        Input tensor of shape [..., channels, lat, lon]
     in_channels : list[str]
-        _description_
+        Input channel list
     out_channels : list[str]
-        _description_
-
-    Returns
-    -------
-    torch.Tensor
-        _description_
-
-    Raises
-    ------
-    ValueError
-        _description_
+        Output channel list
     """
     indexes_list = []
     try:
@@ -50,4 +44,4 @@ def filer_channels(
             + f"requested channels. {e}"
         )
     indexes = torch.IntTensor(indexes_list).to(input.device)
-    return torch.index_select(input, 1, indexes)
+    return torch.index_select(input, -3, indexes)
