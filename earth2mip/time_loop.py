@@ -17,7 +17,7 @@
 from typing import Protocol, List, Iterator, Tuple, Any, Optional
 import datetime
 import torch
-from earth2mip.schema import Grid
+import earth2mip.grid
 
 
 ChannelNameT = str
@@ -46,7 +46,7 @@ class TimeLoop(Protocol):
 
     in_channel_names: List[ChannelNameT]
     out_channel_names: List[ChannelNameT]
-    grid: Grid
+    grid: earth2mip.grid.LatLonGrid
     n_history_levels: int = 1
     history_time_step: datetime.timedelta = datetime.timedelta(hours=0)
     time_step: datetime.timedelta

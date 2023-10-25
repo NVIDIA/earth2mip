@@ -26,28 +26,48 @@ import s3fs
 import xarray
 import numpy as np
 
-from earth2mip import config, filesystem
+from earth2mip import config, filesystem, grid
 from earth2mip.datasets import era5
 from earth2mip.initial_conditions import base
 
-__all__ = ["open_era5_xarray"]
+__all__ = ["open_xarray", "DataSource"]
 
 logger = logging.getLogger(__name__)
 # TODO move to earth2mip/datasets/era5?
 
 
 @dataclasses.dataclass
-class HDF5DataSource(base.DataSource):
+class DataSource(base.DataSource):
+    """HDF5 Data Sources
+
+    Works with a directory structure like this::
+
+        data.json
+        subdirA/2018.h5
+        subdirB/2017.h5
+        subdirB/2016.h5
+
+    Attrs:
+        root: Path to the root of the HDF5 data.
+        metadata: Metadata about the HDF5 data
+    """
+
     root: str
     metadata: Any
 
     @classmethod
-    def from_path(cls, root: str, **kwargs: Any) -> "HDF5DataSource":
+    def from_path(cls, root: str, **kwargs: Any) -> "DataSource":
         metadata_path = os.path.join(root, "data.json")
         metadata_path = filesystem.download_cached(metadata_path)
         with open(metadata_path) as mf:
             metadata = json.load(mf)
         return cls(root, metadata, **kwargs)
+
+    @property
+    def grid(self):
+        return grid.LatLonGrid(
+            lat=self.metadata["coords"]["lat"], lon=self.metadata["coords"]["lon"]
+        )
 
     @property
     def channel_names(self):
@@ -82,7 +102,7 @@ def _get_path(path: str, time) -> str:
     return files[filename]
 
 
-def open_era5_xarray(time: datetime.datetime) -> xarray.DataArray:
+def open_xarray(time: datetime.datetime) -> xarray.DataArray:
     warnings.warn(DeprecationWarning("This function will be removed"))
     root = config.ERA5_HDF5
     path = _get_path(root, time)

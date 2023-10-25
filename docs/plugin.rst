@@ -120,4 +120,4 @@ Bring you own data
 ==================
 
 Implement a custom data source like
-:py:class:`earth2mip.initial_conditions.era5.HDF5DataSource`
+:py:class:`earth2mip.initial_conditions.hdf5.DataSource`

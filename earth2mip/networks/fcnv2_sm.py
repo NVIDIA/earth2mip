@@ -130,7 +130,7 @@ def load(package, *, pretrained=True, device="cuda"):
     fixed_weights = _fix_state_dict_keys(weights["model_state"], add_module=False)
     core_model.load_state_dict(fixed_weights)
 
-    grid = schema.Grid.grid_721x1440
+    grid = earth2mip.grid.regular_lat_lon_grid(721, 1440)
     dt = datetime.timedelta(hours=6)
 
     inference = networks.Inference(

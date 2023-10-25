@@ -15,6 +15,7 @@
 # limitations under the License.
 
 from earth2mip.networks import graphcast
+import earth2mip.grid
 
 from graphcast.graphcast import TASK, TASK_13_PRECIP_OUT, TASK_13
 import torch
@@ -33,16 +34,15 @@ def test_graphcast_time_loop(task):
     ngrid = nlat * nlon
     batch = 1
     history = 2
-    lat = np.linspace(90, -90, nlat)
-    lon = np.linspace(0, 360, nlon, endpoint=False)
+    grid = earth2mip.grid.regular_lat_lon_grid(nlat, nlon)
 
     def forward(rng, x):
         assert x.shape == (ngrid, batch, len(in_codes))
         return np.zeros([ngrid, batch, len(target_codes)])
 
     static_variables = {
-        "land_sea_mask": np.zeros((nlat, nlon)),
-        "geopotential_at_surface": np.zeros((nlat, nlon)),
+        "land_sea_mask": np.zeros(grid.shape),
+        "geopotential_at_surface": np.zeros(grid.shape),
     }
 
     in_codes, target_codes = graphcast.get_codes_from_task_config(task)
@@ -50,14 +50,7 @@ def test_graphcast_time_loop(task):
     scale = np.ones(len(in_codes))
     diff_scale = np.ones(len(target_codes))
     loop = graphcast.GraphcastTimeLoop(
-        forward,
-        static_variables,
-        mean,
-        scale,
-        diff_scale,
-        task_config=task,
-        lat=lat,
-        lon=lon,
+        forward, static_variables, mean, scale, diff_scale, task_config=task, grid=grid
     )
     initial_time = datetime.datetime(2018, 1, 1)
 

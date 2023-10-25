@@ -16,14 +16,14 @@
 
 from typing import List, runtime_checkable, Protocol
 import datetime
-from earth2mip import schema
+from earth2mip import grid
 import numpy as np
 
 
 @runtime_checkable
 class DataSource(Protocol):
 
-    grid: schema.Grid
+    grid: grid.LatLonGrid
 
     @property
     def channel_names(self) -> List[str]:

@@ -19,7 +19,8 @@ from earth2mip.initial_conditions.base import DataSource
 import os
 import datetime
 import json
-from earth2mip import filesystem, schema, config
+from earth2mip import filesystem, config
+import earth2mip.grid
 import logging
 import numpy as np
 import h5py
@@ -64,15 +65,16 @@ def _get_hdf5(path: str, metadata, time: datetime.datetime) -> np.ndarray:
 
 
 class HDFPlSl(DataSource):
-
-    grid: schema.Grid = schema.Grid.grid_721x1440
-
     def __init__(self, path: str) -> None:
         self.path = path
         metadata_path = os.path.join(config.ERA5_HDF5_73, "data.json")
         metadata_path = filesystem.download_cached(metadata_path)
         with open(metadata_path) as mf:
             self.metadata = json.load(mf)
+
+    @property
+    def grid(self) -> earth2mip.grid.LatLonGrid:
+        return earth2mip.grid.regular_lat_lon_grid(721, 1440)
 
     @property
     def channel_names(self) -> List[str]:
