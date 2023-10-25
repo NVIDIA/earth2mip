@@ -20,7 +20,8 @@ import numpy as np
 import xarray
 import modulus
 import logging
-from earth2mip import schema, networks
+from earth2mip import networks
+import earth2mip.grid
 import torch
 
 from modulus.utils.filesystem import Package
@@ -164,7 +165,7 @@ def load(package: Package, *, pretrained=True, device="cuda"):
         channel_names = ["t850", "z1000", "z700", "z500", "z300", "tcwv", "t2m"]
         center = np.load(package.get("global_means.npy"))
         scale = np.load(package.get("global_stds.npy"))
-        grid = schema.Grid.grid_721x1440
+        grid = earth2mip.grid.regular_lat_lon_grid(721, 1440)
         dt = datetime.timedelta(hours=12)
         inference = networks.Inference(
             model,

@@ -16,40 +16,17 @@
 
 import torch
 import pytest
-import xarray
-import numpy as np
-from earth2mip import regrid
-from earth2mip import schema
+from earth2mip import regrid, grid
 
 
 def test_get_regridder():
-    src = schema.Grid.grid_721x1440
-    dest = schema.Grid.s2s_challenge
+    src = grid.regular_lat_lon_grid(721, 1440)
+    dest = grid.regular_lat_lon_grid(181, 360)
     try:
         f = regrid.get_regridder(src, dest)
     except FileNotFoundError as e:
         pytest.skip(f"{e}")
     x = torch.ones(1, 1, 721, 1440)
     y = f(x)
-    assert y.shape == (1, 1, 121, 240)
+    assert y.shape == (1, 1, 181, 360)
     assert torch.allclose(y, torch.ones_like(y))
-
-
-def test_xarray_regridder():
-
-    dest = schema.Grid.grid_720x1440
-
-    lat = np.linspace(90, -90.0, 721)
-    lon = np.linspace(0, 359.75, 1440)
-    time = [0, 1, 2, 3]
-    # Create random data array with dimensions (time, lat, lon)
-    data = np.random.rand(len(time), len(lat), len(lon))
-    ds = xarray.Dataset(
-        {"random_data": (["time", "lat", "lon"], data)},
-        coords={"time": time, "lat": lat, "lon": lon},
-    )
-
-    out = regrid.xarray_regrid(ds, dest)
-    assert np.array_equal(out.lat, dest.lat)
-    assert np.array_equal(out.lon, dest.lon)
-    assert out.random_data.shape == (len(time), dest.lat.shape[0], dest.lon.shape[0])

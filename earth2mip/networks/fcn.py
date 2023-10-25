@@ -63,9 +63,8 @@ def load(package, *, pretrained=True, device="cuda"):
 
     core_model = modulus.Module.from_checkpoint(package.get("fcn.mdlus"))
 
-    grid = schema.Grid.grid_720x1440
     dt = datetime.timedelta(hours=6)
-
+    grid = earth2mip.grid.regular_lat_lon_grid(721, 1440)
     inference = networks.Inference(
         core_model,
         center=local_center,

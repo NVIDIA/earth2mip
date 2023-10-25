@@ -13,7 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from earth2mip import initial_conditions, schema
+from earth2mip import initial_conditions, schema, grid
 from earth2mip.initial_conditions import cds
 from earth2mip.initial_conditions.base import DataSource
 from earth2mip import config
@@ -53,7 +53,7 @@ def test_get_initial_conditions_for_model(n):
         in_channel_names = ["t850", "t2m"]
         n_history_levels = n
         history_time_step = datetime.timedelta(hours=6)
-        grid = schema.Grid.grid_721x1440
+        grid = grid.regular_lat_lon_grid(721, 1440)
         device = "cpu"
 
     shape = (1, len(Model.in_channel_names)) + Model.grid.shape

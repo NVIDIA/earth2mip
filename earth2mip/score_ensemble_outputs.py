@@ -21,7 +21,7 @@ import xarray
 import pathlib
 import earth2mip.time
 from earth2mip import weather_events
-from earth2mip.initial_conditions.era5 import open_era5_xarray
+from earth2mip.initial_conditions import hdf5
 import xskillscore
 
 import logging
@@ -47,7 +47,7 @@ def open_ensemble(path, group):
 
 
 def open_verification(time):
-    v = open_era5_xarray(time)
+    v = hdf5.open_xarray(time)
     v = v.to_dataset("channel")
     v = v.chunk({"time": 1})
     return v

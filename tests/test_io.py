@@ -15,9 +15,8 @@
 # limitations under the License.
 
 from earth2mip import netcdf
-import numpy as np
 import netCDF4 as nc
-from earth2mip.schema import Grid
+import earth2mip.grid
 from earth2mip.weather_events import Window, Diagnostic
 import torch
 
@@ -29,17 +28,13 @@ def test_initialize_netcdf(tmp_path):
         lat_max=15,
         diagnostics=[Diagnostic(type="raw", function="", channels=["tcwv"])],
     )
-    lat = np.array([-20, 0, 20])
-    lon = np.array([0, 1, 2])
     n_ensemble = 1
     path = tmp_path / "a.nc"
     with nc.Dataset(path.as_posix(), "w") as ncfile:
         netcdf.initialize_netcdf(
             ncfile,
             [domain],
-            Grid("720x1440"),
-            lat,
-            lon,
+            earth2mip.grid.regular_lat_lon_grid(720, 1440, includes_south_pole=False),
             n_ensemble,
             torch.device(type="cpu"),
         )

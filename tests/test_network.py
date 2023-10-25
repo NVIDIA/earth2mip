@@ -14,11 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from earth2mip import networks, schema
+from earth2mip import networks
 import torch
 import torch.nn
 import numpy as np
 import datetime
+import earth2mip.grid
 
 
 class Identity(torch.nn.Module):
@@ -37,7 +38,7 @@ def test_inference_run_with_restart():
         model,
         center=center,
         scale=scale,
-        grid=schema.Grid.grid_720x1440,
+        grid=earth2mip.grid.regular_lat_lon_grid(720, 1440, includes_south_pole=False),
         channel_names=["a", "b"],
     )
 

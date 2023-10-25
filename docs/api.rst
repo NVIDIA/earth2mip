@@ -18,7 +18,7 @@ API
 
 .. autofunction:: earth2mip.inference_ensemble.run_inference
 
-.. autoclass:: earth2mip.initial_conditions.era5.HDF5DataSource
+.. autoclass:: earth2mip.initial_conditions.hdf5.DataSource
    :members: __getitem__
 
 .. automodule:: earth2mip.schema

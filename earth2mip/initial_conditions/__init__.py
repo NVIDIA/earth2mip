@@ -18,12 +18,11 @@ from typing import List
 from earth2mip import config
 import datetime
 from earth2mip import schema, regrid, time_loop
-from earth2mip.initial_conditions.era5 import open_era5_xarray, HDF5DataSource
-from earth2mip.initial_conditions import ifs, cds, gfs, hrmip, base
+from earth2mip.initial_conditions import ifs, cds, gfs, hrmip, base, hdf5
 import numpy as np
 import torch
 
-__all__ = ["open_era5_xarray", "get_data_source"]
+__all__ = ["get_data_source", "cds", "ifs", "gfs", "hrmip", "hdf5"]
 
 
 def get_data_source(
@@ -32,7 +31,7 @@ def get_data_source(
     initial_condition_source=schema.InitialConditionSource.era5,
 ) -> base.DataSource:
     if initial_condition_source == schema.InitialConditionSource.era5:
-        return HDF5DataSource.from_path(root=config.ERA5_HDF5)
+        return hdf5.DataSource.from_path(root=config.ERA5_HDF5)
     elif initial_condition_source == schema.InitialConditionSource.cds:
         return cds.DataSource(channel_names)
     elif initial_condition_source == schema.InitialConditionSource.gfs:
