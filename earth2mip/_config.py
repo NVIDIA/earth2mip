@@ -15,8 +15,7 @@
 # limitations under the License.
 
 from typing import List
-from pydantic import Field
-from pydantic_settings import BaseSettings
+from pydantic import BaseSettings, Field
 import os
 
 
@@ -45,7 +44,7 @@ class Settings(BaseSettings):
 
     # used in score-ifs.py
     # TODO refactor to a command line argument of that script
-    IFS_ROOT: str = ""
+    IFS_ROOT: str = None
 
     # only used in test suite
     # TODO add a default option.

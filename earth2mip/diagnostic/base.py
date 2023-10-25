@@ -16,11 +16,11 @@
 import torch
 from typing import Type, Optional
 from pydantic import BaseModel
-from earth2mip.geo_function import GeoFunction
+from earth2mip.geo_function import GeoOperator
 from earth2mip.model_registry import Package
 
 
-class DiagnosticBase(torch.nn.Module, GeoFunction):
+class DiagnosticBase(torch.nn.Module, GeoOperator):
     """Diagnostic model base class"""
 
     @classmethod

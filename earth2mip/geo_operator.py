@@ -19,18 +19,18 @@ from abc import abstractmethod
 from earth2mip.schema import Grid
 
 
-class GeoFunction(Protocol):
-    """Geo Function
+class GeoOperator(Protocol):
+    """Geo Operator
 
-    This is the most primative functional of Earth-2 MIP which represents a functional
-    operations on geographical data to produce geographical data. This implies the
+    This is the most primative functional of Earth-2 MIP which represents a
+    operators on geographical data to produce geographical data. This implies the
     following two requirements:
-        1) The function must define in and out channel variables representing the fields
-           in the input/output arrays.
-        2) The function must define the in and out grid schemas.
+        1) The operation must define in and out channel variables representing the
+            fields in the input/output arrays.
+        2) The operation must define the in and out grid schemas.
 
-    Many auto-gressive models can be represented as a GeoFunction and can maintain a
-    internal state. Diagnostic models must be a GeoFunction by definition.
+    Many auto-gressive models can be represented as a GeoOperator and can maintain a
+    internal state. Diagnostic models must be a GeoOperator by definition.
 
     Warning
     -------

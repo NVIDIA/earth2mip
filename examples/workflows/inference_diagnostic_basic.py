@@ -55,13 +55,12 @@ def main(model_name: str = "e2mip://fcnv2_sm"):
     time = datetime.datetime(2018, 4, 4)
 
     logging.info("Running inference")
-    ds = run_basic_inference(
+    run_basic_inference(
         model_diagnostic,
         n=1,
         data_source=data_source,
         time=time,
     )
-    print(ds)
 
 
 if __name__ == "__main__":
