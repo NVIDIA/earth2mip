@@ -30,7 +30,7 @@ from modulus.distributed.manager import DistributedManager
 from earth2mip.inference_ensemble import run_basic_inference
 from earth2mip.networks import get_model
 from earth2mip.initial_conditions import cds
-from earth2mip.diagnostic import ClimateNet, DiagnosticTimeLoop
+from earth2mip.diagnostic import PrecipitationAFNO, DiagnosticTimeLoop
 
 
 def main(model_name: str = "e2mip://fcnv2_sm"):
@@ -44,15 +44,15 @@ def main(model_name: str = "e2mip://fcnv2_sm"):
     logging.info(f"Loading model onto device {device}")
     model = get_model(model_name, device=device)
 
-    logging.info("Loading climate diagnostic model")
-    package = ClimateNet.load_package()
-    diagnostic = ClimateNet.load_diagnostic(package)
+    logging.info("Loading precipitation diagnostic model")
+    package = PrecipitationAFNO.load_package()
+    diagnostic = PrecipitationAFNO.load_diagnostic(package)
 
     model_diagnostic = DiagnosticTimeLoop(diagnostics=[diagnostic], model=model)
 
     logging.info("Constructing initializer data source")
     data_source = cds.DataSource(model.in_channel_names)
-    time = datetime.datetime(2018, 1, 1)
+    time = datetime.datetime(2018, 4, 4)
 
     logging.info("Running inference")
     ds = run_basic_inference(

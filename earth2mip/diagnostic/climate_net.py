@@ -14,35 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Network Source: https://github.com/andregraubner/ClimateNet
-# MIT License
-#
-# Copyright (c) 2020 André Graubner
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
-
-###########################################################################
-# CGNet: A Light-weight Context Guided Network for Semantic Segmentation
-# Paper-Link: https://arxiv.org/pdf/1811.08201.pdf
-###########################################################################
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -70,6 +41,7 @@ OUT_CHANNELS = [
 
 # =========================== TODO Move somehwere ============================
 # ============================================================================
+# Architecture: https://arxiv.org/pdf/1811.08201.pdf
 class Wrap(torch.nn.Module):
     """Climate net wrapper for padding."""
 
@@ -510,21 +482,24 @@ class CGNetModule(nn.Module):
 
 class ClimateNet(DiagnosticBase):
     """Climate Net Diagnostic model, built into Earth-2 MIP. This model can be used to
-    create prediction labels for tropical cyclones and atmopheric rivers.
+    create prediction labels for tropical cyclones and atmopheric rivers. Produces
+    non-standard output channels climnet_bg, climnet_tc and climnet_ar representing
+    background label, tropical cyclone and atmopheric river labels.
 
     Note
     ----
-    Produces non-standard output channels climnet_bg, climnet_tc and climnet_ar
-    representing background label, tropical cyclone and atmopheric river labels
+    This model and checkpoint are from Prabhat et al. 2021
+    https://doi.org/10.5194/gmd-14-107-2021
+    https://github.com/andregraubner/ClimateNet
 
     Example
     -------
     >>> package = ClimateNet.load_package()
-    >>> windgust = ClimateNet.load_diagnostic(package)
+    >>> model = ClimateNet.load_diagnostic(package)
     >>> x = torch.randn(1, 4, 721, 1440)
-    >>> out = windgust(x)
+    >>> out = model(x)
     >>> out.shape
-    (1, 2, 721, 1440)
+    (1, 3, 721, 1440)
     """
 
     def __init__(
