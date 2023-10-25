@@ -15,7 +15,7 @@
 # limitations under the License.
 import torch
 import pytest
-from earth2mip.diagnostic.climate_net import PrecipitationAFNO
+from earth2mip.diagnostic import PrecipitationAFNO
 
 
 @pytest.mark.slow
@@ -27,12 +27,12 @@ def test_precipitation_afno(device):
     model = PrecipitationAFNO.load_diagnostic(package, device)
 
     x = torch.randn(
-        1, len(model.in_channels), len(model.in_grid.lat), len(model.in_grid.lon)
+        1, len(model.in_channel_names), len(model.in_grid.lat), len(model.in_grid.lon)
     ).to(device)
     out = model(x)
     assert out.size() == (
         1,
-        len(model.out_channels),
+        len(model.out_channel_names),
         len(model.out_grid.lat),
         len(model.out_grid.lon),
     )

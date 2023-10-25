@@ -27,12 +27,12 @@ def test_climate_net(device):
     model = ClimateNet.load_diagnostic(package, device)
 
     x = torch.randn(
-        1, len(model.in_channels), len(model.in_grid.lat), len(model.in_grid.lon)
+        1, len(model.in_channel_names), len(model.in_grid.lat), len(model.in_grid.lon)
     ).to(device)
     out = model(x)
     assert out.size() == (
         1,
-        len(model.out_channels),
+        len(model.out_channel_names),
         len(model.out_grid.lat),
         len(model.out_grid.lon),
     )

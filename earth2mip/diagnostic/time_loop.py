@@ -22,10 +22,26 @@ from earth2mip.diagnostic.utils import filter_channels
 
 
 class DiagnosticTimeLoop(TimeLoop):
+    """Diagnostic Timeloop. This is an iterator that executes a list of diagnostic
+     models on top of a model Timeloop.
+
+    Note
+    ----
+    Presently, grids must be consistent between diagnostics and the model
+
+    Parameters
+    ----------
+    diagnostics : List[DiagnosticBase]
+        List of diagnostic functions to execute
+    model : TimeLoop
+        Model inferencer iterator
+    concat : bool, optional
+        Concatentate diagnostic outputs with model outputs, by default True
+    """
+
     def __init__(
         self, diagnostics: List[DiagnosticBase], model: TimeLoop, concat: bool = True
     ):
-
         self.model = model
         self.diagnostics = diagnostics
         self.concat = concat
@@ -74,17 +90,7 @@ class DiagnosticTimeLoop(TimeLoop):
                 diagnostics. Restart data should encode the state of the time
                 loop.
         """
-        if restart:
-            yield from self._iterate(**restart)
-        else:
-            yield from self._iterate(x=x, time=time)
-
-    def _iterate(self, x, normalize=True, time=None):
-        """Yield (time, unnormalized data, restart) tuples
-
-        restart = (time, unnormalized data)
-        """
-        iterator = self.model(time, x, normalize=normalize)
+        iterator = self.model(time, x, restart=restart)
         for (time, data, restart) in iterator:
             out = []
             for function in self.diagnostics:

@@ -16,7 +16,7 @@
 import torch
 from typing import Type, Optional
 from pydantic import BaseModel
-from earth2mip.geo_function import GeoOperator
+from earth2mip.geo_operator import GeoOperator
 from earth2mip.model_registry import Package
 
 
