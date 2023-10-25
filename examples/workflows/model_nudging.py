@@ -23,38 +23,45 @@ from modulus.distributed.manager import DistributedManager
 from earth2mip.inference_ensemble import run_basic_inference
 from earth2mip.networks import get_model
 from earth2mip.initial_conditions import cds
-# from earth2mip.ensemble_utils import get_scales, get_means
+
 
 def apply_gaussian_perturbation(
-     x,
-     time_step,
-     normalize, 
-     center,
-     scale,
-     in_channel_names,
-     device,
-     latitute_location,
-     latitute_sigma,
-     longitude_location,
-     longitude_sigma,
-     gaussian_amplitude,
-     modified_channels,
- ):
-    """ Apply a Gaussain nudge of the from
-        A = A₀exp( - (x-x₀)²/(2σ₁²) - (y-y₀)²/(2σ₂²) )
-        with prescribed A₀, x₀, y₀, σ₁, σ₂
-        to user prescribed variable(s) 
-        """
+    x,
+    time_step,
+    in_channel_names,
+    device,
+    latitute_location,
+    latitute_sigma,
+    longitude_location,
+    longitude_sigma,
+    gaussian_amplitude,
+    modified_channels,
+    normalize=False,
+    center=0,
+    scale=1,
+):
+    """Apply a Gaussain nudge of the from
+    A = A₀exp( - (x-x₀)²/(2σ₁²) - (y-y₀)²/(2σ₂²) )
+    with prescribed A₀, x₀, y₀, σ₁, σ₂
+    to user prescribed variable(s)
+    """
     lat = torch.linspace(-90, 90, x.shape[-2])
     lon = torch.linspace(-180, 180, x.shape[-1])
     lat, lon = torch.meshgrid(lat, lon)
 
     dt = torch.tensor(time_step.total_seconds()) / 86400.0
 
-    gaussian = dt * gaussian_amplitude * torch.exp(
-        -((lon - latitute_location)**2 / (2 * latitute_sigma**2)
-        + (lat - longitude_location)**2 / (2 * longitude_sigma**2)))
-    
+    gaussian = (
+        dt
+        * gaussian_amplitude
+        * torch.exp(
+            -(
+                (lon - latitute_location) ** 2 / (2 * latitute_sigma**2)
+                + (lat - longitude_location) ** 2 / (2 * longitude_sigma**2)
+            )
+        )
+    )
+
     if normalize:
         x += (gaussian.to(device) - center) / scale
     else:
@@ -64,23 +71,23 @@ def apply_gaussian_perturbation(
 
 def main():
     device = DistributedManager().device
-    model = get_model('fcnv2_sm', device=device)
+    model = get_model("pangu", device=device)
     model.source = partial(
         apply_gaussian_perturbation,
-        in_channel_names = model.in_channel_names,
+        in_channel_names=model.in_channel_names,
         device=device,
         latitute_location=0.0,
         latitute_sigma=5.0,
         longitude_location=0.0,
         longitude_sigma=5.0,
         gaussian_amplitude=10.0,
-        modified_channels=['t850'],
+        modified_channels=["t850"],
     )
     time = datetime.datetime(2018, 1, 1)
     data_source = cds.DataSource(model.in_channel_names)
     ds = run_basic_inference(model, 28, data_source, time)
     print(ds)
-    
+
     # %% Post-process
     import matplotlib.pyplot as plt
 

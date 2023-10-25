@@ -239,7 +239,13 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
 
             while True:
                 if self.source:
-                    x = self.source(x, self.time_step, normalize, self.center, self.scale)
+                    x = self.source(
+                        x,
+                        self.time_step,
+                        normalize=normalize,
+                        center=self.center,
+                        scale=self.scale,
+                    )
                 x = self.model(x, time)
                 time = time + self.time_step
 

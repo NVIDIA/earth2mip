@@ -28,12 +28,12 @@ from earth2mip.schema import EnsembleRun
 def generate_model_noise_correlated(
     x,
     time_step,
-    normalize, 
-    center,
-    scale,
-    reddening,
     device,
+    reddening,
     noise_injection_amplitude,
+    normalize=False,
+    center=0,
+    scale=1,
 ):
     shape = x.shape
     dt = torch.tensor(time_step.total_seconds()) / 3600.0
@@ -42,14 +42,14 @@ def generate_model_noise_correlated(
         x += noise
     else:
         x += noise * scale
-    return 
+    return x
 
 
 def main():
     config_dict = {
-        "ensemble_members": 4,
+        "ensemble_members": 2,
         "noise_amplitude": 0.05,
-        "simulation_length": 10,
+        "simulation_length": 4,
         "weather_event": {
             "properties": {
                 "name": "Globe",
@@ -66,7 +66,7 @@ def main():
         },
         "output_path": "../outputs/model_noise",
         "output_frequency": 1,
-        "weather_model": "fcnv2_sm",
+        "weather_model": "pangu",
         "seed": 12345,
         "use_cuda_graphs": False,
         "ensemble_batch_size": 1,
@@ -92,8 +92,8 @@ def main():
     )
     model.source = partial(
         generate_model_noise_correlated,
-        reddening=2.0,
         device=device,
+        reddening=2.0,
         noise_injection_amplitude=0.003,
     )
     logging.info("Running inference")
