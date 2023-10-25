@@ -40,16 +40,6 @@ logger = logging.getLogger(__name__)
 class HDF5DataSource(base.DataSource):
     root: str
     metadata: Any
-    n_history: int = 0
-
-    def __post_init__(self):
-        # warn if n_history is nonzero
-        if self.n_history != 0:
-            warnings.warn(
-                DeprecationWarning(
-                    "n_history is deprecated. Use earth2mip.initial_conditions.get_initial_condition_for_model instead."  # noqa
-                )
-            )
 
     @classmethod
     def from_path(cls, root: str, **kwargs: Any) -> "HDF5DataSource":
@@ -69,8 +59,7 @@ class HDF5DataSource(base.DataSource):
         time_mean_path = filesystem.download_cached(time_mean_path)
         return np.load(time_mean_path)
 
-    def __getitem__(self, time: datetime.datetime):
-        n_history = self.n_history
+    def __getitem__(self, time: datetime.datetime) -> np.ndarray:
         path = _get_path(self.root, time)
         if path.startswith("s3://"):
             fs = s3fs.S3FileSystem(
@@ -82,18 +71,8 @@ class HDF5DataSource(base.DataSource):
 
         logger.debug(f"Opening {path} for {time}.")
         ds = era5.open_hdf5(path=path, f=f, metadata=self.metadata)
-        subset = ds.sel(time=slice(None, time))
-        # TODO remove n_history from this API?
-        subset = subset[-n_history - 1 :]
-        num_time = subset.sizes["time"]
-        if num_time != n_history + 1:
-            a = ds.time.min().values
-            b = ds.time.max().values
-            raise ValueError(
-                f"{num_time} found. Expected: {n_history + 1} ."
-                f"Time requested: {time}. Time range in data: {a} -- {b}."
-            )
-        return subset.load()
+        subset = ds.sel(time=time)
+        return subset.values
 
 
 def _get_path(path: str, time) -> str:
