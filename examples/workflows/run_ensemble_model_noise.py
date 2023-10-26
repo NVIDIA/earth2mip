@@ -38,11 +38,7 @@ def generate_model_noise_correlated(
     shape = x.shape
     dt = torch.tensor(time_step.total_seconds()) / 3600.0
     noise = noise_injection_amplitude * dt * brown_noise(shape, reddening).to(device)
-    if normalize:
-        x += noise
-    else:
-        x += noise * scale
-    return x
+    return x * noise
 
 
 def main():
