@@ -35,12 +35,12 @@ class DiagnosticBase(torch.nn.Module, GeoOperator):
         """Class function used to load the diagnostic model onto device memory and
         create an instance of the diagnostic for use.
 
-        Note
-        ----
-        This function always accepts a package as the first argument. For many function
-        this may be irrelevant or could be None, but the requirement persists for
-        consistent API and data flow.
+        Note:
+            This function always accepts a package as the first argument. For many
+            function this may be irrelevant or could be None, but the requirement
+            persists for consistent API and data flow.
         """
+        raise NotImplementedError("This diagnostic does not have a config implemented")
         pass
 
     @classmethod

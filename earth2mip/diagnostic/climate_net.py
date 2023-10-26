@@ -486,20 +486,18 @@ class ClimateNet(DiagnosticBase):
     non-standard output channels climnet_bg, climnet_tc and climnet_ar representing
     background label, tropical cyclone and atmopheric river labels.
 
-    Note
-    ----
-    This model and checkpoint are from Prabhat et al. 2021
-    https://doi.org/10.5194/gmd-14-107-2021
-    https://github.com/andregraubner/ClimateNet
+    Note:
+        This model and checkpoint are from Prabhat et al. 2021
+        https://doi.org/10.5194/gmd-14-107-2021
+        https://github.com/andregraubner/ClimateNet
 
-    Example
-    -------
-    >>> package = ClimateNet.load_package()
-    >>> model = ClimateNet.load_diagnostic(package)
-    >>> x = torch.randn(1, 4, 721, 1440)
-    >>> out = model(x)
-    >>> out.shape
-    (1, 3, 721, 1440)
+    Example:
+        >>> package = ClimateNet.load_package()
+        >>> model = ClimateNet.load_diagnostic(package)
+        >>> x = torch.randn(1, 4, 721, 1440)
+        >>> out = model(x)
+        >>> out.shape
+        (1, 3, 721, 1440)
     """
 
     def __init__(

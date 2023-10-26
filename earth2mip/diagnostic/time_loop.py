@@ -25,18 +25,14 @@ class DiagnosticTimeLoop(TimeLoop):
     """Diagnostic Timeloop. This is an iterator that executes a list of diagnostic
      models on top of a model Timeloop.
 
-    Note
-    ----
-    Presently, grids must be consistent between diagnostics and the model
+    Note:
+        Presently, grids must be consistent between diagnostics and the model
 
-    Parameters
-    ----------
-    diagnostics : List[DiagnosticBase]
-        List of diagnostic functions to execute
-    model : TimeLoop
-        Model inferencer iterator
-    concat : bool, optional
-        Concatentate diagnostic outputs with model outputs, by default True
+    Args:
+        diagnostics (List[DiagnosticBase]): List of diagnostic functions to execute
+        model (TimeLoop): Model inferencer iterator
+        concat (bool, optional): Concatentate diagnostic outputs with model outputs.
+        Defaults to True.
     """
 
     def __init__(

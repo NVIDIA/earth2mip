@@ -21,18 +21,13 @@ def filter_channels(
 ) -> torch.Tensor:
     """Utility function used for selecting a sub set of channels
 
-    Note
-    ----
-    Right now this assumes that the channels are in the thirds to last axis.
+    Note:
+        Right now this assumes that the channels are in the thirds to last axis.
 
-    Parameters
-    ----------
-    input : torch.Tensor
-        Input tensor of shape [..., channels, lat, lon]
-    in_channels : list[str]
-        Input channel list
-    out_channels : list[str]
-        Output channel list
+    Args:
+        input (torch.Tensor): Input tensor of shape [..., channels, lat, lon]
+        in_channels (list[str]): Input channel list
+        out_channels (list[str]): Output channel list
     """
     indexes_list = []
     try:

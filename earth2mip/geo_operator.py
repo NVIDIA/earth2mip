@@ -32,10 +32,9 @@ class GeoOperator(Protocol):
     Many auto-gressive models can be represented as a GeoOperator and can maintain a
     internal state. Diagnostic models must be a GeoOperator by definition.
 
-    Warning
-    -------
-    Geo Function is a concept not full adopted in Earth-2 MIP and is being adopted
-    progressively.
+    Warning:
+        Geo Function is a concept not full adopted in Earth-2 MIP and is being adopted
+        progressively.
     """
 
     @property
@@ -57,14 +56,12 @@ class GeoOperator(Protocol):
     @abstractmethod
     def __call__(self, x: torch.Tensor) -> torch.Tensor:
         """
-        Parameters
-        ----------
-        x : torch.Tensor
-            Input tensor of geographic data of shape [..., in_chans, lat, lon]
+        Args:
+            x (torch.Tensor): Input tensor of geographic data of shape
+            [..., in_chans, lat, lon]
 
-        Returns
-        -------
-        torch.Tensor
-            Output tensor of geographic data of shape [..., out_chans, lat, lon]
+        Returns:
+            torch.Tensor: Output tensor of geographic data of shape
+            [..., out_chans, lat, lon]
         """
         pass

@@ -24,13 +24,12 @@ class WindSpeed(DiagnosticBase):
     """Computes the wind speed at a given level.
     This is largely just an example of what a diagnostic calculation could look like.
 
-    Example
-    -------
-    >>> windspeed = WindSpeed('10m', Grid.grid_721x1440)
-    >>> x = torch.randn(1, 2, 721, 1440)
-    >>> out = windspeed(x)
-    >>> out.shape
-    (1, 1, 721, 1440)
+    Example:
+        >>> windspeed = WindSpeed('10m', Grid.grid_721x1440)
+        >>> x = torch.randn(1, 2, 721, 1440)
+        >>> out = windspeed(x)
+        >>> out.shape
+        (1, 1, 721, 1440)
     """
 
     def __init__(self, level: str, grid: Grid):

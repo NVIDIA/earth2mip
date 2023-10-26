@@ -118,20 +118,18 @@ class PrecipitationAFNO(DiagnosticBase):
     """Precipitation AFNO model. Predicts the total precipation parameter which is the
     accumulated amount of liquid and frozen water (rain or snow) with units m.
 
-    Note
-    ----
-    This checkpoint is from Parthik et al. 2022.
-    https://arxiv.org/abs/2202.11214
-    https://github.com/NVlabs/FourCastNet
+    Note:
+        This checkpoint is from Parthik et al. 2022.
+        https://arxiv.org/abs/2202.11214
+        https://github.com/NVlabs/FourCastNet
 
-    Example
-    -------
-    >>> package = PrecipAFNO.load_package()
-    >>> model = PrecipAFNO.load_diagnostic(package)
-    >>> x = torch.randn(1, 4, 720, 1440)
-    >>> out = model(x)
-    >>> out.shape
-    (1, 1, 721, 1440)
+    Example:
+        >>> package = PrecipAFNO.load_package()
+        >>> model = PrecipAFNO.load_diagnostic(package)
+        >>> x = torch.randn(1, 4, 720, 1440)
+        >>> out = model(x)
+        >>> out.shape
+        (1, 1, 721, 1440)
     """
 
     def __init__(
