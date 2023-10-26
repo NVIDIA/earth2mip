@@ -86,6 +86,12 @@ All source code files should start with this paragraph:
 # limitations under the License.
 ```
 
+### Doc Strings
+
+Earth-2 MIP uses [google style](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html) doc strings.
+If you are a VSCode user, using the [auto-doc string extension](https://marketplace.visualstudio.com/items?itemName=njpwerner.autodocstring) is suggested.
+
+
 ### Signing Your Work
 
 - We require that all contributors "sign-off" on their commits. This certifies that the

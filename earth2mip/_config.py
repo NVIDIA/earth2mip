@@ -20,7 +20,16 @@ import os
 
 
 def _default_local_cache():
-    return os.path.join(os.environ["HOME"], ".cache", "earth2mip")
+    return os.path.join(os.path.expanduser("~"), ".cache", "earth2mip")
+
+
+def _default_model_registry():
+    path = os.path.join(_default_local_cache(), "models")
+    try:
+        os.makedirs(path, exist_ok=True)
+    except Exception:
+        pass
+    return path
 
 
 class Settings(BaseSettings):
@@ -36,7 +45,7 @@ class Settings(BaseSettings):
 
     # Key configurations
     ERA5_HDF5: str = ""
-    MODEL_REGISTRY: str = ""
+    MODEL_REGISTRY: str = Field(default_factory=_default_model_registry)
     LOCAL_CACHE: str = Field(default_factory=_default_local_cache)
 
     # used for scoring (score-ifs.py, inference-medium-range)
