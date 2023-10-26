@@ -33,7 +33,8 @@ import datetime
 import torch
 import numpy as np
 import onnxruntime as ort
-from earth2mip import schema, networks
+from earth2mip import networks
+import earth2mip.grid
 
 logger = logging.getLogger(__file__)
 
@@ -189,8 +190,8 @@ class PanguInference(torch.nn.Module):
         return self.in_channel_names
 
     @property
-    def grid(self):
-        return schema.Grid.grid_721x1440
+    def grid(self) -> earth2mip.grid.LatLonGrid:
+        return earth2mip.grid.equiangular_lat_lon_grid(721, 1440)
 
     @property
     def n_history(self):
@@ -288,7 +289,7 @@ def load_24(package, *, pretrained=True, device="cuda:0"):
         channel_names = model.channel_names()
         center = np.zeros([len(channel_names)])
         scale = np.ones([len(channel_names)])
-        grid = schema.Grid.grid_721x1440
+        grid = earth2mip.grid.equiangular_lat_lon_grid(721, 1440)
         dt = datetime.timedelta(hours=24)
         inference = networks.Inference(
             model,
@@ -312,7 +313,7 @@ def load_6(package, *, pretrained=True, device="cuda:0"):
         channel_names = model.channel_names()
         center = np.zeros([len(channel_names)])
         scale = np.ones([len(channel_names)])
-        grid = schema.Grid.grid_721x1440
+        grid = earth2mip.grid.equiangular_lat_lon_grid(721, 1440)
         dt = datetime.timedelta(hours=6)
         inference = networks.Inference(
             model,

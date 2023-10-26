@@ -47,7 +47,7 @@ Module
 At the root is a machine learning model with inputs/outputs that correspond to
 two-dimensional fields defined on the planet. These fields are reified as some
 array-like data structure, the names of the fields/channels, and grid object
-(:py:class:`earth2mip.schema.Grid`). To use a Module, fcn-mip needs to be provided
+(:py:class:`earth2mip.grid.LatLongGrid`). To use a Module, fcn-mip needs to be provided
 metadata about the Model's inputs/outputs (see. :py:class:`earth2mip.schema.Model`).
 
 Here as how to implement the persistence forecast as module::
@@ -188,7 +188,7 @@ To create a forecast from a TimeLoop, you can use
 Data Source
 -----------
 
-:py:class:`earth2mip.initial_conditions.era5.HDF5DataSource`
+:py:class:`earth2mip.initial_conditions.hdf5.DataSource`
 
 
 .. _model package:
