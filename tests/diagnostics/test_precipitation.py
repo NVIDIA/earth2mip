@@ -21,7 +21,7 @@ from earth2mip.diagnostic import PrecipitationAFNO
 @pytest.mark.slow
 @pytest.mark.xfail
 @pytest.mark.parametrize("device", ["cpu", "cuda:0"])
-def test_precipitation_afno(device):
+def test_precipitation_afno_package(device):
 
     package = PrecipitationAFNO.load_package()
     model = PrecipitationAFNO.load_diagnostic(package, device)
