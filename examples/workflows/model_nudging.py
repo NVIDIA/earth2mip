@@ -25,48 +25,44 @@ from earth2mip.networks import get_model
 from earth2mip.initial_conditions import cds
 
 
-def apply_gaussian_perturbation(
-    x,
-    time_step,
-    in_channel_names,
-    device,
-    latitute_location,
-    latitute_sigma,
-    longitude_location,
-    longitude_sigma,
-    gaussian_amplitude,
-    modified_channels,
-    normalize=False,
-    center=0,
-    scale=1,
-):
+def gaussian_source(
+    x: torch.Tensor,
+    in_channel_names: List[str],
+    lat: torch.Tensor,
+    lon: torch.Tensor,
+    amplitude: float,
+    channel_to_perturb: str,
+    latitute_location:float =0,
+    latitute_sigma:float =50,
+    longitude_location: float =0,
+    longitude_sigma=10,
+) -> torch.Tensor:
     """Apply a Gaussain nudge of the from
     A = A₀exp( - (x-x₀)²/(2σ₁²) - (y-y₀)²/(2σ₂²) )
     with prescribed A₀, x₀, y₀, σ₁, σ₂
     to user prescribed variable(s)
+    
+    Args:
+        x: the input state to modify. Shape (B, C, nlat, nlon)
+        lat: the latitude shape (lat,)
+        lon: the longitude in degrees east. 0<= lon < 360, shape is (nlon)
+        amplitude: the size of the perturbation in X/ seconds, where X is the units of `channel_to_perturb`
+    
+    Returns:
+       source: the source evaluated in units X / seconds. where X is the units of `channel_to_perturb`
     """
-    lat = torch.linspace(-90, 90, x.shape[-2])
-    lon = torch.linspace(-180, 180, x.shape[-1])
     lat, lon = torch.meshgrid(lat, lon)
-
-    dt = torch.tensor(time_step.total_seconds()) / 86400.0
-
-    gaussian = (
-        dt
-        * gaussian_amplitude
-        * torch.exp(
+    source = torch.zeros_like(x)
+    blob = amplitude * torch.exp(
             -(
                 (lon - latitute_location) ** 2 / (2 * latitute_sigma**2)
                 + (lat - longitude_location) ** 2 / (2 * longitude_sigma**2)
             )
         )
     )
-
-    if normalize:
-        x += (gaussian.to(device) - center) / scale
-    else:
-        x += gaussian.to(device)
-    return x
+    index = in_channels.index(channel_to_perturb)
+    source[:, index] = blob
+    return source
 
 
 def main():
