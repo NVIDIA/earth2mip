@@ -27,7 +27,7 @@ class Identity(torch.nn.Module):
         return x
 
 
-@pytest.mark.parametrize("device", ["cuda:0"])
+@pytest.mark.parametrize("device", ["cpu", "cuda:0"])
 @pytest.mark.parametrize("diag_concat", [True, False])
 def test_diagnostic_loop_ws(device, diag_concat):
     network = Identity().to(device)

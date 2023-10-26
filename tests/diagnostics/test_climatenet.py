@@ -20,10 +20,10 @@ from earth2mip.diagnostic.climate_net import ClimateNet
 
 @pytest.mark.slow
 @pytest.mark.xfail
-@pytest.mark.parametrize("device", ["cuda:0"])
+@pytest.mark.parametrize("device", ["cpu", "cuda:0"])
 def test_climate_net(device):
 
-    package = ClimateNet.load_package("s3://earth2_server/diagnostics")
+    package = ClimateNet.load_package()
     model = ClimateNet.load_diagnostic(package, device)
 
     x = torch.randn(
