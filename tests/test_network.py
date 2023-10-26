@@ -38,7 +38,9 @@ def test_inference_run_with_restart():
         model,
         center=center,
         scale=scale,
-        grid=earth2mip.grid.regular_lat_lon_grid(720, 1440, includes_south_pole=False),
+        grid=earth2mip.grid.equiangular_lat_lon_grid(
+            720, 1440, includes_south_pole=False
+        ),
         channel_names=["a", "b"],
     )
 

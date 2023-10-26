@@ -30,7 +30,7 @@ class LatLonGrid:
         return (len(self.lat), len(self.lon))
 
 
-def regular_lat_lon_grid(
+def equiangular_lat_lon_grid(
     nlat: int, nlon: int, includes_south_pole: bool = True
 ) -> LatLonGrid:
     """A regular lat-lon grid
@@ -46,10 +46,10 @@ def regular_lat_lon_grid(
 
 def from_enum(grid_enum: schema.Grid) -> LatLonGrid:
     if grid_enum == schema.Grid.grid_720x1440:
-        return regular_lat_lon_grid(720, 1440, includes_south_pole=False)
+        return equiangular_lat_lon_grid(720, 1440, includes_south_pole=False)
     elif grid_enum == schema.Grid.grid_721x1440:
-        return regular_lat_lon_grid(721, 1440)
+        return equiangular_lat_lon_grid(721, 1440)
     elif grid_enum == schema.Grid.s2s_challenge:
-        return regular_lat_lon_grid(181, 360)
+        return equiangular_lat_lon_grid(181, 360)
     else:
         raise ValueError(f"Unknown grid {grid_enum}")

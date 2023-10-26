@@ -53,7 +53,7 @@ def test_get_initial_conditions_for_model(n):
         in_channel_names = ["t850", "t2m"]
         n_history_levels = n
         history_time_step = datetime.timedelta(hours=6)
-        grid = grid.regular_lat_lon_grid(721, 1440)
+        grid = grid.equiangular_lat_lon_grid(721, 1440)
         device = "cpu"
 
     shape = (1, len(Model.in_channel_names)) + Model.grid.shape

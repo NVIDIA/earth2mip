@@ -25,7 +25,8 @@ import torch
 import pathlib
 import numpy as np
 
-from earth2mip import schema, networks
+from earth2mip import networks
+import earth2mip.grid
 from modulus.models.fcn_mip_plugin import _fix_state_dict_keys
 
 # TODO: Update to new arch in Modulus!
@@ -130,7 +131,7 @@ def load(package, *, pretrained=True, device="cuda"):
     fixed_weights = _fix_state_dict_keys(weights["model_state"], add_module=False)
     core_model.load_state_dict(fixed_weights)
 
-    grid = earth2mip.grid.regular_lat_lon_grid(721, 1440)
+    grid = earth2mip.grid.equiangular_lat_lon_grid(721, 1440)
     dt = datetime.timedelta(hours=6)
 
     inference = networks.Inference(

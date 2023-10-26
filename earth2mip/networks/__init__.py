@@ -354,7 +354,7 @@ def persistence(package, pretrained=True):
     model = Identity()
     center = np.zeros((3))
     scale = np.zeros((3))
-    grid = earth2mip.grid.regular_lat_lon_grid(721, 1440)
+    grid = earth2mip.grid.equiangular_lat_lon_grid(721, 1440)
     return Inference(
         model,
         channel_names=["a", "b", "c"],

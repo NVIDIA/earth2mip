@@ -20,8 +20,8 @@ from earth2mip import regrid, grid
 
 
 def test_get_regridder():
-    src = grid.regular_lat_lon_grid(721, 1440)
-    dest = grid.regular_lat_lon_grid(181, 360)
+    src = grid.equiangular_lat_lon_grid(721, 1440)
+    dest = grid.equiangular_lat_lon_grid(181, 360)
     try:
         f = regrid.get_regridder(src, dest)
     except FileNotFoundError as e:

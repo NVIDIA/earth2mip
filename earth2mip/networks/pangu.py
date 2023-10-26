@@ -191,7 +191,7 @@ class PanguInference(torch.nn.Module):
 
     @property
     def grid(self) -> earth2mip.grid.LatLonGrid:
-        return earth2mip.grid.regular_lat_lon_grid(721, 1440)
+        return earth2mip.grid.equiangular_lat_lon_grid(721, 1440)
 
     @property
     def n_history(self):
@@ -289,7 +289,7 @@ def load_24(package, *, pretrained=True, device="cuda:0"):
         channel_names = model.channel_names()
         center = np.zeros([len(channel_names)])
         scale = np.ones([len(channel_names)])
-        grid = earth2mip.grid.regular_lat_lon_grid(721, 1440)
+        grid = earth2mip.grid.equiangular_lat_lon_grid(721, 1440)
         dt = datetime.timedelta(hours=24)
         inference = networks.Inference(
             model,
@@ -313,7 +313,7 @@ def load_6(package, *, pretrained=True, device="cuda:0"):
         channel_names = model.channel_names()
         center = np.zeros([len(channel_names)])
         scale = np.ones([len(channel_names)])
-        grid = earth2mip.grid.regular_lat_lon_grid(721, 1440)
+        grid = earth2mip.grid.equiangular_lat_lon_grid(721, 1440)
         dt = datetime.timedelta(hours=6)
         inference = networks.Inference(
             model,

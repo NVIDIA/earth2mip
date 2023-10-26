@@ -494,8 +494,8 @@ def _load_time_loop_from_description(
 ):
 
     grid = {
-        0.25: earth2mip.grid.regular_lat_lon_grid(721, 1440),
-        1.0: earth2mip.grid.regular_lat_lon_grid(181, 360),
+        0.25: earth2mip.grid.equiangular_lat_lon_grid(721, 1440),
+        1.0: earth2mip.grid.equiangular_lat_lon_grid(181, 360),
     }[resolution]
 
     def join(*args):

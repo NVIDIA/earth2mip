@@ -34,7 +34,7 @@ def test_graphcast_time_loop(task):
     ngrid = nlat * nlon
     batch = 1
     history = 2
-    grid = earth2mip.grid.regular_lat_lon_grid(nlat, nlon)
+    grid = earth2mip.grid.equiangular_lat_lon_grid(nlat, nlon)
 
     def forward(rng, x):
         assert x.shape == (ngrid, batch, len(in_codes))
