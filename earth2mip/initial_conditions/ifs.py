@@ -104,7 +104,7 @@ class DataSource(base.DataSource):
 
     @property
     def grid(self) -> earth2mip.grid.LatLonGrid:
-        return earth2mip.grid.regular_lat_lon_grid(721, 1440)
+        return earth2mip.grid.equiangular_lat_lon_grid(721, 1440)
 
     def __getitem__(self, time: datetime.datetime) -> np.ndarray:
         ds = get(time, self.channel_names)

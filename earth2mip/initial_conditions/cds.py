@@ -114,7 +114,7 @@ class DataSource:
 
     @property
     def grid(self) -> earth2mip.grid.LatLonGrid:
-        return earth2mip.grid.regular_lat_lon_grid(721, 1440)
+        return earth2mip.grid.equiangular_lat_lon_grid(721, 1440)
 
     @property
     def cache(self):

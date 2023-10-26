@@ -39,7 +39,9 @@ def test_diagnostic(cls: str, tmp_path: pathlib.Path):
         total_diagnostics = netcdf.initialize_netcdf(
             ncfile,
             [domain],
-            earth2mip.grid.regular_lat_lon_grid(720, 1440, includes_south_pole=False),
+            earth2mip.grid.equiangular_lat_lon_grid(
+                720, 1440, includes_south_pole=False
+            ),
             n_ensemble,
             torch.device(type="cpu"),
         )[0]
