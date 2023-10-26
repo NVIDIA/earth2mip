@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -539,7 +540,9 @@ class ClimateNet(DiagnosticBase):
         return out
 
     @classmethod
-    def load_package(cls, registry: str = config.MODEL_REGISTRY) -> Package:
+    def load_package(
+        cls, registry: str = os.path.join(config.MODEL_REGISTRY, "diagnostics")
+    ) -> Package:
         registry = ModelRegistry(registry)
         return registry.get_model("climatenet")
 
