@@ -14,18 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# %%
 import logging
-from functools import partial
 import torch
-import os
-
-# Set number of GPUs to use to 1
-os.environ["WORLD_SIZE"] = "1"
-# Set model registry as a local folder
-model_registry = os.path.join(os.path.dirname(os.path.realpath(os.getcwd())), "models")
-os.makedirs(model_registry, exist_ok=True)
-os.environ["MODEL_REGISTRY"] = model_registry
+from functools import partial
 from modulus.distributed.manager import DistributedManager
 from earth2mip.inference_ensemble import run_inference, get_initializer
 from earth2mip.ensemble_utils import brown_noise

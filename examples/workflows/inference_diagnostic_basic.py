@@ -14,18 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# %%
 import logging
-import os
 import datetime
-
-# Set number of GPUs to use to 1
-os.environ["WORLD_SIZE"] = "1"
-# Set model registry as a local folder
-model_registry = os.path.join(os.path.dirname(os.path.realpath(os.getcwd())), "models")
-os.makedirs(model_registry, exist_ok=True)
-os.environ["MODEL_REGISTRY"] = model_registry
-
 from modulus.distributed.manager import DistributedManager
 from earth2mip.inference_ensemble import run_basic_inference
 from earth2mip.networks import get_model
