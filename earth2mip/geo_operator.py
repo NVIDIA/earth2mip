@@ -23,8 +23,7 @@ class GeoOperator(Protocol):
     """Geo Operator
 
     This is the most primative functional of Earth-2 MIP which represents a
-    operators on geographical data to produce geographical data. This implies the
-    following two requirements:
+    operators on geospatial fields. This implies the following two requirements:
         1) The operation must define in and out channel variables representing the
             fields in the input/output arrays.
         2) The operation must define the in and out grid schemas.
