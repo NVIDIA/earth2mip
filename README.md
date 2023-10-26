@@ -64,7 +64,7 @@ python
 >>> from earth2mip.networks import get_model
 >>> from earth2mip.initial_conditions import cds
 >>> from earth2mip.inference_ensemble import run_basic_inference
->>> time_loop  = get_model("e2mip://pangu_6", device="cuda:0")
+>>> time_loop  = get_model("e2mip://dlwp", device="cuda:0")
 >>> data_source = cds.DataSource(time_loop.in_channel_names)
 >>> ds = run_basic_inference(time_loop, n=10, data_source=data_source, time=datetime.datetime(2018, 1, 1))
 >>> ds.chunk()
@@ -76,6 +76,38 @@ Coordinates:
   * time     (time) datetime64[ns] 2018-01-01 ... 2018-01-03T12:00:00
   * channel  (channel) <U5 'z1000' 'z925' 'z850' 'z700' ... 'u10m' 'v10m' 't2m'
 Dimensions without coordinates: history
+```
+
+And you can get ACC/RMSE like this:
+```
+>>> from earth2mip.inference_medium_range import score_deterministic
+>>> import numpy as np
+>>> scores = score_deterministic(time_loop,
+    data_source=data_source,
+    n=10,
+    initial_times=[datetime.datetime(2018, 1, 1)],
+    # fill in zeros for time-mean, will typically be grabbed from data.
+    time_mean=np.zeros((7, 721, 1440))
+)
+>>> scores
+<xarray.Dataset>
+Dimensions:        (lead_time: 11, channel: 7, initial_time: 1)
+Coordinates:
+  * lead_time      (lead_time) timedelta64[ns] 0 days 00:00:00 ... 5 days 00:...
+  * channel        (channel) <U5 't850' 'z1000' 'z700' ... 'z300' 'tcwv' 't2m'
+Dimensions without coordinates: initial_time
+Data variables:
+    acc            (lead_time, channel) float64 1.0 1.0 1.0 ... 0.9686 0.9999
+    rmse           (lead_time, channel) float64 0.0 2.469e-05 0.0 ... 7.07 2.998
+    initial_times  (initial_time) datetime64[ns] 2018-01-01
+>>> scores.rmse.sel(channel='z500')
+<xarray.DataArray 'rmse' (lead_time: 11)>
+array([  0.        , 150.83014446, 212.07880612, 304.98592282,
+       381.36510987, 453.31516952, 506.01464974, 537.11092269,
+       564.79603347, 557.22871627, 586.44691243])
+Coordinates:
+  * lead_time  (lead_time) timedelta64[ns] 0 days 00:00:00 ... 5 days 00:00:00
+    channel    <U5 'z500'
 ```
 
 ### Supported Models

@@ -13,14 +13,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import earth2mip.initial_conditions.era5 as initial_conditions
-from earth2mip.initial_conditions import get_data_source
-import datetime
-import pytest
 import pathlib
-from earth2mip import schema, config
-import xarray
+import datetime
+import json
+from earth2mip.initial_conditions import hdf5
+from earth2mip import grid
+import h5py
+import pytest
 
 
 @pytest.mark.parametrize("year", [2018, 1980, 2017])
@@ -28,7 +27,7 @@ def test__get_path(year):
     root = pathlib.Path(__file__).parent / "mock_data"
     root = root.as_posix()
     dt = datetime.datetime(year, 1, 2)
-    path = initial_conditions._get_path(root, dt)
+    path = hdf5._get_path(root, dt)
     assert pathlib.Path(path).name == dt.strftime("%Y.h5")
     assert pathlib.Path(path).exists()
 
@@ -36,22 +35,29 @@ def test__get_path(year):
 def test__get_path_key_error():
 
     with pytest.raises(KeyError):
-        initial_conditions._get_path(".", datetime.datetime(2040, 1, 2))
+        hdf5._get_path(".", datetime.datetime(2040, 1, 2))
 
 
-@pytest.mark.slow
-def test_initial_conditions_get():
+def test_hdf_data_source(tmp_path: pathlib.Path):
+    h5_var_name = "fields"
+
+    data_json = {
+        "attrs": {},
+        "coords": {"lat": [0, 1], "lon": [0, 1], "channel": ["a", "b"]},
+        "dims": ["time", "channel", "lat", "lon"],
+        "h5_path": h5_var_name,
+    }
+
+    data_json_path = tmp_path / "data.json"
+    data_json_path.write_text(json.dumps(data_json))
+
+    h5_path = tmp_path / "validation" / "2018.h5"
+    h5_path.parent.mkdir()
+    with h5py.File(h5_path.as_posix(), mode="w") as f:
+        f.create_dataset(h5_var_name, shape=(10, 2, 2, 2), dtype="<f")
+
+    ds = hdf5.DataSource.from_path(tmp_path.as_posix())
     time = datetime.datetime(2018, 1, 1)
-
-    if not config.ERA5_HDF5:
-        pytest.skip("No data location configured.")
-
-    data = get_data_source(
-        n_history=0,
-        channel_names=["t850"],
-        initial_condition_source=schema.InitialConditionSource.era5,
-        grid=schema.Grid.grid_721x1440,
-    )
-
-    ic = data[time]
-    assert isinstance(ic, xarray.DataArray)
+    array = ds[time]
+    assert array.shape == (2, 2, 2)
+    assert isinstance(ds.grid, grid.LatLonGrid)

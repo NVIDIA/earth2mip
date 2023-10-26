@@ -29,6 +29,7 @@ from typing import Optional, Any
 from datetime import datetime
 from modulus.distributed.manager import DistributedManager
 from netCDF4 import Dataset as DS
+import earth2mip.grid
 
 __all__ = ["run_inference"]
 
@@ -44,7 +45,7 @@ from earth2mip.ensemble_utils import (
 
 from earth2mip.netcdf import initialize_netcdf, update_netcdf
 from earth2mip.networks import get_model
-from earth2mip.schema import EnsembleRun, Grid, PerturbationStrategy
+from earth2mip.schema import EnsembleRun, PerturbationStrategy
 from earth2mip.time_loop import TimeLoop
 from earth2mip import regrid
 from earth2mip._channel_stds import channel_stds
@@ -78,7 +79,7 @@ def run_ensembles(
     batch_size: int,
     rank: int,
     output_frequency: int,
-    output_grid: Optional[Grid],
+    output_grid: Optional[earth2mip.grid.LatLonGrid],
     date_obj: datetime,
     restart_frequency: Optional[int],
     output_path: str,
@@ -90,14 +91,7 @@ def run_ensembles(
 
     regridder = regrid.get_regridder(model.grid, output_grid).to(model.device)
 
-    if not output_grid:
-        output_grid = model.grid
-
-    lat, lon = output_grid.lat, output_grid.lon
-
-    diagnostics = initialize_netcdf(
-        nc, domains, output_grid, lat, lon, n_ensemble, model.device
-    )
+    diagnostics = initialize_netcdf(nc, domains, output_grid, n_ensemble, model.device)
     initial_time = date_obj
     time_units = initial_time.strftime("hours since %Y-%m-%d %H:%M:%S")
     nc["time"].units = time_units
@@ -154,9 +148,7 @@ def run_ensembles(
                     domains,
                     batch_id,
                     time_count,
-                    model,
-                    lat,
-                    lon,
+                    model.grid,
                     model.out_channel_names,
                 )
 
@@ -402,7 +394,11 @@ def run_inference(
             date_obj=date_obj,
             restart_frequency=config.restart_frequency,
             output_path=output_path,
-            output_grid=config.output_grid,
+            output_grid=(
+                earth2mip.grid.from_enum(config.output_grid)
+                if config.output_grid
+                else None
+            ),
             progress=progress,
         )
     if torch.distributed.is_initialized():

@@ -22,7 +22,8 @@ import datetime
 import numpy as np
 import modulus
 
-from earth2mip import schema, networks
+from earth2mip import networks
+import earth2mip.grid
 
 
 CHANNELS = [
@@ -63,9 +64,8 @@ def load(package, *, pretrained=True, device="cuda"):
 
     core_model = modulus.Module.from_checkpoint(package.get("fcn.mdlus"))
 
-    grid = schema.Grid.grid_720x1440
     dt = datetime.timedelta(hours=6)
-
+    grid = earth2mip.grid.equiangular_lat_lon_grid(720, 1440, includes_south_pole=False)
     inference = networks.Inference(
         core_model,
         center=local_center,

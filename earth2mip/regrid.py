@@ -17,11 +17,9 @@
 import netCDF4 as nc
 import einops
 import torch
-import pathlib
-import xarray
 import numpy as np
-from earth2mip.schema import Grid
-from earth2mip._config import Settings
+import pandas
+from earth2mip import grid
 
 
 class TempestRegridder(torch.nn.Module):
@@ -59,53 +57,29 @@ class Identity(torch.nn.Module):
         return x
 
 
-class DropSouthPole(torch.nn.Module):
+class RegridLatLon(torch.nn.Module):
+    def __init__(self, src_grid: grid.LatLonGrid, dest_grid: grid.LatLonGrid):
+        super().__init__()
+        self._src_grid = src_grid
+        self._dest_grid = dest_grid
+        self._lat_index = pandas.Index(src_grid.lat).get_indexer(dest_grid.lat)
+        assert not np.any(self._lat_index == -1)
+
+        self._lon_index = pandas.Index(src_grid.lon).get_indexer(dest_grid.lon)
+        assert not np.any(self._lon_index == -1)
+
     def forward(self, x):
-        return x[..., :-1, :]
+        if x.shape[-2:] != self._src_grid.shape:
+            raise ValueError(
+                f"Input shape {x.shape} does not match grid shape"
+                f"{self._src_grid.shape}"
+            )
+
+        return x[..., self._lat_index, :][..., self._lon_index]
 
 
-def _get_tempest_regridder(src: Grid, dest: Grid) -> TempestRegridder:
-    # TODO map data needs to be available for S2S scoring
-    config = Settings()
-
-    # TODO add instructions for how to make the tempest map file
-    map_file = (
-        pathlib.Path(config.MAP_FILES) / src.value / dest.value / "tempest_map.nc"
-    )
-    return TempestRegridder(map_file.as_posix())
-
-
-def get_regridder(src: Grid, dest: Grid):
+def get_regridder(src: grid.LatLonGrid, dest: grid.LatLonGrid) -> torch.nn.Module:
     if src == dest:
         return Identity()
-    elif (src, dest) == (Grid.grid_721x1440, Grid.grid_720x1440):
-        return DropSouthPole()
     else:
-        return _get_tempest_regridder(src, dest)
-    raise NotImplementedError()
-
-
-def xarray_regrid(src: xarray.Dataset, dest: Grid):
-    """Simple function for regridding an xarray dataset to a grid.
-    The xarray dataset must have lat and lon coords
-
-    Parameters
-    ----------
-    src : xr.Dataset
-        Input xarray data set
-    dest : Grid
-        Target grid scheme
-    """
-    # TODO refactor this into a regridder
-    # Subsample / interpolate lat lon grid
-    if np.isin(dest.lat, src.coords["lat"].values).all():
-        src = src.sel(lat=dest.lat)
-    else:
-        src = src.interp(lat=dest.lat)
-
-    if np.isin(dest.lon, src.coords["lon"].values).all():
-        src = src.sel(lon=dest.lon)
-    else:
-        src = src.interp(lon=dest.lon)
-
-    return src
+        return RegridLatLon(src, dest)

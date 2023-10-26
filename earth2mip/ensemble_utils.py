@@ -15,15 +15,8 @@
 # limitations under the License.
 
 import torch
-import numpy as np  # noqa
-import h5py  # noqa
-import os  # noqa
-from einops import rearrange  # noqa
-from earth2mip import schema  # noqa
-import torch_harmonics as th  # noqa
-from earth2mip.networks import Inference  # noqa
+import torch_harmonics as th
 from datetime import datetime
-from timeit import default_timer  # noqa
 from typing import Union
 from earth2mip.time_loop import TimeLoop
 
@@ -159,7 +152,7 @@ def generate_noise_grf(shape, grid, alpha, sigma, tau):
     sample_noise = sampler(shape[0] * shape[1] * shape[2]).reshape(
         shape[0], shape[1], shape[2], 720, 1440
     )
-    if grid == schema.Grid.grid_721x1440:
+    if grid.shape == (721, 1440):
         noise = torch.zeros(shape)
         noise[:, :, :, :-1, :] = sample_noise
         noise[:, :, :, -1:, :] = noise[:, :, :, -2:-1, :]

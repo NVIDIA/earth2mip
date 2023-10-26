@@ -22,6 +22,7 @@ from typing import List, Iterable
 import xarray as xr
 from earth2mip import geometry
 from earth2mip.weather_events import Domain
+import earth2mip.grid
 
 from earth2mip.diagnostics import DiagnosticTypes, Diagnostics
 
@@ -40,7 +41,11 @@ def _assign_lon_attributes(nc_variable):
     nc_variable.long_name = "longitude"
 
 
-def init_dimensions(domain: Domain, group, lat, lon):
+def init_dimensions(domain: Domain, group, grid: earth2mip.grid.LatLonGrid):
+
+    lat = np.array(grid.lat)
+    lon = np.array(grid.lon)
+
     if domain.type == "CWBDomain":
         cwb_path = "/lustre/fsw/sw_climate_fno/nbrenowitz/2023-01-24-cwb-4years.zarr"
         lat = xr.open_zarr(cwb_path)["XLAT"][:, 0]
@@ -101,7 +106,7 @@ def init_dimensions(domain: Domain, group, lat, lon):
 
 
 def initialize_netcdf(
-    nc, domains: Iterable[Domain], grid, lat, lon, n_ensemble, device
+    nc, domains: Iterable[Domain], grid: earth2mip.grid.LatLonGrid, n_ensemble, device
 ) -> List[List[Diagnostics]]:
     nc.createVLType(str, "vls")
     nc.createDimension("time", None)
@@ -110,9 +115,11 @@ def initialize_netcdf(
     total_diagnostics = []
     for domain in domains:
         group = nc.createGroup(domain.name)
-        init_dimensions(domain, group, lat, lon)
+        init_dimensions(domain, group, grid)
         diagnostics = []
         for d in domain.diagnostics:
+            lat = np.array(grid.lat)
+            lon = np.array(grid.lon)
             diagnostic = DiagnosticTypes[d.type](
                 group, domain, grid, d, lat, lon, device
             )
@@ -128,12 +135,12 @@ def update_netcdf(
     domains: List[Domain],
     batch_id,
     time_count,
-    model,
-    lat,
-    lon,
+    grid: earth2mip.grid.LatLonGrid,
     channel_names_of_data: List[str],
 ):
     assert len(total_diagnostics) == len(domains), (total_diagnostics, domains)
+    lat = np.array(grid.lat)
+    lon = np.array(grid.lon)
 
     batch_size = geometry.get_batch_size(data)
     for d_index, domain in enumerate(domains):
