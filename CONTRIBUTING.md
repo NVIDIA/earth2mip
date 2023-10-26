@@ -88,8 +88,8 @@ All source code files should start with this paragraph:
 
 ### Doc Strings
 
-Earth-2 MIP uses [google style](https://google.github.io/styleguide/pyguide.html) doc strings.
-If you are a VSCode user, using the [auto-doc string extension](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html) is suggested.
+Earth-2 MIP uses [google style](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html) doc strings.
+If you are a VSCode user, using the [auto-doc string extension](https://marketplace.visualstudio.com/items?itemName=njpwerner.autodocstring) is suggested.
 
 
 ### Signing Your Work
