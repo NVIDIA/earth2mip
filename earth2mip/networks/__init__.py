@@ -239,14 +239,9 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
 
             while True:
                 if self.source:
-                    x_with_units = x*self.scale + self.center
-                    x += self.source(x_with_units, time) / self.scale * self.time_step
-                        x,
-                        self.time_step,
-                        normalize=normalize,
-                        center=self.center,
-                        scale=self.scale,
-                    )
+                    x_with_units = x * self.scale + self.center
+                    dt = torch.tensor(self.time_step.total_seconds()) / 86400.0
+                    x += self.source(x_with_units, time) / self.scale * dt
                 x = self.model(x, time)
                 time = time + self.time_step
 

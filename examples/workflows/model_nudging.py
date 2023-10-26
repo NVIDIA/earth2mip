@@ -27,15 +27,14 @@ from earth2mip.initial_conditions import cds
 
 def gaussian_source(
     x: torch.Tensor,
-    in_channel_names: List[str],
-    lat: torch.Tensor,
-    lon: torch.Tensor,
+    time,
+    model,
     amplitude: float,
     channel_to_perturb: str,
-    latitute_location:float =0,
-    latitute_sigma:float =50,
-    longitude_location: float =0,
-    longitude_sigma=10,
+    latitute_location: float = 0,
+    latitute_sigma: float = 50,
+    longitude_location: float = 0,
+    longitude_sigma: float = 10,
 ) -> torch.Tensor:
     """Apply a Gaussain nudge of the from
     A = A₀exp( - (x-x₀)²/(2σ₁²) - (y-y₀)²/(2σ₂²) )
@@ -46,22 +45,26 @@ def gaussian_source(
         x: the input state to modify. Shape (B, C, nlat, nlon)
         lat: the latitude shape (lat,)
         lon: the longitude in degrees east. 0<= lon < 360, shape is (nlon)
-        amplitude: the size of the perturbation in X/ seconds, where X is the units of `channel_to_perturb`
+        amplitude: the size of the perturbation in X/ seconds,
+        where X is the units of `channel_to_perturb`
     
     Returns:
-       source: the source evaluated in units X / seconds. where X is the units of `channel_to_perturb`
+       source: the source evaluated in units X / seconds.
+       where X is the units of `channel_to_perturb`
     """
-    lat, lon = torch.meshgrid(lat, lon)
+    lat, lon = torch.meshgrid(
+        torch.tensor(model.grid.lat),
+        torch.tensor(model.grid.lon),
+    )
     source = torch.zeros_like(x)
     blob = amplitude * torch.exp(
-            -(
-                (lon - latitute_location) ** 2 / (2 * latitute_sigma**2)
-                + (lat - longitude_location) ** 2 / (2 * longitude_sigma**2)
-            )
+        -(
+            (lon - latitute_location) ** 2 / (2 * latitute_sigma**2)
+            + (lat - longitude_location) ** 2 / (2 * longitude_sigma**2)
         )
     )
-    index = in_channels.index(channel_to_perturb)
-    source[:, index] = blob
+    index = model.in_channel_names.index(channel_to_perturb)
+    source[..., index, :, :] = blob.to(x.device)
     return source
 
 
@@ -69,15 +72,14 @@ def main():
     device = DistributedManager().device
     model = get_model("pangu", device=device)
     model.source = partial(
-        apply_gaussian_perturbation,
-        in_channel_names=model.in_channel_names,
-        device=device,
+        gaussian_source,
+        model=model,
+        amplitude=10.0,
+        channel_to_perturb="t850",
         latitute_location=0.0,
         latitute_sigma=5.0,
         longitude_location=0.0,
         longitude_sigma=5.0,
-        gaussian_amplitude=10.0,
-        modified_channels=["t850"],
     )
     time = datetime.datetime(2018, 1, 1)
     data_source = cds.DataSource(model.in_channel_names)

@@ -27,17 +27,11 @@ from earth2mip.schema import EnsembleRun
 
 def generate_model_noise_correlated(
     x,
-    time_step,
-    device,
+    time,
     reddening,
     noise_injection_amplitude,
-    normalize=False,
-    center=0,
-    scale=1,
 ):
-    shape = x.shape
-    dt = torch.tensor(time_step.total_seconds()) / 3600.0
-    noise = noise_injection_amplitude * dt * brown_noise(shape, reddening).to(device)
+    noise = noise_injection_amplitude * brown_noise(x.shape, reddening).to(x.device)
     return x * noise
 
 
@@ -88,7 +82,7 @@ def main():
     )
     model.source = partial(
         generate_model_noise_correlated,
-        device=device,
+        model=model,
         reddening=2.0,
         noise_injection_amplitude=0.003,
     )
