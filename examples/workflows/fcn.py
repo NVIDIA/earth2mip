@@ -18,14 +18,6 @@
 import os
 import numpy as np
 import datetime
-
-# Set number of GPUs to use to 1
-os.environ["WORLD_SIZE"] = "1"
-# Set model registry as a local folder
-model_registry = os.path.join(os.path.dirname(os.path.realpath(os.getcwd())), "models")
-os.makedirs(model_registry, exist_ok=True)
-os.environ["MODEL_REGISTRY"] = model_registry
-
 import earth2mip.networks.fcn as fcn
 from earth2mip import registry, inference_ensemble
 from earth2mip.initial_conditions import cds
@@ -36,16 +28,16 @@ from os.path import dirname, abspath, join
 device = DistributedManager().device
 print(f"Loading FCN model onto {device}, this can take a bit")
 package = registry.get_model("e2mip://fcn")
-sfno_inference_model = fcn.load(package, device=device)
+afno_inference_model = fcn.load(package, device=device)
 
 # Use IC method to get data source, this will regrid the data if needed
 time = datetime.datetime(2018, 1, 1)
-data_source = cds.DataSource(channel_names=sfno_inference_model.in_channel_names)
+data_source = cds.DataSource(channel_names=afno_inference_model.in_channel_names)
 
 ds = inference_ensemble.run_basic_inference(
-    sfno_inference_model,
+    afno_inference_model,
     n=1,
-    data_source={time: data_source},
+    data_source=data_source,
     time=time,
 )
 

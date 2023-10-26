@@ -27,7 +27,7 @@ import torch
 import xarray
 
 from earth2mip import forecasts, _cli_utils
-from earth2mip.initial_conditions.era5 import HDF5DataSource
+from earth2mip.initial_conditions import hdf5
 from earth2mip.datasets.hindcast import open_forecast
 from earth2mip.lagged_ensembles import core
 from earth2mip.xarray import metrics
@@ -197,7 +197,7 @@ def main(args):
     FIELDS = ["u10m", "v10m", "z500", "t2m", "t850"]
     pool = concurrent.futures.ThreadPoolExecutor()
 
-    data_source = HDF5DataSource.from_path(args.data or config.ERA5_HDF5_73)
+    data_source = hdf5.DataSource.from_path(args.data or config.ERA5_HDF5)
     obs = Observations(times=times, pool=pool, data_source=data_source, device="cpu")
 
     try:

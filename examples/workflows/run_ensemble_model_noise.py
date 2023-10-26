@@ -14,10 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# %%
 import logging
-from functools import partial
 import torch
+from functools import partial
 from modulus.distributed.manager import DistributedManager
 from earth2mip.inference_ensemble import run_inference, get_initializer
 from earth2mip.ensemble_utils import brown_noise
@@ -64,7 +63,7 @@ def main():
         "perturbation_strategy": "correlated",
         "noise_reddening": 2.0,
     }
-    config: EnsembleRun = EnsembleRun.parse_obj(config_dict)
+    config = EnsembleRun.parse_obj(config_dict)
     logging.basicConfig(level=logging.INFO)
 
     # Set up parallel

@@ -12,22 +12,19 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
-# limitations under the License.from typing import Protocol, List, runtime_checkable
-
-from typing import List, runtime_checkable, Protocol
-import datetime
+# limitations under the License.
+import pytest
+import torch
 from earth2mip import grid
-import numpy as np
+from earth2mip.diagnostic import WindSpeed
 
 
-@runtime_checkable
-class DataSource(Protocol):
-
-    grid: grid.LatLonGrid
-
-    @property
-    def channel_names(self) -> List[str]:
-        pass
-
-    def __getitem__(self, time: datetime.datetime) -> np.ndarray:
-        pass
+@pytest.mark.parametrize("device", ["cpu"])
+@pytest.mark.parametrize("grid", [grid.equiangular_lat_lon_grid(32, 64)])
+def test_wind_speed(device, grid):
+    model = WindSpeed.load_diagnostic(None, level="10m", grid=grid)
+    x = torch.randn(2, len(model.in_channel_names), len(grid.lat), len(grid.lon)).to(
+        device
+    )
+    out = model(x)
+    assert torch.allclose(torch.sqrt(x[:, :1] ** 2 + x[:, 1:] ** 2), out)

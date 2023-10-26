@@ -12,22 +12,27 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
-# limitations under the License.from typing import Protocol, List, runtime_checkable
-
-from typing import List, runtime_checkable, Protocol
-import datetime
-from earth2mip import grid
-import numpy as np
+# limitations under the License.
+import torch
+import pytest
+from earth2mip.diagnostic.climate_net import ClimateNet
 
 
-@runtime_checkable
-class DataSource(Protocol):
+@pytest.mark.slow
+@pytest.mark.xfail
+@pytest.mark.parametrize("device", ["cpu", "cuda:0"])
+def test_climate_net_package(device):
 
-    grid: grid.LatLonGrid
+    package = ClimateNet.load_package()
+    model = ClimateNet.load_diagnostic(package, device)
 
-    @property
-    def channel_names(self) -> List[str]:
-        pass
-
-    def __getitem__(self, time: datetime.datetime) -> np.ndarray:
-        pass
+    x = torch.randn(
+        1, len(model.in_channel_names), len(model.in_grid.lat), len(model.in_grid.lon)
+    ).to(device)
+    out = model(x)
+    assert out.size() == (
+        1,
+        len(model.out_channel_names),
+        len(model.out_grid.lat),
+        len(model.out_grid.lon),
+    )

@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `earth2mip.time_loop.TimeLoop.grid` and
+`earth2mip.initial_conditions.base.DataSource.grid` are now
+`earth2mip.grid.LatLonGrid` objects. Allows more flexible usage.
 - `earth2mip.schema.ChannelSet` removed and
 `earth2mip.schema.Model.in_channel_names` added. **Some older model packages
 will be broken and can be fixed by adding .in_channel_names and
