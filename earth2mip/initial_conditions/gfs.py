@@ -15,7 +15,6 @@
 # limitations under the License.
 
 import datetime
-from earth2mip import schema
 from earth2mip.initial_conditions import base
 from modulus.utils.filesystem import LOCAL_CACHE
 import xarray
@@ -28,6 +27,7 @@ import warnings
 from dataclasses import dataclass
 from typing import List, Union, Dict
 from tqdm import tqdm
+import earth2mip.grid
 
 import logging
 
@@ -418,13 +418,14 @@ def _get_gfs_name_dict() -> Dict[str, str]:
 
 
 class DataSource(base.DataSource):
-
-    grid: schema.Grid = schema.Grid.grid_721x1440
-
     def __init__(self, channels: List[str]) -> None:
         lookup = _get_gfs_name_dict()
         self._gfs_channels = [lookup[c] for c in channels]
         self._channel_names = channels
+
+    @property
+    def grid(self) -> earth2mip.grid.LatLonGrid:
+        return earth2mip.grid.equiangular_lat_lon_grid(721, 1440)
 
     @property
     def channel_names(self) -> List[str]:

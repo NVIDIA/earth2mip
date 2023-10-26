@@ -32,7 +32,7 @@ from graphcast.graphcast import TaskConfig
 import pytz
 from modulus.utils.zenith_angle import toa_incident_solar_radiation_accumulated
 
-from earth2mip import schema
+import earth2mip.grid
 from earth2mip.initial_conditions import cds
 from earth2mip.time_loop import TimeLoop
 import earth2mip.time
@@ -283,11 +283,11 @@ def load_run_forward_from_checkpoint(checkpoint, grid):
     print("Model description:\n", checkpoint.description, "\n")
     print("Model license:\n", checkpoint.license, "\n")
 
+    lat = np.array(grid.lat)
+    lon = np.array(grid.lon)
+
     @hk.transform_with_state
     def run_forward(model_config, task_config, x):
-        lat = grid.lat[::-1]
-        lon = grid.lon
-
         x = x.astype(jnp.float16)
         predictor = NoXarrayGraphcast(model_config, task_config)
         return predictor(x, lat, lon)
@@ -321,7 +321,6 @@ class GraphcastTimeLoop(TimeLoop):
 
     """
 
-    grid = schema.Grid.grid_721x1440
     n_history_levels: int = 2
     history_time_step: datetime.timedelta = datetime.timedelta(hours=6)
     time_step: datetime.timedelta = datetime.timedelta(hours=6)
@@ -335,15 +334,12 @@ class GraphcastTimeLoop(TimeLoop):
         scale,
         target_scale: np.ndarray,
         task_config,
-        # TODO move into grid
-        lat: np.ndarray,
-        lon: np.ndarray,
+        grid: earth2mip.grid.LatLonGrid,
         device=None,
     ):
         in_codes, t_codes = get_codes_from_task_config(task_config)
         self.device = device
-        self.lon = lon
-        self.lat = lat
+        self.grid = grid
         self.task_config = task_config
         self.forward = forward
         self._static_variables = static_variables
@@ -384,7 +380,7 @@ class GraphcastTimeLoop(TimeLoop):
 
     def set_forcings(self, x, time: datetime.datetime, t: int):
         seconds = time.timestamp()
-        lat, lon = np.meshgrid(self.lat, self.lon, indexing="ij")
+        lat, lon = np.meshgrid(self.grid.lat, self.grid.lon, indexing="ij")
 
         lat = lat.reshape([-1, 1])
         lon = lon.reshape([-1, 1])
@@ -418,7 +414,7 @@ class GraphcastTimeLoop(TimeLoop):
         return state_increment, diagnostics
 
     def _to_latlon(self, array):
-        array = einops.rearrange(array, "(y x) b c -> b c y x", y=len(self.lat))
+        array = einops.rearrange(array, "(y x) b c -> b c y x", y=len(self.grid.lat))
         p = jax.dlpack.to_dlpack(array)
         pt = torch.from_dlpack(p)
         return torch.flip(pt, [-2])
@@ -446,7 +442,7 @@ class GraphcastTimeLoop(TimeLoop):
 
     def __call__(self, time, x, restart=None):
         assert not restart, "not implemented"
-        ngrid = len(self.lon) * len(self.lat)
+        ngrid = len(self.grid.lon) * len(self.grid.lat)
         array = torch.empty([ngrid, 1, len(self.in_codes)], device=x.device)
 
         # set input data
@@ -494,9 +490,14 @@ def _load_time_loop_from_description(
     package,
     checkpoint_path: str,
     resolution: float,
-    pretrained=True,
     device="cuda:0",
 ):
+
+    grid = {
+        0.25: earth2mip.grid.equiangular_lat_lon_grid(721, 1440),
+        1.0: earth2mip.grid.equiangular_lat_lon_grid(181, 360),
+    }[resolution]
+
     def join(*args):
         return package.get(os.path.join(*args))
 
@@ -504,9 +505,10 @@ def _load_time_loop_from_description(
     # load checkpoint:
     with open(checkpoint_path, "rb") as f:
         ckpt = checkpoint.load(f, graphcast.CheckPoint)
-        task_config = ckpt.task_config
+        task_config: graphcast.TaskConfig = ckpt.task_config
         run_forward = load_run_forward_from_checkpoint(
-            ckpt, grid=GraphcastTimeLoop.grid
+            ckpt,
+            grid=grid,
         )
 
     size = os.path.getsize(checkpoint_path)
@@ -533,6 +535,7 @@ def _load_time_loop_from_description(
     target_scale = np.array(
         [get_data_for_code_scalar(code, diffs_stddev_by_level) for code in t_codes]
     )
+
     return GraphcastTimeLoop(
         run_forward,
         static_variables,
@@ -540,8 +543,7 @@ def _load_time_loop_from_description(
         scale,
         target_scale,
         task_config,
-        lat=GraphcastTimeLoop.grid.lat,
-        lon=GraphcastTimeLoop.grid.lon,
+        grid=grid,
         device=device,
     )
 
@@ -556,7 +558,6 @@ def load_time_loop(
         package=package,
         checkpoint_path="GraphCast - ERA5 1979-2017 - resolution 0.25 - pressure levels 37 - mesh 2to6 - precipitation input and output.npz",
         resolution=0.25,
-        pretrained=pretrained,
         device=device,
     )
 
@@ -570,7 +571,6 @@ def load_time_loop_small(
         package=package,
         checkpoint_path="GraphCast_small - ERA5 1979-2015 - resolution 1.0 - pressure levels 13 - mesh 2to5 - precipitation input and output.npz",
         resolution=1.0,
-        pretrained=pretrained,
         device=device,
     )
 
@@ -584,6 +584,5 @@ def load_time_loop_operational(
         package=package,
         checkpoint_path="GraphCast_operational - ERA5-HRES 1979-2021 - resolution 0.25 - pressure levels 13 - mesh 2to6 - precipitation output only.npz",
         resolution=0.25,
-        pretrained=pretrained,
         device=device,
     )
