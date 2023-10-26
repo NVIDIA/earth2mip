@@ -74,7 +74,7 @@ def main():
     model.source = partial(
         gaussian_source,
         model=model,
-        amplitude=10.0,
+        amplitude=1 / 86400, # 1 K / d
         channel_to_perturb="t850",
         latitute_location=0.0,
         latitute_sigma=5.0,
