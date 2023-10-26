@@ -35,6 +35,7 @@ def test_diagnostic_loop_ws(device, diag_concat):
     scale = [1, 1, 1, 1]
 
     # batch, time_levels, channels, y, x
+    grid = schema.Grid.grid_720x1440
     x = torch.rand([1, 1, 4, 8, 16])
     model = Inference(
         network,
@@ -44,9 +45,7 @@ def test_diagnostic_loop_ws(device, diag_concat):
         channel_names=["u10m", "v10m", "tcwv", "msp"],
     )
 
-    diagWS = WindSpeed.load_diagnostic(
-        None, level="10m", grid=schema.Grid.grid_720x1440
-    )
+    diagWS = WindSpeed(level="10m", grid=grid)
     diag_model = DiagnosticTimeLoop(
         diagnostics=[diagWS], model=model, concat=diag_concat
     )
