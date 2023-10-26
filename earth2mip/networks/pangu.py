@@ -242,7 +242,8 @@ class PanguInference(torch.nn.Module):
                     time1 += datetime.timedelta(hours=6)
 
                     if self.source:
-                        x1 += self.source(x1, time1)
+                        dt = torch.tensor(self.time_step.total_seconds()) 
+                        x1 += self.source(x1, time1) * dt
                     x1 = self.model_6(x1)
                     yield time1, x1, restart_data
 
