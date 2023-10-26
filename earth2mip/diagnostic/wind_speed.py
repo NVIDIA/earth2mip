@@ -15,7 +15,7 @@
 # limitations under the License.
 import torch
 from typing import Optional
-from earth2mip.schema import Grid
+from earth2mip import grid
 from earth2mip.model_registry import Package
 from earth2mip.diagnostic.base import DiagnosticBase
 
@@ -32,7 +32,7 @@ class WindSpeed(DiagnosticBase):
         (1, 1, 721, 1440)
     """
 
-    def __init__(self, level: str, grid: Grid):
+    def __init__(self, level: str, grid: grid.LatLonGrid):
         super().__init__()
         self.grid = grid
 
@@ -48,16 +48,18 @@ class WindSpeed(DiagnosticBase):
         return self._out_channels
 
     @property
-    def in_grid(self) -> Grid:
+    def in_grid(self) -> grid.LatLonGrid:
         return self.grid
 
     @property
-    def out_grid(self) -> Grid:
+    def out_grid(self) -> grid.LatLonGrid:
         return self.grid
 
     def __call__(self, x: torch.Tensor) -> torch.Tensor:
         return torch.sqrt(x[:, 0:1, ...] ** 2 + x[:, 1:2, ...] ** 2)
 
     @classmethod
-    def load_diagnostic(cls, package: Optional[Package], level: str, grid: Grid):
+    def load_diagnostic(
+        cls, package: Optional[Package], level: str, grid: grid.LatLonGrid
+    ):
         return cls(level, grid)

@@ -15,12 +15,12 @@
 # limitations under the License.
 import pytest
 import torch
-from earth2mip.schema import Grid
+from earth2mip import grid
 from earth2mip.diagnostic import WindSpeed
 
 
 @pytest.mark.parametrize("device", ["cpu"])
-@pytest.mark.parametrize("grid", [Grid.grid_721x1440, Grid.grid_720x1440])
+@pytest.mark.parametrize("grid", [grid.equiangular_lat_lon_grid(32, 64)])
 def test_wind_speed(device, grid):
     model = WindSpeed.load_diagnostic(None, level="10m", grid=grid)
     x = torch.randn(2, len(model.in_channel_names), len(grid.lat), len(grid.lon)).to(

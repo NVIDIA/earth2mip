@@ -16,7 +16,7 @@
 import pytest
 import datetime
 import torch
-import earth2mip.schema as schema
+from earth2mip.grid import equiangular_lat_lon_grid
 from earth2mip.networks import Inference
 from earth2mip.diagnostic import DiagnosticTimeLoop, WindSpeed
 from earth2mip.diagnostic.utils import filter_channels
@@ -35,13 +35,13 @@ def test_diagnostic_loop_ws(device, diag_concat):
     scale = [1, 1, 1, 1]
 
     # batch, time_levels, channels, y, x
-    grid = schema.Grid.grid_720x1440
+    grid = equiangular_lat_lon_grid(8, 16)
     x = torch.rand([1, 1, 4, 8, 16])
     model = Inference(
         network,
         center=center,
         scale=scale,
-        grid=schema.Grid.grid_720x1440,
+        grid=grid,
         channel_names=["u10m", "v10m", "tcwv", "msp"],
     )
 

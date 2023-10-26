@@ -16,7 +16,7 @@
 import torch
 from typing import Protocol
 from abc import abstractmethod
-from earth2mip.schema import Grid
+from earth2mip import grid
 
 
 class GeoOperator(Protocol):
@@ -46,11 +46,11 @@ class GeoOperator(Protocol):
         pass
 
     @property
-    def in_grid(self) -> Grid:
+    def in_grid(self) -> grid.LatLonGrid:
         pass
 
     @property
-    def out_grid(self) -> Grid:
+    def out_grid(self) -> grid.LatLonGrid:
         pass
 
     @abstractmethod

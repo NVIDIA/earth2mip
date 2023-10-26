@@ -21,7 +21,7 @@ import torch.nn.functional as F
 
 import numpy as np
 from earth2mip import config
-from earth2mip.schema import Grid
+from earth2mip import grid
 from earth2mip.model_registry import Package
 from earth2mip.diagnostic.base import DiagnosticBase
 from earth2mip.model_registry import ModelRegistry
@@ -508,7 +508,7 @@ class ClimateNet(DiagnosticBase):
         in_scale: torch.Tensor,
     ):
         super().__init__()
-        self.grid = Grid.grid_721x1440
+        self.grid = grid.equiangular_lat_lon_grid(721, 1440)
 
         self._in_channels = IN_CHANNELS
         self._out_channels = OUT_CHANNELS
@@ -526,11 +526,11 @@ class ClimateNet(DiagnosticBase):
         return self._out_channels
 
     @property
-    def in_grid(self) -> Grid:
+    def in_grid(self) -> grid.LatLonGrid:
         return self.grid
 
     @property
-    def out_grid(self) -> Grid:
+    def out_grid(self) -> grid.LatLonGrid:
         return self.grid
 
     def __call__(self, x: torch.Tensor) -> torch.Tensor:
