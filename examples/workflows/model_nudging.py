@@ -29,8 +29,8 @@ def gaussian_source(
     x: torch.Tensor,
     time,
     model,
-    amplitude: float,
-    channel_to_perturb: str,
+    amplitudes: list[float],
+    channels_to_perturb: list[str],
     latitute_location: float = 0,
     latitute_sigma: float = 50,
     longitude_location: float = 0,
@@ -40,14 +40,14 @@ def gaussian_source(
     A = A₀exp( - (x-x₀)²/(2σ₁²) - (y-y₀)²/(2σ₂²) )
     with prescribed A₀, x₀, y₀, σ₁, σ₂
     to user prescribed variable(s)
-    
+
     Args:
         x: the input state to modify. Shape (B, C, nlat, nlon)
         lat: the latitude shape (lat,)
         lon: the longitude in degrees east. 0<= lon < 360, shape is (nlon)
-        amplitude: the size of the perturbation in X/ seconds,
+        amplitude: the size of the perturbation in X / day,
         where X is the units of `channel_to_perturb`
-    
+
     Returns:
        source: the source evaluated in units X / seconds.
        where X is the units of `channel_to_perturb`
@@ -57,14 +57,20 @@ def gaussian_source(
         torch.tensor(model.grid.lon),
     )
     source = torch.zeros_like(x)
-    blob = amplitude * torch.exp(
+    n = len(amplitudes)
+    amplitudes = torch.tensor(amplitudes) / 86400
+    amplitudes_ = amplitudes.view(n, 1, 1) * torch.zeros(n, lat.size(0), lat.size(1))
+    blob = amplitudes_ * torch.exp(
         -(
             (lon - latitute_location) ** 2 / (2 * latitute_sigma**2)
             + (lat - longitude_location) ** 2 / (2 * longitude_sigma**2)
         )
     )
-    index = model.in_channel_names.index(channel_to_perturb)
-    source[..., index, :, :] = blob.to(x.device)
+    channel_mask = torch.tensor(
+        [channel in channels_to_perturb for channel in model.in_channel_names],
+        dtype=torch.bool,
+    )
+    source[..., channel_mask, :, :] = blob.unsqueeze(0).to(x.device)
     return source
 
 
@@ -74,8 +80,8 @@ def main():
     model.source = partial(
         gaussian_source,
         model=model,
-        amplitude=1 / 86400, # 1 K / d
-        channel_to_perturb="t850",
+        amplitudes=[10.0, 5.0],
+        channels_to_perturb=["t850", "t500"],
         latitute_location=0.0,
         latitute_sigma=5.0,
         longitude_location=0.0,

@@ -31,7 +31,7 @@ def generate_model_noise_correlated(
     noise_injection_amplitude,
 ):
     noise = noise_injection_amplitude * brown_noise(x.shape, reddening).to(x.device)
-    return x * noise
+    return noise
 
 
 def main():
@@ -55,7 +55,7 @@ def main():
         },
         "output_path": "../outputs/model_noise",
         "output_frequency": 1,
-        "weather_model": "pangu",
+        "weather_model": "fcnv2_sm",
         "seed": 12345,
         "use_cuda_graphs": False,
         "ensemble_batch_size": 1,
