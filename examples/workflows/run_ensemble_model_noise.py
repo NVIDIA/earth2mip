@@ -81,7 +81,6 @@ def main():
     )
     model.source = partial(
         generate_model_noise_correlated,
-        model=model,
         reddening=2.0,
         noise_injection_amplitude=0.003,
     )
