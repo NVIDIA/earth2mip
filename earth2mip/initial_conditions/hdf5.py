@@ -60,7 +60,12 @@ class DataSource(base.DataSource):
         """
         self.root = root
         self.metadata = metadata
-        self._channel_names = channel_names or metadata["coords"]["channel"]
+        if channel_names is None:
+            self._channel_names = metadata["coords"]["channel"]
+        else:
+            self._channel_names = [
+                c for c in metadata["coords"]["channel"] if c in channel_names
+            ]
 
     @classmethod
     def from_path(cls, root: str, **kwargs: Any) -> "DataSource":
@@ -98,7 +103,7 @@ class DataSource(base.DataSource):
 
         logger.debug(f"Opening {path} for {time}.")
         ds = era5.open_hdf5(path=path, f=f, metadata=self.metadata)
-        subset = ds.sel(time=time, channel=self.channel_names)
+        subset = ds.sel(time=time, channel=self._channel_names)
         return subset.values
 
 
