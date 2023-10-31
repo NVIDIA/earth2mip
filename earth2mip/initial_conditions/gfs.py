@@ -208,7 +208,7 @@ def get(
         get_gfs_grib_file(time_gfs, gfs_chunks, idname, f"{GFS_CACHE}/{idname}.grb")
 
     # Convert gribs to xarray dataset
-    data = np.empty((1, len(gfs_channels), 721, 1440))
+    data = np.empty((len(gfs_channels), 721, 1440))
     logger.info(f"Processing {len(gfs_channels)} grib files:")
     for i, name in enumerate(tqdm(gfs_channels)):
         ds = xarray.open_dataset(f"{GFS_CACHE}/{name}.grb", engine="cfgrib")
@@ -220,7 +220,7 @@ def get(
         # If geopotential height multiply by gravity to get geopotential
         if name.startswith("HGT") == "z":
             field = field * 9.81
-        data[0, i] = field
+        data[i] = field
 
     # Clean up
     shutil.rmtree(GFS_CACHE)

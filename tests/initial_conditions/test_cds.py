@@ -34,7 +34,7 @@ def test_cds_data_source():
     dataset = source[time]
 
     assert source.channel_names == channels
-    assert dataset.shape == (1, len(channels), 721, 1440)
+    assert dataset.shape == (len(channels), 721, 1440)
 
 
 def test_make_request(regtest):

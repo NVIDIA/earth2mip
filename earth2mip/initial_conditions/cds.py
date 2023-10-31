@@ -257,8 +257,7 @@ def _get_channels(client, time: datetime.datetime, channels: List[str], d):
     return (
         darray.assign_coords(channel=channels)
         .assign_coords(time=time)
-        .expand_dims("time")
-        .transpose("time", "channel", "lat", "lon")
+        .transpose("channel", "lat", "lon")
         .assign_coords(lon=darray["lon"] + 180.0)
         .roll(lon=1440 // 2)
     )
