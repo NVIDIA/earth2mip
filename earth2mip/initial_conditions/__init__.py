@@ -31,7 +31,9 @@ def get_data_source(
     initial_condition_source=schema.InitialConditionSource.era5,
 ) -> base.DataSource:
     if initial_condition_source == schema.InitialConditionSource.era5:
-        return hdf5.DataSource.from_path(root=config.ERA5_HDF5)
+        return hdf5.DataSource.from_path(
+            root=config.ERA5_HDF5, channel_names=channel_names
+        )
     elif initial_condition_source == schema.InitialConditionSource.cds:
         return cds.DataSource(channel_names)
     elif initial_condition_source == schema.InitialConditionSource.gfs:
