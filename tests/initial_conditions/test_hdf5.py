@@ -22,6 +22,27 @@ import h5py
 import pytest
 
 
+def create_hdf5(tmp_path: pathlib.Path, year: int, num_time, grid, channels):
+    h5_var_name = "fields"
+
+    data_json = {
+        "attrs": {},
+        "coords": {"lat": grid.lat, "lon": grid.lon, "channel": channels},
+        "dims": ["time", "channel", "lat", "lon"],
+        "h5_path": h5_var_name,
+    }
+
+    data_json_path = tmp_path / "data.json"
+    data_json_path.write_text(json.dumps(data_json))
+
+    h5_path = tmp_path / "validation" / (str(year) + ".h5")
+    h5_path.parent.mkdir()
+    with h5py.File(h5_path.as_posix(), mode="w") as f:
+        f.create_dataset(
+            h5_var_name, shape=(num_time, len(channels), *grid.shape), dtype="<f"
+        )
+
+
 @pytest.mark.parametrize("year", [2018, 1980, 2017])
 def test__get_path(year):
     root = pathlib.Path(__file__).parent / "mock_data"
@@ -39,25 +60,15 @@ def test__get_path_key_error():
 
 
 def test_hdf_data_source(tmp_path: pathlib.Path):
-    h5_var_name = "fields"
-
-    data_json = {
-        "attrs": {},
-        "coords": {"lat": [0, 1], "lon": [0, 1], "channel": ["a", "b"]},
-        "dims": ["time", "channel", "lat", "lon"],
-        "h5_path": h5_var_name,
-    }
-
-    data_json_path = tmp_path / "data.json"
-    data_json_path.write_text(json.dumps(data_json))
-
-    h5_path = tmp_path / "validation" / "2018.h5"
-    h5_path.parent.mkdir()
-    with h5py.File(h5_path.as_posix(), mode="w") as f:
-        f.create_dataset(h5_var_name, shape=(10, 2, 2, 2), dtype="<f")
-
-    ds = hdf5.DataSource.from_path(tmp_path.as_posix())
     time = datetime.datetime(2018, 1, 1)
+    create_hdf5(
+        tmp_path,
+        time.year,
+        10,
+        grid=grid.equiangular_lat_lon_grid(2, 2),
+        channels=["t850", "t2m"],
+    )
+    ds = hdf5.DataSource.from_path(tmp_path.as_posix())
     array = ds[time]
     assert array.shape == (2, 2, 2)
     assert isinstance(ds.grid, grid.LatLonGrid)
