@@ -51,14 +51,18 @@ def get_initial_condition_for_model(
     dt = time_loop.history_time_step
     arrays = []
     for i in range(time_loop.n_history_levels - 1, -1, -1):
-        arrays.append(data_source[time - i * dt])
-    array = np.stack(arrays, axis=1)
-    assert array.shape == (
-        1,
-        time_loop.n_history_levels,
-        len(data_source.channel_names),
-        *data_source.grid.shape,
-    )
+        time_to_get = time - i * dt
+        arr = data_source[time - i * dt]
+        expected_shape = (len(data_source.channel_names), *data_source.grid.shape)
+        arrays.append(arr)
+        if arr.shape != expected_shape:
+            raise ValueError(time_to_get, arr.shape, expected_shape)
+
+    # stack the history
+    array = np.stack(arrays, axis=0)
+
+    # make an empty batch dim
+    array = array[None]
 
     index = [data_source.channel_names.index(c) for c in time_loop.in_channel_names]
     values = array[:, :, index]
