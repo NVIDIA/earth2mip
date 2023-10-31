@@ -44,7 +44,7 @@ class get_data_source:
     def __init__(self, inference):
         self.channel_names = inference.in_channel_names
         self.grid = inference.grid
-        arr = np.ones([1, len(inference.in_channel_names), 721, 1440])
+        arr = np.ones([len(inference.in_channel_names), 721, 1440])
         self.arr = arr
         self.channel_names = inference.out_channel_names
 
