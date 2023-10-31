@@ -72,3 +72,18 @@ def test_hdf_data_source(tmp_path: pathlib.Path):
     array = ds[time]
     assert array.shape == (2, 2, 2)
     assert isinstance(ds.grid, grid.LatLonGrid)
+
+
+def test_hdf_data_source_subset_channels(tmp_path: pathlib.Path):
+    time = datetime.datetime(2018, 1, 1)
+    create_hdf5(
+        tmp_path,
+        time.year,
+        10,
+        grid=grid.equiangular_lat_lon_grid(2, 2),
+        channels=["t850", "t2m"],
+    )
+    ds = hdf5.DataSource.from_path(tmp_path.as_posix(), channel_names=["t850"])
+    array = ds[time]
+    assert array.shape == (1, 2, 2)
+    assert isinstance(ds.grid, grid.LatLonGrid)
