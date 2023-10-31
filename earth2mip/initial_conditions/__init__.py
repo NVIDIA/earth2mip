@@ -54,7 +54,7 @@ def get_initial_condition_for_model(
     arrays = []
     for i in range(time_loop.n_history_levels - 1, -1, -1):
         time_to_get = time - i * dt
-        arr = data_source[time - i * dt]
+        arr = data_source[time_to_get]
         expected_shape = (len(data_source.channel_names), *data_source.grid.shape)
         arrays.append(arr)
         if arr.shape != expected_shape:
