@@ -189,6 +189,7 @@ def _parse_files(
 
     """
     arrays = [None] * len(codes)
+    opened_codes = set()
     for path in files:
         with open(path) as f:
             while True:
@@ -218,6 +219,13 @@ def _parse_files(
                     continue
 
                 arrays[i] = vals
+                opened_codes.add(code)
+
+    unfound_codes = set(codes) - opened_codes
+    if unfound_codes:
+        names = [str(c) for c in unfound_codes]
+        raise ValueError(f"Could not find channels: {names}")
+
     array = np.stack(arrays)
     coords = {}
     coords["lat"] = lat[:, 0]
