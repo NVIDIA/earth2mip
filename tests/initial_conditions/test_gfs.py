@@ -22,6 +22,6 @@ import pytest
 @pytest.mark.slow
 def test_gfs():
     t = datetime.datetime.today() - datetime.timedelta(days=1)
-    ds = gfs.DataSource(["t850"])
+    ds = gfs.DataSource(["t850", "t2m"])
     out = ds[t]
-    assert out.shape == (1, 1, 721, 1440)
+    assert out.shape == (len(ds.channel_names), 721, 1440)

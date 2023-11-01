@@ -50,13 +50,13 @@ def _get_channel(c: str, **kwargs) -> xarray.DataArray:
 def get(time: datetime.datetime, channels: List[str]):
     root = "https://ecmwf-forecasts.s3.eu-central-1.amazonaws.com/"
     path = root + _get_filename(time, "0h")
-    local_path = filesystem.download_cached(path)
+    local_path = filesystem._download_cached(path)
     dataset_0h = xarray.open_dataset(local_path, engine="cfgrib")
 
     # get t2m and other things from 12 hour forecast initialized 12 hours before
     # The HRES is only initialized every 12 hours
     path = root + _get_filename(time - datetime.timedelta(hours=12), "12h")
-    local_path = filesystem.download_cached(path)
+    local_path = filesystem._download_cached(path)
     forecast_12h = xarray.open_dataset(local_path, engine="cfgrib")
 
     channel_data = [

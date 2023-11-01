@@ -14,13 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import dataclasses
 import datetime
 import json
 import logging
 import os
 import warnings
-from typing import Any
+from typing import Any, Optional, List
 
 import s3fs
 import xarray
@@ -36,7 +35,6 @@ logger = logging.getLogger(__name__)
 # TODO move to earth2mip/datasets/era5?
 
 
-@dataclasses.dataclass
 class DataSource(base.DataSource):
     """HDF5 Data Sources
 
@@ -47,13 +45,27 @@ class DataSource(base.DataSource):
         subdirB/2017.h5
         subdirB/2016.h5
 
-    Attrs:
-        root: Path to the root of the HDF5 data.
-        metadata: Metadata about the HDF5 data
     """
 
-    root: str
-    metadata: Any
+    def __init__(
+        self, root: str, metadata: Any, channel_names: Optional[List[str]] = None
+    ):
+        """
+
+        Args:
+            root: Path to the root of the HDF5 data.
+            metadata: Metadata about the HDF5 data.
+            channel_names: If provided, only get these channel names.
+                Defaults to all channels in the data.
+        """
+        self.root = root
+        self.metadata = metadata
+        if channel_names is None:
+            self._channel_names = metadata["coords"]["channel"]
+        else:
+            self._channel_names = [
+                c for c in metadata["coords"]["channel"] if c in channel_names
+            ]
 
     @classmethod
     def from_path(cls, root: str, **kwargs: Any) -> "DataSource":
@@ -71,7 +83,7 @@ class DataSource(base.DataSource):
 
     @property
     def channel_names(self):
-        return self.metadata["coords"]["channel"]
+        return self._channel_names
 
     @property
     def time_means(self):
@@ -91,7 +103,7 @@ class DataSource(base.DataSource):
 
         logger.debug(f"Opening {path} for {time}.")
         ds = era5.open_hdf5(path=path, f=f, metadata=self.metadata)
-        subset = ds.sel(time=time)
+        subset = ds.sel(time=time, channel=self._channel_names)
         return subset.values
 
 
