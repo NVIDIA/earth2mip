@@ -40,6 +40,9 @@ urllib3.disable_warnings(
     urllib3.exceptions.InsecureRequestWarning
 )  # Hack to disable SSL warnings
 
+TP06_CODE = 260267
+TP_CODE = 228
+
 # codes database: https://codes.ecmwf.int/grib/param-db/?filter=grib2
 CHANNEL_TO_CODE = {
     "z": 129,
@@ -59,9 +62,9 @@ CHANNEL_TO_CODE = {
     "sp": 134,
     "msl": 151,
     # total precip
-    "tp": 228,
+    "tp": TP_CODE,
     # total precip accumlated over 6 hours
-    "tp06": 260267,
+    "tp06": TP06_CODE,
     "tisr": 212,
     "zs": 162051,
     "lsm": 172,
@@ -136,12 +139,39 @@ def _get_cds_requests(codes, time, format):
     levels = set()
     pressure_level_names = set()
     single_level_names = set()
+
     for v in codes:
         if isinstance(v, PressureLevelCode):  # it's a pressure level variable
             levels.add(v.level)
             pressure_level_names.add(v.id)
         elif isinstance(v, SingleLevelCode):  # it's a single level variable
-            single_level_names.add(v.id)
+            if v.id == TP06_CODE:
+
+                dt = datetime.timedelta(hours=1)
+                dates: dict[datetime.date, list[datetime.datetime]] = {}
+                for i in range(6):
+                    t = time - i * dt
+                    date = datetime.date(t.year, t.month, t.day)
+                    dates.setdefault(date, []).append(t)
+
+                for ymd, times in dates.items():
+                    hour_minute = sorted([time.strftime("%H:%M") for time in times])
+                    yield (
+                        "reanalysis-era5-single-levels",
+                        {
+                            "product_type": "reanalysis",
+                            "variable": [TP_CODE],
+                            "year": ymd.strftime("%Y"),
+                            "month": ymd.strftime("%m"),
+                            "day": ymd.strftime("%d"),
+                            "time": hour_minute,
+                            "area": area,
+                            "grid": grid,
+                            "format": format,
+                        },
+                    )
+            else:
+                single_level_names.add(v.id)
 
     if pressure_level_names and levels:
         # TODO to limit download size for many levels, split this into one
@@ -190,6 +220,15 @@ def _parse_files(
     """
     arrays = [None] * len(codes)
     opened_codes = set()
+
+    num_precip = 0
+
+    try:
+        i_precip = codes.index(SingleLevelCode(TP06_CODE))
+        num_precip = 0
+    except ValueError:
+        i_precip = None
+
     for path in files:
         with open(path) as f:
             while True:
@@ -213,13 +252,30 @@ def _parse_files(
                 vals = eccodes.codes_get_values(gid).reshape(nlat, nlon)
                 eccodes.codes_release(gid)
 
+                if id == TP_CODE:
+                    if i_precip is not None:
+                        if num_precip == 0:
+                            arrays[i_precip] = vals
+                        else:
+                            arrays[i_precip] += vals
+
+                        num_precip += 1
+
                 try:
                     i = codes.index(code)
                 except ValueError:
                     continue
+                else:
+                    arrays[i] = vals
+                    opened_codes.add(code)
 
-                arrays[i] = vals
-                opened_codes.add(code)
+    if i_precip is not None:
+        if num_precip != 6:
+            raise ValueError(
+                f"Expected 6 hours of precipitation data, got {num_precip}"
+            )
+        else:
+            opened_codes.add(SingleLevelCode(TP06_CODE))
 
     unfound_codes = set(codes) - opened_codes
     if unfound_codes:

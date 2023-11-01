@@ -22,14 +22,20 @@ import pytest
 
 
 @pytest.mark.slow
-def test_cds_data_source():
+@pytest.mark.parametrize(
+    "channels",
+    [
+        ["q1000", "t2m"],
+        ["tp06"],
+    ],
+)
+def test_cds_data_source(channels):
     try:
         client = cds.Client()
     except Exception:
         pytest.skip("Could not initialize client")
 
     time = datetime.datetime(2018, 1, 1)
-    channels = ["q1000", "t2m"]
     source = cds.DataSource(channels, client=client)
     dataset = source[time]
 
@@ -39,7 +45,7 @@ def test_cds_data_source():
 
 def test_make_request(regtest):
     time = datetime.datetime(2018, 1, 1)
-    channels = ["q1000", "z1000", "u1000", "t2m", "q10"]
+    channels = ["q1000", "z1000", "u1000", "t2m", "q10", "tp06"]
     codes = [cds.parse_channel(c) for c in channels]
     for req in cds._get_cds_requests(codes, time, format="grib"):
         print(req, file=regtest)
