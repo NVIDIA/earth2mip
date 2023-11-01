@@ -141,7 +141,7 @@ def FCNPackage(root: str, seperator: str):
     download_ngc_package(
         root=root,
         url="https://api.ngc.nvidia.com/v2/models/nvidia/modulus/modulus_fcn/"
-        + "versions/v0.1/files/fcn.zip",
+        + "versions/v0.2/files/fcn.zip",
         zip_file="fcn.zip",
     )
     return Package(root, seperator)
