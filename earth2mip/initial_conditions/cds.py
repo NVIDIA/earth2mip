@@ -239,6 +239,8 @@ def _download_codes(client, codes, time, d) -> xarray.DataArray:
 
     def download(arg):
         name, req = arg
+
+        logger.debug(f"CDS Request: {name, req}")
         hash_ = hashlib.sha256(str(req).encode()).hexdigest()
         dirname = os.path.join(d, hash_)
         os.makedirs(dirname, exist_ok=True)
@@ -252,7 +254,7 @@ def _download_codes(client, codes, time, d) -> xarray.DataArray:
             logger.info(f"Found data in cache. Using {path}.")
         return path
 
-    requests = _get_cds_requests(codes, time, format)
+    requests = list(_get_cds_requests(codes, time, format))
     with ThreadPoolExecutor(4) as pool:
         files = pool.map(download, requests)
 
