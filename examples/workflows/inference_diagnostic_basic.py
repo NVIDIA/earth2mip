@@ -23,7 +23,7 @@ from earth2mip.initial_conditions import cds
 from earth2mip.diagnostic import PrecipitationAFNO, DiagnosticTimeLoop
 
 
-def main(model_name: str = "e2mip://fcnv2_sm"):
+def main(model_name: str = "e2mip://fcn"):
 
     logging.basicConfig(level=logging.INFO)
 
@@ -45,12 +45,13 @@ def main(model_name: str = "e2mip://fcnv2_sm"):
     time = datetime.datetime(2018, 4, 4)
 
     logging.info("Running inference")
-    run_basic_inference(
+    output = run_basic_inference(
         model_diagnostic,
         n=1,
         data_source=data_source,
         time=time,
     )
+    print(output)
 
 
 if __name__ == "__main__":

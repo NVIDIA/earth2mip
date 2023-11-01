@@ -544,7 +544,7 @@ class ClimateNet(DiagnosticBase):
         cls, registry: str = os.path.join(config.MODEL_REGISTRY, "diagnostics")
     ) -> Package:
         registry = ModelRegistry(registry)
-        return registry.get_model("climatenet")
+        return registry.get_model("e2mip://climatenet")
 
     @classmethod
     def load_diagnostic(cls, package: Package, device="cuda:0"):
