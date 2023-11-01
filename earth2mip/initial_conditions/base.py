@@ -30,4 +30,9 @@ class DataSource(Protocol):
         pass
 
     def __getitem__(self, time: datetime.datetime) -> np.ndarray:
+        """
+
+        Returns:
+            data at ``time``. shape is (len(channel_names), *grid.shape)
+        """
         pass
