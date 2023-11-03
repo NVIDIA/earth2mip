@@ -13,12 +13,11 @@ In summary this notebook will cover the following topics:
 
 - Implementing a basic scoring workflow in Earth-2 MIP
 - HDF5 datasource and the expected data format of the H5 files
- 
+
 """
 # %%
 import os
 import xarray
-import earth2mip
 import datetime
 import numpy as np
 
@@ -26,31 +25,33 @@ import numpy as np
 """
 ## Setting up HDF5 data
 
-The first step of scoring is handling the target data. One could simply use the CDSDatasource
-to download target data on the fly, but depending on how comprehensive this can prove quite
-slow. Additionally, many scoring pipelines require on-prem data. So we will demonstrate
-how to use the HDF5 datasource.
+The first step of scoring is handling the target data. One could simply use the
+CDSDatasource to download target data on the fly, but depending on how comprehensive
+the scoring is, this can prove quite slow.
+Additionally, many scoring pipelines require on-prem data.
+Thus, this will demonstrate how to use the HDF5 datasource.
 
 The HDF5 data source assumes that the data to be loaded is stored in the general form:
 
 year.h5
  | - field (time, channels, grid)
 
-So for AFNO which requires 34 channels with a time-step size of 6 hours, an H5 file will
+For AFNO which requires 34 channels with a time-step size of 6 hours, an H5 file will
 have the following form of data:
 
 2017.h5
- | - field (1460, 34, 721, 1440)
+ | - field (1460, 34, 720, 1440)
 2016.h5
- | - field (1464, 34, 721, 1440)
+ | - field (1464, 34, 720, 1440)
 2015.h5
- | - field (1460, 34, 721, 1440)
+ | - field (1460, 34, 720, 1440)
 
-One option to build these H5 files from scratch is to use the ERA5 mirror scripts provided
-in [Modulus](https://github.com/NVIDIA/modulus/tree/main/examples/weather/dataset_download).
-(use the input channels defined in each model file to act as a reference about what channels are needed).
+(Note the later two dims have some flexibility with regridding)
+
+One option to build these H5 files from scratch is to use the ERA5 mirror scripts
+provided in [Modulus](https://github.com/NVIDIA/modulus/tree/main/examples/weather/dataset_download).
 For the rest of this tutorial, it is assumed that 2017.h5 is present for the full year.
-"""
+"""  # noqa: E501
 
 # %%
 h5_folder = "/mount/34vars/test/"
@@ -146,6 +147,9 @@ model = fcn.load(package, device=device)
 With the datasource and model loaded, scoring can now be performed.
 To score this we will run 10 day forecasts over the span of the entire year at 30 day
 intervals.
+For research, one would typically want this to be much more comprehensive so feel free
+to customize for you're use case.
+
 The `score_deterministic` API provides a simple way to calculate RMSE and ACC scores.
 ACC scores require climatology which is beyond the scope of this example, thus zero
 values will be provided and only the RMSE will be of concern.
@@ -173,7 +177,8 @@ print(output)
 
 The last step is any post processing / IO that is desired.
 Typically its recommended to save the output dataset to a netCDF file for further
-processing. Lets plot the RMSE of the z500 field.
+processing.
+Lets plot the RMSE of the z500 field.
 """
 
 # %%
