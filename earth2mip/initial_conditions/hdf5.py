@@ -45,6 +45,14 @@ class DataSource(base.DataSource):
         subdirB/2017.h5
         subdirB/2016.h5
 
+    data.json should have fields
+
+        h5_path - the name of the data within the hdf5 file
+        coords.channel - list of channels
+        coords.lat - list of lats
+        coords.lon - list of lons
+        dhours - timestep in hours (default 1 hour)
+
     """
 
     def __init__(
