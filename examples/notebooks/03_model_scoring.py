@@ -79,7 +79,8 @@ With the H5 files properly formatted, a H5 datasource can now get defined.
 This requires two items: a root directory location of the H5 files as well as some
 metadata.
 The metadata is a JSON/dictionary object that helps Earth-2 MIP index the H5 file.
-Metadata for a 34 channel H5 files described above is given below.
+Typically, this can be done by placing a `data.json` file next to the H5 files,
+Pythonically metadata for a 34 channel H5 files described above is given below.
 """
 # %%
 from earth2mip.initial_conditions import hdf5
@@ -88,6 +89,7 @@ metadata = {
     "h5_path": "fields",
     "attrs": {"decription": "Custom HDF5 data"},
     "dims": ["time", "channel", "lat", "lon"],
+    "dhours": 6,
     "coords": {
         "lat": np.linspace(90, -90, 721),
         "lon": np.linspace(0, 359.75, 1440),
@@ -176,15 +178,16 @@ from earth2mip.inference_medium_range import score_deterministic
 time = datetime.datetime(2017, 1, 1, 0)
 initial_times = [time + datetime.timedelta(days=30 * i) for i in range(12)]
 
-output = score_deterministic(
-    model,
-    n=40,  # 6 hour timesteps
-    initial_times=initial_times,
-    data_source=datasource,
-    time_mean=np.zeros((34, 721, 1440)),
-)
-output.to_netcdf("scoring_output.nc")
-print(output)
+if not os.path.exists("scoring_output.nc"):
+    output = score_deterministic(
+        model,
+        n=40,  # 6 hour timesteps
+        initial_times=initial_times,
+        data_source=datasource,
+        time_mean=np.zeros((34, 721, 1440)),
+    )
+    output.to_netcdf("scoring_output.nc")
+    print(output)
 
 # %% [markdown]
 """
