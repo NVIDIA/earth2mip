@@ -15,6 +15,7 @@
 # limitations under the License.
 
 import contextlib
+import datetime
 import glob
 import json
 import os
@@ -36,7 +37,8 @@ METADATA = pathlib.Path(__file__).parent / "data.json"
 def open_hdf5(*, path, f=None, metadata):
     dims = metadata["dims"]
     h5_path = metadata["h5_path"]
-    time_step = metadata.get("dhours", 6)
+    time_step_hours = metadata.get("dhours", 6)
+    time_step = datetime.timedelta(hours=time_step_hours)
 
     ds = xarray.open_dataset(f or path, engine="h5netcdf", phony_dims="sort")
     array = ds[h5_path]
