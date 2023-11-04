@@ -1,16 +1,17 @@
 xarray.Dataset {
 dimensions:
-	lead_time = 6 ;
+	lead_time_hours = 6 ;
 	channel = 3 ;
 	initial_time = 10 ;
 
 variables:
-	timedelta64[ns] lead_time(lead_time) ;
-	<U1 channel(channel) ;
-	float64 acc(lead_time, channel) ;
-		acc:checksum = 152afd7bf4dbe26f85032eee0269201a ;
-	float64 rmse(lead_time, channel) ;
+	timedelta64[ns] lead_time_hours(lead_time_hours) ;
+	object channel(channel) ;
+	float64 rmse(lead_time_hours, channel) ;
 		rmse:checksum = 152afd7bf4dbe26f85032eee0269201a ;
+	float64 acc(lead_time_hours, channel) ;
+		acc:checksum = 152afd7bf4dbe26f85032eee0269201a ;
+	datetime64[ns] initial_time(initial_time) ;
 	datetime64[ns] initial_times(initial_time) ;
 
 // global attributes:

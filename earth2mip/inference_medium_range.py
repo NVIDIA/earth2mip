@@ -14,19 +14,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import IO, List
 import logging
 
 import os
+import tempfile
 import xarray as xr
 import torch
 import argparse
 import numpy as np
 import datetime
-import sys
 from earth2mip import config
 from earth2mip import time_loop, initial_conditions
 from earth2mip.initial_conditions import hdf5
 from earth2mip import _cli_utils
+import earth2mip.forecast_metrics_io
 from modulus.distributed.manager import DistributedManager
 
 
@@ -44,6 +46,8 @@ def get_times():
 
 
 class RMSE:
+    outputs = ["mse"]
+
     def __init__(self, weight=None):
         self._xy = {}
         self.weight = weight
@@ -60,13 +64,15 @@ class RMSE:
 
     def call(self, truth, pred):
         xy = self._mean((truth - pred) ** 2)
-        return xy.cpu()
+        return (xy.cpu(),)
 
     def gather(self, seq):
         return torch.sqrt(sum(seq) / len(seq))
 
 
 class ACC:
+    outputs = ["xx", "yy", "xy"]
+
     def __init__(self, mean, weight=None):
         self.mean = mean
         self._xy = {}
@@ -118,6 +124,7 @@ def run_forecast(
     device,
     data_source: initial_conditions.base.DataSource,
     mean,
+    f: IO[str],
 ):
     mean = mean.squeeze()
     assert mean.ndim == 3
@@ -135,7 +142,7 @@ def run_forecast(
     weight_torch = torch.from_numpy(weight).to(device)
 
     acc = ACC(mean, weight=weight_torch)
-    metrics = {"acc": acc, "rmse": RMSE(weight=weight_torch)}
+    metrics = [acc, RMSE(weight=weight_torch)]
 
     def process(initial_time):
         logger.info(f"Running {initial_time}")
@@ -158,15 +165,22 @@ def run_forecast(
             )
             # select first history level
             verification_torch = verification_torch[:, 0]
+            for metric in metrics:
+                outputs = metric.call(verification_torch, data)
+                for name, tensor in zip(metric.outputs, outputs):
+                    v = tensor.cpu().numpy()
+                    for c_idx in range(len(model.out_channel_names)):
+                        earth2mip.forecast_metrics_io.write_metric(
+                            f,
+                            initial_time,
+                            lead_time,
+                            model.out_channel_names[c_idx],
+                            name,
+                            value=v[c_idx],
+                        )
 
-            output = {}
-            for name, metric in metrics.items():
-                output[name] = metric.call(verification_torch, data)
-            yield (initial_time, lead_time), output
-
-    # collect outputs for lead_times
-    my_channels = np.array(model.out_channel_names)
-    return metrics, my_channels, list(flat_map(process, initial_times))
+    for initial_time in initial_times:
+        process(initial_time)
 
 
 def gather(seq, metrics, model_name, channels):
@@ -216,8 +230,24 @@ def score_deterministic(
             Used for ACC.
 
     Returns:
-        metrics
-
+        metrics::
+            netcdf dlwp.baseline {
+            dimensions:
+                    lead_time = 57 ;
+                    channel = 7 ;
+                    initial_time = 1 ;
+            variables:
+                    int64 lead_time(lead_time) ;
+                            lead_time:units = "hours" ;
+                    string channel(channel) ;
+                    double acc(lead_time, channel) ;
+                            acc:_FillValue = NaN ;
+                    double rmse(lead_time, channel) ;
+                            rmse:_FillValue = NaN ;
+                    int64 initial_times(initial_time) ;
+                            initial_times:units = "days since 2018-11-30 12:00:00" ;
+                            initial_times:calendar = "proleptic_gregorian" ;
+            }
     """
     if torch.distributed.is_initialized():
         rank = torch.distributed.get_rank()
@@ -228,32 +258,67 @@ def score_deterministic(
         world_size = 1
         device = "cuda:0"
 
+    with tempfile.TemporaryDirectory() as tmpdir:
+        save_scores(
+            model,
+            n,
+            initial_times,
+            data_source,
+            time_mean,
+            output_directory=tmpdir,
+            rank=rank,
+            world_size=world_size,
+            device=device,
+        )
+        series = earth2mip.forecast_metrics_io.read_metrics(tmpdir)
+        data_array = series.to_xarray()
+        dataset = data_array.to_dataset(dim="metric")
+        mean = dataset.mean("initial_time")
+        out = xr.Dataset()
+        out["rmse"] = np.sqrt(mean["mse"])
+        out["acc"] = mean["xy"] / np.sqrt(mean["xx"] * mean["yy"])
+        out["initial_times"] = dataset["initial_time"]
+        return out
+
+
+def save_scores(
+    model: time_loop.TimeLoop,
+    n: int,
+    initial_times: List[datetime.datetime],
+    data_source: initial_conditions.base.DataSource,
+    time_mean: np.ndarray,
+    output_directory: str,
+    rank: int = 0,
+    world_size: int = 1,
+    device: str = "cuda",
+) -> None:
+    """Compute deterministic accs and rmses
+
+    Args:
+        model: the inference class
+        n: the number of lead times
+        initial_times: the initial_times to compute over
+        data_source: a mapping from time to dataset, used for the initial
+            condition and the scoring
+        time_mean: a (channel, lat, lon) numpy array containing the time_mean.
+            Used for ACC.
+
+    Returns:
+        metrics
+
+    """
     local_initial_times = initial_times[rank::world_size]
-
-    metrics, channels, seq = run_forecast(
-        model,
-        n=n,
-        device=device,
-        initial_times=local_initial_times,
-        data_source=data_source,
-        mean=time_mean,
-    )
-
-    if world_size > 1:
-        output_list = [None] * world_size
-        torch.distributed.all_gather_object(output_list, seq)
-    else:
-        output_list = [seq]
-
-    if rank == 0:
-        seq = []
-        for item in output_list:
-            seq.extend(item)
-        return gather(
-            seq,
-            metrics=metrics,
-            model_name=model,
-            channels=channels,
+    os.makedirs(output_directory, exist_ok=True)
+    csv_path = os.path.join(output_directory, f"{rank}.csv")
+    with open(csv_path, "a") as f:
+        run_forecast(
+            model,
+            n=n,
+            device=device,
+            initial_times=local_initial_times,
+            data_source=data_source,
+            mean=time_mean,
+            f=f,
         )
 
 
@@ -281,20 +346,18 @@ def main():
     data_source = hdf5.DataSource.from_path(
         args.data or config.ERA5_HDF5_73, channel_names=model.in_channel_names
     )
-
     # time mean
-    ds = score_deterministic(
-        model, args.n, initial_times, data_source, time_mean=data_source.time_means
+    save_scores(
+        model,
+        n=args.n,
+        initial_times=initial_times,
+        data_source=data_source,
+        time_mean=data_source.time_means,
+        output_directory=args.output,
+        rank=dist.rank,
+        world_size=dist.world_size,
+        device=dist.device,
     )
-
-    if dist.rank == 0:
-        ds.attrs["model"] = args.model
-        ds.attrs["history"] = " ".join(sys.argv)
-        output = os.path.abspath(args.output)
-        dirname = os.path.dirname(args.output)
-        if dirname:
-            os.makedirs(dirname, exist_ok=True)
-        ds.to_netcdf(output)
 
 
 if __name__ == "__main__":
