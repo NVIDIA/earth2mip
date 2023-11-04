@@ -96,10 +96,10 @@ def _to_url(scheme, path):
         return path
 
 
-def glob(pattern: str) -> List[str]:
+def glob(pattern: str, maxdepth=1) -> List[str]:
     fs = _get_fs(pattern)
     url = urllib.parse.urlparse(pattern)
-    return [_to_url(url.scheme, path) for path in fs.glob(pattern)]
+    return [_to_url(url.scheme, path) for path in fs.glob(pattern, maxdepth=maxdepth)]
 
 
 def ls(path):
