@@ -13,15 +13,26 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-from earth2mip.initial_conditions import gfs
-import datetime
+import torch
 import pytest
+from earth2mip.diagnostic import PrecipitationAFNO
 
 
 @pytest.mark.slow
-def test_gfs():
-    t = datetime.datetime.today() - datetime.timedelta(days=1)
-    ds = gfs.DataSource(["t850"])
-    out = ds[t]
-    assert out.shape == (1, 1, 721, 1440)
+@pytest.mark.xfail
+@pytest.mark.parametrize("device", ["cpu", "cuda:0"])
+def test_precipitation_afno_package(device):
+
+    package = PrecipitationAFNO.load_package()
+    model = PrecipitationAFNO.load_diagnostic(package, device)
+
+    x = torch.randn(
+        1, len(model.in_channel_names), len(model.in_grid.lat), len(model.in_grid.lon)
+    ).to(device)
+    out = model(x)
+    assert out.size() == (
+        1,
+        len(model.out_channel_names),
+        len(model.out_grid.lat),
+        len(model.out_grid.lon),
+    )

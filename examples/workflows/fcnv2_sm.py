@@ -18,14 +18,6 @@
 import os
 import numpy as np
 import datetime
-
-# Set number of GPUs to use to 1
-os.environ["WORLD_SIZE"] = "1"
-# Set model registry as a local folder
-model_registry = os.path.join(os.path.dirname(os.path.realpath(os.getcwd())), "models")
-os.makedirs(model_registry, exist_ok=True)
-os.environ["MODEL_REGISTRY"] = model_registry
-
 import earth2mip.networks.fcnv2_sm as fcnv2
 from earth2mip import registry, inference_ensemble
 from earth2mip.initial_conditions import cds

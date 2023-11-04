@@ -24,8 +24,8 @@ import numpy as np
 import datetime
 import sys
 from earth2mip import config
-from earth2mip import schema, time_loop, initial_conditions
-from earth2mip.initial_conditions.era5 import HDF5DataSource
+from earth2mip import time_loop, initial_conditions
+from earth2mip.initial_conditions import hdf5
 from earth2mip import _cli_utils
 from modulus.distributed.manager import DistributedManager
 
@@ -122,7 +122,7 @@ def run_forecast(
     mean = mean.squeeze()
     assert mean.ndim == 3
 
-    nlat = {schema.Grid.grid_720x1440: 720, schema.Grid.grid_721x1440: 721}[model.grid]
+    nlat = len(model.grid.lat)
     channels = [
         data_source.channel_names.index(name) for name in model.out_channel_names
     ]
@@ -133,9 +133,6 @@ def run_forecast(
     assert lat.ndim == 1
     weight = np.cos(lat)[:, np.newaxis]
     weight_torch = torch.from_numpy(weight).to(device)
-
-    if model.grid == schema.Grid.grid_720x1440:
-        weight_torch = weight_torch[:720, :]
 
     acc = ACC(mean, weight=weight_torch)
     metrics = {"acc": acc, "rmse": RMSE(weight=weight_torch)}
@@ -281,7 +278,9 @@ def main():
 
     model = _cli_utils.model_from_args(args, dist.device)
 
-    data_source = HDF5DataSource.from_path(args.data or config.ERA5_HDF5_73)
+    data_source = hdf5.DataSource.from_path(
+        args.data or config.ERA5_HDF5_73, channel_names=model.in_channel_names
+    )
 
     # time mean
     ds = score_deterministic(

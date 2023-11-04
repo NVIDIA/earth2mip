@@ -14,8 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from earth2mip.initial_conditions.ifs import _get_filename, get
-from earth2mip import schema
+from earth2mip.initial_conditions.ifs import _get_filename, DataSource
 import datetime
 
 import pytest
@@ -31,6 +30,9 @@ def test__get_filename():
 @pytest.mark.xfail
 def test_get():
     # uses I/O and old ICs are not available forever.
-    time = datetime.datetime(2023, 3, 10, 0)
-    ds = get(time, schema.ChannelSet.var34)
-    print(ds)
+    time = datetime.datetime.utcnow()
+    last_time = datetime.datetime(time.year, time.month, time.day)
+
+    data = DataSource(["t2m"])
+    ds = data[last_time]
+    assert ds.shape == (1, *data.grid.shape)

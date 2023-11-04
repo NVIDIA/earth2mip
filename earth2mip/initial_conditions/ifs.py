@@ -19,8 +19,8 @@ import datetime
 from typing import List
 from earth2mip.initial_conditions import base
 from modulus.utils import filesystem
-from earth2mip import schema
 from earth2mip.datasets.era5 import METADATA
+import earth2mip.grid
 import json
 import xarray
 import numpy as np
@@ -50,13 +50,13 @@ def _get_channel(c: str, **kwargs) -> xarray.DataArray:
 def get(time: datetime.datetime, channels: List[str]):
     root = "https://ecmwf-forecasts.s3.eu-central-1.amazonaws.com/"
     path = root + _get_filename(time, "0h")
-    local_path = filesystem.download_cached(path)
+    local_path = filesystem._download_cached(path)
     dataset_0h = xarray.open_dataset(local_path, engine="cfgrib")
 
     # get t2m and other things from 12 hour forecast initialized 12 hours before
     # The HRES is only initialized every 12 hours
     path = root + _get_filename(time - datetime.timedelta(hours=12), "12h")
-    local_path = filesystem.download_cached(path)
+    local_path = filesystem._download_cached(path)
     forecast_12h = xarray.open_dataset(local_path, engine="cfgrib")
 
     channel_data = [
@@ -95,15 +95,16 @@ def get(time: datetime.datetime, channels: List[str]):
 
 @dataclasses.dataclass
 class DataSource(base.DataSource):
-
-    grid: schema.Grid = schema.Grid.grid_721x1440
-
     def __init__(self, channel_names: List[str]):
         self._channel_names = channel_names
 
     @property
     def channel_names(self) -> List[str]:
         return self._channel_names
+
+    @property
+    def grid(self) -> earth2mip.grid.LatLonGrid:
+        return earth2mip.grid.equiangular_lat_lon_grid(721, 1440)
 
     def __getitem__(self, time: datetime.datetime) -> np.ndarray:
         ds = get(time, self.channel_names)

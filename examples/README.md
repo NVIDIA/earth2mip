@@ -15,7 +15,7 @@ container, apptainer/singularity image or conda environment.
 
 ### Docker
 
-Start with cloniong the repository to your local machine (if you haven't already) use
+Start with cloning the repository to your local machine (if you haven't already) use
 the following commands:
 
 ```bash

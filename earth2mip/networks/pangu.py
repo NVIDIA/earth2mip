@@ -33,7 +33,8 @@ import datetime
 import torch
 import numpy as np
 import onnxruntime as ort
-from earth2mip import schema, networks
+from earth2mip import networks
+import earth2mip.grid
 
 logger = logging.getLogger(__file__)
 
@@ -172,6 +173,7 @@ class PanguInference(torch.nn.Module):
         super().__init__()
         self.model_6 = model_6
         self.model_24 = model_24
+        self.source = None
 
     def to(self, device):
         return self
@@ -188,8 +190,8 @@ class PanguInference(torch.nn.Module):
         return self.in_channel_names
 
     @property
-    def grid(self):
-        return schema.Grid.grid_721x1440
+    def grid(self) -> earth2mip.grid.LatLonGrid:
+        return earth2mip.grid.equiangular_lat_lon_grid(721, 1440)
 
     @property
     def n_history(self):
@@ -239,10 +241,14 @@ class PanguInference(torch.nn.Module):
                 for i in range(3):
                     time1 += datetime.timedelta(hours=6)
 
+                    if self.source:
+                        x1 = self.source(x1, self.time_step)
                     x1 = self.model_6(x1)
                     yield time1, x1, restart_data
 
                 time0 += datetime.timedelta(hours=24)
+                if self.source:
+                    x0 = self.source(x0, 4.0 * self.time_step)
                 x0 = self.model_24(x0)
                 yield time0, x0, restart_data
 
@@ -283,7 +289,7 @@ def load_24(package, *, pretrained=True, device="cuda:0"):
         channel_names = model.channel_names()
         center = np.zeros([len(channel_names)])
         scale = np.ones([len(channel_names)])
-        grid = schema.Grid.grid_721x1440
+        grid = earth2mip.grid.equiangular_lat_lon_grid(721, 1440)
         dt = datetime.timedelta(hours=24)
         inference = networks.Inference(
             model,
@@ -307,7 +313,7 @@ def load_6(package, *, pretrained=True, device="cuda:0"):
         channel_names = model.channel_names()
         center = np.zeros([len(channel_names)])
         scale = np.ones([len(channel_names)])
-        grid = schema.Grid.grid_721x1440
+        grid = earth2mip.grid.equiangular_lat_lon_grid(721, 1440)
         dt = datetime.timedelta(hours=6)
         inference = networks.Inference(
             model,

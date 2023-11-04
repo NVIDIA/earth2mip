@@ -16,24 +16,19 @@
 
 import urllib
 import warnings
-import itertools
-from typing import Optional, Tuple, Any, Iterator, List
+from typing import Optional, Tuple, Any, Iterator, List, Callable
 import sys
 import datetime
-import os
 
 import torch
-import einops
 import numpy as np
-import contextlib
-import modulus
 
 
 from modulus.utils.zenith_angle import cos_zenith_angle
-from modulus.distributed.manager import DistributedManager
 from earth2mip.loaders import LoaderProtocol
 from earth2mip import registry, ModelRegistry, model_registry
-from earth2mip import filesystem, loaders, time_loop, schema
+from earth2mip import loaders, time_loop, schema
+import earth2mip.grid
 
 if sys.version_info < (3, 10):
     from importlib_metadata import EntryPoint, entry_points
@@ -124,7 +119,8 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         model,
         center: np.array,
         scale: np.array,
-        grid: schema.Grid,
+        grid: earth2mip.grid.LatLonGrid,
+        source: Optional[Callable] = None,
         n_history: int = 0,
         time_step=datetime.timedelta(hours=6),
         channel_names=None,
@@ -139,6 +135,7 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
                 the means. The shape is NOT `len(channels)`.
             scale: a 1d numpy array with shape (n_channels in data) containing
                 the stds. The shape is NOT `len(channels)`.
+            source: a source function that augments the state vector (noise, nudge or other)
             grid: metadata about the grid, which should be used to pass the
                 correct data to this object.
             channel_names: The names of the prognostic channels.
@@ -163,6 +160,7 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         self.grid = grid
         self.time_step = time_step
         self.n_history = n_history
+        self.source = source
 
         center = torch.from_numpy(np.squeeze(center)).float()
         scale = torch.from_numpy(np.squeeze(scale)).float()
@@ -218,7 +216,6 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         """
         if self.time_dependent and not time:
             raise ValueError("Time dependent models require ``time``.")
-
         time = time or datetime.datetime(1900, 1, 1)
         with torch.no_grad():
             # drop all but the last time point
@@ -235,6 +232,8 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
             yield time, self.scale * x[:, -1] + self.center, restart
 
             while True:
+                if self.source:
+                    x = self.source(x, self.time_step)
                 x = self.model(x, time)
                 time = time + self.time_step
 
@@ -265,7 +264,7 @@ def _default_inference(package, metadata: schema.Model, device):
         channel_names=metadata.in_channels_names,
         center=np.load(center_path),
         scale=np.load(scale_path),
-        grid=metadata.grid,
+        grid=earth2mip.grid.from_enum(metadata.grid),
         n_history=metadata.n_history,
         time_step=metadata.time_step,
     )
@@ -354,7 +353,7 @@ def persistence(package, pretrained=True):
     model = Identity()
     center = np.zeros((3))
     scale = np.zeros((3))
-    grid = schema.Grid.grid_721x1440
+    grid = earth2mip.grid.equiangular_lat_lon_grid(721, 1440)
     return Inference(
         model,
         channel_names=["a", "b", "c"],

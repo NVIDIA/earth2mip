@@ -41,11 +41,10 @@ def checksum_reduce_precision(arr, digits=3):
 
 
 class get_data_source:
-    grid = schema.Grid.grid_721x1440
-
     def __init__(self, inference):
         self.channel_names = inference.in_channel_names
-        arr = np.ones([1, len(inference.in_channel_names), 721, 1440])
+        self.grid = inference.grid
+        arr = np.ones([len(inference.in_channel_names), *inference.grid.shape])
         self.arr = arr
         self.channel_names = inference.out_channel_names
 

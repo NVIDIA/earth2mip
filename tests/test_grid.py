@@ -13,24 +13,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-from earth2mip.initial_conditions.ifs import _get_filename, get
-from earth2mip import schema
-import datetime
-
-import pytest
+import numpy as np
+from earth2mip import grid
 
 
-def test__get_filename():
-    expected = "20230310/00z/0p4-beta/oper/20230310000000-0h-oper-fc.grib2"
-    time = datetime.datetime(2023, 3, 10, 0)
-    assert _get_filename(time, "0h") == expected
-
-
-@pytest.mark.slow
-@pytest.mark.xfail
-def test_get():
-    # uses I/O and old ICs are not available forever.
-    time = datetime.datetime(2023, 3, 10, 0)
-    ds = get(time, schema.ChannelSet.var34)
-    print(ds)
+def test_equiangular_lat_lon():
+    g = grid.equiangular_lat_lon_grid(721, 1440)
+    assert np.all(np.diff(g.lat) == -0.25)
+    assert g.shape == (721, 1440)

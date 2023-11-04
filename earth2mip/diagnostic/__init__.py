@@ -12,27 +12,8 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
-# limitations under the License.from typing import Protocol, List, runtime_checkable
-
-from typing import List, runtime_checkable, Protocol
-import datetime
-from earth2mip import grid
-import numpy as np
-
-
-@runtime_checkable
-class DataSource(Protocol):
-
-    grid: grid.LatLonGrid
-
-    @property
-    def channel_names(self) -> List[str]:
-        pass
-
-    def __getitem__(self, time: datetime.datetime) -> np.ndarray:
-        """
-
-        Returns:
-            data at ``time``. shape is (len(channel_names), *grid.shape)
-        """
-        pass
+# limitations under the License.
+from earth2mip.diagnostic.wind_speed import WindSpeed  # noqa
+from earth2mip.diagnostic.climate_net import ClimateNet  # noqa
+from earth2mip.diagnostic.precipitation_afno import PrecipitationAFNO  # noqa
+from earth2mip.diagnostic.time_loop import DiagnosticTimeLoop  # noqa

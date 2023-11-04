@@ -13,13 +13,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from earth2mip import initial_conditions, schema
-from earth2mip.initial_conditions import cds
+from earth2mip import initial_conditions, schema, grid
+from earth2mip.initial_conditions import cds, hdf5
 from earth2mip.initial_conditions.base import DataSource
 from earth2mip import config
 import datetime
 import numpy as np
 import pytest
+
+import test_hdf5
 
 
 @pytest.mark.parametrize("source", list(schema.InitialConditionSource))
@@ -48,15 +50,37 @@ def test_get_data_source(
 
 
 @pytest.mark.parametrize("n", [1, 2])
-def test_get_initial_conditions_for_model(n):
+def test_get_initial_conditions_for_model_hdf5(tmp_path, n):
     class Model:
         in_channel_names = ["t850", "t2m"]
         n_history_levels = n
         history_time_step = datetime.timedelta(hours=6)
-        grid = schema.Grid.grid_721x1440
+        grid = grid.equiangular_lat_lon_grid(721, 1440)
         device = "cpu"
 
-    shape = (1, len(Model.in_channel_names)) + Model.grid.shape
+    time = datetime.datetime(2018, 1, 2)
+    test_hdf5.create_hdf5(tmp_path, time.year, 10, Model.grid, Model.in_channel_names)
+    data_source = hdf5.DataSource.from_path(tmp_path.as_posix())
+
+    x = initial_conditions.get_initial_condition_for_model(Model, data_source, time)
+    assert (
+        x.shape
+        == (1, Model.n_history_levels, len(Model.in_channel_names)) + Model.grid.shape
+    )
+
+
+@pytest.mark.parametrize("n", [1, 2])
+def test_get_initial_conditions_for_model_history_correct_order(n):
+    """Tests that the history dim is stacked increasing order in time"""
+
+    class Model:
+        in_channel_names = ["t850", "t2m"]
+        n_history_levels = n
+        history_time_step = datetime.timedelta(hours=6)
+        grid = grid.equiangular_lat_lon_grid(721, 1440)
+        device = "cpu"
+
+    shape = (len(Model.in_channel_names), *Model.grid.shape)
     time = datetime.datetime(2018, 1, 1)
 
     class DataSource(dict):
@@ -69,9 +93,5 @@ def test_get_initial_conditions_for_model(n):
         data_source[time - i * dt] = np.full(shape, fill_value=-i)
 
     x = initial_conditions.get_initial_condition_for_model(Model, data_source, time)
-    assert (
-        x.shape
-        == (1, Model.n_history_levels, len(Model.in_channel_names)) + Model.grid.shape
-    )
     for i in range(Model.n_history_levels):
         assert x[0, -i - 1, 0, 0, 0] == -i

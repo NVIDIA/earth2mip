@@ -14,45 +14,69 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import dataclasses
 import datetime
 import json
 import logging
 import os
 import warnings
-from typing import Any
+from typing import Any, Optional, List
 
 import s3fs
 import xarray
 import numpy as np
 
-from earth2mip import config, filesystem
+from earth2mip import config, filesystem, grid
 from earth2mip.datasets import era5
 from earth2mip.initial_conditions import base
 
-__all__ = ["open_era5_xarray"]
+__all__ = ["open_xarray", "DataSource"]
 
 logger = logging.getLogger(__name__)
 # TODO move to earth2mip/datasets/era5?
 
 
-@dataclasses.dataclass
-class HDF5DataSource(base.DataSource):
-    root: str
-    metadata: Any
-    n_history: int = 0
+class DataSource(base.DataSource):
+    """HDF5 Data Sources
 
-    def __post_init__(self):
-        # warn if n_history is nonzero
-        if self.n_history != 0:
-            warnings.warn(
-                DeprecationWarning(
-                    "n_history is deprecated. Use earth2mip.initial_conditions.get_initial_condition_for_model instead."  # noqa
-                )
-            )
+    Works with a directory structure like this::
+
+        data.json
+        subdirA/2018.h5
+        subdirB/2017.h5
+        subdirB/2016.h5
+
+    data.json should have fields
+
+        h5_path - the name of the data within the hdf5 file
+        coords.channel - list of channels
+        coords.lat - list of lats
+        coords.lon - list of lons
+        dhours - timestep in hours (default 6 hours)
+
+    """
+
+    def __init__(
+        self, root: str, metadata: Any, channel_names: Optional[List[str]] = None
+    ):
+        """
+
+        Args:
+            root: Path to the root of the HDF5 data.
+            metadata: Metadata about the HDF5 data.
+            channel_names: If provided, only get these channel names.
+                Defaults to all channels in the data.
+        """
+        self.root = root
+        self.metadata = metadata
+        if channel_names is None:
+            self._channel_names = metadata["coords"]["channel"]
+        else:
+            self._channel_names = [
+                c for c in metadata["coords"]["channel"] if c in channel_names
+            ]
 
     @classmethod
-    def from_path(cls, root: str, **kwargs: Any) -> "HDF5DataSource":
+    def from_path(cls, root: str, **kwargs: Any) -> "DataSource":
         metadata_path = os.path.join(root, "data.json")
         metadata_path = filesystem.download_cached(metadata_path)
         with open(metadata_path) as mf:
@@ -60,8 +84,14 @@ class HDF5DataSource(base.DataSource):
         return cls(root, metadata, **kwargs)
 
     @property
+    def grid(self):
+        return grid.LatLonGrid(
+            lat=self.metadata["coords"]["lat"], lon=self.metadata["coords"]["lon"]
+        )
+
+    @property
     def channel_names(self):
-        return self.metadata["coords"]["channel"]
+        return self._channel_names
 
     @property
     def time_means(self):
@@ -69,8 +99,7 @@ class HDF5DataSource(base.DataSource):
         time_mean_path = filesystem.download_cached(time_mean_path)
         return np.load(time_mean_path)
 
-    def __getitem__(self, time: datetime.datetime):
-        n_history = self.n_history
+    def __getitem__(self, time: datetime.datetime) -> np.ndarray:
         path = _get_path(self.root, time)
         if path.startswith("s3://"):
             fs = s3fs.S3FileSystem(
@@ -82,28 +111,18 @@ class HDF5DataSource(base.DataSource):
 
         logger.debug(f"Opening {path} for {time}.")
         ds = era5.open_hdf5(path=path, f=f, metadata=self.metadata)
-        subset = ds.sel(time=slice(None, time))
-        # TODO remove n_history from this API?
-        subset = subset[-n_history - 1 :]
-        num_time = subset.sizes["time"]
-        if num_time != n_history + 1:
-            a = ds.time.min().values
-            b = ds.time.max().values
-            raise ValueError(
-                f"{num_time} found. Expected: {n_history + 1} ."
-                f"Time requested: {time}. Time range in data: {a} -- {b}."
-            )
-        return subset.load()
+        subset = ds.sel(time=time, channel=self._channel_names)
+        return subset.values
 
 
 def _get_path(path: str, time) -> str:
     filename = time.strftime("%Y.h5")
-    h5_files = filesystem.glob(os.path.join(path, "*/*.h5"))
+    h5_files = filesystem.glob(os.path.join(path, "**.h5"), maxdepth=2)
     files = {os.path.basename(f): f for f in h5_files}
     return files[filename]
 
 
-def open_era5_xarray(time: datetime.datetime) -> xarray.DataArray:
+def open_xarray(time: datetime.datetime) -> xarray.DataArray:
     warnings.warn(DeprecationWarning("This function will be removed"))
     root = config.ERA5_HDF5
     path = _get_path(root, time)

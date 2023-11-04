@@ -19,7 +19,8 @@ import eccodes
 from typing import List, Union
 import datetime
 import dataclasses
-from earth2mip import schema, config
+from earth2mip import config
+import earth2mip.grid
 import xarray
 import numpy as np
 import os
@@ -102,7 +103,6 @@ def parse_channel(channel: str) -> Union[PressureLevelCode, SingleLevelCode]:
 @dataclasses.dataclass
 class DataSource:
     channel_names: List[str]
-    grid: schema.Grid = schema.Grid.grid_721x1440
     client: Client = dataclasses.field(
         default_factory=lambda: Client(progress=False, quiet=False)
     )
@@ -111,6 +111,10 @@ class DataSource:
     @property
     def time_means(self):
         raise NotImplementedError()
+
+    @property
+    def grid(self) -> earth2mip.grid.LatLonGrid:
+        return earth2mip.grid.equiangular_lat_lon_grid(721, 1440)
 
     @property
     def cache(self):
@@ -253,8 +257,7 @@ def _get_channels(client, time: datetime.datetime, channels: List[str], d):
     return (
         darray.assign_coords(channel=channels)
         .assign_coords(time=time)
-        .expand_dims("time")
-        .transpose("time", "channel", "lat", "lon")
+        .transpose("channel", "lat", "lon")
         .assign_coords(lon=darray["lon"] + 180.0)
         .roll(lon=1440 // 2)
     )
