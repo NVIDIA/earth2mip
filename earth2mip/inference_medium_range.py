@@ -152,7 +152,7 @@ def run_forecast(
 
             lead_time = valid_time - initial_time
             logger.debug(f"{valid_time}")
-            # TODO may need to fix n_history here
+            # TODO make this more performant grabs all history steps unnecessarily
             verification_torch = initial_conditions.get_initial_condition_for_model(
                 time_loop=model, data_source=data_source, time=valid_time
             )
