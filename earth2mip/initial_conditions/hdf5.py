@@ -51,7 +51,7 @@ class DataSource(base.DataSource):
         coords.channel - list of channels
         coords.lat - list of lats
         coords.lon - list of lons
-        dhours - timestep in hours (default 1 hour)
+        dhours - timestep in hours (default 6 hours)
 
     """
 
