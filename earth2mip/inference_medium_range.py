@@ -36,16 +36,6 @@ from modulus.distributed.manager import DistributedManager
 __all__ = ["score_deterministic"]
 
 
-def get_times(start_time: datetime, end_time: datetime):
-    # the IFS data Jaideep downloaded only has 668 steps (up to end of november 2018)
-    times = []
-    time = start_time
-    while time <= end_time:
-        times.append(time)
-        time += datetime.timedelta(hours=12)
-    return times
-
-
 class RMSE:
     outputs = ["mse"]
 
@@ -303,6 +293,7 @@ def save_scores(
 def main():
     parser = argparse.ArgumentParser()
     _cli_utils.add_model_args(parser, required=True)
+    _cli_utils.TimeRange.add_args(parser)
     parser.add_argument("output")
     parser.add_argument("-n", type=int, default=4)
     parser.add_argument("--test", action="store_true")
@@ -322,18 +313,11 @@ def main():
     parser.add_argument(
         "--data", type=str, help="path to hdf5 root directory containing data.json"
     )
-    parser.add_argument("--start-time", type=str, default="2018-01-01")
-    parser.add_argument(
-        "--end-time", type=str, default="2018-12-01", help="final time (inclusive)."
-    )
 
     args = parser.parse_args()
     DistributedManager.initialize()
     dist = DistributedManager()
-
-    start_time = datetime.datetime.fromisoformat(args.start_time)
-    end_time = datetime.datetime.fromisoformat(args.end_time)
-    initial_times = get_times(start_time, end_time)
+    initial_times = _cli_utils.TimeRange.from_args(args)
 
     if args.shard >= args.n_shards:
         raise ValueError("shard must be less than n-shards")
