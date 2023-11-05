@@ -16,6 +16,7 @@
 import pathlib
 import datetime
 import json
+import numpy as np
 from earth2mip.initial_conditions import hdf5
 from earth2mip import grid
 import h5py
@@ -30,6 +31,7 @@ def create_hdf5(tmp_path: pathlib.Path, year: int, num_time, grid, channels):
         "coords": {"lat": grid.lat, "lon": grid.lon, "channel": channels},
         "dims": ["time", "channel", "lat", "lon"],
         "h5_path": h5_var_name,
+        "dhours": 6,
     }
 
     data_json_path = tmp_path / "data.json"
@@ -41,6 +43,12 @@ def create_hdf5(tmp_path: pathlib.Path, year: int, num_time, grid, channels):
         f.create_dataset(
             h5_var_name, shape=(num_time, len(channels), *grid.shape), dtype="<f"
         )
+
+    # create stats/time_means.npy
+    time_means = tmp_path / "stats" / "time_means.npy"
+    time_means.parent.mkdir()
+    time_mean_data = np.zeros([1, len(channels), *grid.shape])
+    np.save(time_means.as_posix(), time_mean_data)
 
 
 @pytest.mark.parametrize("year", [2018, 1980, 2017])

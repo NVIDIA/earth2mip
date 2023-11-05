@@ -19,6 +19,7 @@ import logging
 
 import os
 import tempfile
+import pandas as pd
 import xarray as xr
 import torch
 import argparse
@@ -183,38 +184,6 @@ def run_forecast(
         process(initial_time)
 
 
-def gather(seq, metrics, model_name, channels):
-    outputs_by_lead_time = {}
-    initial_times = set()
-    for (initial_time, lead_time), metric_values in seq:
-        forecasts_at_lead_time = outputs_by_lead_time.setdefault(lead_time, [])
-        forecasts_at_lead_time.append(metric_values)
-        initial_times.add(initial_time)
-
-    def to_dataset(metric, name):
-        outputs = {
-            k: [v[name] for v in snapshots]
-            for k, snapshots in outputs_by_lead_time.items()
-        }
-        times, accs = zip(*outputs.items())
-        times = list(times)
-        acc_arr = [metric.gather(acc) for acc in accs]
-        stacked = torch.stack(acc_arr, 0)
-        stacked = stacked.cpu().numpy()
-        return xr.DataArray(
-            stacked,
-            dims=["lead_time", "channel"],
-            coords={"lead_time": times, "channel": channels},
-        ).to_dataset(name=name)
-
-    ds = xr.merge(to_dataset(metric, name) for name, metric in metrics.items())
-    ds = ds.assign(
-        initial_times=xr.DataArray(list(initial_times), dims=["initial_time"])
-    )
-
-    return ds
-
-
 def score_deterministic(
     model: time_loop.TimeLoop, n: int, initial_times, data_source, time_mean
 ):
@@ -271,14 +240,23 @@ def score_deterministic(
             device=device,
         )
         series = earth2mip.forecast_metrics_io.read_metrics(tmpdir)
-        data_array = series.to_xarray()
-        dataset = data_array.to_dataset(dim="metric")
-        mean = dataset.mean("initial_time")
-        out = xr.Dataset()
-        out["rmse"] = np.sqrt(mean["mse"])
-        out["acc"] = mean["xy"] / np.sqrt(mean["xx"] * mean["yy"])
-        out["initial_times"] = dataset["initial_time"]
-        return out
+        return time_average_metrics(series)
+
+
+def time_average_metrics(series: pd.Series) -> xr.Dataset:
+    """Average the metrics across initial time and compute ACC, RMSE
+
+    Note, this contrasts from other uses of ACC like weather bench 2.0, since
+    the ACC is only formed after the means are taken.
+    """
+    data_array = series.to_xarray()
+    dataset = data_array.to_dataset(dim="metric")
+    mean = dataset.mean("initial_time")
+    out = xr.Dataset()
+    out["rmse"] = np.sqrt(mean["mse"])
+    out["acc"] = mean["xy"] / np.sqrt(mean["xx"] * mean["yy"])
+    out["initial_times"] = dataset["initial_time"]
+    return out
 
 
 def save_scores(
@@ -328,6 +306,18 @@ def main():
     parser.add_argument("output")
     parser.add_argument("-n", type=int, default=4)
     parser.add_argument("--test", action="store_true")
+    parser.add_argument(
+        "--shard",
+        type=int,
+        default=0,
+        help="shard index. Often set to SLURM_ARRAY_TASK_ID.",
+    )
+    parser.add_argument(
+        "--n-shards",
+        type=int,
+        default=1,
+        help="number of shards. Often set to SLURM_ARRAY_TASK_COUNT.",
+    )
     # TODO refactor this to a shared place
     parser.add_argument(
         "--data", type=str, help="path to hdf5 root directory containing data.json"
@@ -344,6 +334,10 @@ def main():
     start_time = datetime.datetime.fromisoformat(args.start_time)
     end_time = datetime.datetime.fromisoformat(args.end_time)
     initial_times = get_times(start_time, end_time)
+
+    if args.shard >= args.n_shards:
+        raise ValueError("shard must be less than n-shards")
+
     if args.test:
         initial_times = initial_times[-dist.world_size :]
 
@@ -360,8 +354,8 @@ def main():
         data_source=data_source,
         time_mean=data_source.time_means,
         output_directory=args.output,
-        rank=dist.rank,
-        world_size=dist.world_size,
+        rank=args.shard * args.n_shards + dist.rank,
+        world_size=dist.world_size * args.n_shards,
         device=dist.device,
     )
 

@@ -29,6 +29,8 @@ from modulus.utils.zenith_angle import cos_zenith_angle
 
 logger = logging.getLogger(__file__)
 
+CHANNELS = ["t850", "z1000", "z700", "z500", "z300", "tcwv", "t2m"]
+
 # TODO: Added here explicitly for better access. This will be imported from:
 # modulus repo after this PR is merged: https://github.com/NVIDIA/modulus/pull/138
 class _DLWPWrapper(torch.nn.Module):
@@ -55,7 +57,7 @@ class _DLWPWrapper(torch.nn.Module):
 
     @property
     def channel_names():
-        return ["t850", "z1000", "z700", "z500", "z300", "tcwv", "t2m"]
+        return CHANNELS
 
     def prepare_input(self, input, time):
         device = input.device
