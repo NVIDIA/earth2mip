@@ -35,13 +35,13 @@ from modulus.distributed.manager import DistributedManager
 __all__ = ["score_deterministic"]
 
 
-def get_times():
+def get_times(start_time: datetime, end_time: datetime):
     # the IFS data Jaideep downloaded only has 668 steps (up to end of november 2018)
-    nsteps = 668
-    times = [
-        datetime.datetime(2018, 1, 1) + k * datetime.timedelta(hours=12)
-        for k in range(nsteps)
-    ]
+    times = []
+    time = start_time
+    while time <= end_time:
+        times.append(time)
+        time += datetime.timedelta(hours=12)
     return times
 
 
@@ -332,12 +332,18 @@ def main():
     parser.add_argument(
         "--data", type=str, help="path to hdf5 root directory containing data.json"
     )
+    parser.add_argument("--start-time", type=str, default="2018-01-01")
+    parser.add_argument(
+        "--end-time", type=str, default="2018-12-01", help="final time (inclusive)."
+    )
 
     args = parser.parse_args()
     DistributedManager.initialize()
     dist = DistributedManager()
 
-    initial_times = get_times()
+    start_time = datetime.datetime.fromisoformat(args.start_time)
+    end_time = datetime.datetime.fromisoformat(args.end_time)
+    initial_times = get_times(start_time, end_time)
     if args.test:
         initial_times = initial_times[-dist.world_size :]
 
