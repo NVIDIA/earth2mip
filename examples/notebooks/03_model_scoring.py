@@ -32,9 +32,7 @@ In summary this notebook will cover the following topics:
 """
 # %%
 import os
-import xarray
 import datetime
-import numpy as np
 
 # %% [markdown]
 """
@@ -69,74 +67,14 @@ For the rest of this tutorial, it is assumed that 2017.h5 is present for the ful
 """  # noqa: E501
 
 # %%
-h5_folder = "/mount/34vars/test/"
+# load an values in a .env file where you can specify your H5 root folder by
+# adding a line like::
+# ERA5_HDF5=/path/to/root/of/h5/files
+import dotenv
 
-# %% [markdown]
-"""
-## HDF5 Datasource
-
-With the H5 files properly formatted, a H5 datasource can now get defined.
-This requires two items: a root directory location of the H5 files as well as some
-metadata.
-The metadata is a JSON/dictionary object that helps Earth-2 MIP index the H5 file.
-Typically, this can be done by placing a `data.json` file next to the H5 files,
-Pythonically metadata for a 34 channel H5 files described above is given below.
-"""
-# %%
-from earth2mip.initial_conditions import hdf5
-
-metadata = {
-    "h5_path": "fields",
-    "attrs": {"decription": "Custom HDF5 data"},
-    "dims": ["time", "channel", "lat", "lon"],
-    "dhours": 6,
-    "coords": {
-        "lat": np.linspace(90, -90, 721),
-        "lon": np.linspace(0, 359.75, 1440),
-        "channel": [
-            "u10m",
-            "v10m",
-            "t2m",
-            "sp",
-            "msl",
-            "t850",
-            "u1000",
-            "v1000",
-            "z1000",
-            "u850",
-            "v850",
-            "z850",
-            "u500",
-            "v500",
-            "z500",
-            "t500",
-            "z50",
-            "r500",
-            "r850",
-            "tcwv",
-            "u100m",
-            "v100m",
-            "u250",
-            "v250",
-            "z250",
-            "t250",
-            "u100",
-            "v100",
-            "z100",
-            "t100",
-            "u900",
-            "v900",
-            "z900",
-            "t900",
-        ],
-    },
-}
-
-datasource = hdf5.DataSource(root=h5_folder, metadata=metadata)
-
-# Test to see if our datasource is working
-time = datetime.datetime(2017, 5, 1, 18)
-out = datasource[time]
+dotenv.load_dotenv()
+# can set this with the export ERA5_HDF5=/path/to/root/of/h5/files
+h5_folder = os.getenv("ERA5_HDF5", "/mount/73vars")
 
 # %% [markdown]
 """
@@ -149,13 +87,37 @@ FourcastNet is selected here simply because its a 34 channel model which aligns 
 H5 files described above.
 """
 # %%
-import earth2mip.networks.fcn as fcn
+from earth2mip.networks import dlwp
 from earth2mip import registry
 from modulus.distributed import DistributedManager
 
 device = DistributedManager().device
-package = registry.get_model("e2mip://fcn")
-model = fcn.load(package, device=device)
+package = registry.get_model("e2mip://dlwp")
+model = dlwp.load(package, device=device)
+
+# %% [markdown]
+"""
+## HDF5 Datasource
+
+With the H5 files properly formatted, a H5 datasource can now get defined.
+This requires two items: a root directory location of the H5 files as well as some
+metadata. Se
+The metadata is a JSON/dictionary object that helps Earth-2 MIP index the H5 file.
+Typically, this can be done by placing a `data.json` file next to the H5 files.
+See [this documentation](https://github.com/NVIDIA/earth2mip/blob/f44c580ccc3d98bf349fe97823bb1540e532c80d/earth2mip/initial_conditions/hdf5.py#L38)
+for more details on how to set up input data correctly.
+"""  # noqa
+# %%
+from earth2mip.initial_conditions import hdf5
+
+datasource = hdf5.DataSource.from_path(
+    root=h5_folder, channel_names=model.channel_names
+)
+
+# Test to see if our datasource is working
+time = datetime.datetime(2017, 5, 1, 18)
+out = datasource[time]
+
 
 # %% [markdown]
 """
@@ -173,21 +135,20 @@ values will be provided and only the RMSE will be of concern.
 """
 
 # %%
-from earth2mip.inference_medium_range import score_deterministic
+from earth2mip.inference_medium_range import save_scores, time_average_metrics
 
 time = datetime.datetime(2017, 1, 1, 0)
 initial_times = [time + datetime.timedelta(days=30 * i) for i in range(12)]
 
-if not os.path.exists("scoring_output.nc"):
-    output = score_deterministic(
+if not os.path.exists("scoring_output"):
+    output = save_scores(
         model,
-        n=40,  # 6 hour timesteps
+        n=20,  # 12 hour timesteps
         initial_times=initial_times,
         data_source=datasource,
-        time_mean=np.zeros((34, 721, 1440)),
+        time_mean=datasource.time_means,
+        output_directory="scoring_output",
     )
-    output.to_netcdf("scoring_output.nc")
-    print(output)
 
 # %% [markdown]
 """
@@ -201,23 +162,17 @@ Lets plot the RMSE of the z500 field.
 
 # %%
 import matplotlib.pyplot as plt
+from earth2mip.forecast_metrics_io import read_metrics
+import pandas as pd
 
-dataset = xarray.open_dataset("scoring_output.nc")
+series = read_metrics("scoring_output")
+dataset = time_average_metrics(series)
 
 plt.close("all")
 fig, ax = plt.subplots(figsize=(10, 5))
-ax.plot(dataset.rmse.sel(channel="z500").values)
-
-# Plot clean up
-ticks = np.arange(0, 41, 5)
-ax.set_xticks(ticks)
-ax.set_xticklabels([f"{6*i}" for i in ticks])
-ax.set_xlabel("Lead Time")
+t = dataset.lead_time / pd.Timedelta("1 h")
+y = dataset.rmse.sel(channel="z500")
+ax.plot(t, y)
+ax.set_xlabel("Lead Time (hours)")
 ax.set_ylabel("RMSE")
 ax.set_title("FourcastNet z500 RMSE 2017")
-
-plt.draw()
-
-# %%
-# Clean up
-os.remove("scoring_output.nc")
