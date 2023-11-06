@@ -293,7 +293,7 @@ def save_scores(
 def main():
     parser = argparse.ArgumentParser()
     _cli_utils.add_model_args(parser, required=True)
-    _cli_utils.TimeRange.add_args(parser)
+    _cli_utils.TimeRange.add_args(parser.add_argument_group("Initial Time Selection"))
     parser.add_argument("output")
     parser.add_argument("-n", type=int, default=4)
     parser.add_argument("--test", action="store_true")
