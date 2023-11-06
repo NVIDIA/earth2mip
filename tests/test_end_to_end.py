@@ -38,6 +38,10 @@ import pytest
 from earth2mip._channel_stds import channel_stds
 
 
+def run(args):
+    return subprocess.check_call(["coverage", "run", *args])
+
+
 def checksum_reduce_precision(arr, digits=3):
     most_significant = max(arr.max(), -arr.min())
     least = most_significant / 10**digits
@@ -160,9 +164,8 @@ def test_inference_medium_range_cli(tmp_path: pathlib.Path):
         channels=earth2mip.networks.dlwp.CHANNELS,
     )
     output_path = tmp_path / "out"
-    subprocess.check_call(
+    run(
         [
-            "python",
             "-m",
             "earth2mip.inference_medium_range",
             "--data",
@@ -191,9 +194,8 @@ def test_lagged_ensemble_cli(tmp_path: pathlib.Path):
         channels=earth2mip.networks.dlwp.CHANNELS,
     )
     output_path = tmp_path / "out"
-    subprocess.check_call(
+    run(
         [
-            "python",
             "earth2mip/lagged_ensembles/__main__.py",
             "--data",
             tmp_path.as_posix(),
@@ -211,3 +213,5 @@ def test_lagged_ensemble_cli(tmp_path: pathlib.Path):
             output_path.as_posix(),
         ]
     )
+    series = earth2mip.forecast_metrics_io.read_metrics(output_path.as_posix())
+    assert not series.empty
