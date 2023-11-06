@@ -20,6 +20,8 @@ import datetime
 import torch
 import pytest
 import tests.test_end_to_end
+import xarray
+import numpy as np
 
 
 class MockTimeLoop:
@@ -33,7 +35,7 @@ class MockTimeLoop:
 
     def __call__(self, time, x):
         while True:
-            yield time, x, None
+            yield time, x[:, 0], None
             time += self.time_step
 
 
@@ -54,6 +56,44 @@ async def test_TimeLoopForecast():
     iter = forecast[0]
     k = 0
     async for state in iter:
+        assert state.shape == (1, 2, 2, 2)
         k += 1
         if k >= 4:
+            break
+
+
+async def test_XarrayForecast():
+
+    times = [
+        datetime.datetime(1, 1, 1) + datetime.timedelta(hours=12) * k for k in range(3)
+    ]
+
+    # setup dataset
+    lead_times = [datetime.timedelta(hours=6) * k for k in range(6)]
+    grid = earth2mip.grid.equiangular_lat_lon_grid(2, 2)
+    channels = ["a", "b"]
+    shape = [len(times), len(lead_times), *grid.shape]
+    data_vars = {}
+    for c in channels:
+        data_vars[c] = (("initial_time", "time", "lat", "lon"), np.ones(shape))
+
+    coords = {}
+    coords["lat"] = grid.lat
+    coords["lon"] = grid.lon
+    coords["initial_time"] = times
+    coords["time"] = lead_times
+    dataset = xarray.Dataset(data_vars=data_vars, coords=coords)
+
+    # wrap it
+    forecast = forecasts.XarrayForecast(
+        dataset, fields=channels, times=times, device="cpu"
+    )
+
+    # test it
+    iter = forecast[0]
+    k = 0
+    async for state in iter:
+        assert state.shape == (1, 2, 2, 2)
+        k += 1
+        if k >= len(times):
             break
