@@ -45,7 +45,7 @@ def test_write_and_read_metric(tmpdir):
     # Check that the metric was written correctly
     expected_index = pd.MultiIndex.from_tuples(
         [(initial_time, lead_time, channel, metric)],
-        names=["initial_time", "lead_time_hours", "channel", "metric"],
+        names=["initial_time", "lead_time", "channel", "metric"],
     )
     expected_value = pd.Series([value], index=expected_index, name="value")
     pd.testing.assert_series_equal(metrics, expected_value)
