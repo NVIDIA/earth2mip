@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List, IO
+from typing import List
 import os
 import asyncio
 import concurrent.futures
@@ -59,7 +59,7 @@ async def lagged_average_simple(
     n=10,
     times: List[datetime.datetime],
     time_step: datetime.timedelta,
-    filename: str
+    filename: str,
 ):
     async for (j, l), ensemble, obs in core.yield_lagged_ensembles(
         observations=observations,
@@ -69,7 +69,6 @@ async def lagged_average_simple(
     ):
         initial_time = times[j] - l * time_step
         lead_time = time_step * l
-
 
         out = score(ensemble, obs)
 
@@ -211,7 +210,9 @@ def main(args):
         # TODO convert ifs to zarr so we don't need custom code
         from earth2mip.datasets.deterministic_ifs import open_deterministic_ifs
 
-        run_forecast = forecasts.XarrayForecast(open_deterministic_ifs(args.ifs), device=device)
+        run_forecast = forecasts.XarrayForecast(
+            open_deterministic_ifs(args.ifs), device=device
+        )
     elif args.persistence:
         run_forecast = forecasts.Persistence
     else:
@@ -219,8 +220,10 @@ def main(args):
             "need to provide one of --persistence --ifs --forecast-dir or --model."
         )
 
-
-    logger.info(f"number of timesteps: {len(times)}, start time: {times[0]}, end_time: {times[-1]}")
+    logger.info(
+        f"number of timesteps: {len(times)}, "
+        f"start time: {times[0]}, end_time: {times[-1]}"
+    )
 
     obs = Observations(
         times=times,
@@ -232,7 +235,7 @@ def main(args):
     os.makedirs(args.output, exist_ok=True)
     output_path = os.path.join(args.output, f"{rank:03d}.csv")
     print(f"saving scores to {output_path}")
-    with open(output_path, "a") as f, torch.cuda.device(device), torch.no_grad():
+    with torch.cuda.device(device), torch.no_grad():
         scores_future = lagged_average_simple(
             observations=obs,
             score=partial(score, run_forecast.channel_names, run_forecast.grid),

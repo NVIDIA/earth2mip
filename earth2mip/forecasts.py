@@ -26,7 +26,6 @@ import datetime
 import torch
 import xarray
 import logging
-import numpy
 from earth2mip import time_loop
 import earth2mip.grid
 import earth2mip.initial_conditions
@@ -38,11 +37,10 @@ logger = logging.getLogger(__name__)
 
 
 class Forecast(Protocol):
-
     @property
     def channel_names(self) -> List[str]:
         pass
-    
+
     @property
     def grid(self) -> earth2mip.grid.LatLonGrid:
         pass
@@ -112,7 +110,11 @@ class XarrayForecast(Forecast):
     """Turn an xarray into a forecast-like dataset"""
 
     def __init__(
-        self, ds: xarray.Dataset, fields, times: Sequence[datetime.datetime], device,
+        self,
+        ds: xarray.Dataset,
+        fields,
+        times: Sequence[datetime.datetime],
+        device,
     ):
         self._dataset = ds
         self._fields = fields
