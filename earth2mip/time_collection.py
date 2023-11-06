@@ -74,8 +74,8 @@ def main(
         config = json.load(f)
 
     DistributedManager.initialize()
-    model = networks.get_model(config["model"])
     dist = DistributedManager()
+    model = networks.get_model(config["model"], device=dist.device)
 
     protocol = config["protocol"]
     lines = protocol["times"][shard::n_shards]
