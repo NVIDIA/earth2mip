@@ -59,7 +59,7 @@ async def lagged_average_simple(
     n=10,
     times: List[datetime.datetime],
     time_step: datetime.timedelta,
-    f: IO[str],
+    filename: str
 ):
     async for (j, l), ensemble, obs in core.yield_lagged_ensembles(
         observations=observations,
@@ -70,26 +70,30 @@ async def lagged_average_simple(
         initial_time = times[j] - l * time_step
         lead_time = time_step * l
 
-        earth2mip.forecast_metrics_io.write_metric(
-            f,
-            initial_time=initial_time,
-            lead_time=lead_time,
-            channel="",
-            metric="ensemble_size",
-            value=len(ensemble),
-        )
+
         out = score(ensemble, obs)
-        for metric_name, darray in out.items():
-            assert darray.shape == (1, len(run_forecast.channel_names))
-            for i in range(len(run_forecast.channel_names)):
-                earth2mip.forecast_metrics_io.write_metric(
-                    f,
-                    initial_time=initial_time,
-                    lead_time=lead_time,
-                    channel=run_forecast.channel_names[i],
-                    metric=metric_name,
-                    value=darray[0, i],
-                )
+
+        with open(filename, "a") as f:
+            earth2mip.forecast_metrics_io.write_metric(
+                f,
+                initial_time=initial_time,
+                lead_time=lead_time,
+                channel="",
+                metric="ensemble_size",
+                value=len(ensemble),
+            )
+            for metric_name, darray in out.items():
+                assert darray.shape == (1, len(run_forecast.channel_names))
+                for i in range(len(run_forecast.channel_names)):
+                    earth2mip.forecast_metrics_io.write_metric(
+                        f,
+                        initial_time=initial_time,
+                        lead_time=lead_time,
+                        channel=run_forecast.channel_names[i],
+                        metric=metric_name,
+                        value=darray[0, i].item(),
+                    )
+        logger.info(f"finished with {initial_time} {lead_time}")
 
 
 class Observations:
@@ -235,7 +239,7 @@ def main(args):
             run_forecast=run_forecast,
             lags=args.lags,
             n=args.leads,
-            f=f,
+            filename=output_path,
             times=times,
             time_step=times[1] - times[0],
         )
