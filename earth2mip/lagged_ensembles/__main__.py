@@ -185,7 +185,7 @@ def main(args):
 
     """  # noqa
 
-    times = list(get_times_2018(args.inits))
+    times = _cli_utils.TimeRange.from_args(args)
     FIELDS = ["u10m", "v10m", "z500", "t2m", "t850"]
     pool = concurrent.futures.ThreadPoolExecutor()
 
@@ -250,10 +250,10 @@ def parse_args():
 
     parser.add_argument("--data", type=str, help="Path to data file")
     _cli_utils.add_model_args(parser, required=False)
+    _cli_utils.TimeRange.add_args(parser)
     parser.add_argument("--forecast_dir", type=str, help="Path to forecast directory")
     parser.add_argument("--ifs", type=str, default="", help="IFS parameter")
     parser.add_argument("--persistence", action="store_true", help="Enable persistence")
-    parser.add_argument("--inits", type=int, default=10, help="Number of inits")
     parser.add_argument("--lags", type=int, default=4, help="Number of lags")
     parser.add_argument("--leads", type=int, default=54, help="Number of leads")
     parser.add_argument("--output", type=str, default=".", help="Output directory")
