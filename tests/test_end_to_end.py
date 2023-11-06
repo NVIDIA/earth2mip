@@ -24,6 +24,7 @@ from earth2mip.inference_ensemble import run_basic_inference
 import earth2mip.forecast_metrics_io
 from earth2mip.networks import persistence, get_model
 import earth2mip.networks.dlwp
+import earth2mip.networks.fcnv2_sm
 import earth2mip.grid
 from earth2mip import (
     schema,
@@ -179,3 +180,33 @@ def test_inference_medium_range_cli(tmp_path: pathlib.Path):
     )
     series = earth2mip.forecast_metrics_io.read_metrics(output_path.as_posix())
     assert not series.empty
+
+
+@pytest.mark.cli
+def test_lagged_ensemble_cli(tmp_path: pathlib.Path):
+    create_hdf5(
+        tmp_path,
+        2018,
+        40,
+        grid=earth2mip.grid.equiangular_lat_lon_grid(721, 1440),
+        channels=earth2mip.networks.fcnv2_sm.CHANNELS,
+    )
+    output_path = tmp_path / "out"
+    subprocess.check_call(
+        [
+            "python",
+            "earth2mip/lagged_ensembles/__main__.py",
+            "--data",
+            tmp_path.as_posix(),
+            "--inits",
+            "4",
+            "--lags",
+            "1",
+            "--leads",
+            "3",
+            "--model",
+            "e2mip://fcnv2_sm",
+            "--output",
+            output_path.as_posix(),
+        ]
+    )

@@ -31,7 +31,8 @@ from earth2mip.initial_conditions import hdf5
 from earth2mip.datasets.hindcast import open_forecast
 from earth2mip.lagged_ensembles import core
 from earth2mip.xarray import metrics
-from earth2mip.xarray.utils import concat_dict, to_cupy
+import earth2mip.grid
+from earth2mip.xarray.utils import concat_dict
 from earth2mip import config
 
 # patch the proper scoring imports
@@ -95,7 +96,7 @@ class Observations:
         return len(self.times)
 
 
-def score(channel_names, ensemble, obs):
+def score(channel_names, grid: earth2mip.grid.LatLonGrid, ensemble, obs: np.ndarray):
     """
     Args:
         ensemble: list of (c, ...)
@@ -107,31 +108,22 @@ def score(channel_names, ensemble, obs):
     import dask
 
     dask.config.set(scheduler="single-threaded")
-    obs = to_cupy(obs.drop(["time", "channel"])).assign_coords(
-        time=obs.time, channel=obs.channel
-    )
-    lat = to_cupy(obs.lat)
+    obs = xarray.DataArray(data=np.asarray(obs), dims=["channel", "lat", "lon"])
+    # need to run this after since pandas.Index doesn't support cupy
+    lat = xarray.DataArray(dims=["lat"], data=np.asarray(grid.lat))
 
     out = {}
     ens = torch.stack(list(ensemble.values()), dim=0)
-    coords = {**obs.coords}
-    coords["channel"] = channel_names
     ensemble_xr = xarray.DataArray(
-        np.asarray(ens), dims=["ensemble", *obs.dims], coords=coords
+        data=np.asarray(ens), dims=["ensemble", "time", *obs.dims]
     )
-    # add ensemble dimension
-    # the convention is that ensemble member 0 is the deterministic (i.e. best)
-    # one
-    ensemble_xr = ensemble_xr.assign_coords(
-        ensemble=xarray.Variable(["ensemble"], list(ensemble))
-    )
-
     ensemble_xr = ensemble_xr.chunk(lat=32)
     obs = obs.chunk(lat=32)
     # need to chunk to avoid OOMs
-    pred_align, obs_align = xarray.align(ensemble_xr, obs)
     with metrics.properscoring_with_cupy():
-        out = metrics.score_ensemble(pred_align, obs_align, lat=lat)
+        out = metrics.score_ensemble(
+            ensemble_xr, obs, lat=lat, ensemble_keys=list(ensemble)
+        )
 
     mempool = cupy.get_default_memory_pool()
     logger.debug(
@@ -210,7 +202,7 @@ def main(args):
     if args.model:
         timeloop = _cli_utils.model_from_args(args, device=device)
         run_forecast = forecasts.TimeLoopForecast(
-            timeloop, times=times, observations=obs
+            timeloop, times=times, data_source=data_source
         )
     elif args.forecast_dir:
         run_forecast = forecasts.XarrayForecast(
@@ -236,13 +228,13 @@ def main(args):
 
     scores_future = lagged_average_simple(
         observations=obs,
-        score=partial(score, run_forecast.channel_names),
+        score=partial(score, run_forecast.channel_names, timeloop.grid),
         run_forecast=run_forecast,
         lags=args.lags,
         n=args.leads,
     )
 
-    with torch.cuda.device(device):
+    with torch.cuda.device(device), torch.no_grad():
         scores = asyncio.run(scores_future)
     df = collect_score(scores, times)
     path = f"{args.output}.{rank:03d}.csv"
