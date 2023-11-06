@@ -28,6 +28,7 @@ import xarray
 import logging
 import numpy
 from earth2mip import time_loop
+import earth2mip.initial_conditions
 
 import asyncio
 
@@ -69,10 +70,9 @@ class TimeLoopForecast:
         self,
         time_loop: time_loop.TimeLoop,
         times: Sequence[datetime.datetime],
-        observations: Any,
+        data_source: earth2mip.initial_conditions.base.DataSource,
     ):
-        assert len(times) == len(observations)
-        self.observations = observations
+        self._data_source = data_source
         self.time_loop = time_loop
         self._times = times
 
@@ -81,11 +81,9 @@ class TimeLoopForecast:
         return self.time_loop.out_channel_names
 
     async def __getitem__(self, i):
-        # TODO clean-up this interface. pick a consistent type for ``x``.
-        x = await self.observations[i]
-        x = x.sel(channel=self.time_loop.in_channel_names)
-        x = torch.from_numpy(x.values).cuda()
-        x = x[None]
+        x = earth2mip.initial_conditions.get_initial_condition_for_model(
+            self.time_loop, self._data_source, time=self._times[i]
+        )
         count = 0
         dt = self._times[1] - self._times[0]
         yield_every = int(dt // self.time_loop.time_step)

@@ -13,39 +13,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import xarray
-import numpy as np
-from earth2mip.xarray.utils import to_cupy, concat_dict
-
-try:
-    import cupy
-except ImportError:
-    cupy = None
-
-import pytest
-
-
-@pytest.fixture()
-def has_gpu():
-    try:
-        cupy.cuda.runtime.getDevice()
-    except Exception:
-        pytest.skip("No GPU.")
-
-
-@pytest.mark.parametrize("chunked", [True, False])
-def test_to_cupy_weighted(has_gpu, chunked):
-    nlat, nlon = 10, 20
-    lat = xarray.Variable(["lat"], np.linspace(90, -90, nlat))
-    arr = xarray.DataArray(
-        np.ones([nlat, nlon]), dims=["lat", "lon"], coords={"lat": lat}
-    )
-    arr_cp = to_cupy(arr)
-    if chunked:
-        arr_cp = arr_cp.chunk({"lat": 2})
-
-    arr_cp.load().data.device
+from earth2mip.xarray.utils import concat_dict
 
 
 def test_concat_dict():
