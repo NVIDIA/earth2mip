@@ -19,7 +19,7 @@ The csv files contain the records::
 
     initial_time_iso, lead_time_hours, channel, metric, value
     2022-01-01T00:00:00,24,t2m,rmse,25.6
-    
+
 """
 import csv
 from typing import IO
@@ -60,14 +60,14 @@ def read_metrics(directory: str) -> pd.Series:
         )
         out = pd.DataFrame()
         out["initial_time"] = pd.to_datetime(df["initial_time_iso"])
-        out["lead_time_hours"] = pd.to_timedelta(df["lead_time_hours"], unit="h")
+        out["lead_time"] = pd.to_timedelta(df["lead_time_hours"], unit="h")
         out["channel"] = df["channel"]
         out["metric"] = df["metric"]
         out["value"] = df["value"]
         dfs.append(out)
 
     df = pd.concat(dfs, axis=0)
-    df.set_index(["initial_time", "lead_time_hours", "channel", "metric"], inplace=True)
+    df.set_index(["initial_time", "lead_time", "channel", "metric"], inplace=True)
     return df["value"]
 
 
