@@ -186,6 +186,10 @@ def main(args):
 
     rank = torch.distributed.get_rank() if torch.distributed.is_initialized() else 0
     device = torch.device("cuda", rank % torch.cuda.device_count())
+
+    if rank == 0:
+        logging.basicConfig(level=logging.INFO)
+
     if args.model:
         timeloop = _cli_utils.model_from_args(args, device=device)
         run_forecast = forecasts.TimeLoopForecast(
@@ -196,13 +200,14 @@ def main(args):
             open_forecast(args.forecast_dir, group="mean.zarr"),
             times=times,
             fields=FIELDS,
+            device=device,
         )
     elif args.ifs:
         # TODO fix this import error
         # TODO convert ifs to zarr so we don't need custom code
         from earth2mip.datasets.deterministic_ifs import open_deterministic_ifs
 
-        run_forecast = forecasts.XarrayForecast(open_deterministic_ifs(args.ifs))
+        run_forecast = forecasts.XarrayForecast(open_deterministic_ifs(args.ifs), device=device)
     elif args.persistence:
         run_forecast = forecasts.Persistence
     else:
@@ -210,8 +215,8 @@ def main(args):
             "need to provide one of --persistence --ifs --forecast-dir or --model."
         )
 
-    if rank == 0:
-        logging.basicConfig(level=logging.INFO)
+
+    logger.info(f"number of timesteps: {len(times)}, start time: {times[0]}, end_time: {times[-1]}")
 
     obs = Observations(
         times=times,
@@ -226,7 +231,7 @@ def main(args):
     with open(output_path, "a") as f, torch.cuda.device(device), torch.no_grad():
         scores_future = lagged_average_simple(
             observations=obs,
-            score=partial(score, run_forecast.channel_names, timeloop.grid),
+            score=partial(score, run_forecast.channel_names, run_forecast.grid),
             run_forecast=run_forecast,
             lags=args.lags,
             n=args.leads,
