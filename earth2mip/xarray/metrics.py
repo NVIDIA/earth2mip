@@ -80,7 +80,4 @@ def score_ensemble(
         keep_attrs=True,
     )
     out["crps"] = global_average(crps.load(), lat)
-    # get ensemble size in potentially time-dependent manner
-    # for compatibility needs to have the same dims as the other metrics
-    out["ensemble_size"] = ensemble.count("ensemble").isel(lat=0, lon=0).load()
     return out
