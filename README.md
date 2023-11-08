@@ -132,8 +132,8 @@ table below.
 | graphcast |  Graphcast, 37 levels, 0.25 deg | Graph neural network | global weather |  [Arxiv](https://arxiv.org/abs/2212.12794)  | [github](https://github.com/google-deepmind/graphcast) | 145MB |
 | graphcast_small |  Graphcast, 13 levels, 1 deg | Graph neural network | global weather |  [Arxiv](https://arxiv.org/abs/2212.12794)  | [github](https://github.com/google-deepmind/graphcast) | 144MB |
 | graphcast_operational |  Graphcast, 13 levels, 0.25 deg| Graph neural network | global weather |  [Arxiv](https://arxiv.org/abs/2212.12794)  | [github](https://github.com/google-deepmind/graphcast) | 144MB |
-| precipitation_afno | FourCastNet Precipitation | Adaptive Fourier Neural Operator  | diagnostic | [Arxiv](https://arxiv.org/abs/2202.11214)   | [modulus](https://registry.ngc.nvidia.com/orgs/nvstaging/teams/simnet/models/modulus_diagnostics) | 300Mb |
-| climatenet | ClimateNet Segmentation Model | Convolutional Neural Network | diagnostic | [GMD](https://doi.org/10.5194/gmd-14-107-2021)   | [modulus](https://registry.ngc.nvidia.com/orgs/nvstaging/teams/simnet/models/modulus_diagnostics) | 2Mb |
+| precipitation_afno | FourCastNet Precipitation | Adaptive Fourier Neural Operator  | diagnostic | [Arxiv](https://arxiv.org/abs/2202.11214)   | [modulus](https://catalog.ngc.nvidia.com/orgs/nvidia/teams/modulus/models/modulus_diagnostics) | 300Mb |
+| climatenet | ClimateNet Segmentation Model | Convolutional Neural Network | diagnostic | [GMD](https://doi.org/10.5194/gmd-14-107-2021)   | [modulus](https://catalog.ngc.nvidia.com/orgs/nvidia/teams/modulus/models/modulus_diagnostics) | 2Mb |
 <!-- markdownlint-enable -->
 
 \* = coming soon
