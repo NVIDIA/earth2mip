@@ -15,7 +15,7 @@
 # limitations under the License.
 
 # TODO consolidate with fcn_mip/score_ensemble_outputs.py
-from typing import Mapping
+from typing import Mapping, List
 import xarray
 import xskillscore
 import numpy as np
@@ -49,7 +49,7 @@ def global_average(x, lat):
 
 
 def score_ensemble(
-    ensemble: xarray.DataArray, obs: xarray.DataArray, lat: xarray.DataArray
+    ensemble: np.ndarray, obs: np.ndarray, lat: np.ndarray, ensemble_keys: List[int]
 ) -> Mapping[str, xarray.DataArray]:
     """Set of standardized scores for ensembles
 
@@ -67,8 +67,8 @@ def score_ensemble(
     num = ensemble.var("ensemble", ddof=1)
     out["variance"] = global_average(num.load(), lat)
 
-    if 0 in ensemble.ensemble:
-        num = (ensemble.sel(ensemble=0) - obs) ** 2
+    if 0 in ensemble_keys:
+        num = (ensemble.isel(ensemble=ensemble_keys.index(0)) - obs) ** 2
         out["MSE_det"] = global_average(num.load(), lat)
 
     crps = xskillscore.crps_ensemble(
@@ -80,7 +80,4 @@ def score_ensemble(
         keep_attrs=True,
     )
     out["crps"] = global_average(crps.load(), lat)
-    # get ensemble size in potentially time-dependent manner
-    # for compatibility needs to have the same dims as the other metrics
-    out["ensemble_size"] = ensemble.count("ensemble").isel(lat=0, lon=0).load()
     return out

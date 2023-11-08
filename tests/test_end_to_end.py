@@ -17,10 +17,14 @@
 import datetime
 import torch
 import xarray
+import pathlib
 import hashlib
 import numpy as np
 from earth2mip.inference_ensemble import run_basic_inference
+import earth2mip.forecast_metrics_io
 from earth2mip.networks import persistence, get_model
+import earth2mip.networks.dlwp
+import earth2mip.grid
 from earth2mip import (
     schema,
     weather_events,
@@ -28,8 +32,14 @@ from earth2mip import (
     score_ensemble_outputs,
     inference_medium_range,
 )
+import subprocess
+from tests.initial_conditions.test_hdf5 import create_hdf5
 import pytest
 from earth2mip._channel_stds import channel_stds
+
+
+def run(args):
+    return subprocess.check_call(["coverage", "run", *args])
 
 
 def checksum_reduce_precision(arr, digits=3):
@@ -142,3 +152,66 @@ def test_run_basic_inference(url):
         time_loop, n=10, data_source=data_source, time=datetime.datetime(2018, 1, 1)
     )
     print(ds)
+
+
+@pytest.mark.cli
+def test_inference_medium_range_cli(tmp_path: pathlib.Path):
+    create_hdf5(
+        tmp_path,
+        2018,
+        20,
+        grid=earth2mip.grid.equiangular_lat_lon_grid(721, 1440),
+        channels=earth2mip.networks.dlwp.CHANNELS,
+    )
+    output_path = tmp_path / "out"
+    run(
+        [
+            "-m",
+            "earth2mip.inference_medium_range",
+            "--data",
+            tmp_path.as_posix(),
+            "-n",
+            "5",
+            "--start-time",
+            "2018-01-02",
+            "--end-time",
+            "2018-01-02",
+            "e2mip://dlwp",
+            output_path.as_posix(),
+        ]
+    )
+    series = earth2mip.forecast_metrics_io.read_metrics(output_path.as_posix())
+    assert not series.empty
+
+
+@pytest.mark.cli
+def test_lagged_ensemble_cli(tmp_path: pathlib.Path):
+    create_hdf5(
+        tmp_path,
+        2018,
+        40,
+        grid=earth2mip.grid.equiangular_lat_lon_grid(721, 1440),
+        channels=earth2mip.networks.dlwp.CHANNELS,
+    )
+    output_path = tmp_path / "out"
+    run(
+        [
+            "earth2mip/lagged_ensembles/__main__.py",
+            "--data",
+            tmp_path.as_posix(),
+            "--start-time",
+            "2018-01-02",
+            "--end-time",
+            "2018-01-04",
+            "--lags",
+            "1",
+            "--leads",
+            "3",
+            "--model",
+            "e2mip://dlwp",
+            "--output",
+            output_path.as_posix(),
+        ]
+    )
+    series = earth2mip.forecast_metrics_io.read_metrics(output_path.as_posix())
+    assert not series.empty
