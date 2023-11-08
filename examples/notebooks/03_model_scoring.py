@@ -69,11 +69,14 @@ For the rest of this tutorial, it is assumed that 2017.h5 is present for the ful
 
 # %%
 # load an values in a .env file where you can specify your H5 root folder by
-# adding a line like::
-# ERA5_HDF5=/path/to/root/of/h5/files
-import dotenv
+# adding a line like:
+try:
+    import dotenv
 
-dotenv.load_dotenv()
+    dotenv.load_dotenv()
+except ModuleNotFoundError:
+    pass  # pip install python-dotenv
+
 # can set this with the export ERA5_HDF5=/path/to/root/of/h5/files
 h5_folder = os.getenv("ERA5_HDF5", "/mount/73vars")
 
@@ -143,8 +146,8 @@ initial_times = [time + datetime.timedelta(days=30 * i) for i in range(12)]
 
 # Output directoy
 output_dir = "outputs/03_model_scoring"
-os.makedirs(output_dir, exist_ok=True)
 if not os.path.exists(output_dir):
+    os.makedirs(output_dir, exist_ok=True)
     output = save_scores(
         model,
         n=20,  # 12 hour timesteps
