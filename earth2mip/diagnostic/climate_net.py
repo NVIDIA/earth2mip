@@ -537,7 +537,7 @@ class ClimateNet(DiagnosticBase):
         assert x.ndim == 4
         x = (x - self.in_center) / self.in_scale
         out = self.model(x)
-        return out
+        return torch.softmax(out, 1)  # Softmax channels
 
     @classmethod
     def load_package(

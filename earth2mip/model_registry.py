@@ -124,6 +124,7 @@ class Package:
 def download_ngc_package(root: str, url: str, zip_file: str):
     model_registry = os.path.dirname(root)
     if not os.path.isdir(root):
+        os.makedirs(model_registry, exist_ok=True)  # Make sure registry folder exists
         logger.info("Downloading NGC model checkpoint, this may take a bit")
         urllib.request.urlretrieve(
             url,
