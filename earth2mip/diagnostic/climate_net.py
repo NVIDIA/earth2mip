@@ -537,14 +537,14 @@ class ClimateNet(DiagnosticBase):
         assert x.ndim == 4
         x = (x - self.in_center) / self.in_scale
         out = self.model(x)
-        return out
+        return torch.softmax(out, 1)  # Softmax channels
 
     @classmethod
     def load_package(
         cls, registry: str = os.path.join(config.MODEL_REGISTRY, "diagnostics")
     ) -> Package:
         registry = ModelRegistry(registry)
-        return registry.get_model("climatenet")
+        return registry.get_model("e2mip://climatenet")
 
     @classmethod
     def load_diagnostic(cls, package: Package, device="cuda:0"):
