@@ -87,6 +87,7 @@ import zipfile
 import urllib
 import json
 
+from typing import Literal
 from earth2mip import schema
 from earth2mip import filesystem
 
@@ -123,6 +124,7 @@ class Package:
 def download_ngc_package(root: str, url: str, zip_file: str):
     model_registry = os.path.dirname(root)
     if not os.path.isdir(root):
+        os.makedirs(model_registry, exist_ok=True)  # Make sure registry folder exists
         logger.info("Downloading NGC model checkpoint, this may take a bit")
         urllib.request.urlretrieve(
             url,
@@ -163,6 +165,18 @@ def FCNv2Package(root: str, seperator: str):
         url="https://api.ngc.nvidia.com/v2/models/nvidia/modulus/modulus_fcnv2_sm/"
         + "versions/v0.2/files/fcnv2_sm.zip",
         zip_file="fcnv2_sm.zip",
+    )
+    return Package(root, seperator)
+
+
+def NGCDiagnosticPackage(
+    root: str, seperator: str, name: Literal["precipitation_afno", "climatenet"]
+):
+    download_ngc_package(
+        root=root,
+        url="https://api.ngc.nvidia.com/v2/models/nvidia/modulus/modulus_diagnostics/"
+        + f"versions/v0.1/files/{name}.zip",
+        zip_file=f"{name}.zip",
     )
     return Package(root, seperator)
 
@@ -235,6 +249,14 @@ class ModelRegistry:
             return DLWPPackage(self.get_path(name), seperator=self.SEPERATOR)
         elif name == "pangu" or name == "pangu_24" or name == "pangu_6":
             return PanguPackage(self.get_path(name), seperator=self.SEPERATOR)
+        elif name == "precipitation_afno":
+            return NGCDiagnosticPackage(
+                self.get_path(name), seperator=self.SEPERATOR, name=name
+            )
+        elif name == "climatenet":
+            return NGCDiagnosticPackage(
+                self.get_path(name), seperator=self.SEPERATOR, name=name
+            )
         elif name.startswith("graphcast"):
             return Package("gs://dm_graphcast", seperator="/")
         else:
