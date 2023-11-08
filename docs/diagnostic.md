@@ -1,7 +1,8 @@
 # Diagnostics
 
-One way to class AI models in Earth-2 MIP is by those that perform time-integration and those that do not.
-Diagnostic models are a class of models that are intended to transform a set of outputs from a weather/climate model into other quantities of interest.
+The term diagnostic model refers here to models that do not make a timestep predictions,
+but simply predict some new quantities from existing ones at the same time.
+By combining a diagnostic and a forecast (prognostic) model we can forecast additional variables without training the latter.
 Functionally diagnostics are :py:class:`earth2mip.geo_operator.GeoOperator`, models can be viewed as post-processers in the inference process.
 Earth-2 MIP presently provides several built-in diagnostics.
 Those that require a model package files are hosted on [NVIDIA's model registry](https://catalog.ngc.nvidia.com/orgs/nvidia/teams/modulus/models/modulus_diagnostics).
@@ -9,7 +10,7 @@ Those that require a model package files are hosted on [NVIDIA's model registry]
 ## Motivation
 
 A natural question is: what is the point of developing a diagnostic model over a new weather/climate model that performs time integration?
-Training AI weather models is a very expensive process, requiring a large set of training data and expertise which is not always available.
+Training AI weather models is a very expensive process, typically requiring a large set training data and compute with a team that has deep learning + weather expertise which is not always available.
 The advantage of diagnostic models is that they can be trained invariant of time, on a reduced set of data / variables and produce quantities that are of interest (versus the ones needed to represent the state of the Earth's weather).
 This opens the door to extending existing foundational models to a vast range of
 downstream tasks both in academia and industry.
@@ -83,4 +84,4 @@ class Kelvin2Celcius(DiagnosticBase):
 
 ## Known Limitations
 
-- Diagnostics used must operate on grids consistent with the weather model it is attached to.
+- The diagnostics used must operate on grids and use channels consistent with the weather model it is attached to.
