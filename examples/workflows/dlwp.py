@@ -17,14 +17,6 @@
 # %%
 import os
 import datetime
-
-# Set number of GPUs to use to 1
-os.environ["WORLD_SIZE"] = "1"
-# Set model registry as a local folder
-model_registry = os.path.join(os.path.dirname(os.path.realpath(os.getcwd())), "models")
-os.makedirs(model_registry, exist_ok=True)
-os.environ["MODEL_REGISTRY"] = model_registry
-
 import earth2mip.networks.dlwp as dlwp
 from earth2mip import (
     registry,
@@ -32,7 +24,7 @@ from earth2mip import (
 )
 from earth2mip.initial_conditions import cds
 from modulus.distributed import DistributedManager
-from os.path import dirname, abspath, join
+from os.path import join
 
 # %% Load model package and data source
 device = DistributedManager().device
@@ -55,7 +47,7 @@ print(ds)
 # %% Post-process
 import matplotlib.pyplot as plt
 
-output = f"{dirname(dirname(abspath(__file__)))}/outputs/workflows"
+output = "outputs"
 os.makedirs(output, exist_ok=True)
 
 arr = ds.sel(channel="t2m").values
