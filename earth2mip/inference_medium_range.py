@@ -37,7 +37,7 @@ __all__ = ["score_deterministic"]
 
 
 class RMSE:
-    outputs = ["mse"]
+    output_names = ["mse"]
 
     def __init__(self, weight=None):
         self._xy = {}
@@ -62,7 +62,7 @@ class RMSE:
 
 
 class ACC:
-    outputs = ["xx", "yy", "xy"]
+    output_names = ["xx", "yy", "xy"]
 
     def __init__(self, mean, weight=None):
         self.mean = mean
@@ -158,7 +158,7 @@ def run_forecast(
             verification_torch = verification_torch[:, 0]
             for metric in metrics:
                 outputs = metric.call(verification_torch, data)
-                for name, tensor in zip(metric.outputs, outputs):
+                for name, tensor in zip(metric.output_names, outputs):
                     v = tensor.cpu().numpy()
                     for c_idx in range(len(model.out_channel_names)):
                         earth2mip.forecast_metrics_io.write_metric(
@@ -176,7 +176,7 @@ def run_forecast(
 
 def score_deterministic(
     model: time_loop.TimeLoop, n: int, initial_times, data_source, time_mean
-):
+) -> xr.Dataset:
     """Compute deterministic accs and rmses
 
     Args:
@@ -189,7 +189,7 @@ def score_deterministic(
             Used for ACC.
 
     Returns:
-        metrics::
+        metrics: an xarray dataset wtih this structure::
             netcdf dlwp.baseline {
             dimensions:
                     lead_time = 57 ;
@@ -260,7 +260,16 @@ def save_scores(
     world_size: int = 1,
     device: str = "cuda",
 ) -> None:
-    """Compute deterministic accs and rmses
+    """Compute deterministic skill scores, saving the results the a csv file
+
+    Saves the sufficient statistics to compute ACC and RMSE to a csv file for
+    each (lead_time, initial_time, channel) tuple.
+
+    For ACC these are xx, xy, and yy. So ACC = E[xy] / sqrt(E[xx] * E[yy]).
+
+    For RMSE this is MSE. So RMSE=sqrt(E[MSE]).
+
+    E is an averaging operator.
 
     Args:
         model: the inference class
