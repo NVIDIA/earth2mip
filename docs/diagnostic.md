@@ -1,12 +1,21 @@
 # Diagnostics
 
-Models provided in Earth-2 MIP can be classed by one characteristic: those that perform time-integration and those that do not.
+One way to class AI models in Earth-2 MIP is by those that perform time-integration and those that do not.
 Diagnostic models are a class of models that are intended to transform a set of outputs from a weather/climate model into other quantities of interest.
 Functionally diagnostics are :py:class:`earth2mip.geo_operator.GeoOperator`, models can be viewed as post-processers in the inference process.
 Earth-2 MIP presently provides several built-in diagnostics.
 Those that require a model package files are hosted on [NVIDIA's model registry](https://catalog.ngc.nvidia.com/orgs/nvidia/teams/modulus/models/modulus_diagnostics).
 
-## Using Diagnostic Models
+## Motivation
+
+A natural question is: what is the point of developing a diagnostic model over a new weather/climate model that performs time integration?
+Training AI weather models is a very expensive process, requiring a large set of training data and expertise which is not always available.
+The advantage of diagnostic models is that they can be trained invariant of time, on a reduced set of data / variables and produce quantities that are of interest (versus the ones needed to represent the state of the Earth's weather).
+This opens the door to extending existing foundational models to a vast range of
+downstream tasks both in academia and industry.
+The built in ClimateNet diagnostic is a great example of how a diagnostic can be used to produce a very useful quantity (identification of tropical cyclones). Combined with ensemble inference workflows this can generate probabilistic fields of hurricane trajectories with little effort.
+
+## Using Diagnostics
 
 To load / instantiate a diagnostic model, there are two API provided as part of :py:class:`earth2mip.diagnostic.base.DiagnosticBase`. The `load_package` can be called first to create a built in model package, alternatively users can manually create this package for custom registry set ups.
 By default diagnostics with checkpoints will have their model package files stored in `${MODEL_REGISTRY}/diagnostics`.
