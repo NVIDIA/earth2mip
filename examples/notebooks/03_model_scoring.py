@@ -13,6 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 # %% [markdown]
 """
 # Scoring Models in Earth-2 MIP
@@ -68,11 +69,14 @@ For the rest of this tutorial, it is assumed that 2017.h5 is present for the ful
 
 # %%
 # load an values in a .env file where you can specify your H5 root folder by
-# adding a line like::
-# ERA5_HDF5=/path/to/root/of/h5/files
-import dotenv
+# adding a line like:
+try:
+    import dotenv
 
-dotenv.load_dotenv()
+    dotenv.load_dotenv()
+except ModuleNotFoundError:
+    pass  # pip install python-dotenv
+
 # can set this with the export ERA5_HDF5=/path/to/root/of/h5/files
 h5_folder = os.getenv("ERA5_HDF5", "/mount/73vars")
 
@@ -140,14 +144,17 @@ from earth2mip.inference_medium_range import save_scores, time_average_metrics
 time = datetime.datetime(2017, 1, 1, 0)
 initial_times = [time + datetime.timedelta(days=30 * i) for i in range(12)]
 
-if not os.path.exists("scoring_output"):
+# Output directoy
+output_dir = "outputs/03_model_scoring"
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir, exist_ok=True)
     output = save_scores(
         model,
         n=20,  # 12 hour timesteps
         initial_times=initial_times,
         data_source=datasource,
         time_mean=datasource.time_means,
-        output_directory="scoring_output",
+        output_directory=output_dir,
     )
 
 # %% [markdown]
@@ -157,7 +164,7 @@ if not os.path.exists("scoring_output"):
 The last step is any post processing / IO that is desired.
 Typically its recommended to save the output dataset to a netCDF file for further
 processing.
-Lets plot the RMSE of the z500 field.
+Lets plot the RMSE of the z500 (geopotential at pressure level 500) field.
 """
 
 # %%
@@ -165,7 +172,7 @@ import matplotlib.pyplot as plt
 from earth2mip.forecast_metrics_io import read_metrics
 import pandas as pd
 
-series = read_metrics("scoring_output")
+series = read_metrics(output_dir)
 dataset = time_average_metrics(series)
 
 plt.close("all")
@@ -176,3 +183,11 @@ ax.plot(t, y)
 ax.set_xlabel("Lead Time (hours)")
 ax.set_ylabel("RMSE")
 ax.set_title("FourcastNet z500 RMSE 2017")
+plt.savefig(f"{output_dir}/dwlp_z500_rmse.png")
+
+
+# %% [markdown]
+"""
+This completes this introductory notebook on basic scoring of models in Earth-2 MIP,
+which is founational for comparing the performance of different models.
+"""

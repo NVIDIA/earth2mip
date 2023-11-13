@@ -22,7 +22,7 @@ _templates/
 baseline_afno_26.zarr/
 34Vars/long/
 .nfs*
-examples/outputs/
+outputs/
 examples/models/
 tmp/
 tests/Output.*

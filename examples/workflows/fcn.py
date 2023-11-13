@@ -22,7 +22,7 @@ import earth2mip.networks.fcn as fcn
 from earth2mip import registry, inference_ensemble
 from earth2mip.initial_conditions import cds
 from modulus.distributed import DistributedManager
-from os.path import dirname, abspath, join
+from os.path import join
 
 # %% Load model package and data source
 device = DistributedManager().device
@@ -45,7 +45,7 @@ ds = inference_ensemble.run_basic_inference(
 import matplotlib.pyplot as plt
 from scipy.signal import periodogram
 
-output = f"{dirname(dirname(abspath(__file__)))}/outputs/workflows"
+output = "outputs"
 os.makedirs(output, exist_ok=True)
 
 arr = ds.sel(channel="u100m").values
