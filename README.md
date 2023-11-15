@@ -4,8 +4,9 @@
 [![Project Status: Active - The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![GitHub](https://img.shields.io/github/license/NVIDIA/earth2mip)](https://github.com/NVIDIA/earth2mip/blob/master/LICENSE.txt)
 [![Documentstion](https://img.shields.io/badge/docs-online-green)](https://nvidia.github.io/earth2mip/)
-![](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue
-)
+[![codecov](https://codecov.io/gh/NickGeneva/earth2mip/graph/badge.svg?token=0PDBMHCH2C)](https://codecov.io/gh/NickGeneva/earth2mip/tree/main)
+[![Python versionm: 3.10, 3.11, 3.12](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue
+)](https://github.com/NVIDIA/earth2mip)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 <!-- markdownlint-enable -->
 
