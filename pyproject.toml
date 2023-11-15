@@ -8,7 +8,7 @@ authors = [
     { name="NVIDIA Research" },
     { name="NVIDIA Modulus Team" },
 ]
-description = "A deep learning framework for AI-driven multi-physics systems"
+description = "Earth-2 Model Intercomparison Project (MIP) is a python framework that enables climate researchers and scientists to explore and experiment with AI models for weather and climate."
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "Apache 2.0"}
