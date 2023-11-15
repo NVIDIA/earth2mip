@@ -54,7 +54,7 @@ classifiers = [
 ]
 dynamic = ["version"]
 
-[options.extras_require]
+[project.optional-dependencies]
 graphcast = [
     "jax>=0.4.16",
     "graphcast @ https://github.com/deepmind/graphcast/archive/e622a15c1b9742d78f9b662f2af262604d58c204.tar.gz",

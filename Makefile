@@ -7,7 +7,7 @@ install:
 	apt-get install -y libeccodes-dev
 	pip install --upgrade pip
 	pip install -r requirements.txt
-	pip install -e .[graphcast][dev]
+	pip install .[graphcast,dev]
 
 setup-ci:
 	pre-commit install
