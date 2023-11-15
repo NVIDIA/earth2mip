@@ -7,20 +7,18 @@ install:
 	apt-get install -y libeccodes-dev
 	pip install --upgrade pip
 	pip install -r requirements.txt
-	pip install .[graphcast,dev]
+	pip install .[graphcast]
 
 setup-ci:
+	pip install .[dev]
 	pip install pre-commit
 	pre-commit install
 
-black:
+format:
 	pre-commit run black -a
 
-interrogate:
-	echo "TODO"
-	true
-
 lint:
+	echo "TODO: add interrogate"
 	pre-commit run check-added-large-files -a
 	pre-commit run ruff -a
 
