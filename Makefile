@@ -22,7 +22,7 @@ interrogate:
 
 lint:
 	pre-commit run check-added-large-files -a
-	pre-commit run flake8 -a
+	pre-commit run ruff -a
 
 license:
 	python tests/_license/header_check.py

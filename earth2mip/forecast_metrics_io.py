@@ -22,10 +22,10 @@ The csv files contain the records::
 
 """
 import csv
-from typing import IO
 import datetime
-
 import os
+from typing import IO
+
 import pandas as pd
 
 

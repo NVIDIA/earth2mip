@@ -14,24 +14,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import IO, List
+import argparse
+import datetime
 import logging
-
 import os
 import tempfile
-import pandas as pd
-import xarray as xr
-import torch
-import argparse
+from typing import IO, List
+
 import numpy as np
-import datetime
-from earth2mip import config
-from earth2mip import time_loop, initial_conditions
-from earth2mip.initial_conditions import hdf5
-from earth2mip import _cli_utils
-import earth2mip.forecast_metrics_io
+import pandas as pd
+import torch
+import xarray as xr
 from modulus.distributed.manager import DistributedManager
 
+import earth2mip.forecast_metrics_io
+from earth2mip import _cli_utils, config, initial_conditions, time_loop
+from earth2mip.initial_conditions import hdf5
 
 __all__ = ["score_deterministic"]
 
@@ -118,7 +116,7 @@ def run_forecast(
     f: IO[str],
 ):
     mean = mean.squeeze()
-    assert mean.ndim == 3
+    assert mean.ndim == 3  # noqa
 
     nlat = len(model.grid.lat)
     channels = [
@@ -128,7 +126,7 @@ def run_forecast(
     mean = torch.from_numpy(mean).to(device)
 
     lat = np.deg2rad(model.grid.lat)
-    assert lat.ndim == 1
+    assert lat.ndim == 1  # noqa
     weight = np.cos(lat)[:, np.newaxis]
     weight_torch = torch.from_numpy(weight).to(device)
 
@@ -143,7 +141,7 @@ def run_forecast(
         logger.debug("Initial Condition Loaded.")
         i = -1
         for valid_time, data, _ in model(x=x, time=initial_time):
-            assert data.shape[1] == len(model.out_channel_names)
+            assert data.shape[1] == len(model.out_channel_names)  # noqa
             i += 1
             if i > n:
                 break

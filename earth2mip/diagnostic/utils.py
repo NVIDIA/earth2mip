@@ -31,8 +31,7 @@ def filter_channels(
     """
     indexes_list = []
     try:
-        for channel in out_channels:
-            indexes_list.append(in_channels.index(channel))
+        indexes_list = [in_channels.index(channel) for channel in out_channels]
     except ValueError as e:
         raise ValueError(
             "Looks like theres a mismatch between input and "

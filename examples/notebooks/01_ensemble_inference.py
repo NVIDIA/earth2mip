@@ -42,8 +42,9 @@ repository. There are a few additional packages needed.
 """
 
 # %%
-import os
 import json
+import os
+
 import xarray
 
 # %% [markdown]
@@ -80,7 +81,7 @@ os.environ["WORLD_SIZE"] = "1"
 # os.environ['MODEL_REGISTRY'] = "/my/file/path/"
 
 # With the enviroment variables set now we import Earth-2 MIP
-from earth2mip import registry, inference_ensemble
+from earth2mip import inference_ensemble, registry
 
 # %% [markdown]
 """
@@ -277,12 +278,12 @@ interested. Lets start off with importing all our post processing packages.
 """
 
 # %%
-import numpy as np
-import pandas as pd
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
-import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 from matplotlib.colors import TwoSlopeNorm
 
 countries = cfeature.NaturalEarthFeature(

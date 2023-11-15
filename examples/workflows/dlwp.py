@@ -15,16 +15,18 @@
 # limitations under the License.
 
 # %%
-import os
 import datetime
+import os
+from os.path import join
+
+from modulus.distributed import DistributedManager
+
 import earth2mip.networks.dlwp as dlwp
 from earth2mip import (
-    registry,
     inference_ensemble,
+    registry,
 )
 from earth2mip.initial_conditions import cds
-from modulus.distributed import DistributedManager
-from os.path import join
 
 # %% Load model package and data source
 device = DistributedManager().device

@@ -15,8 +15,9 @@
 # limitations under the License.
 
 # %%
-import xarray
 import numpy as np
+import xarray
+
 from earth2mip.datasets.hindcast import open_forecast
 
 __all__ = ["apply", "compute_edges"]

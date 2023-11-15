@@ -17,14 +17,14 @@
 """Routines for opening fcn-mip hindcast outputs
 """
 import datetime
-import os
 import json
+import os
 
+import pandas as pd
 import xarray
 from zarr.storage import FSStore
-import pandas as pd
-from earth2mip import filesystem
 
+from earth2mip import filesystem
 from earth2mip.datasets.zarr_directory import NestedDirectoryStore
 
 
@@ -52,7 +52,7 @@ def open_forecast(root, group, chunks=None):
     for f in items:
         try:
             datetime.datetime.fromisoformat(f)
-        except ValueError:
+        except ValueError:  # noqa
             pass
         else:
             times.append(f)

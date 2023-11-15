@@ -14,11 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Protocol, List, Iterator, Tuple, Any, Optional
 import datetime
-import torch
-import earth2mip.grid
+from typing import Any, Iterator, List, Optional, Protocol, Tuple
 
+import torch
+
+import earth2mip.grid
 
 ChannelNameT = str
 

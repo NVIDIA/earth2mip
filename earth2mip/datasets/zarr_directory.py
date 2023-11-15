@@ -145,7 +145,8 @@ class NestedDirectoryStore(MutableMapping):
     def _get_metadata(self):
         meta = self._map[os.path.join(self.directories[0], self.group, ".zmetadata")]
         meta = json.loads(meta)
-        assert meta["zarr_consolidated_format"] == 1
+        if not meta["zarr_consolidated_format"] == 1:
+            raise ValueError("zarr_consolidated_format must be 1")
 
         metadata_dict = meta["metadata"]
         # use same class to modify the .zarray and other data

@@ -42,10 +42,12 @@ assumed enviroment variables have already been properly set.
 """
 
 # %%
-import os
 import datetime
+import os
+
 import xarray
-from earth2mip import registry, inference_ensemble
+
+from earth2mip import inference_ensemble, registry
 from earth2mip.initial_conditions import cds
 
 # %% [markdown]
