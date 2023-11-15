@@ -25,7 +25,7 @@ lint:
 	pre-commit run ruff -a
 
 license:
-	python tests/_license/header_check.py
+	python test/_license/header_check.py
 
 doctest:
 	echo "TODO"
@@ -33,12 +33,12 @@ doctest:
 
 pytest:
 	coverage run \
-		--rcfile='tests/coverage.pytest.rc' \
+		--rcfile='test/coverage.pytest.rc' \
 		-m pytest --ignore=third_party
 
 coverage:
 	coverage combine && \
-		coverage report --show-missing --omit=*tests* --fail-under=20 && \
+		coverage report --show-missing --omit=*test* --fail-under=20 && \
 		coverage html
 
 docs:
