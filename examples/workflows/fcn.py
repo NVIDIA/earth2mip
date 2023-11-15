@@ -15,14 +15,16 @@
 # limitations under the License.
 
 # %%
-import os
-import numpy as np
 import datetime
-import earth2mip.networks.fcn as fcn
-from earth2mip import registry, inference_ensemble
-from earth2mip.initial_conditions import cds
-from modulus.distributed import DistributedManager
+import os
 from os.path import join
+
+import numpy as np
+from modulus.distributed import DistributedManager
+
+import earth2mip.networks.fcn as fcn
+from earth2mip import inference_ensemble, registry
+from earth2mip.initial_conditions import cds
 
 # %% Load model package and data source
 device = DistributedManager().device

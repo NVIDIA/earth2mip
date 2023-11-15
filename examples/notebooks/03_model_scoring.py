@@ -32,8 +32,8 @@ In summary this notebook will cover the following topics:
 
 """
 # %%
-import os
 import datetime
+import os
 
 # %% [markdown]
 """
@@ -91,9 +91,10 @@ FourcastNet is selected here simply because its a 34 channel model which aligns 
 H5 files described above.
 """
 # %%
-from earth2mip.networks import dlwp
-from earth2mip import registry
 from modulus.distributed import DistributedManager
+
+from earth2mip import registry
+from earth2mip.networks import dlwp
 
 device = DistributedManager().device
 package = registry.get_model("e2mip://dlwp")
@@ -169,8 +170,9 @@ Lets plot the RMSE of the z500 (geopotential at pressure level 500) field.
 
 # %%
 import matplotlib.pyplot as plt
-from earth2mip.forecast_metrics_io import read_metrics
 import pandas as pd
+
+from earth2mip.forecast_metrics_io import read_metrics
 
 series = read_metrics(output_dir)
 dataset = time_average_metrics(series)

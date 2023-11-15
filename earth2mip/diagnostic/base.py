@@ -13,9 +13,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from typing import Optional, Type
+
 import torch
-from typing import Type, Optional
 from pydantic import BaseModel
+
 from earth2mip.geo_operator import GeoOperator
 from earth2mip.model_registry import Package
 

@@ -15,28 +15,25 @@
 # limitations under the License.
 
 from functools import partial
+
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-from torch.utils.checkpoint import checkpoint
+import torch_harmonics as harmonics
 from apex.normalization import FusedLayerNorm
 
-from torch.utils.checkpoint import checkpoint
-
 # helpers
-from earth2mip.networks.fcnv2.layers import trunc_normal_, DropPath, MLP
-from earth2mip.networks.fcnv2.layers import SpectralAttentionS2, SpectralConvS2
-from earth2mip.networks.fcnv2.layers import SpectralAttention2d, SpectralConv2d
-
-import torch_harmonics as harmonics
-
 # to fake the sht module with ffts
-from earth2mip.networks.fcnv2.layers import RealFFT2, InverseRealFFT2
-
-from earth2mip.networks.fcnv2.contractions import *
-
-# from earth2mip.networks.fcnv2 import activations
-from earth2mip.networks.fcnv2.activations import *
+from earth2mip.networks.fcnv2.layers import (
+    MLP,
+    DropPath,
+    InverseRealFFT2,
+    RealFFT2,
+    SpectralAttention2d,
+    SpectralAttentionS2,
+    SpectralConv2d,
+    SpectralConvS2,
+    trunc_normal_,
+)
 
 
 class SpectralFilterLayer(nn.Module):
@@ -74,7 +71,9 @@ class SpectralFilterLayer(nn.Module):
                 drop_rate=drop_rate,
                 bias=False,
             )
-        elif filter_type == "non-linear" and isinstance(forward_transform, RealFFT2):
+        elif filter_type == "non-linear" and isinstance(
+            forward_transform, harmonics.RealFFT2
+        ):
             self.filter = SpectralAttention2d(
                 forward_transform,
                 inverse_transform,
@@ -88,7 +87,9 @@ class SpectralFilterLayer(nn.Module):
                 bias=False,
             )
 
-        elif filter_type == "linear" and isinstance(forward_transform, RealSHT):
+        elif filter_type == "linear" and isinstance(
+            forward_transform, harmonics.RealSHT
+        ):
             self.filter = SpectralConvS2(
                 forward_transform,
                 inverse_transform,
