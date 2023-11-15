@@ -114,6 +114,16 @@ ignore = ["E501", "S311", "S310"]
 # Ignore `PERF401` (use list compression)
 "earth2mip/networks/fcnv2/*.py" = ["E741", "PERF401"]
 
+[tool.pytest.ini_options]
+testpaths = ["test"]
+norecursedirs = [".git", "third_party"]
+addopts = ["-vv", "-r", "xfXs"]
+markers = [
+    "slow: marks tests as slow (deselect with: -m 'not slow')",
+    "cli: marks tests which run CLIs"
+]
+asyncio_mode = "auto"
+
 # Coverage.py configuration (ran using pytest-cov)
 [tool.coverage.run]
 branch = true
