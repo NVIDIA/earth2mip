@@ -11,7 +11,6 @@ install:
 
 setup-ci:
 	pip install .[dev]
-	pip install pre-commit
 	pre-commit install
 
 format:
