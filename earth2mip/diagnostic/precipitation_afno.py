@@ -15,18 +15,17 @@
 # limitations under the License.
 
 import os
-import torch
+
 import modulus
+import numpy as np
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
-import numpy as np
 from modulus.models.afno import AFNO
-from earth2mip import config
-from earth2mip import grid
-from earth2mip.model_registry import Package
+
+from earth2mip import config, grid
 from earth2mip.diagnostic.base import DiagnosticBase
-from earth2mip.model_registry import ModelRegistry
+from earth2mip.model_registry import ModelRegistry, Package
 
 IN_CHANNELS = [
     "u10m",
@@ -166,7 +165,7 @@ class PrecipitationAFNO(DiagnosticBase):
         return self.grid
 
     def __call__(self, x: torch.Tensor) -> torch.Tensor:
-        assert x.ndim == 4
+        assert x.ndim == 4  # noqa
         x = (x - self.in_center) / self.in_scale
         out = self.model(x)
         return out

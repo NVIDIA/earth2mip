@@ -15,14 +15,16 @@
 # limitations under the License.
 
 # %%
+import datetime
 import os
 from functools import partial
+
 import torch
-import datetime
 from modulus.distributed.manager import DistributedManager
+
 from earth2mip.inference_ensemble import run_basic_inference
-from earth2mip.networks import get_model
 from earth2mip.initial_conditions import cds
+from earth2mip.networks import get_model
 
 
 def gaussian_source(

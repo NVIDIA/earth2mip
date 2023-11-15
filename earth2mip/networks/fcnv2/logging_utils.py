@@ -14,8 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 import logging
+import os
 
 _format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
@@ -41,20 +41,23 @@ def log_to_file(
     log.addHandler(fh)
 
 
+# TODO: Should really delete this function / rewrite completely
 def log_versions():
-    import torch
     import subprocess
+
+    import torch
 
     logging.info("--------------- Versions ---------------")
     try:
         logging.info(
-            "git branch: " + str(subprocess.check_output(["git", "branch"]).strip())
+            "git branch: "
+            + str(subprocess.check_output(["git", "branch"]).strip())  # noqa
         )
         logging.info(
             "git hash: "
-            + str(subprocess.check_output(["git", "rev-parse", "HEAD"]).strip())
+            + str(subprocess.check_output(["git", "rev-parse", "HEAD"]).strip())  # noqa
         )
-    except:
+    except Exception:  # noqa
         pass
     logging.info("Torch: " + str(torch.__version__))
     logging.info("----------------------------------------")

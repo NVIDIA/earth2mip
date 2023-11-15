@@ -13,9 +13,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import torch
-from typing import Protocol
 from abc import abstractmethod
+from typing import Protocol
+
+import torch
+
 from earth2mip import grid
 
 

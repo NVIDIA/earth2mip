@@ -18,8 +18,8 @@
 #
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
-import sys
 import pathlib
+import sys
 
 root = pathlib.Path(__file__).parent
 modulus = root.parent / "third_party" / "modulus"

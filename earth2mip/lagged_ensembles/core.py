@@ -14,9 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections import deque
+
 import torch
 import torch.distributed
-from collections import deque
 
 
 async def yield_lagged_ensembles(
@@ -45,7 +46,7 @@ async def yield_lagged_ensembles(
 
     # example one. no garbage collection
     nt = len(observations)
-    assert n < nt
+    assert n < nt  # noqa
 
     # work trackers that will be used to determine when an ensemble is finished,
     # and ensure that all data is processed
@@ -58,7 +59,7 @@ async def yield_lagged_ensembles(
         obs_buffer.append(await observations[i])
 
     n_iter = int(nt // world_size)
-    assert nt % world_size == 0
+    assert nt % world_size == 0  # noqa
 
     buffers = None
 
@@ -129,7 +130,7 @@ async def yield_lagged_ensembles(
                         # sanity check that a single ensemble is not
                         # processed multiple times
                         if k in finished:
-                            assert False, k
+                            assert False, k  # noqa
                         finished.add(k)
                         # need to synchronize to ensure cpu buffers are filled
                         # before yielding the complete ensemble
@@ -140,7 +141,7 @@ async def yield_lagged_ensembles(
         for _ in range(world_size):
             obs_buffer.popleft()
 
-    assert not ensemble, len(ensemble)
+    assert not ensemble, len(ensemble)  # noqa
 
 
 def num(n, ell, j, L):

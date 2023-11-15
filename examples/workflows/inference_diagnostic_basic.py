@@ -14,13 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
 import datetime
+import logging
+
 from modulus.distributed.manager import DistributedManager
+
+from earth2mip.diagnostic import DiagnosticTimeLoop, PrecipitationAFNO
 from earth2mip.inference_ensemble import run_basic_inference
-from earth2mip.networks import get_model
 from earth2mip.initial_conditions import cds
-from earth2mip.diagnostic import PrecipitationAFNO, DiagnosticTimeLoop
+from earth2mip.networks import get_model
 
 
 def main(model_name: str = "e2mip://fcn"):

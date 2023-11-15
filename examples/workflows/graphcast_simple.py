@@ -29,13 +29,13 @@ import sys
 
 sys.path.insert(0, "..")
 import datetime
+import logging
 
 import matplotlib.pyplot as plt
-from earth2mip.initial_conditions import cds, get_initial_condition_for_model
 
-from earth2mip.model_registry import Package
 import earth2mip.networks.graphcast
-import logging
+from earth2mip.initial_conditions import cds, get_initial_condition_for_model
+from earth2mip.model_registry import Package
 
 logging.basicConfig(level=logging.INFO)
 

@@ -15,16 +15,18 @@
 # limitations under the License.
 
 # %%
-import os
-import numpy as np
 import datetime
+import os
+from os.path import abspath, dirname, join
+
+import numpy as np
+
 import earth2mip.networks.pangu as pangu
 from earth2mip import (
-    registry,
     inference_ensemble,
+    registry,
 )
 from earth2mip.initial_conditions import cds
-from os.path import dirname, abspath, join
 
 # %% Load model package and data source
 print("Loading pangu model, this can take a bit")

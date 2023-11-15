@@ -15,11 +15,12 @@
 # limitations under the License.
 
 # TODO consolidate with fcn_mip/score_ensemble_outputs.py
-from typing import Mapping, List
+from contextlib import contextmanager
+from typing import List, Mapping
+
+import numpy as np
 import xarray
 import xskillscore
-import numpy as np
-from contextlib import contextmanager
 
 
 @contextmanager
@@ -28,8 +29,8 @@ def properscoring_with_cupy():
 
     Not thread safe.
     """
-    import properscoring
     import cupy
+    import properscoring
 
     # using cupy is 3x faster
     properscoring._crps.np = cupy

@@ -21,17 +21,17 @@ because a forecast evolves forward in time, and we do not store the whole
 forecast necessarily, algorithms in fcn-mip should access ``n_lead_times`` in
 sequential order. This is the purpose of the abstractions here.
 """
-from typing import Sequence, Any, Protocol, Iterator, List
+import asyncio
 import datetime
+import logging
+from typing import Any, Iterator, List, Protocol, Sequence
+
 import torch
 import xarray
-import logging
-from earth2mip import time_loop
+
 import earth2mip.grid
 import earth2mip.initial_conditions
-
-import asyncio
-
+from earth2mip import time_loop
 
 logger = logging.getLogger(__name__)
 
@@ -98,7 +98,7 @@ class TimeLoopForecast(Forecast):
         count = 0
         dt = self._times[1] - self._times[0]
         yield_every = int(dt // self.time_loop.time_step)
-        assert yield_every * self.time_loop.time_step == dt
+        assert yield_every * self.time_loop.time_step == dt  # noqa
         for time, data, _ in self.time_loop(x=x, time=self._times[i]):
             if count % yield_every == 0:
                 logger.info("forecast %s", time)
