@@ -10,6 +10,7 @@ install:
 	pip install .[graphcast,dev]
 
 setup-ci:
+	pip install pre-commit
 	pre-commit install
 
 black:
