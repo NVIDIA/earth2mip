@@ -65,8 +65,8 @@ dev = [
     "pyyaml>=6.0",
     "black==22.10.0",
     "interrogate==1.5.0",
-    "coverage==6.5.0",
-    "ruff==0.0.290",
+    "coverage>=7.2.0",
+    "ruff==0.1.5",
 ]
 
 [project.entry-points."earth2mip.networks"]
@@ -113,3 +113,32 @@ ignore = ["E501", "S311", "S310"]
 # Ignore `E741` (ambigious variable names)
 # Ignore `PERF401` (use list compression)
 "earth2mip/networks/fcnv2/*.py" = ["E741", "PERF401"]
+
+# Coverage.py configuration (ran using pytest-cov)
+[tool.coverage.run]
+branch = true
+concurrency = ["multiprocessing", "thread"]
+source = ["earth2mip"]
+omit = [
+    "third_party/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+]
+exclude_also = [
+    # Don't complain about abstract methods, they aren't run:
+    "@(abc\\.)?abstractmethod",
+]
+omit = [
+    # omit anything in a .local directory anywhere
+    "test/*",
+    # omit fcn arch
+    "earth2mip/networks/fcnv2/*",
+]
+show_missing = true
+fail_under = 20
+
+[tool.coverage.xml]
+output = "e2mip.coverage.xml"

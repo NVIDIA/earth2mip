@@ -60,7 +60,7 @@ def MockLoader(package, pretrained):
 def test_get_model_architecture_entrypoint(tmp_path):
     registry = model_registry.ModelRegistry(tmp_path.as_posix())
     metadata = schema.Model(
-        architecture_entrypoint="tests.test_models:MockLoader",
+        architecture_entrypoint="test.test_models:MockLoader",
         n_history=0,
         grid=schema.Grid.grid_720x1440,
         in_channels_names=["a", "b", "c"],
@@ -103,7 +103,7 @@ class MyTestInference:
 
 metadata_with_entrypoint = schema.Model(
     entrypoint=schema.InferenceEntrypoint(
-        name="tests.test_models:MyTestInference", kwargs=dict(param=1)
+        name="test.test_models:MyTestInference", kwargs=dict(param=1)
     )
 )
 

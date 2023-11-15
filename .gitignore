@@ -220,3 +220,7 @@ ecwmf/
 # Apptainer
 build-temp*/
 *.sif/
+
+# Coverage report
+e2mip.coverage.xml
+codecov

@@ -15,10 +15,10 @@
 # limitations under the License.
 
 import datetime
+import test.test_end_to_end
 
 import numpy as np
 import pytest
-import tests.test_end_to_end
 import torch
 import xarray
 
@@ -52,7 +52,7 @@ async def test_TimeLoopForecast():
     forecast = forecasts.TimeLoopForecast(
         MockTimeLoop(),
         times,
-        data_source=tests.test_end_to_end.get_data_source(MockTimeLoop()),
+        data_source=test.test_end_to_end.get_data_source(MockTimeLoop()),
     )
 
     iter = forecast[0]

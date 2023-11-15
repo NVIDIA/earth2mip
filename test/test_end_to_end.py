@@ -18,12 +18,12 @@ import datetime
 import hashlib
 import pathlib
 import subprocess
+from test.initial_conditions.test_hdf5 import create_hdf5
 
 import numpy as np
 import pytest
 import torch
 import xarray
-from tests.initial_conditions.test_hdf5 import create_hdf5
 
 import earth2mip.forecast_metrics_io
 import earth2mip.grid
