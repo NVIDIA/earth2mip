@@ -147,8 +147,10 @@ def generate_noise_correlated(shape, *, reddening, device, noise_amplitude):
     return noise_amplitude * brown_noise(shape, reddening).to(device)
 
 
-def generate_noise_grf(shape, grid, alpha, sigma, tau):
-    sampler = GaussianRandomFieldS2(nlat=720, alpha=alpha, tau=tau, sigma=sigma)
+def generate_noise_grf(shape, grid, alpha, sigma, tau, device=None):
+    sampler = GaussianRandomFieldS2(nlat=720, alpha=alpha, tau=tau, sigma=sigma).to(
+        device
+    )
     sample_noise = sampler(shape[0] * shape[1] * shape[2]).reshape(
         shape[0], shape[1], shape[2], 720, 1440
     )
