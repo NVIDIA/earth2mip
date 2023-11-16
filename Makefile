@@ -40,7 +40,7 @@ report:
 	echo $(COV_ARGS)
 	curl -Os https://uploader.codecov.io/latest/linux/codecov
 	chmod +x codecov
-	./codecov -f e2mip.coverage.xml $(COV_ARGS)
+	./codecov -v -f e2mip.coverage.xml $(COV_ARGS)
 
 docs:
 	$(MAKE) -C docs html
