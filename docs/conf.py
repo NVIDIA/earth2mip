@@ -30,7 +30,7 @@ sys.path.insert(0, modulus.as_posix())
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = "Earth2 MIP"
+project = "Earth-2 MIP"
 copyright = "2023, NVIDIA"
 author = "NVIDIA"
 
@@ -47,5 +47,5 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = "sphinx_book_theme"
+html_theme = "pydata_sphinx_theme"
 html_static_path = ["_static"]
