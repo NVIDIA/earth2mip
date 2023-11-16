@@ -42,6 +42,8 @@ report:
 	./codecov -f e2mip.coverage.xml -r NickGeneva/earth2mip
 
 docs:
+	pip install .[docs]
+	sphinx-apidoc -o docs/source/ earth2mip
 	$(MAKE) -C docs html
 	open docs/_build/html/index.html
 .PHONY: docs
