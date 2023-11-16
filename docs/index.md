@@ -6,7 +6,7 @@ climate.
 
 ## User Guide
 
-Information about getting Earth-2 MIP running, usage and customizaiton.
+Information about getting Earth-2 MIP running, usage, and customization.
 
 ```{toctree}
 :maxdepth: 2

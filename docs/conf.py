@@ -66,10 +66,10 @@ html_theme_options = {
     },
     "navbar_align": "content",
     "navbar_start": ["navbar-logo", "version-switcher"],
-    "switcher": {
-        "json_url": "_static/switcher.json",
-        "version_match": "latest"
-    },
+    # "switcher": {
+    #     "json_url": "_static/switcher.json",
+    #     "version_match": "latest"
+    # },
     "external_links": [
         {
             "name": "Changelog",
