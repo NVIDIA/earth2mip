@@ -1,4 +1,0 @@
-codecov:
-  ci:
-    - !prod.blsm.nvidia.com
-    - !jenkins
