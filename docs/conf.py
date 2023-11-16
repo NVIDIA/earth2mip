@@ -40,11 +40,13 @@ author = "NVIDIA"
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ["sphinx.ext.autodoc", 
-    'sphinx_autodoc_typehints', 
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx_autodoc_typehints",
     "sphinx.ext.napoleon",
     "sphinx_favicon",
-    "myst_parser"]
+    "myst_parser",
+]
 
 source_suffix = [".rst", ".md"]
 templates_path = ["_templates"]
@@ -68,8 +70,11 @@ html_theme_options = {
     # "switcher": {
     #     "json_url": "https://mysite.org/en/latest/_static/switcher.json",
     # },
-   "external_links": [
-      {"name": "Changelog", "url": "https://github.com/NVIDIA/earth2mip/blob/main/CHANGELOG.md"},
+    "external_links": [
+        {
+            "name": "Changelog",
+            "url": "https://github.com/NVIDIA/earth2mip/blob/main/CHANGELOG.md",
+        },
     ],
     "icon_links": [
         {
@@ -82,7 +87,7 @@ html_theme_options = {
             # The type of image to be used (see below for details)
             "type": "fontawesome",
         }
-   ],
+    ],
 }
 favicons = ["favicon.ico"]
 
