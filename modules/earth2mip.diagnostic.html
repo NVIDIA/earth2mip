@@ -1,0 +1,1307 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="../_static/favicon.ico" rel="icon" type="image/x-icon">
+    <title>earth2mip.diagnostic package &#8212; Earth-2 MIP 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
+
+    <script src="../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'modules/earth2mip.diagnostic';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="earth2mip.initial_conditions package" href="earth2mip.initial_conditions.html" />
+    <link rel="prev" title="earth2mip.datasets package" href="earth2mip.datasets.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+
+  <div class="bd-header-announcement container-fluid bd-header-announcement">
+    <div class="bd-header-announcement__content">Earth-2 MIP is in Beta! Expect potential API instability!</div>
+  </div>
+
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/NVIDIA-Logo-V-ForScreen-ForLightBG.png" class="logo__image only-light" alt=""/>
+    <script>document.write(`<img src="../_static/NVIDIA-Logo-V-ForScreen-ForDarkBG.png" class="logo__image only-dark" alt=""/>`);</script>
+  
+  
+    <p class="title logo__title">Earth-2 MIP</p>
+  
+</a></div>
+    
+      <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button id="pst-version-switcher-button-2"
+      type="button"
+      class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-haspopup="listbox"
+      aria-controls="pst-version-switcher-list-2"
+      aria-label="Version switcher list"
+    >
+      Choose version  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div id="pst-version-switcher-list-2"
+      class="version-switcher__menu dropdown-menu list-group-flush py-0"
+      role="listbox" aria-labelledby="pst-version-switcher-button-2">
+      <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../userguide/index.html">
+                        User Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../community/index.html">
+                        Contributor Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../examples/index.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        API
+                      </a>
+                    </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link nav-external" href="https://github.com/NVIDIA/earth2mip/blob/main/CHANGELOG.md">
+                    Changelog
+                  </a>
+                </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NVIDIA/earth2mip" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../userguide/index.html">
+                        User Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../community/index.html">
+                        Contributor Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../examples/index.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        API
+                      </a>
+                    </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link nav-external" href="https://github.com/NVIDIA/earth2mip/blob/main/CHANGELOG.md">
+                    Changelog
+                  </a>
+                </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NVIDIA/earth2mip" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="earth2mip.datasets.html">earth2mip.datasets package</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">earth2mip.diagnostic package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="earth2mip.initial_conditions.html">earth2mip.initial_conditions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="earth2mip.lagged_ensembles.html">earth2mip.lagged_ensembles package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="earth2mip.networks.html">earth2mip.networks package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="earth2mip.s2s.html">earth2mip.s2s package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="earth2mip.xarray.html">earth2mip.xarray package</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">API</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">earth2mip.di...</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="earth2mip-diagnostic-package">
+<h1>earth2mip.diagnostic package<a class="headerlink" href="#earth2mip-diagnostic-package" title="Link to this heading">#</a></h1>
+<section id="module-earth2mip.diagnostic.base">
+<span id="earth2mip-diagnostic-base-module"></span><h2>earth2mip.diagnostic.base module<a class="headerlink" href="#module-earth2mip.diagnostic.base" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.base.DiagnosticBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.diagnostic.base.</span></span><span class="sig-name descname"><span class="pre">DiagnosticBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.base.DiagnosticBase" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code>, <a class="reference internal" href="index.html#earth2mip.geo_operator.GeoOperator" title="earth2mip.geo_operator.GeoOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">GeoOperator</span></code></a></p>
+<p>Diagnostic model base class</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.base.DiagnosticBase.load_config_type">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_config_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.base.DiagnosticBase.load_config_type" title="Link to this definition">#</a></dt>
+<dd><p>Class function used access the Pydantic config class of the diagnostic if
+one has been implemented. Note this returns a class reference, not instantiated
+object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Type</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.base.DiagnosticBase.load_diagnostic">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_diagnostic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">package</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.base.DiagnosticBase.load_diagnostic" title="Link to this definition">#</a></dt>
+<dd><p>Class function used to load the diagnostic model onto device memory and
+create an instance of the diagnostic for use.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This function always accepts a package as the first argument. For many
+function this may be irrelevant or could be None, but the requirement
+persists for consistent API and data flow.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.base.DiagnosticBase.load_package">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_package</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.base.DiagnosticBase.load_package" title="Link to this definition">#</a></dt>
+<dd><p>Class function used to create the diagnostic model package (if needed).
+This should be where any explicit download functions should be orcastrated</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="index.html#earth2mip.model_registry.Package" title="earth2mip.model_registry.Package"><code class="xref py py-class docutils literal notranslate"><span class="pre">Package</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-earth2mip.diagnostic.climate_net">
+<span id="earth2mip-diagnostic-climate-net-module"></span><h2>earth2mip.diagnostic.climate_net module<a class="headerlink" href="#module-earth2mip.diagnostic.climate_net" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.BNPReLU">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.diagnostic.climate_net.</span></span><span class="sig-name descname"><span class="pre">BNPReLU</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nOut</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.climate_net.BNPReLU" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Batch Norm with PReLU layer.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.BNPReLU.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.climate_net.BNPReLU.forward" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input</strong> – input feature map</p></li>
+<li><p><strong>return</strong> – normalized and thresholded feature map</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.CGNetModule">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.diagnostic.climate_net.</span></span><span class="sig-name descname"><span class="pre">CGNetModule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">19</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">21</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout_flag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.climate_net.CGNetModule" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>CGNet (Wu et al, 2018: <a class="reference external" href="https://arxiv.org/pdf/1811.08201.pdf">https://arxiv.org/pdf/1811.08201.pdf</a>) implementation.
+This is taken from their implementation, we do not claim credit for this.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.CGNetModule.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.climate_net.CGNetModule.forward" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input</strong> – Receives the input RGB image</p></li>
+<li><p><strong>return</strong> – segmentation map</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.ChannelWiseConv">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.diagnostic.climate_net.</span></span><span class="sig-name descname"><span class="pre">ChannelWiseConv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nIn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nOut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kSize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.climate_net.ChannelWiseConv" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Channel Wise convolutional layer.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.ChannelWiseConv.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.climate_net.ChannelWiseConv.forward" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input</strong> – input feature map</p></li>
+<li><p><strong>return</strong> – transformed feature map</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.ChannelWiseDilatedConv">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.diagnostic.climate_net.</span></span><span class="sig-name descname"><span class="pre">ChannelWiseDilatedConv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nIn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nOut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kSize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.climate_net.ChannelWiseDilatedConv" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Channel-wise Convolutional Layer with Dilation.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.ChannelWiseDilatedConv.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.climate_net.ChannelWiseDilatedConv.forward" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input</strong> – input feature map</p></li>
+<li><p><strong>return</strong> – transformed feature map</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.ClimateNet">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.diagnostic.climate_net.</span></span><span class="sig-name descname"><span class="pre">ClimateNet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_scale</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.climate_net.ClimateNet" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#earth2mip.diagnostic.base.DiagnosticBase" title="earth2mip.diagnostic.base.DiagnosticBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">DiagnosticBase</span></code></a></p>
+<p>Climate Net Diagnostic model, built into Earth-2 MIP. This model can be used to
+create prediction labels for tropical cyclones and atmopheric rivers. Produces
+non-standard output channels climnet_bg, climnet_tc and climnet_ar representing
+background label, tropical cyclone and atmopheric river labels.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This model and checkpoint are from Prabhat et al. 2021
+<a class="reference external" href="https://doi.org/10.5194/gmd-14-107-2021">https://doi.org/10.5194/gmd-14-107-2021</a>
+<a class="github reference external" href="https://github.com/andregraubner/ClimateNet">andregraubner/ClimateNet</a></p>
+</div>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">package</span> <span class="o">=</span> <span class="n">ClimateNet</span><span class="o">.</span><span class="n">load_package</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">ClimateNet</span><span class="o">.</span><span class="n">load_diagnostic</span><span class="p">(</span><span class="n">package</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">721</span><span class="p">,</span> <span class="mi">1440</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(1, 3, 721, 1440)</span>
+</pre></div>
+</div>
+<dl class="py property">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.ClimateNet.in_channel_names">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">in_channel_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#earth2mip.diagnostic.climate_net.ClimateNet.in_channel_names" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.ClimateNet.in_grid">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">in_grid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="index.html#earth2mip.grid.LatLonGrid" title="earth2mip.grid.LatLonGrid"><span class="pre">LatLonGrid</span></a></em><a class="headerlink" href="#earth2mip.diagnostic.climate_net.ClimateNet.in_grid" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.ClimateNet.load_diagnostic">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_diagnostic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">package</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cuda:0'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.climate_net.ClimateNet.load_diagnostic" title="Link to this definition">#</a></dt>
+<dd><p>Class function used to load the diagnostic model onto device memory and
+create an instance of the diagnostic for use.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This function always accepts a package as the first argument. For many
+function this may be irrelevant or could be None, but the requirement
+persists for consistent API and data flow.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.ClimateNet.load_package">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_package</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">registry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/home/nick/.cache/earth2mip/models/diagnostics'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.climate_net.ClimateNet.load_package" title="Link to this definition">#</a></dt>
+<dd><p>Class function used to create the diagnostic model package (if needed).
+This should be where any explicit download functions should be orcastrated</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="index.html#earth2mip.model_registry.Package" title="earth2mip.model_registry.Package"><code class="xref py py-class docutils literal notranslate"><span class="pre">Package</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.ClimateNet.out_channel_names">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">out_channel_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#earth2mip.diagnostic.climate_net.ClimateNet.out_channel_names" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.ClimateNet.out_grid">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">out_grid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="index.html#earth2mip.grid.LatLonGrid" title="earth2mip.grid.LatLonGrid"><span class="pre">LatLonGrid</span></a></em><a class="headerlink" href="#earth2mip.diagnostic.climate_net.ClimateNet.out_grid" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.ContextGuidedBlock">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.diagnostic.climate_net.</span></span><span class="sig-name descname"><span class="pre">ContextGuidedBlock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nIn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nOut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dilation_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.climate_net.ContextGuidedBlock" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Context Guided Block.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.ContextGuidedBlock.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.climate_net.ContextGuidedBlock.forward" title="Link to this definition">#</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.ContextGuidedBlock_Down">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.diagnostic.climate_net.</span></span><span class="sig-name descname"><span class="pre">ContextGuidedBlock_Down</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nIn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nOut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dilation_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.climate_net.ContextGuidedBlock_Down" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>The size of feature map divided 2, (H,W,C)—-&gt;(H/2, W/2, 2C)</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.ContextGuidedBlock_Down.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.climate_net.ContextGuidedBlock_Down.forward" title="Link to this definition">#</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.Conv">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.diagnostic.climate_net.</span></span><span class="sig-name descname"><span class="pre">Conv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nIn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nOut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kSize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.climate_net.Conv" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Ordinary Convolutional Layer.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.Conv.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.climate_net.Conv.forward" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input</strong> – input feature map</p></li>
+<li><p><strong>return</strong> – transformed feature map</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.ConvBN">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.diagnostic.climate_net.</span></span><span class="sig-name descname"><span class="pre">ConvBN</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nIn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nOut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kSize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.climate_net.ConvBN" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Convolutional Layer with Batch Norm.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.ConvBN.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.climate_net.ConvBN.forward" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input</strong> – input feature map</p></li>
+<li><p><strong>return</strong> – transformed feature map</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.ConvBNPReLU">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.diagnostic.climate_net.</span></span><span class="sig-name descname"><span class="pre">ConvBNPReLU</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nIn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nOut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kSize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.climate_net.ConvBNPReLU" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Convolutional Net with Batch Norm and PreLU.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.ConvBNPReLU.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.climate_net.ConvBNPReLU.forward" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input</strong> – input feature map</p></li>
+<li><p><strong>return</strong> – transformed feature map</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.DilatedConv">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.diagnostic.climate_net.</span></span><span class="sig-name descname"><span class="pre">DilatedConv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nIn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nOut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kSize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.climate_net.DilatedConv" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Convolutional Layer with Dilation.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.DilatedConv.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.climate_net.DilatedConv.forward" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input</strong> – input feature map</p></li>
+<li><p><strong>return</strong> – transformed feature map</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.FGlo">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.diagnostic.climate_net.</span></span><span class="sig-name descname"><span class="pre">FGlo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.climate_net.FGlo" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>The FGlo class is employed to refine the joint feature of both local feature and
+surrounding context.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.FGlo.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.climate_net.FGlo.forward" title="Link to this definition">#</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.InputInjection">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.diagnostic.climate_net.</span></span><span class="sig-name descname"><span class="pre">InputInjection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">downsamplingRatio</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.climate_net.InputInjection" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Inject Input with pooling.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.InputInjection.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.climate_net.InputInjection.forward" title="Link to this definition">#</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.Wrap">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.diagnostic.climate_net.</span></span><span class="sig-name descname"><span class="pre">Wrap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">padding</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.climate_net.Wrap" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Climate net wrapper for padding.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.Wrap.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.climate_net.Wrap.forward" title="Link to this definition">#</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-earth2mip.diagnostic.precipitation_afno">
+<span id="earth2mip-diagnostic-precipitation-afno-module"></span><h2>earth2mip.diagnostic.precipitation_afno module<a class="headerlink" href="#module-earth2mip.diagnostic.precipitation_afno" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.precipitation_afno.PeriodicPad2d">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.diagnostic.precipitation_afno.</span></span><span class="sig-name descname"><span class="pre">PeriodicPad2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pad_width</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.precipitation_afno.PeriodicPad2d" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.precipitation_afno.PeriodicPad2d.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.precipitation_afno.PeriodicPad2d.forward" title="Link to this definition">#</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.precipitation_afno.PrecipNet">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.diagnostic.precipitation_afno.</span></span><span class="sig-name descname"><span class="pre">PrecipNet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.precipitation_afno.PrecipNet" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.precipitation_afno.PrecipNet.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.precipitation_afno.PrecipNet.forward" title="Link to this definition">#</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.diagnostic.precipitation_afno.</span></span><span class="sig-name descname"><span class="pre">PrecipitationAFNO</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_scale</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#earth2mip.diagnostic.base.DiagnosticBase" title="earth2mip.diagnostic.base.DiagnosticBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">DiagnosticBase</span></code></a></p>
+<p>Precipitation AFNO model. Predicts the total precipation parameter which is the
+accumulated amount of liquid and frozen water (rain or snow) with units m.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This checkpoint is from Parthik et al. 2022.
+<a class="reference external" href="https://arxiv.org/abs/2202.11214">https://arxiv.org/abs/2202.11214</a>
+<a class="github reference external" href="https://github.com/NVlabs/FourCastNet">NVlabs/FourCastNet</a></p>
+</div>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">package</span> <span class="o">=</span> <span class="n">PrecipAFNO</span><span class="o">.</span><span class="n">load_package</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">PrecipAFNO</span><span class="o">.</span><span class="n">load_diagnostic</span><span class="p">(</span><span class="n">package</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">720</span><span class="p">,</span> <span class="mi">1440</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(1, 1, 721, 1440)</span>
+</pre></div>
+</div>
+<dl class="py property">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO.in_channel_names">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">in_channel_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO.in_channel_names" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO.in_grid">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">in_grid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="index.html#earth2mip.grid.LatLonGrid" title="earth2mip.grid.LatLonGrid"><span class="pre">LatLonGrid</span></a></em><a class="headerlink" href="#earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO.in_grid" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO.load_diagnostic">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_diagnostic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">package</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cuda:0'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO.load_diagnostic" title="Link to this definition">#</a></dt>
+<dd><p>Class function used to load the diagnostic model onto device memory and
+create an instance of the diagnostic for use.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This function always accepts a package as the first argument. For many
+function this may be irrelevant or could be None, but the requirement
+persists for consistent API and data flow.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO.load_package">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_package</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">registry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/home/nick/.cache/earth2mip/models/diagnostics'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO.load_package" title="Link to this definition">#</a></dt>
+<dd><p>Class function used to create the diagnostic model package (if needed).
+This should be where any explicit download functions should be orcastrated</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="index.html#earth2mip.model_registry.Package" title="earth2mip.model_registry.Package"><code class="xref py py-class docutils literal notranslate"><span class="pre">Package</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO.out_channel_names">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">out_channel_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO.out_channel_names" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO.out_grid">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">out_grid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="index.html#earth2mip.grid.LatLonGrid" title="earth2mip.grid.LatLonGrid"><span class="pre">LatLonGrid</span></a></em><a class="headerlink" href="#earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO.out_grid" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-earth2mip.diagnostic.time_loop">
+<span id="earth2mip-diagnostic-time-loop-module"></span><h2>earth2mip.diagnostic.time_loop module<a class="headerlink" href="#module-earth2mip.diagnostic.time_loop" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.time_loop.DiagnosticTimeLoop">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.diagnostic.time_loop.</span></span><span class="sig-name descname"><span class="pre">DiagnosticTimeLoop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">diagnostics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">concat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.time_loop.DiagnosticTimeLoop" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="index.html#earth2mip.time_loop.TimeLoop" title="earth2mip.time_loop.TimeLoop"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeLoop</span></code></a></p>
+<dl class="simple">
+<dt>Diagnostic Timeloop. This is an iterator that executes a list of diagnostic</dt><dd><p>models on top of a model Timeloop.</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Presently, grids must be consistent between diagnostics and the model</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>diagnostics</strong> (<em>List</em><em>[</em><a class="reference internal" href="#earth2mip.diagnostic.base.DiagnosticBase" title="earth2mip.diagnostic.base.DiagnosticBase"><em>DiagnosticBase</em></a><em>]</em>) – List of diagnostic functions to execute</p></li>
+<li><p><strong>model</strong> (<a class="reference internal" href="index.html#earth2mip.time_loop.TimeLoop" title="earth2mip.time_loop.TimeLoop"><em>TimeLoop</em></a>) – Model inferencer iterator</p></li>
+<li><p><strong>concat</strong> (<em>bool</em><em>, </em><em>optional</em>) – Concatentate diagnostic outputs with model outputs.</p></li>
+<li><p><strong>True.</strong> (<em>Defaults to</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.time_loop.DiagnosticTimeLoop.device">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">device</span></span><a class="headerlink" href="#earth2mip.diagnostic.time_loop.DiagnosticTimeLoop.device" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.time_loop.DiagnosticTimeLoop.grid">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">grid</span></span><a class="headerlink" href="#earth2mip.diagnostic.time_loop.DiagnosticTimeLoop.grid" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.time_loop.DiagnosticTimeLoop.in_channel_names">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">in_channel_names</span></span><a class="headerlink" href="#earth2mip.diagnostic.time_loop.DiagnosticTimeLoop.in_channel_names" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.time_loop.DiagnosticTimeLoop.out_channel_names">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">out_channel_names</span></span><a class="headerlink" href="#earth2mip.diagnostic.time_loop.DiagnosticTimeLoop.out_channel_names" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-earth2mip.diagnostic.utils">
+<span id="earth2mip-diagnostic-utils-module"></span><h2>earth2mip.diagnostic.utils module<a class="headerlink" href="#module-earth2mip.diagnostic.utils" title="Link to this heading">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.utils.filter_channels">
+<span class="sig-prename descclassname"><span class="pre">earth2mip.diagnostic.utils.</span></span><span class="sig-name descname"><span class="pre">filter_channels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.utils.filter_channels" title="Link to this definition">#</a></dt>
+<dd><p>Utility function used for selecting a sub set of channels</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></span></p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Right now this assumes that the channels are in the thirds to last axis.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input</strong> (<em>torch.Tensor</em>) – Input tensor of shape […, channels, lat, lon]</p></li>
+<li><p><strong>in_channels</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – Input channel list</p></li>
+<li><p><strong>out_channels</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – Output channel list</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-earth2mip.diagnostic.wind_speed">
+<span id="earth2mip-diagnostic-wind-speed-module"></span><h2>earth2mip.diagnostic.wind_speed module<a class="headerlink" href="#module-earth2mip.diagnostic.wind_speed" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.wind_speed.WindSpeed">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.diagnostic.wind_speed.</span></span><span class="sig-name descname"><span class="pre">WindSpeed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.wind_speed.WindSpeed" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#earth2mip.diagnostic.base.DiagnosticBase" title="earth2mip.diagnostic.base.DiagnosticBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">DiagnosticBase</span></code></a></p>
+<p>Computes the wind speed at a given level.
+This is largely just an example of what a diagnostic calculation could look like.</p>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">windspeed</span> <span class="o">=</span> <span class="n">WindSpeed</span><span class="p">(</span><span class="s1">&#39;10m&#39;</span><span class="p">,</span> <span class="n">Grid</span><span class="o">.</span><span class="n">grid_721x1440</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">721</span><span class="p">,</span> <span class="mi">1440</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">windspeed</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(1, 1, 721, 1440)</span>
+</pre></div>
+</div>
+<dl class="py property">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.wind_speed.WindSpeed.in_channel_names">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">in_channel_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#earth2mip.diagnostic.wind_speed.WindSpeed.in_channel_names" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.wind_speed.WindSpeed.in_grid">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">in_grid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="index.html#earth2mip.grid.LatLonGrid" title="earth2mip.grid.LatLonGrid"><span class="pre">LatLonGrid</span></a></em><a class="headerlink" href="#earth2mip.diagnostic.wind_speed.WindSpeed.in_grid" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.wind_speed.WindSpeed.load_diagnostic">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_diagnostic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">package</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.wind_speed.WindSpeed.load_diagnostic" title="Link to this definition">#</a></dt>
+<dd><p>Class function used to load the diagnostic model onto device memory and
+create an instance of the diagnostic for use.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This function always accepts a package as the first argument. For many
+function this may be irrelevant or could be None, but the requirement
+persists for consistent API and data flow.</p>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.wind_speed.WindSpeed.out_channel_names">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">out_channel_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#earth2mip.diagnostic.wind_speed.WindSpeed.out_channel_names" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="earth2mip.diagnostic.wind_speed.WindSpeed.out_grid">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">out_grid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="index.html#earth2mip.grid.LatLonGrid" title="earth2mip.grid.LatLonGrid"><span class="pre">LatLonGrid</span></a></em><a class="headerlink" href="#earth2mip.diagnostic.wind_speed.WindSpeed.out_grid" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-earth2mip.diagnostic">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-earth2mip.diagnostic" title="Link to this heading">#</a></h2>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="earth2mip.datasets.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">earth2mip.datasets package</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="earth2mip.initial_conditions.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">earth2mip.initial_conditions package</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-earth2mip.diagnostic.base">earth2mip.diagnostic.base module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.base.DiagnosticBase"><code class="docutils literal notranslate"><span class="pre">DiagnosticBase</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.base.DiagnosticBase.load_config_type"><code class="docutils literal notranslate"><span class="pre">DiagnosticBase.load_config_type()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.base.DiagnosticBase.load_diagnostic"><code class="docutils literal notranslate"><span class="pre">DiagnosticBase.load_diagnostic()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.base.DiagnosticBase.load_package"><code class="docutils literal notranslate"><span class="pre">DiagnosticBase.load_package()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-earth2mip.diagnostic.climate_net">earth2mip.diagnostic.climate_net module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.BNPReLU"><code class="docutils literal notranslate"><span class="pre">BNPReLU</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.BNPReLU.forward"><code class="docutils literal notranslate"><span class="pre">BNPReLU.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.CGNetModule"><code class="docutils literal notranslate"><span class="pre">CGNetModule</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.CGNetModule.forward"><code class="docutils literal notranslate"><span class="pre">CGNetModule.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.ChannelWiseConv"><code class="docutils literal notranslate"><span class="pre">ChannelWiseConv</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.ChannelWiseConv.forward"><code class="docutils literal notranslate"><span class="pre">ChannelWiseConv.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.ChannelWiseDilatedConv"><code class="docutils literal notranslate"><span class="pre">ChannelWiseDilatedConv</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.ChannelWiseDilatedConv.forward"><code class="docutils literal notranslate"><span class="pre">ChannelWiseDilatedConv.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.ClimateNet"><code class="docutils literal notranslate"><span class="pre">ClimateNet</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.ClimateNet.in_channel_names"><code class="docutils literal notranslate"><span class="pre">ClimateNet.in_channel_names</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.ClimateNet.in_grid"><code class="docutils literal notranslate"><span class="pre">ClimateNet.in_grid</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.ClimateNet.load_diagnostic"><code class="docutils literal notranslate"><span class="pre">ClimateNet.load_diagnostic()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.ClimateNet.load_package"><code class="docutils literal notranslate"><span class="pre">ClimateNet.load_package()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.ClimateNet.out_channel_names"><code class="docutils literal notranslate"><span class="pre">ClimateNet.out_channel_names</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.ClimateNet.out_grid"><code class="docutils literal notranslate"><span class="pre">ClimateNet.out_grid</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.ContextGuidedBlock"><code class="docutils literal notranslate"><span class="pre">ContextGuidedBlock</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.ContextGuidedBlock.forward"><code class="docutils literal notranslate"><span class="pre">ContextGuidedBlock.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.ContextGuidedBlock_Down"><code class="docutils literal notranslate"><span class="pre">ContextGuidedBlock_Down</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.ContextGuidedBlock_Down.forward"><code class="docutils literal notranslate"><span class="pre">ContextGuidedBlock_Down.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.Conv"><code class="docutils literal notranslate"><span class="pre">Conv</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.Conv.forward"><code class="docutils literal notranslate"><span class="pre">Conv.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.ConvBN"><code class="docutils literal notranslate"><span class="pre">ConvBN</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.ConvBN.forward"><code class="docutils literal notranslate"><span class="pre">ConvBN.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.ConvBNPReLU"><code class="docutils literal notranslate"><span class="pre">ConvBNPReLU</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.ConvBNPReLU.forward"><code class="docutils literal notranslate"><span class="pre">ConvBNPReLU.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.DilatedConv"><code class="docutils literal notranslate"><span class="pre">DilatedConv</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.DilatedConv.forward"><code class="docutils literal notranslate"><span class="pre">DilatedConv.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.FGlo"><code class="docutils literal notranslate"><span class="pre">FGlo</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.FGlo.forward"><code class="docutils literal notranslate"><span class="pre">FGlo.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.InputInjection"><code class="docutils literal notranslate"><span class="pre">InputInjection</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.InputInjection.forward"><code class="docutils literal notranslate"><span class="pre">InputInjection.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.Wrap"><code class="docutils literal notranslate"><span class="pre">Wrap</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.climate_net.Wrap.forward"><code class="docutils literal notranslate"><span class="pre">Wrap.forward()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-earth2mip.diagnostic.precipitation_afno">earth2mip.diagnostic.precipitation_afno module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.precipitation_afno.PeriodicPad2d"><code class="docutils literal notranslate"><span class="pre">PeriodicPad2d</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.precipitation_afno.PeriodicPad2d.forward"><code class="docutils literal notranslate"><span class="pre">PeriodicPad2d.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.precipitation_afno.PrecipNet"><code class="docutils literal notranslate"><span class="pre">PrecipNet</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.precipitation_afno.PrecipNet.forward"><code class="docutils literal notranslate"><span class="pre">PrecipNet.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO"><code class="docutils literal notranslate"><span class="pre">PrecipitationAFNO</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO.in_channel_names"><code class="docutils literal notranslate"><span class="pre">PrecipitationAFNO.in_channel_names</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO.in_grid"><code class="docutils literal notranslate"><span class="pre">PrecipitationAFNO.in_grid</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO.load_diagnostic"><code class="docutils literal notranslate"><span class="pre">PrecipitationAFNO.load_diagnostic()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO.load_package"><code class="docutils literal notranslate"><span class="pre">PrecipitationAFNO.load_package()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO.out_channel_names"><code class="docutils literal notranslate"><span class="pre">PrecipitationAFNO.out_channel_names</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO.out_grid"><code class="docutils literal notranslate"><span class="pre">PrecipitationAFNO.out_grid</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-earth2mip.diagnostic.time_loop">earth2mip.diagnostic.time_loop module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.time_loop.DiagnosticTimeLoop"><code class="docutils literal notranslate"><span class="pre">DiagnosticTimeLoop</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.time_loop.DiagnosticTimeLoop.device"><code class="docutils literal notranslate"><span class="pre">DiagnosticTimeLoop.device</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.time_loop.DiagnosticTimeLoop.grid"><code class="docutils literal notranslate"><span class="pre">DiagnosticTimeLoop.grid</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.time_loop.DiagnosticTimeLoop.in_channel_names"><code class="docutils literal notranslate"><span class="pre">DiagnosticTimeLoop.in_channel_names</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.time_loop.DiagnosticTimeLoop.out_channel_names"><code class="docutils literal notranslate"><span class="pre">DiagnosticTimeLoop.out_channel_names</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-earth2mip.diagnostic.utils">earth2mip.diagnostic.utils module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.utils.filter_channels"><code class="docutils literal notranslate"><span class="pre">filter_channels()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-earth2mip.diagnostic.wind_speed">earth2mip.diagnostic.wind_speed module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.wind_speed.WindSpeed"><code class="docutils literal notranslate"><span class="pre">WindSpeed</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.wind_speed.WindSpeed.in_channel_names"><code class="docutils literal notranslate"><span class="pre">WindSpeed.in_channel_names</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.wind_speed.WindSpeed.in_grid"><code class="docutils literal notranslate"><span class="pre">WindSpeed.in_grid</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.wind_speed.WindSpeed.load_diagnostic"><code class="docutils literal notranslate"><span class="pre">WindSpeed.load_diagnostic()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.wind_speed.WindSpeed.out_channel_names"><code class="docutils literal notranslate"><span class="pre">WindSpeed.out_channel_names</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.diagnostic.wind_speed.WindSpeed.out_grid"><code class="docutils literal notranslate"><span class="pre">WindSpeed.out_grid</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-earth2mip.diagnostic">Module contents</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div class="tocsection sourcelink">
+    <a href="../_sources/modules/earth2mip.diagnostic.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright 2023, NVIDIA.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

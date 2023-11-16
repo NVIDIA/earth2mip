@@ -1,0 +1,12 @@
+[
+    {
+        "name": "latest",
+        "version": "latest",
+        "url": "https://nvidia.github.io/earth2mip/"
+    },
+    {
+        "name": "0.1.0 (alpha)",
+        "version": "0.1.0",
+        "url": "https://nvidia.github.io/earth2mip/v/0.1.0/"
+    }
+]

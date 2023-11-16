@@ -1,0 +1,759 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="../_static/favicon.ico" rel="icon" type="image/x-icon">
+    <title>Concepts &#8212; Earth-2 MIP 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
+
+    <script src="../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'userguide/concepts';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Diagnostics" href="diagnostic.html" />
+    <link rel="prev" title="Installation" href="install.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+
+  <div class="bd-header-announcement container-fluid bd-header-announcement">
+    <div class="bd-header-announcement__content">Earth-2 MIP is in Beta! Expect potential API instability!</div>
+  </div>
+
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/NVIDIA-Logo-V-ForScreen-ForLightBG.png" class="logo__image only-light" alt=""/>
+    <script>document.write(`<img src="../_static/NVIDIA-Logo-V-ForScreen-ForDarkBG.png" class="logo__image only-dark" alt=""/>`);</script>
+  
+  
+    <p class="title logo__title">Earth-2 MIP</p>
+  
+</a></div>
+    
+      <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button id="pst-version-switcher-button-2"
+      type="button"
+      class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-haspopup="listbox"
+      aria-controls="pst-version-switcher-list-2"
+      aria-label="Version switcher list"
+    >
+      Choose version  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div id="pst-version-switcher-list-2"
+      class="version-switcher__menu dropdown-menu list-group-flush py-0"
+      role="listbox" aria-labelledby="pst-version-switcher-button-2">
+      <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        User Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../community/index.html">
+                        Contributor Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../examples/index.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../modules/index.html">
+                        API
+                      </a>
+                    </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link nav-external" href="https://github.com/NVIDIA/earth2mip/blob/main/CHANGELOG.md">
+                    Changelog
+                  </a>
+                </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NVIDIA/earth2mip" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        User Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../community/index.html">
+                        Contributor Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../examples/index.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../modules/index.html">
+                        API
+                      </a>
+                    </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link nav-external" href="https://github.com/NVIDIA/earth2mip/blob/main/CHANGELOG.md">
+                    Changelog
+                  </a>
+                </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NVIDIA/earth2mip" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+
+
+</ul>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="diagnostic.html">Diagnostics</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="clis.html">Command Line Utilities</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="plugin.html">Bring your own model</a></li>
+
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User Guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">Concepts</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="concepts">
+<span id="id1"></span><h1>Concepts<a class="headerlink" href="#concepts" title="Link to this heading">#</a></h1>
+<p>Earth2 MIP has the following concepts:</p>
+<ul class="simple">
+<li><p>Layered abstractions for <a class="reference internal" href="#model-wrappers"><span class="std std-ref">wrapping machine learning models</span></a></p></li>
+<li><p><a class="reference internal" href="#data-source"><span class="std std-ref">Data Sources</span></a> for loading initial conditions and scoring against.</p></li>
+<li><p><span class="xref std std-ref">Python APIs</span> work with these abstractions to do things like scoring and ensemble inference.</p></li>
+<li><p><a class="reference internal" href="#model-package"><span class="std std-ref">Model packages</span></a> allow reproducible loading of checkpoints from disk or the cloud.  that work with these abstractions.</p></li>
+<li><p><a class="reference internal" href="clis.html#cli"><span class="std std-ref">Command line tools</span></a> that allow running scoring jobs in a parallel environment.</p></li>
+</ul>
+<section id="model-wrappers">
+<span id="id2"></span><h2>Model Wrappers<a class="headerlink" href="#model-wrappers" title="Link to this heading">#</a></h2>
+<p>The core model-related abstractions are</p>
+<ol class="arabic simple">
+<li><p>Machine learning Module (e.g. <code class="docutils literal notranslate"><span class="pre">torch.nn.Module</span></code>)</p></li>
+<li><p>Time loop (<a class="reference internal" href="../modules/index.html#earth2mip.time_loop.TimeLoop" title="earth2mip.time_loop.TimeLoop"><code class="xref py py-class docutils literal notranslate"><span class="pre">earth2mip.time_loop.TimeLoop</span></code></a>).</p></li>
+<li><p>Forecast (<a class="reference internal" href="../modules/index.html#earth2mip.forecasts.Forecast" title="earth2mip.forecasts.Forecast"><code class="xref py py-class docutils literal notranslate"><span class="pre">earth2mip.forecasts.Forecast</span></code></a>)</p></li>
+</ol>
+<p>Each of these presents increasingly minimal interface.</p>
+<p>We will demonstrate each of these interfaces for the persistence forecast.
+A persistence forecast is one that always returns the initial condition. It is a
+common baseline for a weather forecast.</p>
+<p>A design philosphy we follow is that model wrappers should take plain torch
+tensors as inputs and outputs and provide static metadata (e.g. grid, channel,
+time) about how those tensors map onto the planet.
+An alternative philosophy is to use some kind of metadata-aware container either
+custom-built or off-the-shelf like xarray.
+We avoid the latter approach since there is always a temptation to  implement all of
+mathematics on some container type or hide the arrays under several layers of containers.
+At the end of the day, most ML models ultimately take and receive a single multi
+dimesional array of data.
+Finally, ML
+developers are all familiar with basic array-like data types.
+We already need to wrap our models in a stack of abstractions to
+provide a common interface, so we don’t need to make the data more complex.</p>
+<section id="module">
+<h3>Module<a class="headerlink" href="#module" title="Link to this heading">#</a></h3>
+<p>At the root is a machine learning model with inputs/outputs that correspond to
+two-dimensional fields defined on the planet. These fields are reified as some
+array-like data structure, the names of the fields/channels, and grid object
+(<code class="xref py py-class docutils literal notranslate"><span class="pre">earth2mip.grid.LatLongGrid</span></code>). To use a Module, fcn-mip needs to be provided
+metadata about the Model’s inputs/outputs (see. <code class="xref py py-class docutils literal notranslate"><span class="pre">earth2mip.schema.Model</span></code>).</p>
+<p>Here as how to implement the persistence forecast as module:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch.nn</span>
+
+<span class="k">class</span> <span class="nc">PersistenceModule</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">x</span>
+</pre></div>
+</div>
+<p>This is a very simple, but has no metadata about the input or output, and from
+an outside perspective, can be difficult to use if <code class="docutils literal notranslate"><span class="pre">x</span></code> has more semantic
+meaning or requirements.</p>
+</section>
+<section id="time-loop">
+<h3>Time Loop<a class="headerlink" href="#time-loop" title="Link to this heading">#</a></h3>
+<p>A Time Loop is a higher level interface encapsulating the Module, but also
+timestepping logic, data preprocessing, and output.
+<a class="reference internal" href="../modules/index.html#earth2mip.time_loop.TimeLoop" title="earth2mip.time_loop.TimeLoop"><code class="xref py py-class docutils literal notranslate"><span class="pre">earth2mip.time_loop.TimeLoop</span></code></a> defines this interface, and
+<code class="xref py py-class docutils literal notranslate"><span class="pre">earth2mip.networks.Inference</span></code> is implements this interface and can
+turn a Module into a TimeLoop.</p>
+<p>Here is a TimeLoop of the persistence forecast:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">earth2mip.time_loop</span> <span class="kn">import</span> <span class="n">TimeLoop</span>
+<span class="kn">from</span> <span class="nn">earth2mip.schema</span> <span class="kn">import</span> <span class="n">Grid</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+
+<span class="k">class</span> <span class="nc">PeristenceTimeLoop</span><span class="p">(</span><span class="n">TimeLoop</span><span class="p">):</span>
+    <span class="n">time_step</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+    <span class="c1"># 1 history level = only the current time as input</span>
+    <span class="n">n_history_levels</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">in_channel_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">]</span>
+    <span class="n">out_channel_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">]</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">Grid</span><span class="o">.</span><span class="n">grid_721x1440</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">restart</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">b</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">==</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span>
+
+        <span class="k">assert</span> <span class="n">b</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="k">assert</span> <span class="n">h</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_history_levels</span>
+        <span class="k">assert</span> <span class="n">c</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">in_channel_names</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">shape</span>
+
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">time</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="n">time</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span>
+</pre></div>
+</div>
+<p>This encapsulates the time stepping, and exposes other needed metadata.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This time loop does not support restart capability.</p>
+</div>
+</section>
+</section>
+<section id="forecast">
+<h2>Forecast<a class="headerlink" href="#forecast" title="Link to this heading">#</a></h2>
+<p>Many scoring algorithms are most easily expressed as operations over 2D array of
+states that we call a Forecast Array. The rows of this array correspond to
+initial times, and the columns to lead times. The size of this array may be
+unbounded.
+For example, computing a lead time dependent metrics, such as RMSE
+corresponds to averaging the square difference of Forecast Arrays of
+observations and forecasts, and then averaging over the row dimension.
+This is defined by the <a class="reference internal" href="../modules/index.html#earth2mip.forecasts.Forecast" title="earth2mip.forecasts.Forecast"><code class="xref py py-class docutils literal notranslate"><span class="pre">earth2mip.forecasts.Forecast</span></code></a> interface.
+Compared to a TimeLoop, a Forecast encapsulates any time handling and initialization logic.
+One advantage is that an archive of forecasts on disk can be represented as a Forecast
+(see <a class="reference internal" href="../modules/index.html#earth2mip.forecasts.XarrayForecast" title="earth2mip.forecasts.XarrayForecast"><code class="xref py py-class docutils literal notranslate"><span class="pre">earth2mip.forecasts.XarrayForecast</span></code></a>).
+This allows using the same code to score both static and streaming forecasts.</p>
+<p>Finally, here is a <a class="reference internal" href="../modules/index.html#earth2mip.forecasts.Forecast" title="earth2mip.forecasts.Forecast"><code class="xref py py-class docutils literal notranslate"><span class="pre">earth2mip.forecasts.Forecast</span></code></a> implementation, for
+a persistence forecast beginning on Jan 1, 2018 and producing ICs every 12
+hours and sampling forecasts every 12 hours:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">earth2mip.forecasts</span> <span class="kn">import</span> <span class="n">Forecast</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+
+<span class="k">class</span> <span class="nc">PeristenceForecast</span><span class="p">(</span><span class="n">Forecast</span><span class="p">):</span>
+    <span class="c1"># only corresponds to out_channel_names</span>
+    <span class="n">channel_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_data</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_data</span> <span class="o">=</span> <span class="n">initial_data</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="n">initial_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2018</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">lead_dt</span> <span class="o">=</span> <span class="n">init_dt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+
+        <span class="n">time</span> <span class="o">=</span> <span class="n">initial_time</span> <span class="o">+</span> <span class="n">init_dt</span> <span class="o">*</span> <span class="n">i</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_data</span><span class="p">[</span><span class="n">time</span><span class="p">]</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">x</span>
+</pre></div>
+</div>
+<p>we can see that <code class="docutils literal notranslate"><span class="pre">PeristenceForecast</span></code> encapsulates the initialization, time and
+other logic.</p>
+</section>
+<section id="translating-between-model-wrappers">
+<h2>Translating between Model Wrappers<a class="headerlink" href="#translating-between-model-wrappers" title="Link to this heading">#</a></h2>
+<p>earth2mip provides implementations that translate between <a class="reference internal" href="#model-wrappers"><span class="std std-ref">Model Wrappers</span></a>.</p>
+<p>To create a TimeLoop from a Module, use
+<code class="xref py py-class docutils literal notranslate"><span class="pre">earth2mip.networks.Inference</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">earth2mip.networks</span> <span class="kn">import</span> <span class="n">Inference</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">PersistenceModule</span><span class="p">()</span>
+
+<span class="c1"># work around to not do any normalization</span>
+<span class="n">center</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">3</span><span class="p">])</span>
+<span class="n">scale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="mi">3</span><span class="p">])</span>
+<span class="n">time_loop</span> <span class="o">=</span> <span class="n">Inference</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span>
+    <span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span>
+    <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span>
+    <span class="n">grid</span><span class="o">=</span><span class="n">Grid</span><span class="o">.</span><span class="n">grid_721x1440</span><span class="p">,</span>
+    <span class="n">time_step</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">12</span><span class="p">),</span>
+    <span class="c1"># note n_history_levels == n_history + 1</span>
+    <span class="n">n_history</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">channel_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>To create a forecast from a TimeLoop, you can use
+<a class="reference internal" href="../modules/index.html#earth2mip.forecasts.TimeLoopForecast" title="earth2mip.forecasts.TimeLoopForecast"><code class="xref py py-class docutils literal notranslate"><span class="pre">earth2mip.forecasts.TimeLoopForecast</span></code></a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">earth2mip.forecasts</span> <span class="kn">import</span> <span class="n">TimeLoopForecast</span>
+
+<span class="n">forecast</span> <span class="o">=</span> <span class="n">TimeLoopForecast</span><span class="p">(</span>
+    <span class="n">time_loop</span><span class="p">,</span>
+    <span class="n">initial_data</span><span class="o">=</span><span class="p">{</span>
+        <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2018</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">721</span><span class="p">,</span> <span class="mi">1440</span><span class="p">])</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="data-source">
+<span id="id3"></span><h2>Data Source<a class="headerlink" href="#data-source" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.hdf5.DataSource" title="earth2mip.initial_conditions.hdf5.DataSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">earth2mip.initial_conditions.hdf5.DataSource</span></code></a></p>
+</section>
+<section id="model-package">
+<span id="id4"></span><h2>Model package<a class="headerlink" href="#model-package" title="Link to this heading">#</a></h2>
+<p>A model package is a directory containing a <code class="docutils literal notranslate"><span class="pre">metadata.json</span></code> file following
+<span class="xref std std-ref">this schema</span> and any other static data
+required to load the model.  The model package typically contains model
+parameters, normalization constants, etc.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="install.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Installation</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="diagnostic.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Diagnostics</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-wrappers">Model Wrappers</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#module">Module</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#time-loop">Time Loop</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#forecast">Forecast</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#translating-between-model-wrappers">Translating between Model Wrappers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#data-source">Data Source</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-package">Model package</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div class="tocsection sourcelink">
+    <a href="../_sources/userguide/concepts.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright 2023, NVIDIA.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
