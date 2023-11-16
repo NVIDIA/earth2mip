@@ -1,5 +1,0 @@
-# cat codecov.yml | curl --data-binary @- https://codecov.io/validate
-codecov:
-  ci:
-    - "!prod.blsm.nvidia.com"
-    - "!jenkins"
