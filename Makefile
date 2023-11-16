@@ -7,7 +7,7 @@ install:
 	apt-get install -y libeccodes-dev
 	pip install --upgrade pip
 	pip install -r requirements.txt
-	pip install .[graphcast]
+	pip install .[pangu,graphcast]
 
 setup-ci:
 	pip install .[dev]

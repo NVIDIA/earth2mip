@@ -30,7 +30,6 @@ dependencies = [
     "netCDF4>=1.6.4",
     "numpy",
     "nvidia-modulus >= 0.3.0",
-    "onnxruntime-gpu>=1.15.1",
     "pandas>=1.5.3",
     "properscoring>=0.1",
     "pydantic >= 1.10, <=1.10.11",
@@ -55,6 +54,9 @@ classifiers = [
 dynamic = ["version"]
 
 [project.optional-dependencies]
+pangu = [
+    "onnxruntime-gpu>=1.15.1",
+]
 graphcast = [
     "jax>=0.4.16",
     "graphcast @ https://github.com/deepmind/graphcast/archive/e622a15c1b9742d78f9b662f2af262604d58c204.tar.gz",

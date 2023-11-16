@@ -25,7 +25,6 @@ import pathlib
 
 import numpy as np
 import torch
-from modulus.models.fcn_mip_plugin import _fix_state_dict_keys
 
 import earth2mip.grid
 
@@ -110,6 +109,31 @@ CHANNELS = [
     "r925",
     "r1000",
 ]
+
+
+def _fix_state_dict_keys(state_dict, add_module=False):
+    """Add or remove 'module.' from state_dict keys
+
+    Parameters
+    ----------
+    state_dict : Dict
+        Model state_dict
+    add_module : bool, optional
+        If True, will add 'module.' to keys, by default False
+
+    Returns
+    -------
+    Dict
+        Model state_dict with fixed keys
+    """
+    fixed_state_dict = {}
+    for key, value in state_dict.items():
+        if add_module:
+            new_key = "module." + key
+        else:
+            new_key = key.replace("module.", "")
+        fixed_state_dict[new_key] = value
+    return fixed_state_dict
 
 
 def load(package, *, pretrained=True, device="cuda"):

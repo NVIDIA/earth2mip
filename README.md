@@ -141,6 +141,13 @@ table below.
 
 \* = coming soon
 
+Some models require additional dependencies not installed by default.
+To install all optional model dependencies use:
+
+```python
+pip install .[pangu,graphcast]
+```
+
 We want to integrate your model into the scoreboard to show the community!
 The best way to do this is via [NVIDIA Modulus](https://github.com/NVIDIA/modulus).
 You can contribute your model (both the training code as well as model checkpoint) and
