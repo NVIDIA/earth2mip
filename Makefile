@@ -42,6 +42,9 @@ report:
 	./codecov -v -f e2mip.coverage.xml $(COV_ARGS)
 
 docs:
+	pip install .[docs]
 	$(MAKE) -C docs html
 	open docs/_build/html/index.html
 .PHONY: docs
+# sphinx-apidoc -o docs/source/ earth2mip
+

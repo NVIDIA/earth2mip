@@ -15,9 +15,7 @@ __pycache__
 *.c
 *.pdf
 figs/
-_static/
 _templates/
-*.png
 *.mod
 baseline_afno_26.zarr/
 34Vars/long/
@@ -32,6 +30,7 @@ tests/Output.*
 
 *.mp4
 *.png
+*.ico
 # Created by https://www.toptal.com/developers/gitignore/api/python
 .tmp*
 # Edit at https://www.toptal.com/developers/gitignore?templates=python
