@@ -58,7 +58,6 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 html_theme = "pydata_sphinx_theme"
 html_static_path = ["_static"]
 html_theme_options = {
-    "html_title": "Earth-2 MIP Documentation",
     "announcement": "Earth-2 MIP is in Beta! Expect potential API instability!",
     "logo": {
         "text": "Earth-2 MIP",
@@ -67,9 +66,10 @@ html_theme_options = {
     },
     "navbar_align": "content",
     "navbar_start": ["navbar-logo", "version-switcher"],
-    # "switcher": {
-    #     "json_url": "https://mysite.org/en/latest/_static/switcher.json",
-    # },
+    "switcher": {
+        "json_url": "_static/switcher.json",
+        "version_match": "latest"
+    },
     "external_links": [
         {
             "name": "Changelog",
