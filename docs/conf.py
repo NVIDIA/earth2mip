@@ -31,7 +31,7 @@ sys.path.insert(0, modulus.as_posix())
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
-
+doc_version = os.getenv("DOC_VERSION", "latest") 
 version = ".".join(release.split(".")[:2])
 project = "Earth-2 MIP"
 copyright = "2023, NVIDIA"
@@ -66,10 +66,10 @@ html_theme_options = {
     },
     "navbar_align": "content",
     "navbar_start": ["navbar-logo", "version-switcher"],
-    # "switcher": {
-    #     "json_url": "_static/switcher.json",
-    #     "version_match": "latest"
-    # },
+    "switcher": {
+        "json_url": "_static/switcher.json",
+        "version_match": doc_version # Set DOC_VERSION env variable to change
+    },
     "external_links": [
         {
             "name": "Changelog",

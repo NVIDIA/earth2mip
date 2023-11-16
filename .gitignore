@@ -29,8 +29,6 @@ tests/Output.*
 *.egg-info
 
 *.mp4
-*.png
-*.ico
 # Created by https://www.toptal.com/developers/gitignore/api/python
 .tmp*
 # Edit at https://www.toptal.com/developers/gitignore?templates=python

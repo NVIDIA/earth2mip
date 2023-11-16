@@ -1,4 +1,4 @@
-# Earth-2 MIP (Alpha)
+# Earth-2 MIP (Beta)
 
 <!-- markdownlint-disable -->
 [![Project Status: Active - The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
@@ -34,11 +34,8 @@ git clone git@github.com:NVIDIA/earth2mip.git
 cd earth2mip && pip install .
 ```
 
-To verify installation run:
-
-```bash
-make pytest
-```
+See [installation documentation](https://nvidia.github.io/earth2mip/userguide/install.html)
+for more details and other options.
 
 ## Getting Started
 
