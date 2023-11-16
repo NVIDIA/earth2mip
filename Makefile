@@ -32,14 +32,14 @@ pytest:
 	coverage run -m pytest test/
 
 coverage:
-	coverage combine && \
+	coverage combine
 	coverage report
 
 report:
-	coverage xml && \
-	curl -Os https://uploader.codecov.io/latest/linux/codecov && \
-		chmod +x codecov && \
-		./codecov -f e2mip.coverage.xml -r NickGeneva/earth2mip
+	coverage xml
+	curl -Os https://uploader.codecov.io/latest/linux/codecov
+	chmod +x codecov
+	./codecov -f e2mip.coverage.xml -r NickGeneva/earth2mip
 
 docs:
 	$(MAKE) -C docs html
