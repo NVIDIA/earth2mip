@@ -43,7 +43,8 @@ report:
 
 docs:
 	pip install .[docs]
-	sphinx-apidoc -o docs/source/ earth2mip
 	$(MAKE) -C docs html
 	open docs/_build/html/index.html
 .PHONY: docs
+# sphinx-apidoc -o docs/source/ earth2mip
+

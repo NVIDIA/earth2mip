@@ -40,7 +40,11 @@ author = "NVIDIA"
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ["sphinx.ext.autodoc", "sphinx.ext.napoleon"]
+extensions = ["sphinx.ext.autodoc", 
+    'sphinx_autodoc_typehints', 
+    "sphinx.ext.napoleon",
+    "sphinx_favicon",
+    "myst_parser"]
 
 source_suffix = [".rst", ".md"]
 templates_path = ["_templates"]
@@ -51,3 +55,35 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 html_theme = "pydata_sphinx_theme"
 html_static_path = ["_static"]
+html_theme_options = {
+    "html_title": "Earth-2 MIP Documentation",
+    "announcement": "Earth-2 MIP is in Beta! Expect potential API instability!",
+    "logo": {
+        "text": "Earth-2 MIP",
+        "image_light": "_static/NVIDIA-Logo-V-ForScreen-ForLightBG.png",
+        "image_dark": "_static/NVIDIA-Logo-V-ForScreen-ForDarkBG.png",
+    },
+    "navbar_align": "content",
+    "navbar_start": ["navbar-logo", "version-switcher"],
+    # "switcher": {
+    #     "json_url": "https://mysite.org/en/latest/_static/switcher.json",
+    # },
+   "external_links": [
+      {"name": "Changelog", "url": "https://github.com/NVIDIA/earth2mip/blob/main/CHANGELOG.md"},
+    ],
+    "icon_links": [
+        {
+            # Label for this link
+            "name": "GitHub",
+            # URL where the link will redirect
+            "url": "https://github.com/NVIDIA/earth2mip",  # required
+            # Icon class (if "type": "fontawesome"), or path to local image (if "type": "local")
+            "icon": "fa-brands fa-square-github",
+            # The type of image to be used (see below for details)
+            "type": "fontawesome",
+        }
+   ],
+}
+favicons = ["favicon.ico"]
+
+# https://sphinx-gallery.github.io/stable/getting_started.html
