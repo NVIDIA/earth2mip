@@ -18,9 +18,14 @@
 #
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
+import os
 import pathlib
 import sys
 from importlib.metadata import version
+
+import dotenv
+
+dotenv.load_dotenv()
 
 root = pathlib.Path(__file__).parent
 modulus = root.parent / "third_party" / "modulus"
@@ -31,7 +36,7 @@ sys.path.insert(0, modulus.as_posix())
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
-doc_version = os.getenv("DOC_VERSION", "latest") 
+doc_version = os.getenv("DOC_VERSION", "main")
 version = ".".join(release.split(".")[:2])
 project = "Earth-2 MIP"
 copyright = "2023, NVIDIA"
@@ -67,8 +72,8 @@ html_theme_options = {
     "navbar_align": "content",
     "navbar_start": ["navbar-logo", "version-switcher"],
     "switcher": {
-        "json_url": "_static/switcher.json",
-        "version_match": doc_version # Set DOC_VERSION env variable to change
+        "json_url": "https://raw.githubusercontent.com/NVIDIA/earth2mip/gh-pages/_static/switcher.json",
+        "version_match": doc_version,  # Set DOC_VERSION env variable to change
     },
     "external_links": [
         {
