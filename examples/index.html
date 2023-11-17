@@ -28,7 +28,11 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=362ab14a" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=61a4c737" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
@@ -47,7 +51,7 @@
         </script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="API" href="../modules/index.html" />
+    <link rel="next" title="Running Ensemble Inference" href="01_ensemble_inference.html" />
     <link rel="prev" title="Contributor Guide" href="../community/index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -291,7 +295,7 @@ document.write(`
   <div class="bd-container">
     <div class="bd-container__inner bd-page-width">
       
-      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+      <div class="bd-sidebar-primary bd-sidebar">
         
 
   
@@ -383,6 +387,19 @@ document.write(`
     
   </div>
   
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="01_ensemble_inference.html">Running Ensemble Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02_model_comparison.html">Basic Inference with Multiple Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03_model_scoring.html">Scoring Models</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
   </div>
@@ -434,9 +451,34 @@ document.write(`
                   
   <section id="examples">
 <h1>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h1>
-<p>Under construction.
-Have a look under the <a class="reference external" href="https://github.com/NVIDIA/earth2mip/tree/main/examples">example directory</a>
-on Github.</p>
+<p>This is a collection of examples in Earth-2 MIP that demonstrate various functionality
+and commonly used workflows.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <a class="reference external" href="https://github.com/NVIDIA/earth2mip/tree/main/examples/notebooks">source files</a>
+can be ran like normal or python scripts or as Jupyter notebooks using
+<a class="reference external" href="https://jupytext.readthedocs.io/en/latest/">Jupytext</a>.</p>
+</div>
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="The following notebook demostrates how to use Earth-2 MIP&#x27;s config schema and builtin inference..."><img alt="" src="../_images/sphx_glr_01_ensemble_inference_thumb.png" />
+<p><a class="reference internal" href="01_ensemble_inference.html#sphx-glr-examples-01-ensemble-inference-py"><span class="std std-ref">Running Ensemble Inference</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Running Ensemble Inference</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="The following notebook demonstrates how to use Earth-2 MIP for running different AI weather mod..."><img alt="" src="../_images/sphx_glr_02_model_comparison_thumb.png" />
+<p><a class="reference internal" href="02_model_comparison.html#sphx-glr-examples-02-model-comparison-py"><span class="std std-ref">Basic Inference with Multiple Models</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Basic Inference with Multiple Models</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="The following notebook will demonstrate how to use Earth-2 MIP to perform a scoring workflow to..."><img alt="" src="../_images/sphx_glr_03_model_scoring_thumb.png" />
+<p><a class="reference internal" href="03_model_scoring.html#sphx-glr-examples-03-model-scoring-py"><span class="std std-ref">Scoring Models</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Scoring Models</div>
+</div></div><div class="toctree-wrapper compound">
+</div>
+<div class="sphx-glr-footer sphx-glr-footer-gallery docutils container">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/bc82bea3a5dd7bdba60b65220891d9e5/examples_python.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">all</span> <span class="pre">examples</span> <span class="pre">in</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">examples_python.zip</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/fb625db3c50d423b1b7881136ffdeec8/examples_jupyter.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">all</span> <span class="pre">examples</span> <span class="pre">in</span> <span class="pre">Jupyter</span> <span class="pre">notebooks:</span> <span class="pre">examples_jupyter.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
 </section>
 
 
@@ -459,11 +501,11 @@ on Github.</p>
       </div>
     </a>
     <a class="right-next"
-       href="../modules/index.html"
+       href="01_ensemble_inference.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">API</p>
+        <p class="prev-next-title">Running Ensemble Inference</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -478,7 +520,7 @@ on Github.</p>
 
   <div class="sidebar-secondary-item">
   <div class="tocsection sourcelink">
-    <a href="../_sources/examples/index.md.txt">
+    <a href="../_sources/examples/index.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>

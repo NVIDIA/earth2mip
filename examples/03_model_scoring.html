@@ -1,0 +1,768 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="../_static/favicon.ico" rel="icon" type="image/x-icon">
+    <title>Scoring Models &#8212; Earth-2 MIP 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=362ab14a" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=61a4c737" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
+
+    <script src="../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/03_model_scoring';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.14.3';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/NVIDIA/earth2mip/gh-pages/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'main';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner = false;
+        </script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="API" href="../modules/index.html" />
+    <link rel="prev" title="Basic Inference with Multiple Models" href="02_model_comparison.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+
+  <div class="bd-header-announcement container-fluid bd-header-announcement">
+    <div class="bd-header-announcement__content">Earth-2 MIP is in Beta! Expect potential API instability!</div>
+  </div>
+
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/NVIDIA-Logo-V-ForScreen-ForLightBG.png" class="logo__image only-light" alt=""/>
+    <script>document.write(`<img src="../_static/NVIDIA-Logo-V-ForScreen-ForDarkBG.png" class="logo__image only-dark" alt=""/>`);</script>
+  
+  
+    <p class="title logo__title">Earth-2 MIP</p>
+  
+</a></div>
+    
+      <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button id="pst-version-switcher-button-2"
+      type="button"
+      class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-haspopup="listbox"
+      aria-controls="pst-version-switcher-list-2"
+      aria-label="Version switcher list"
+    >
+      Choose version  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div id="pst-version-switcher-list-2"
+      class="version-switcher__menu dropdown-menu list-group-flush py-0"
+      role="listbox" aria-labelledby="pst-version-switcher-button-2">
+      <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../userguide/index.html">
+                        User Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../community/index.html">
+                        Contributor Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../modules/index.html">
+                        API
+                      </a>
+                    </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link nav-external" href="https://github.com/NVIDIA/earth2mip/blob/main/CHANGELOG.md">
+                    Changelog
+                  </a>
+                </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NVIDIA/earth2mip" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../userguide/index.html">
+                        User Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../community/index.html">
+                        Contributor Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../modules/index.html">
+                        API
+                      </a>
+                    </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link nav-external" href="https://github.com/NVIDIA/earth2mip/blob/main/CHANGELOG.md">
+                    Changelog
+                  </a>
+                </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NVIDIA/earth2mip" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="01_ensemble_inference.html">Running Ensemble Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02_model_comparison.html">Basic Inference with Multiple Models</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Scoring Models</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Examples</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">Scoring Models</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-examples-03-model-scoring-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code</p>
+</div>
+<section class="sphx-glr-example-title" id="scoring-models">
+<span id="sphx-glr-examples-03-model-scoring-py"></span><h1>Scoring Models<a class="headerlink" href="#scoring-models" title="Link to this heading">#</a></h1>
+<p>The following notebook will demonstrate how to use Earth-2 MIP to perform a scoring
+workflow to assess the accuracy of AI models using ERA5 reanalysis data as the
+ground truth. This can then be extended to score custom models placed into the model
+registry. This tutorial also covers details about using a HDF5 datasource, the expected
+format this data should be formatted and how to use H5 files for evaluating models over
+a year’s worth of data.</p>
+<p>In summary this notebook will cover the following topics:</p>
+<ul class="simple">
+<li><p>Implementing a basic scoring workflow in Earth-2 MIP</p></li>
+<li><p>HDF5 datasource and the expected data format of the H5 files</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">os</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">## Setting up HDF5 data</span>
+
+<span class="sd">The first step of scoring is handling the target data. One could simply use the</span>
+<span class="sd">CDSDatasource to download target data on the fly, but depending on how comprehensive</span>
+<span class="sd">the scoring is, this can prove quite slow.</span>
+<span class="sd">Additionally, many scoring pipelines require on-prem data.</span>
+<span class="sd">Thus, this will demonstrate how to use the HDF5 datasource.</span>
+
+<span class="sd">The HDF5 data source assumes that the data to be loaded is stored in the general form:</span>
+
+<span class="sd">year.h5</span>
+<span class="sd"> | - field (time, channels, grid)</span>
+
+<span class="sd">For AFNO which requires 34 channels with a time-step size of 6 hours, an H5 file will</span>
+<span class="sd">have the following form of data:</span>
+
+<span class="sd">2017.h5</span>
+<span class="sd"> | - field (1460, 34, 720, 1440)</span>
+<span class="sd">2016.h5</span>
+<span class="sd"> | - field (1464, 34, 720, 1440)</span>
+<span class="sd">2015.h5</span>
+<span class="sd"> | - field (1460, 34, 720, 1440)</span>
+
+<span class="sd">(Note the later two dims have some flexibility with regridding)</span>
+
+<span class="sd">One option to build these H5 files from scratch is to use the ERA5 mirror scripts</span>
+<span class="sd">provided in [Modulus](https://github.com/NVIDIA/modulus/tree/main/examples/weather/dataset_download).</span>
+<span class="sd">For the rest of this tutorial, it is assumed that 2017.h5 is present for the full year.</span>
+<span class="sd">&quot;&quot;&quot;</span>  <span class="c1"># noqa: E501</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;\n## Setting up HDF5 data\n\nThe first step of scoring is handling the target data. One could simply use the\nCDSDatasource to download target data on the fly, but depending on how comprehensive\nthe scoring is, this can prove quite slow.\nAdditionally, many scoring pipelines require on-prem data.\nThus, this will demonstrate how to use the HDF5 datasource.\n\nThe HDF5 data source assumes that the data to be loaded is stored in the general form:\n\nyear.h5\n | - field (time, channels, grid)\n\nFor AFNO which requires 34 channels with a time-step size of 6 hours, an H5 file will\nhave the following form of data:\n\n2017.h5\n | - field (1460, 34, 720, 1440)\n2016.h5\n | - field (1464, 34, 720, 1440)\n2015.h5\n | - field (1460, 34, 720, 1440)\n\n(Note the later two dims have some flexibility with regridding)\n\nOne option to build these H5 files from scratch is to use the ERA5 mirror scripts\nprovided in [Modulus](https://github.com/NVIDIA/modulus/tree/main/examples/weather/dataset_download).\nFor the rest of this tutorial, it is assumed that 2017.h5 is present for the full year.\n&#39;
+</pre></div>
+</div>
+<p>load an values in a .env file where you can specify your H5 root folder by
+adding a line like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">dotenv</span>
+
+    <span class="n">dotenv</span><span class="o">.</span><span class="n">load_dotenv</span><span class="p">()</span>
+<span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
+    <span class="k">pass</span>  <span class="c1"># pip install python-dotenv</span>
+
+<span class="c1"># can set this with the export ERA5_HDF5=/path/to/root/of/h5/files</span>
+<span class="n">h5_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;ERA5_HDF5&quot;</span><span class="p">,</span> <span class="s2">&quot;/mount/73vars&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">## Loading Models</span>
+
+<span class="sd">With the HDF5 datasource loaded the next step is to load our model we wish to score.</span>
+<span class="sd">In this tutorial we will be using the built in FourcastNet model.</span>
+<span class="sd">Take note of the `e2mip://` which will direct Earth-2 MIP to load a known model package.</span>
+<span class="sd">FourcastNet is selected here simply because its a 34 channel model which aligns with the</span>
+<span class="sd">H5 files described above.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;\n## Loading Models\n\nWith the HDF5 datasource loaded the next step is to load our model we wish to score.\nIn this tutorial we will be using the built in FourcastNet model.\nTake note of the `e2mip://` which will direct Earth-2 MIP to load a known model package.\nFourcastNet is selected here simply because its a 34 channel model which aligns with the\nH5 files described above.\n&#39;
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">modulus.distributed</span> <span class="kn">import</span> <span class="n">DistributedManager</span>
+
+<span class="kn">from</span> <span class="nn">earth2mip</span> <span class="kn">import</span> <span class="n">registry</span>
+<span class="kn">from</span> <span class="nn">earth2mip.networks</span> <span class="kn">import</span> <span class="n">dlwp</span>
+
+<span class="n">device</span> <span class="o">=</span> <span class="n">DistributedManager</span><span class="p">()</span><span class="o">.</span><span class="n">device</span>
+<span class="n">package</span> <span class="o">=</span> <span class="n">registry</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="s2">&quot;e2mip://dlwp&quot;</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">dlwp</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">## HDF5 Datasource</span>
+
+<span class="sd">With the H5 files properly formatted, a H5 datasource can now get defined.</span>
+<span class="sd">This requires two items: a root directory location of the H5 files as well as some</span>
+<span class="sd">metadata. Se</span>
+<span class="sd">The metadata is a JSON/dictionary object that helps Earth-2 MIP index the H5 file.</span>
+<span class="sd">Typically, this can be done by placing a `data.json` file next to the H5 files.</span>
+<span class="sd">See [this documentation](https://github.com/NVIDIA/earth2mip/blob/f44c580ccc3d98bf349fe97823bb1540e532c80d/earth2mip/initial_conditions/hdf5.py#L38)</span>
+<span class="sd">for more details on how to set up input data correctly.</span>
+<span class="sd">&quot;&quot;&quot;</span>  <span class="c1"># noqa</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;\n## HDF5 Datasource\n\nWith the H5 files properly formatted, a H5 datasource can now get defined.\nThis requires two items: a root directory location of the H5 files as well as some\nmetadata. Se\nThe metadata is a JSON/dictionary object that helps Earth-2 MIP index the H5 file.\nTypically, this can be done by placing a `data.json` file next to the H5 files.\nSee [this documentation](https://github.com/NVIDIA/earth2mip/blob/f44c580ccc3d98bf349fe97823bb1540e532c80d/earth2mip/initial_conditions/hdf5.py#L38)\nfor more details on how to set up input data correctly.\n&#39;
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">earth2mip.initial_conditions</span> <span class="kn">import</span> <span class="n">hdf5</span>
+
+<span class="n">datasource</span> <span class="o">=</span> <span class="n">hdf5</span><span class="o">.</span><span class="n">DataSource</span><span class="o">.</span><span class="n">from_path</span><span class="p">(</span>
+    <span class="n">root</span><span class="o">=</span><span class="n">h5_folder</span><span class="p">,</span> <span class="n">channel_names</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">channel_names</span>
+<span class="p">)</span>
+
+<span class="c1"># Test to see if our datasource is working</span>
+<span class="n">time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2017</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">18</span><span class="p">)</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">datasource</span><span class="p">[</span><span class="n">time</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>(7, 721, 1440)
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">## Running Scoring</span>
+
+<span class="sd">With the datasource and model loaded, scoring can now be performed.</span>
+<span class="sd">To score this we will run 10 day forecasts over the span of the entire year at 30 day</span>
+<span class="sd">intervals.</span>
+<span class="sd">For research, one would typically want this to be much more comprehensive so feel free</span>
+<span class="sd">to customize for you&#39;re use case.</span>
+
+<span class="sd">The `score_deterministic` API provides a simple way to calculate RMSE and ACC scores.</span>
+<span class="sd">ACC scores require climatology which is beyond the scope of this example, thus zero</span>
+<span class="sd">values will be provided and only the RMSE will be of concern.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&quot;\n## Running Scoring\n\nWith the datasource and model loaded, scoring can now be performed.\nTo score this we will run 10 day forecasts over the span of the entire year at 30 day\nintervals.\nFor research, one would typically want this to be much more comprehensive so feel free\nto customize for you&#39;re use case.\n\nThe `score_deterministic` API provides a simple way to calculate RMSE and ACC scores.\nACC scores require climatology which is beyond the scope of this example, thus zero\nvalues will be provided and only the RMSE will be of concern.\n&quot;
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">earth2mip.inference_medium_range</span> <span class="kn">import</span> <span class="n">save_scores</span><span class="p">,</span> <span class="n">time_average_metrics</span>
+
+<span class="n">time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2017</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">initial_times</span> <span class="o">=</span> <span class="p">[</span><span class="n">time</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">30</span> <span class="o">*</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">12</span><span class="p">)]</span>
+
+<span class="c1"># Output directoy</span>
+<span class="n">output_dir</span> <span class="o">=</span> <span class="s2">&quot;outputs/03_model_scoring&quot;</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">save_scores</span><span class="p">(</span>
+        <span class="n">model</span><span class="p">,</span>
+        <span class="n">n</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>  <span class="c1"># 12 hour timesteps</span>
+        <span class="n">initial_times</span><span class="o">=</span><span class="n">initial_times</span><span class="p">,</span>
+        <span class="n">data_source</span><span class="o">=</span><span class="n">datasource</span><span class="p">,</span>
+        <span class="n">time_mean</span><span class="o">=</span><span class="n">datasource</span><span class="o">.</span><span class="n">time_means</span><span class="p">,</span>
+        <span class="n">output_directory</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">## Post Processing</span>
+
+<span class="sd">The last step is any post processing / IO that is desired.</span>
+<span class="sd">Typically its recommended to save the output dataset to a netCDF file for further</span>
+<span class="sd">processing.</span>
+<span class="sd">Lets plot the RMSE of the z500 (geopotential at pressure level 500) field.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;\n## Post Processing\n\nThe last step is any post processing / IO that is desired.\nTypically its recommended to save the output dataset to a netCDF file for further\nprocessing.\nLets plot the RMSE of the z500 (geopotential at pressure level 500) field.\n&#39;
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">earth2mip.forecast_metrics_io</span> <span class="kn">import</span> <span class="n">read_metrics</span>
+
+<span class="n">series</span> <span class="o">=</span> <span class="n">read_metrics</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">time_average_metrics</span><span class="p">(</span><span class="n">series</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">t</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">lead_time</span> <span class="o">/</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="s2">&quot;1 h&quot;</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">rmse</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">channel</span><span class="o">=</span><span class="s2">&quot;z500&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Lead Time (hours)&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;RMSE&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;DLWP z500 RMSE 2017&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">/dwlp_z500_rmse.png&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_03_model_scoring_001.png" srcset="../_images/sphx_glr_03_model_scoring_001.png, ../_images/sphx_glr_03_model_scoring_001_2_00x.png 2.00x" alt="DLWP z500 RMSE 2017" class = "sphx-glr-single-img"/><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This completes this introductory notebook on basic scoring of models in Earth-2 MIP,</span>
+<span class="sd">which is founational for comparing the performance of different models.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;\nThis completes this introductory notebook on basic scoring of models in Earth-2 MIP,\nwhich is founational for comparing the performance of different models.\n&#39;
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (5 minutes 10.308 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-03-model-scoring-py">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/e7dd64fd5a97d2bb1384029a3e0c499a/03_model_scoring.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">03_model_scoring.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/eecc36fe4757f89c762af258b6ca201c/03_model_scoring.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">03_model_scoring.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="02_model_comparison.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Basic Inference with Multiple Models</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../modules/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">API</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="tocsection sourcelink">
+    <a href="../_sources/examples/03_model_scoring.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright 2023, NVIDIA.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

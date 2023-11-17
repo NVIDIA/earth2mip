@@ -1,0 +1,913 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="../_static/favicon.ico" rel="icon" type="image/x-icon">
+    <title>Basic Inference with Multiple Models &#8212; Earth-2 MIP 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=362ab14a" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=61a4c737" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
+
+    <script src="../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/02_model_comparison';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.14.3';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/NVIDIA/earth2mip/gh-pages/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'main';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner = false;
+        </script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Scoring Models" href="03_model_scoring.html" />
+    <link rel="prev" title="Running Ensemble Inference" href="01_ensemble_inference.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+
+  <div class="bd-header-announcement container-fluid bd-header-announcement">
+    <div class="bd-header-announcement__content">Earth-2 MIP is in Beta! Expect potential API instability!</div>
+  </div>
+
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/NVIDIA-Logo-V-ForScreen-ForLightBG.png" class="logo__image only-light" alt=""/>
+    <script>document.write(`<img src="../_static/NVIDIA-Logo-V-ForScreen-ForDarkBG.png" class="logo__image only-dark" alt=""/>`);</script>
+  
+  
+    <p class="title logo__title">Earth-2 MIP</p>
+  
+</a></div>
+    
+      <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button id="pst-version-switcher-button-2"
+      type="button"
+      class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-haspopup="listbox"
+      aria-controls="pst-version-switcher-list-2"
+      aria-label="Version switcher list"
+    >
+      Choose version  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div id="pst-version-switcher-list-2"
+      class="version-switcher__menu dropdown-menu list-group-flush py-0"
+      role="listbox" aria-labelledby="pst-version-switcher-button-2">
+      <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../userguide/index.html">
+                        User Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../community/index.html">
+                        Contributor Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../modules/index.html">
+                        API
+                      </a>
+                    </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link nav-external" href="https://github.com/NVIDIA/earth2mip/blob/main/CHANGELOG.md">
+                    Changelog
+                  </a>
+                </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NVIDIA/earth2mip" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../userguide/index.html">
+                        User Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../community/index.html">
+                        Contributor Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../modules/index.html">
+                        API
+                      </a>
+                    </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link nav-external" href="https://github.com/NVIDIA/earth2mip/blob/main/CHANGELOG.md">
+                    Changelog
+                  </a>
+                </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NVIDIA/earth2mip" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="01_ensemble_inference.html">Running Ensemble Inference</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Basic Inference with Multiple Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03_model_scoring.html">Scoring Models</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Examples</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">Basic...</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-examples-02-model-comparison-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code</p>
+</div>
+<section class="sphx-glr-example-title" id="basic-inference-with-multiple-models">
+<span id="sphx-glr-examples-02-model-comparison-py"></span><h1>Basic Inference with Multiple Models<a class="headerlink" href="#basic-inference-with-multiple-models" title="Link to this heading">#</a></h1>
+<p>The following notebook demonstrates how to use Earth-2 MIP for running different AI
+weather models and comparing their outputs. Specifically, this will compare the Pangu
+weather model and Deep Learning Weather Prediction (DLWP) mode with an intial state
+pulled from the Climate Data Store (CDS). This will also how how to interact with
+Earth-2 MIP using Python APIs for greater control over inference workflows.</p>
+<p>In summary this notebook will cover the following topics:</p>
+<ul class="simple">
+<li><p>Configuring and setting up Pangu Model Registry and DLWP Model Registry</p></li>
+<li><p>Setting up a basic deterministic inferencer for both models</p></li>
+<li><p>Running inference in a Python script</p></li>
+<li><p>Post processing results</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">## Set Up</span>
+
+<span class="sd">Starting off with imports, hopefully you have already installed Earth-2 MIP from this</span>
+<span class="sd">repository. See the previous notebook for information about configuring Earth-2 MIP, its</span>
+<span class="sd">assumed enviroment variables have already been properly set.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;\n## Set Up\n\nStarting off with imports, hopefully you have already installed Earth-2 MIP from this\nrepository. See the previous notebook for information about configuring Earth-2 MIP, its\nassumed enviroment variables have already been properly set.\n&#39;
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">xarray</span>
+
+<span class="kn">from</span> <span class="nn">earth2mip</span> <span class="kn">import</span> <span class="n">inference_ensemble</span><span class="p">,</span> <span class="n">registry</span>
+<span class="kn">from</span> <span class="nn">earth2mip.initial_conditions</span> <span class="kn">import</span> <span class="n">cds</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The cell above created a model registry folder for us, now we need to populate it with</span>
+<span class="sd">model packages.</span>
+<span class="sd">We will start with Pangu, which is a model that uses ONNX checkpoints.</span>
+<span class="sd">Since this is a built in model, we can use the `registry.get_model` function with the</span>
+<span class="sd">`e2mip://` prefix to auto download the checkpoints.</span>
+<span class="sd">Under the hood, this is fetching the ONNX checkpoints and creating a `metadata.json`</span>
+<span class="sd">file to help Earth-2 MIP know how to load the model into memory for inference.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;\nThe cell above created a model registry folder for us, now we need to populate it with\nmodel packages.\nWe will start with Pangu, which is a model that uses ONNX checkpoints.\nSince this is a built in model, we can use the `registry.get_model` function with the\n`e2mip://` prefix to auto download the checkpoints.\nUnder the hood, this is fetching the ONNX checkpoints and creating a `metadata.json`\nfile to help Earth-2 MIP know how to load the model into memory for inference.\n&#39;
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fetching Pangu model package...&quot;</span><span class="p">)</span>
+<span class="n">package</span> <span class="o">=</span> <span class="n">registry</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="s2">&quot;e2mip://pangu&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Fetching Pangu model package...
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Next DLWP model package will need to be downloaded. This model follows the standard</span>
+<span class="sd">proceedure most do in Earth-2 MIP, being served via Modulus and hosted on NGC model</span>
+<span class="sd">registry.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;\nNext DLWP model package will need to be downloaded. This model follows the standard\nproceedure most do in Earth-2 MIP, being served via Modulus and hosted on NGC model\nregistry.\n&#39;
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fetching DLWP model package...&quot;</span><span class="p">)</span>
+<span class="n">package</span> <span class="o">=</span> <span class="n">registry</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="s2">&quot;e2mip://dlwp&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Fetching DLWP model package...
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The final setup step is to set up your CDS API key so we can access ERA5 data to act as</span>
+<span class="sd">an initial state. Earth-2 MIP supports a number of different initial state data sources</span>
+<span class="sd">that are supported including HDF5, CDS, GFS, etc. The CDS initial state provides a</span>
+<span class="sd">convenient way to access a limited amount of historical weather data. Its recommended</span>
+<span class="sd">for accessing an initial state, but larger data requirements should use locally stored</span>
+<span class="sd">weather datasets.</span>
+
+<span class="sd">Enter your CDS API uid and key below (found under your profile page). If you don&#39;t a CDS API key, find out more here.</span>
+<span class="sd">- [https://cds.climate.copernicus.eu/cdsapp#!/home](https://cds.climate.copernicus.eu/cdsapp#!/home)</span>
+<span class="sd">- [https://cds.climate.copernicus.eu/api-how-to](https://cds.climate.copernicus.eu/api-how-to)</span>
+<span class="sd">&quot;&quot;&quot;</span>  <span class="c1"># noqa: E501</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&quot;\nThe final setup step is to set up your CDS API key so we can access ERA5 data to act as\nan initial state. Earth-2 MIP supports a number of different initial state data sources\nthat are supported including HDF5, CDS, GFS, etc. The CDS initial state provides a\nconvenient way to access a limited amount of historical weather data. Its recommended\nfor accessing an initial state, but larger data requirements should use locally stored\nweather datasets.\n\nEnter your CDS API uid and key below (found under your profile page). If you don&#39;t a CDS API key, find out more here.\n- [https://cds.climate.copernicus.eu/cdsapp#!/home](https://cds.climate.copernicus.eu/cdsapp#!/home)\n- [https://cds.climate.copernicus.eu/api-how-to](https://cds.climate.copernicus.eu/api-how-to)\n&quot;
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cds_api</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~&quot;</span><span class="p">),</span> <span class="s2">&quot;.cdsapirc&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">cds_api</span><span class="p">):</span>
+    <span class="n">uid</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Enter in CDS UID (e.g. 123456): &quot;</span><span class="p">)</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Enter your CDS API key (e.g. 12345678-1234-1234-1234-123456123456): &quot;</span><span class="p">)</span>
+    <span class="c1"># Write to config file for CDS library</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cds_api</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;url: https://cds.climate.copernicus.eu/api/v2</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;key: </span><span class="si">{</span><span class="n">uid</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">## Running Inference</span>
+
+<span class="sd">To run inference of these models we will use some of Earth-2 MIPs Python APIs to perform</span>
+<span class="sd">inference. The first step is to load the model from the model registry, which is done</span>
+<span class="sd">using the `registry.get_model` command. This will look in your `MODEL_REGISTRY` folder</span>
+<span class="sd">for the provided name and use this as a filesystem for loading necessary files.</span>
+
+<span class="sd">The model is then loaded into memory using the load function for that particular</span>
+<span class="sd">network. Earth-2 MIP has multiple abstracts that can allow this to be automated that can</span>
+<span class="sd">be used instead if desired.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;\n## Running Inference\n\nTo run inference of these models we will use some of Earth-2 MIPs Python APIs to perform\ninference. The first step is to load the model from the model registry, which is done\nusing the `registry.get_model` command. This will look in your `MODEL_REGISTRY` folder\nfor the provided name and use this as a filesystem for loading necessary files.\n\nThe model is then loaded into memory using the load function for that particular\nnetwork. Earth-2 MIP has multiple abstracts that can allow this to be automated that can\nbe used instead if desired.\n&#39;
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">earth2mip.networks.dlwp</span> <span class="k">as</span> <span class="nn">dlwp</span>
+<span class="kn">import</span> <span class="nn">earth2mip.networks.pangu</span> <span class="k">as</span> <span class="nn">pangu</span>
+
+<span class="c1"># Output directoy</span>
+<span class="n">output_dir</span> <span class="o">=</span> <span class="s2">&quot;outputs/02_model_comparison&quot;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Loading models into memory&quot;</span><span class="p">)</span>
+<span class="c1"># Load DLWP model from registry</span>
+<span class="n">package</span> <span class="o">=</span> <span class="n">registry</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="s2">&quot;dlwp&quot;</span><span class="p">)</span>
+<span class="n">dlwp_inference_model</span> <span class="o">=</span> <span class="n">dlwp</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">package</span><span class="p">)</span>
+
+<span class="c1"># Load Pangu model(s) from registry</span>
+<span class="n">package</span> <span class="o">=</span> <span class="n">registry</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="s2">&quot;pangu&quot;</span><span class="p">)</span>
+<span class="n">pangu_inference_model</span> <span class="o">=</span> <span class="n">pangu</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">package</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Loading models into memory
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Next we set up the initial state data source for January 1st, 2018 at 00:00:00 UTC.</span>
+<span class="sd">As previously mentioned, we will pull data on the fly from CDS (make sure you set up</span>
+<span class="sd">your API key above). Since DLWP and Pangu require different channels (and time steps),</span>
+<span class="sd">we will create two seperate data-sources for them.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;\nNext we set up the initial state data source for January 1st, 2018 at 00:00:00 UTC.\nAs previously mentioned, we will pull data on the fly from CDS (make sure you set up\nyour API key above). Since DLWP and Pangu require different channels (and time steps),\nwe will create two seperate data-sources for them.\n&#39;
+</pre></div>
+</div>
+<p>Initial state data/time</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2018</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># DLWP datasource</span>
+<span class="n">dlwp_data_source</span> <span class="o">=</span> <span class="n">cds</span><span class="o">.</span><span class="n">DataSource</span><span class="p">(</span><span class="n">dlwp_inference_model</span><span class="o">.</span><span class="n">in_channel_names</span><span class="p">)</span>
+
+<span class="c1"># Pangu datasource, this is much simplier since pangu only uses one timestep as an input</span>
+<span class="n">pangu_data_source</span> <span class="o">=</span> <span class="n">cds</span><span class="o">.</span><span class="n">DataSource</span><span class="p">(</span><span class="n">pangu_inference_model</span><span class="o">.</span><span class="n">in_channel_names</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">With the initial state downloaded for each and set up in an Xarray dataset, we can now</span>
+<span class="sd">run deterministic inference for both which can be achieved using the</span>
+<span class="sd">`inference_ensemble.run_basic_inference` method which will produce a Xarray</span>
+<span class="sd">[data array](https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html) to then</span>
+<span class="sd">work with.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;\nWith the initial state downloaded for each and set up in an Xarray dataset, we can now\nrun deterministic inference for both which can be achieved using the\n`inference_ensemble.run_basic_inference` method which will produce a Xarray\n[data array](https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html) to then\nwork with.\n&#39;
+</pre></div>
+</div>
+<p>Run Pangu inference</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Running Pangu inference&quot;</span><span class="p">)</span>
+<span class="n">pangu_ds</span> <span class="o">=</span> <span class="n">inference_ensemble</span><span class="o">.</span><span class="n">run_basic_inference</span><span class="p">(</span>
+    <span class="n">pangu_inference_model</span><span class="p">,</span>
+    <span class="n">n</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span>  <span class="c1"># Note we run 24 steps here because Pangu is at 6 hour dt</span>
+    <span class="n">data_source</span><span class="o">=</span><span class="n">pangu_data_source</span><span class="p">,</span>
+    <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">pangu_ds</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">/pangu_inference_out.nc&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pangu_ds</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Running Pangu inference
+/usr/local/lib/python3.10/dist-packages/torch/_tensor.py:779: UserWarning: non-inplace resize is deprecated
+  warnings.warn(&quot;non-inplace resize is deprecated&quot;)
+&lt;xarray.DataArray (time: 25, history: 1, channel: 69, lat: 721, lon: 1440)&gt;
+array([[[[[ 5.56605469e+02,  5.56605469e+02,  5.56605469e+02, ...,
+            5.56605469e+02,  5.56605469e+02,  5.56605469e+02],
+          [ 5.47730469e+02,  5.47730469e+02,  5.47605469e+02, ...,
+            5.47855469e+02,  5.47855469e+02,  5.47730469e+02],
+          [ 5.40480469e+02,  5.40480469e+02,  5.40355469e+02, ...,
+            5.40730469e+02,  5.40730469e+02,  5.40605469e+02],
+          ...,
+          [-2.66445312e+01, -2.63945312e+01, -2.61445312e+01, ...,
+           -2.75195312e+01, -2.72695312e+01, -2.68945312e+01],
+          [-4.10195312e+01, -4.10195312e+01, -4.08945312e+01, ...,
+           -4.13945312e+01, -4.12695312e+01, -4.11445312e+01],
+          [-5.53945312e+01, -5.53945312e+01, -5.53945312e+01, ...,
+           -5.53945312e+01, -5.53945312e+01, -5.53945312e+01]],
+
+         [[ 6.15247510e+03,  6.15247510e+03,  6.15247510e+03, ...,
+            6.15247510e+03,  6.15247510e+03,  6.15247510e+03],
+          [ 6.15760010e+03,  6.15747510e+03,  6.15747510e+03, ...,
+            6.15772510e+03,  6.15772510e+03,  6.15760010e+03],
+          [ 6.16510010e+03,  6.16497510e+03,  6.16497510e+03, ...,
+            6.16535010e+03,  6.16535010e+03,  6.16522510e+03],
+...
+           -3.90969062e+00, -3.88687396e+00, -3.91723132e+00],
+          [-4.05871582e+00, -4.05376387e+00, -4.04933739e+00, ...,
+           -3.98225904e+00, -4.02659798e+00, -4.12245512e+00],
+          [-4.54896688e+00, -4.52407360e+00, -4.02886295e+00, ...,
+           -3.92184854e+00, -3.32457376e+00, -2.68053746e+00]],
+
+         [[ 2.44334518e+02,  2.44445969e+02,  2.44506134e+02, ...,
+            2.44988007e+02,  2.45070129e+02,  2.45231873e+02],
+          [ 2.44424988e+02,  2.44513458e+02,  2.44611282e+02, ...,
+            2.45077072e+02,  2.45260849e+02,  2.45316345e+02],
+          [ 2.44446457e+02,  2.44452148e+02,  2.44509430e+02, ...,
+            2.44895187e+02,  2.45075500e+02,  2.45186691e+02],
+          ...,
+          [ 2.49152130e+02,  2.49186417e+02,  2.49045105e+02, ...,
+            2.49449615e+02,  2.49300751e+02,  2.49235306e+02],
+          [ 2.49158997e+02,  2.48953369e+02,  2.48914993e+02, ...,
+            2.49157471e+02,  2.49187057e+02,  2.49226120e+02],
+          [ 2.71244568e+02,  2.69395630e+02,  2.70507660e+02, ...,
+            2.68905914e+02,  2.70006470e+02,  2.71984467e+02]]]]],
+      dtype=float32)
+Coordinates:
+  * lat      (lat) float64 90.0 89.75 89.5 89.25 ... -89.25 -89.5 -89.75 -90.0
+  * lon      (lon) float64 0.0 0.25 0.5 0.75 1.0 ... 359.0 359.2 359.5 359.8
+  * channel  (channel) &lt;U5 &#39;z1000&#39; &#39;z925&#39; &#39;z850&#39; &#39;z700&#39; ... &#39;u10m&#39; &#39;v10m&#39; &#39;t2m&#39;
+  * time     (time) datetime64[ns] 2018-01-01 2018-01-01T06:00:00 ... 2018-01-07
+Dimensions without coordinates: history
+</pre></div>
+</div>
+<p>Run DLWP inference</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Running DLWP inference&quot;</span><span class="p">)</span>
+<span class="n">dlwp_ds</span> <span class="o">=</span> <span class="n">inference_ensemble</span><span class="o">.</span><span class="n">run_basic_inference</span><span class="p">(</span>
+    <span class="n">dlwp_inference_model</span><span class="p">,</span>
+    <span class="n">n</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>  <span class="c1"># Note we run 12 steps here because DLWP is at 12 hour dt</span>
+    <span class="n">data_source</span><span class="o">=</span><span class="n">dlwp_data_source</span><span class="p">,</span>
+    <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">dlwp_ds</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">/dlwp_inference_out.nc&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dlwp_ds</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Running DLWP inference
+&lt;xarray.DataArray (time: 13, history: 1, channel: 7, lat: 721, lon: 1440)&gt;
+array([[[[[ 2.50292755e+02,  2.50292755e+02,  2.50292755e+02, ...,
+            2.50292755e+02,  2.50292755e+02,  2.50292755e+02],
+          [ 2.50401154e+02,  2.50401154e+02,  2.50400177e+02, ...,
+            2.50401154e+02,  2.50401154e+02,  2.50401154e+02],
+          [ 2.50458771e+02,  2.50458771e+02,  2.50457794e+02, ...,
+            2.50458771e+02,  2.50458771e+02,  2.50458771e+02],
+          ...,
+          [ 2.59438263e+02,  2.59438263e+02,  2.59437286e+02, ...,
+            2.59440216e+02,  2.59439240e+02,  2.59439240e+02],
+          [ 2.59341583e+02,  2.59341583e+02,  2.59341583e+02, ...,
+            2.59340607e+02,  2.59340607e+02,  2.59341583e+02],
+          [ 2.59302521e+02,  2.59302521e+02,  2.59302521e+02, ...,
+            2.59302521e+02,  2.59302521e+02,  2.59302521e+02]],
+
+         [[ 5.56605469e+02,  5.56605469e+02,  5.56605469e+02, ...,
+            5.56605469e+02,  5.56605469e+02,  5.56605469e+02],
+          [ 5.47730469e+02,  5.47730469e+02,  5.47605469e+02, ...,
+            5.47855469e+02,  5.47855469e+02,  5.47730469e+02],
+          [ 5.40480469e+02,  5.40480469e+02,  5.40355469e+02, ...,
+            5.40730469e+02,  5.40730469e+02,  5.40605469e+02],
+...
+            1.69586182e+00,  1.69586182e+00,  1.69586182e+00],
+          [ 1.60866356e+00,  1.60866356e+00,  1.60866356e+00, ...,
+            1.69586182e+00,  1.69586182e+00,  1.69586182e+00],
+          [ 1.60866356e+00,  1.60866356e+00,  1.60866356e+00, ...,
+            1.69586182e+00,  1.69586182e+00,  1.69586182e+00]],
+
+         [[ 2.51353119e+02,  2.51353119e+02,  2.51353119e+02, ...,
+            2.47414581e+02,  2.47414581e+02,  2.47414581e+02],
+          [ 2.51353119e+02,  2.51353119e+02,  2.51353119e+02, ...,
+            2.47414581e+02,  2.47414581e+02,  2.47414581e+02],
+          [ 2.51353119e+02,  2.51353119e+02,  2.51353119e+02, ...,
+            2.47414581e+02,  2.47414581e+02,  2.47414581e+02],
+          ...,
+          [ 2.50724609e+02,  2.50724609e+02,  2.50724609e+02, ...,
+            2.51468842e+02,  2.51468842e+02,  2.51468842e+02],
+          [ 2.50724609e+02,  2.50724609e+02,  2.50724609e+02, ...,
+            2.51468842e+02,  2.51468842e+02,  2.51468842e+02],
+          [ 2.50724609e+02,  2.50724609e+02,  2.50724609e+02, ...,
+            2.51468842e+02,  2.51468842e+02,  2.51468842e+02]]]]],
+      dtype=float32)
+Coordinates:
+  * lat      (lat) float64 90.0 89.75 89.5 89.25 ... -89.25 -89.5 -89.75 -90.0
+  * lon      (lon) float64 0.0 0.25 0.5 0.75 1.0 ... 359.0 359.2 359.5 359.8
+  * channel  (channel) &lt;U5 &#39;t850&#39; &#39;z1000&#39; &#39;z700&#39; &#39;z500&#39; &#39;z300&#39; &#39;tcwv&#39; &#39;t2m&#39;
+  * time     (time) datetime64[ns] 2018-01-01 2018-01-01T12:00:00 ... 2018-01-07
+Dimensions without coordinates: history
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">## Post Processing</span>
+
+<span class="sd">With inference complete, now the fun part: post processing and analysis!</span>
+<span class="sd">Here we will just plot the z500 (geopotential at pressure level 500) contour time-series</span>
+<span class="sd">of both models.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;\n## Post Processing\n\nWith inference complete, now the fun part: post processing and analysis!\nHere we will just plot the z500 (geopotential at pressure level 500) contour time-series\nof both models.\n&#39;
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="c1"># Open dataset from saved NetCDFs</span>
+<span class="n">pangu_ds</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">open_dataarray</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">/pangu_inference_out.nc&quot;</span><span class="p">)</span>
+<span class="n">dlwp_ds</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">open_dataarray</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">/dlwp_inference_out.nc&quot;</span><span class="p">)</span>
+
+<span class="c1"># Get data-arrays at 12 hour steps</span>
+<span class="n">pangu_arr</span> <span class="o">=</span> <span class="n">pangu_ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">channel</span><span class="o">=</span><span class="s2">&quot;z500&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">[::</span><span class="mi">2</span><span class="p">]</span>
+<span class="n">dlwp_arr</span> <span class="o">=</span> <span class="n">dlwp_ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">channel</span><span class="o">=</span><span class="s2">&quot;z500&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+<span class="c1"># Plot</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">13</span> <span class="o">*</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">13</span><span class="p">):</span>
+    <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">dlwp_arr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">pangu_arr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">time</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">12</span> <span class="o">*</span> <span class="n">i</span><span class="p">))</span>
+
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;DLWP&quot;</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Pangu&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">&quot;z500 DLWP vs Pangu&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">/pangu_dlwp_z500.png&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_02_model_comparison_001.png" srcset="../_images/sphx_glr_02_model_comparison_001.png, ../_images/sphx_glr_02_model_comparison_001_2_00x.png 2.00x" alt="z500 DLWP vs Pangu, 2018-01-01 00:00:00, 2018-01-01 12:00:00, 2018-01-02 00:00:00, 2018-01-02 12:00:00, 2018-01-03 00:00:00, 2018-01-03 12:00:00, 2018-01-04 00:00:00, 2018-01-04 12:00:00, 2018-01-05 00:00:00, 2018-01-05 12:00:00, 2018-01-06 00:00:00, 2018-01-06 12:00:00, 2018-01-07 00:00:00" class = "sphx-glr-single-img"/><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">And that completes the second notebook detailing how to run deterministic inference of</span>
+<span class="sd">two models using Earth-2 MIP. In the next notebook, we will look at how to score a</span>
+<span class="sd">model compared against ERA5 re-analysis data.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;\nAnd that completes the second notebook detailing how to run deterministic inference of\ntwo models using Earth-2 MIP. In the next notebook, we will look at how to score a\nmodel compared against ERA5 re-analysis data.\n&#39;
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (1 minutes 41.865 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-02-model-comparison-py">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/5156c59ebbc4d7b2939e45adc563ab65/02_model_comparison.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">02_model_comparison.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/c1436aff1bb09a35926c7dc9bf763886/02_model_comparison.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">02_model_comparison.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="01_ensemble_inference.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Running Ensemble Inference</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="03_model_scoring.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Scoring Models</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="tocsection sourcelink">
+    <a href="../_sources/examples/02_model_comparison.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright 2023, NVIDIA.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
