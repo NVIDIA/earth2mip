@@ -123,7 +123,7 @@ datasource = hdf5.DataSource.from_path(
 # Test to see if our datasource is working
 time = datetime.datetime(2017, 5, 1, 18)
 out = datasource[time]
-
+print(out.shape)
 
 # %% [markdown]
 """
