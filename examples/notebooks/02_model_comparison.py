@@ -16,7 +16,8 @@
 
 # %% [markdown]
 """
-# Basic Inference with Different Models in Earth-2 MIP
+Basic Inference with Multiple Models
+=====================================
 
 The following notebook demonstrates how to use Earth-2 MIP for running different AI
 weather models and comparing their outputs. Specifically, this will compare the Pangu

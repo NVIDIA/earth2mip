@@ -17,7 +17,8 @@
 # flake8-in-file-ignores: noqa: E501
 # %% [markdown]
 """
-# Running Ensemble Inference in Earth-2 MIP
+Running Ensemble Inference
+==========================
 
 The following notebook demostrates how to use Earth-2 MIP's config schema and builtin
 inference workflows to perform ensemmble inference of the FourCastNetv2 small (FCNv2-sm)

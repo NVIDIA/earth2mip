@@ -24,6 +24,7 @@ import sys
 from importlib.metadata import version
 
 import dotenv
+from sphinx_gallery.sorting import ExplicitOrder, FileNameSortKey
 
 dotenv.load_dotenv()
 
@@ -37,6 +38,7 @@ sys.path.insert(0, modulus.as_posix())
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 doc_version = os.getenv("DOC_VERSION", "main")
+plot_gallery = os.getenv("PLOT_GALLERY", "False")
 version = ".".join(release.split(".")[:2])
 project = "Earth-2 MIP"
 copyright = "2023, NVIDIA"
@@ -51,6 +53,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx_favicon",
     "myst_parser",
+    "sphinx_gallery.gen_gallery",
 ]
 
 source_suffix = [".rst", ".md"]
@@ -97,3 +100,10 @@ html_theme_options = {
 favicons = ["favicon.ico"]
 
 # https://sphinx-gallery.github.io/stable/getting_started.html
+sphinx_gallery_conf = {
+    "examples_dirs": "../examples/notebooks",
+    "gallery_dirs": "examples",
+    "plot_gallery": plot_gallery,
+    "image_srcset": ["2x"],
+    "within_subsection_order": FileNameSortKey,
+}

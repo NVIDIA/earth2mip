@@ -16,7 +16,8 @@
 
 # %% [markdown]
 """
-# Scoring Models in Earth-2 MIP
+Scoring Models
+==============
 
 The following notebook will demonstrate how to use Earth-2 MIP to perform a scoring
 workflow to assess the accuracy of AI models using ERA5 reanalysis data as the
