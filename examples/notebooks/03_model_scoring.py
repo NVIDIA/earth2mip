@@ -185,7 +185,7 @@ y = dataset.rmse.sel(channel="z500")
 ax.plot(t, y)
 ax.set_xlabel("Lead Time (hours)")
 ax.set_ylabel("RMSE")
-ax.set_title("FourcastNet z500 RMSE 2017")
+ax.set_title("DLWP z500 RMSE 2017")
 plt.savefig(f"{output_dir}/dwlp_z500_rmse.png")
 
 
