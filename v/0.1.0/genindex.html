@@ -1,0 +1,1676 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Index &#8212; Earth-2 MIP 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
+  <script src="_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
+
+    <script src="_static/documentation_options.js?v=01f34227"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'genindex';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.14.3';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/NVIDIA/earth2mip/gh-pages/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.1.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner = false;
+        </script>
+    <link rel="index" title="Index" href="#" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+
+  <div class="bd-header-announcement container-fluid bd-header-announcement">
+    <div class="bd-header-announcement__content">Earth-2 MIP is in Beta! Expect potential API instability!</div>
+  </div>
+
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/NVIDIA-Logo-V-ForScreen-ForLightBG.png" class="logo__image only-light" alt=""/>
+    <script>document.write(`<img src="_static/NVIDIA-Logo-V-ForScreen-ForDarkBG.png" class="logo__image only-dark" alt=""/>`);</script>
+  
+  
+    <p class="title logo__title">Earth-2 MIP</p>
+  
+</a></div>
+    
+      <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button id="pst-version-switcher-button-2"
+      type="button"
+      class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-haspopup="listbox"
+      aria-controls="pst-version-switcher-list-2"
+      aria-label="Version switcher list"
+    >
+      Choose version  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div id="pst-version-switcher-list-2"
+      class="version-switcher__menu dropdown-menu list-group-flush py-0"
+      role="listbox" aria-labelledby="pst-version-switcher-button-2">
+      <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="userguide/index.html">
+                        User Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="community/index.html">
+                        Contributor Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="examples/index.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="modules/index.html">
+                        API
+                      </a>
+                    </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link nav-external" href="https://github.com/NVIDIA/earth2mip/blob/main/CHANGELOG.md">
+                    Changelog
+                  </a>
+                </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NVIDIA/earth2mip" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="userguide/index.html">
+                        User Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="community/index.html">
+                        Contributor Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="examples/index.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="modules/index.html">
+                        API
+                      </a>
+                    </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link nav-external" href="https://github.com/NVIDIA/earth2mip/blob/main/CHANGELOG.md">
+                    Changelog
+                  </a>
+                </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NVIDIA/earth2mip" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article"></div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+
+<h1 id="index">Index</h1>
+
+<div class="genindex-jumpbox">
+ <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#K"><strong>K</strong></a>
+ | <a href="#L"><strong>L</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
+ | <a href="#O"><strong>O</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#U"><strong>U</strong></a>
+ | <a href="#V"><strong>V</strong></a>
+ | <a href="#W"><strong>W</strong></a>
+ | <a href="#X"><strong>X</strong></a>
+ | <a href="#Y"><strong>Y</strong></a>
+ 
+</div>
+<h2 id="A">A</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/earth2mip.s2s.html#earth2mip.s2s.terciles.apply">apply() (in module earth2mip.s2s.terciles)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/index.html#earth2mip.geometry.bilinear">bilinear() (in module earth2mip.geometry)</a>
+</li>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.BNPReLU">BNPReLU (class in earth2mip.diagnostic.climate_net)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/index.html#earth2mip.ensemble_utils.brown_noise">brown_noise() (in module earth2mip.ensemble_utils)</a>
+</li>
+      <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.gfs.GFSChunk.byte_range">byte_range (earth2mip.initial_conditions.gfs.GFSChunk property)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.cds.DataSource.cache">cache (earth2mip.initial_conditions.cds.DataSource property)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.schema.InitialConditionSource.cds">cds (earth2mip.schema.InitialConditionSource attribute)</a>
+
+      <ul>
+        <li><a href="modules/index.html#earth2mip.weather_events.InitialConditionSource.cds">(earth2mip.weather_events.InitialConditionSource attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.CGNetModule">CGNetModule (class in earth2mip.diagnostic.climate_net)</a>
+</li>
+      <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.gfs.GFSChunk.channel_id">channel_id (earth2mip.initial_conditions.gfs.GFSChunk property)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.forecasts.Forecast.channel_names">channel_names (earth2mip.forecasts.Forecast property)</a>
+
+      <ul>
+        <li><a href="modules/index.html#earth2mip.forecasts.Persistence.channel_names">(earth2mip.forecasts.Persistence property)</a>
+</li>
+        <li><a href="modules/index.html#earth2mip.forecasts.TimeLoopForecast.channel_names">(earth2mip.forecasts.TimeLoopForecast property)</a>
+</li>
+        <li><a href="modules/index.html#earth2mip.forecasts.XarrayForecast.channel_names">(earth2mip.forecasts.XarrayForecast property)</a>
+</li>
+        <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.base.DataSource.channel_names">(earth2mip.initial_conditions.base.DataSource property)</a>
+</li>
+        <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.cds.DataSource.channel_names">(earth2mip.initial_conditions.cds.DataSource attribute)</a>
+</li>
+        <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.gfs.DataSource.channel_names">(earth2mip.initial_conditions.gfs.DataSource property)</a>
+</li>
+        <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.hdf5.DataSource.channel_names">(earth2mip.initial_conditions.hdf5.DataSource property)</a>
+</li>
+        <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.hrmip.HDFPlSl.channel_names">(earth2mip.initial_conditions.hrmip.HDFPlSl property)</a>
+</li>
+        <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.ifs.DataSource.channel_names">(earth2mip.initial_conditions.ifs.DataSource property)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/index.html#earth2mip.weather_events.Diagnostic.channels">channels (earth2mip.weather_events.Diagnostic attribute)</a>
+</li>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.ChannelWiseConv">ChannelWiseConv (class in earth2mip.diagnostic.climate_net)</a>
+</li>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.ChannelWiseDilatedConv">ChannelWiseDilatedConv (class in earth2mip.diagnostic.climate_net)</a>
+</li>
+      <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.cds.DataSource.client">client (earth2mip.initial_conditions.cds.DataSource attribute)</a>
+</li>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.ClimateNet">ClimateNet (class in earth2mip.diagnostic.climate_net)</a>
+</li>
+      <li><a href="modules/earth2mip.s2s.html#earth2mip.s2s.terciles.compute_edges">compute_edges() (in module earth2mip.s2s.terciles)</a>
+</li>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.ContextGuidedBlock">ContextGuidedBlock (class in earth2mip.diagnostic.climate_net)</a>
+</li>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.ContextGuidedBlock_Down">ContextGuidedBlock_Down (class in earth2mip.diagnostic.climate_net)</a>
+</li>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.Conv">Conv (class in earth2mip.diagnostic.climate_net)</a>
+</li>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.ConvBN">ConvBN (class in earth2mip.diagnostic.climate_net)</a>
+</li>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.ConvBNPReLU">ConvBNPReLU (class in earth2mip.diagnostic.climate_net)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.time.convert_to_datetime">convert_to_datetime() (in module earth2mip.time)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.ensemble_utils.GaussianRandomFieldS2.cuda">cuda() (earth2mip.ensemble_utils.GaussianRandomFieldS2 method)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.weather_events.CWBDomain">CWBDomain (class in earth2mip.weather_events)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.base.DataSource">DataSource (class in earth2mip.initial_conditions.base)</a>
+
+      <ul>
+        <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.cds.DataSource">(class in earth2mip.initial_conditions.cds)</a>
+</li>
+        <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.gfs.DataSource">(class in earth2mip.initial_conditions.gfs)</a>
+</li>
+        <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.hdf5.DataSource">(class in earth2mip.initial_conditions.hdf5)</a>
+</li>
+        <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.ifs.DataSource">(class in earth2mip.initial_conditions.ifs)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/index.html#earth2mip.time.datetime_to_timestamp">datetime_to_timestamp() (in module earth2mip.time)</a>
+</li>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.time_loop.DiagnosticTimeLoop.device">device (earth2mip.diagnostic.time_loop.DiagnosticTimeLoop property)</a>
+
+      <ul>
+        <li><a href="modules/index.html#earth2mip.time_loop.TimeLoop.device">(earth2mip.time_loop.TimeLoop attribute)</a>, <a href="modules/index.html#id0">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="modules/index.html#earth2mip.weather_events.Diagnostic">Diagnostic (class in earth2mip.weather_events)</a>
+</li>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.base.DiagnosticBase">DiagnosticBase (class in earth2mip.diagnostic.base)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.diagnostics.Diagnostics">Diagnostics (class in earth2mip.diagnostics)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/index.html#earth2mip.weather_events.CWBDomain.diagnostics">diagnostics (earth2mip.weather_events.CWBDomain attribute)</a>
+
+      <ul>
+        <li><a href="modules/index.html#earth2mip.weather_events.MultiPoint.diagnostics">(earth2mip.weather_events.MultiPoint attribute)</a>
+</li>
+        <li><a href="modules/index.html#earth2mip.weather_events.Window.diagnostics">(earth2mip.weather_events.Window attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.time_loop.DiagnosticTimeLoop">DiagnosticTimeLoop (class in earth2mip.diagnostic.time_loop)</a>
+</li>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.DilatedConv">DilatedConv (class in earth2mip.diagnostic.climate_net)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.model_registry.DLWPPackage">DLWPPackage() (in module earth2mip.model_registry)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.schema.WeatherEvent.domains">domains (earth2mip.schema.WeatherEvent attribute)</a>
+
+      <ul>
+        <li><a href="modules/index.html#earth2mip.weather_events.WeatherEvent.domains">(earth2mip.weather_events.WeatherEvent attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/earth2mip.lagged_ensembles.html#earth2mip.lagged_ensembles.core.done">done() (in module earth2mip.lagged_ensembles.core)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.filesystem.download_cached">download_cached() (in module earth2mip.filesystem)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.model_registry.download_ngc_package">download_ngc_package() (in module earth2mip.model_registry)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.time_loop.TimeLoop.dtype">dtype (earth2mip.time_loop.TimeLoop attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    earth2mip.datasets
+
+      <ul>
+        <li><a href="modules/earth2mip.datasets.html#module-earth2mip.datasets">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.datasets.era5
+
+      <ul>
+        <li><a href="modules/earth2mip.datasets.html#module-earth2mip.datasets.era5">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.datasets.hindcast
+
+      <ul>
+        <li><a href="modules/earth2mip.datasets.html#module-earth2mip.datasets.hindcast">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.datasets.zarr_directory
+
+      <ul>
+        <li><a href="modules/earth2mip.datasets.html#module-earth2mip.datasets.zarr_directory">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.diagnostic
+
+      <ul>
+        <li><a href="modules/earth2mip.diagnostic.html#module-earth2mip.diagnostic">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.diagnostic.base
+
+      <ul>
+        <li><a href="modules/earth2mip.diagnostic.html#module-earth2mip.diagnostic.base">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.diagnostic.climate_net
+
+      <ul>
+        <li><a href="modules/earth2mip.diagnostic.html#module-earth2mip.diagnostic.climate_net">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.diagnostic.precipitation_afno
+
+      <ul>
+        <li><a href="modules/earth2mip.diagnostic.html#module-earth2mip.diagnostic.precipitation_afno">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.diagnostic.time_loop
+
+      <ul>
+        <li><a href="modules/earth2mip.diagnostic.html#module-earth2mip.diagnostic.time_loop">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.diagnostic.utils
+
+      <ul>
+        <li><a href="modules/earth2mip.diagnostic.html#module-earth2mip.diagnostic.utils">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.diagnostic.wind_speed
+
+      <ul>
+        <li><a href="modules/earth2mip.diagnostic.html#module-earth2mip.diagnostic.wind_speed">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.diagnostics
+
+      <ul>
+        <li><a href="modules/index.html#module-earth2mip.diagnostics">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.ensemble_utils
+
+      <ul>
+        <li><a href="modules/index.html#module-earth2mip.ensemble_utils">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.filesystem
+
+      <ul>
+        <li><a href="modules/index.html#module-earth2mip.filesystem">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.forecast_metrics_io
+
+      <ul>
+        <li><a href="modules/index.html#module-earth2mip.forecast_metrics_io">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.forecasts
+
+      <ul>
+        <li><a href="modules/index.html#module-earth2mip.forecasts">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.geo_operator
+
+      <ul>
+        <li><a href="modules/index.html#module-earth2mip.geo_operator">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.geometry
+
+      <ul>
+        <li><a href="modules/index.html#module-earth2mip.geometry">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.grid
+
+      <ul>
+        <li><a href="modules/index.html#module-earth2mip.grid">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.initial_conditions
+
+      <ul>
+        <li><a href="modules/earth2mip.initial_conditions.html#module-earth2mip.initial_conditions">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.initial_conditions.base
+
+      <ul>
+        <li><a href="modules/earth2mip.initial_conditions.html#module-earth2mip.initial_conditions.base">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.initial_conditions.cds
+
+      <ul>
+        <li><a href="modules/earth2mip.initial_conditions.html#module-earth2mip.initial_conditions.cds">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.initial_conditions.gfs
+
+      <ul>
+        <li><a href="modules/earth2mip.initial_conditions.html#module-earth2mip.initial_conditions.gfs">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    earth2mip.initial_conditions.hdf5
+
+      <ul>
+        <li><a href="modules/earth2mip.initial_conditions.html#module-earth2mip.initial_conditions.hdf5">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.initial_conditions.hrmip
+
+      <ul>
+        <li><a href="modules/earth2mip.initial_conditions.html#module-earth2mip.initial_conditions.hrmip">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.initial_conditions.ifs
+
+      <ul>
+        <li><a href="modules/earth2mip.initial_conditions.html#module-earth2mip.initial_conditions.ifs">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.lagged_ensembles
+
+      <ul>
+        <li><a href="modules/earth2mip.lagged_ensembles.html#module-earth2mip.lagged_ensembles">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.lagged_ensembles.core
+
+      <ul>
+        <li><a href="modules/earth2mip.lagged_ensembles.html#module-earth2mip.lagged_ensembles.core">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.loaders
+
+      <ul>
+        <li><a href="modules/index.html#module-earth2mip.loaders">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.make_job
+
+      <ul>
+        <li><a href="modules/index.html#module-earth2mip.make_job">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.model_registry
+
+      <ul>
+        <li><a href="modules/index.html#module-earth2mip.model_registry">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.netcdf
+
+      <ul>
+        <li><a href="modules/index.html#module-earth2mip.netcdf">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.regrid
+
+      <ul>
+        <li><a href="modules/index.html#module-earth2mip.regrid">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.s2s
+
+      <ul>
+        <li><a href="modules/earth2mip.s2s.html#module-earth2mip.s2s">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.s2s.score
+
+      <ul>
+        <li><a href="modules/earth2mip.s2s.html#module-earth2mip.s2s.score">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.s2s.terciles
+
+      <ul>
+        <li><a href="modules/earth2mip.s2s.html#module-earth2mip.s2s.terciles">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.schema
+
+      <ul>
+        <li><a href="modules/index.html#module-earth2mip.schema">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.score_ensemble_outputs
+
+      <ul>
+        <li><a href="modules/index.html#module-earth2mip.score_ensemble_outputs">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.time
+
+      <ul>
+        <li><a href="modules/index.html#module-earth2mip.time">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.time_loop
+
+      <ul>
+        <li><a href="modules/index.html#module-earth2mip.time_loop">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.weather_events
+
+      <ul>
+        <li><a href="modules/index.html#module-earth2mip.weather_events">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.xarray
+
+      <ul>
+        <li><a href="modules/earth2mip.xarray.html#module-earth2mip.xarray">module</a>
+</li>
+      </ul></li>
+      <li>
+    earth2mip.xarray.metrics
+
+      <ul>
+        <li><a href="modules/earth2mip.xarray.html#module-earth2mip.xarray.metrics">module</a>
+</li>
+      </ul></li>
+      <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.gfs.GFSChunk.end_byte">end_byte (earth2mip.initial_conditions.gfs.GFSChunk attribute)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.grid.equiangular_lat_lon_grid">equiangular_lat_lon_grid() (in module earth2mip.grid)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.schema.InitialConditionSource.era5">era5 (earth2mip.schema.InitialConditionSource attribute)</a>
+
+      <ul>
+        <li><a href="modules/index.html#earth2mip.weather_events.InitialConditionSource.era5">(earth2mip.weather_events.InitialConditionSource attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/index.html#earth2mip.model_registry.FCNPackage">FCNPackage() (in module earth2mip.model_registry)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.model_registry.FCNv2Package">FCNv2Package() (in module earth2mip.model_registry)</a>
+</li>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.FGlo">FGlo (class in earth2mip.diagnostic.climate_net)</a>
+</li>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.utils.filter_channels">filter_channels() (in module earth2mip.diagnostic.utils)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.forecasts.Forecast">Forecast (class in earth2mip.forecasts)</a>
+</li>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.BNPReLU.forward">forward() (earth2mip.diagnostic.climate_net.BNPReLU method)</a>
+
+      <ul>
+        <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.CGNetModule.forward">(earth2mip.diagnostic.climate_net.CGNetModule method)</a>
+</li>
+        <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.ChannelWiseConv.forward">(earth2mip.diagnostic.climate_net.ChannelWiseConv method)</a>
+</li>
+        <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.ChannelWiseDilatedConv.forward">(earth2mip.diagnostic.climate_net.ChannelWiseDilatedConv method)</a>
+</li>
+        <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.ContextGuidedBlock.forward">(earth2mip.diagnostic.climate_net.ContextGuidedBlock method)</a>
+</li>
+        <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.ContextGuidedBlock_Down.forward">(earth2mip.diagnostic.climate_net.ContextGuidedBlock_Down method)</a>
+</li>
+        <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.Conv.forward">(earth2mip.diagnostic.climate_net.Conv method)</a>
+</li>
+        <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.ConvBN.forward">(earth2mip.diagnostic.climate_net.ConvBN method)</a>
+</li>
+        <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.ConvBNPReLU.forward">(earth2mip.diagnostic.climate_net.ConvBNPReLU method)</a>
+</li>
+        <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.DilatedConv.forward">(earth2mip.diagnostic.climate_net.DilatedConv method)</a>
+</li>
+        <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.FGlo.forward">(earth2mip.diagnostic.climate_net.FGlo method)</a>
+</li>
+        <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.InputInjection.forward">(earth2mip.diagnostic.climate_net.InputInjection method)</a>
+</li>
+        <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.Wrap.forward">(earth2mip.diagnostic.climate_net.Wrap method)</a>
+</li>
+        <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.precipitation_afno.PeriodicPad2d.forward">(earth2mip.diagnostic.precipitation_afno.PeriodicPad2d method)</a>
+</li>
+        <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.precipitation_afno.PrecipNet.forward">(earth2mip.diagnostic.precipitation_afno.PrecipNet method)</a>
+</li>
+        <li><a href="modules/index.html#earth2mip.ensemble_utils.GaussianRandomFieldS2.forward">(earth2mip.ensemble_utils.GaussianRandomFieldS2 method)</a>
+</li>
+        <li><a href="modules/index.html#earth2mip.regrid.Identity.forward">(earth2mip.regrid.Identity method)</a>
+</li>
+        <li><a href="modules/index.html#earth2mip.regrid.RegridLatLon.forward">(earth2mip.regrid.RegridLatLon method)</a>
+</li>
+        <li><a href="modules/index.html#earth2mip.regrid.TempestRegridder.forward">(earth2mip.regrid.TempestRegridder method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/index.html#earth2mip.grid.from_enum">from_enum() (in module earth2mip.grid)</a>
+</li>
+      <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.hdf5.DataSource.from_path">from_path() (earth2mip.initial_conditions.hdf5.DataSource class method)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.weather_events.Diagnostic.function">function (earth2mip.weather_events.Diagnostic attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/index.html#earth2mip.ensemble_utils.GaussianRandomFieldS2">GaussianRandomFieldS2 (class in earth2mip.ensemble_utils)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.ensemble_utils.generate_bred_vector">generate_bred_vector() (in module earth2mip.ensemble_utils)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.ensemble_utils.generate_noise_correlated">generate_noise_correlated() (in module earth2mip.ensemble_utils)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.ensemble_utils.generate_noise_grf">generate_noise_grf() (in module earth2mip.ensemble_utils)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.geo_operator.GeoOperator">GeoOperator (class in earth2mip.geo_operator)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.model_registry.Package.get">get() (earth2mip.model_registry.Package method)</a>
+
+      <ul>
+        <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.gfs.get">(in module earth2mip.initial_conditions.gfs)</a>
+</li>
+        <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.ifs.get">(in module earth2mip.initial_conditions.ifs)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/index.html#earth2mip.geometry.get_batch_size">get_batch_size() (in module earth2mip.geometry)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.geometry.get_bounds_window">get_bounds_window() (in module earth2mip.geometry)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.model_registry.ModelRegistry.get_builtin_model">get_builtin_model() (earth2mip.model_registry.ModelRegistry method)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.model_registry.ModelRegistry.get_center_path">get_center_path() (earth2mip.model_registry.ModelRegistry method)</a>
+</li>
+      <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.get_data_source">get_data_source() (in module earth2mip.initial_conditions)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.diagnostics.Diagnostics.get_dimensions">get_dimensions() (earth2mip.diagnostics.Diagnostics method)</a>
+
+      <ul>
+        <li><a href="modules/index.html#earth2mip.diagnostics.Raw.get_dimensions">(earth2mip.diagnostics.Raw method)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/index.html#earth2mip.diagnostics.Diagnostics.get_dtype">get_dtype() (earth2mip.diagnostics.Diagnostics method)</a>
+
+      <ul>
+        <li><a href="modules/index.html#earth2mip.diagnostics.Raw.get_dtype">(earth2mip.diagnostics.Raw method)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.gfs.get_gfs_chunks">get_gfs_chunks() (in module earth2mip.initial_conditions.gfs)</a>
+</li>
+      <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.gfs.get_gfs_grib_file">get_gfs_grib_file() (in module earth2mip.initial_conditions.gfs)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.model_registry.ModelRegistry.get_metadata">get_metadata() (earth2mip.model_registry.ModelRegistry method)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.model_registry.ModelRegistry.get_model">get_model() (earth2mip.model_registry.ModelRegistry method)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.model_registry.ModelRegistry.get_model_path">get_model_path() (earth2mip.model_registry.ModelRegistry method)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.model_registry.ModelRegistry.get_path">get_path() (earth2mip.model_registry.ModelRegistry method)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.regrid.get_regridder">get_regridder() (in module earth2mip.regrid)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/index.html#earth2mip.model_registry.ModelRegistry.get_scale_path">get_scale_path() (earth2mip.model_registry.ModelRegistry method)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.make_job.get_time">get_time() (in module earth2mip.make_job)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.make_job.get_time_s2s_calibration">get_time_s2s_calibration() (in module earth2mip.make_job)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.make_job.get_times_2018">get_times_2018() (in module earth2mip.make_job)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.make_job.get_times_s2s_test">get_times_s2s_test() (in module earth2mip.make_job)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.diagnostics.Diagnostics.get_variables">get_variables() (earth2mip.diagnostics.Diagnostics method)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.model_registry.ModelRegistry.get_weight_path">get_weight_path() (earth2mip.model_registry.ModelRegistry method)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.schema.InitialConditionSource.gfs">gfs (earth2mip.schema.InitialConditionSource attribute)</a>
+
+      <ul>
+        <li><a href="modules/index.html#earth2mip.weather_events.InitialConditionSource.gfs">(earth2mip.weather_events.InitialConditionSource attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.gfs.gfs_available">gfs_available() (in module earth2mip.initial_conditions.gfs)</a>
+</li>
+      <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.gfs.GFSChunk">GFSChunk (class in earth2mip.initial_conditions.gfs)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.filesystem.glob">glob() (in module earth2mip.filesystem)</a>
+</li>
+      <li><a href="modules/earth2mip.xarray.html#earth2mip.xarray.metrics.global_average">global_average() (in module earth2mip.xarray.metrics)</a>
+</li>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.time_loop.DiagnosticTimeLoop.grid">grid (earth2mip.diagnostic.time_loop.DiagnosticTimeLoop property)</a>
+
+      <ul>
+        <li><a href="modules/index.html#earth2mip.forecasts.Forecast.grid">(earth2mip.forecasts.Forecast property)</a>
+</li>
+        <li><a href="modules/index.html#earth2mip.forecasts.TimeLoopForecast.grid">(earth2mip.forecasts.TimeLoopForecast property)</a>
+</li>
+        <li><a href="modules/index.html#earth2mip.forecasts.XarrayForecast.grid">(earth2mip.forecasts.XarrayForecast property)</a>
+</li>
+        <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.base.DataSource.grid">(earth2mip.initial_conditions.base.DataSource attribute)</a>
+</li>
+        <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.cds.DataSource.grid">(earth2mip.initial_conditions.cds.DataSource property)</a>
+</li>
+        <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.gfs.DataSource.grid">(earth2mip.initial_conditions.gfs.DataSource property)</a>
+</li>
+        <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.hdf5.DataSource.grid">(earth2mip.initial_conditions.hdf5.DataSource property)</a>
+</li>
+        <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.hrmip.HDFPlSl.grid">(earth2mip.initial_conditions.hrmip.HDFPlSl property)</a>
+</li>
+        <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.ifs.DataSource.grid">(earth2mip.initial_conditions.ifs.DataSource property)</a>
+</li>
+        <li><a href="modules/index.html#earth2mip.time_loop.TimeLoop.grid">(earth2mip.time_loop.TimeLoop attribute)</a>, <a href="modules/index.html#id1">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.hrmip.HDFPlSl">HDFPlSl (class in earth2mip.initial_conditions.hrmip)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.time_loop.TimeLoop.history_time_step">history_time_step (earth2mip.time_loop.TimeLoop attribute)</a>, <a href="modules/index.html#id2">[1]</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/index.html#earth2mip.schema.InitialConditionSource.hrmip">hrmip (earth2mip.schema.InitialConditionSource attribute)</a>
+
+      <ul>
+        <li><a href="modules/index.html#earth2mip.weather_events.InitialConditionSource.hrmip">(earth2mip.weather_events.InitialConditionSource attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.cds.PressureLevelCode.id">id (earth2mip.initial_conditions.cds.PressureLevelCode attribute)</a>
+
+      <ul>
+        <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.cds.SingleLevelCode.id">(earth2mip.initial_conditions.cds.SingleLevelCode attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/index.html#earth2mip.regrid.Identity">Identity (class in earth2mip.regrid)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.schema.InitialConditionSource.ifs">ifs (earth2mip.schema.InitialConditionSource attribute)</a>
+
+      <ul>
+        <li><a href="modules/index.html#earth2mip.weather_events.InitialConditionSource.ifs">(earth2mip.weather_events.InitialConditionSource attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.ClimateNet.in_channel_names">in_channel_names (earth2mip.diagnostic.climate_net.ClimateNet property)</a>
+
+      <ul>
+        <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO.in_channel_names">(earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO property)</a>
+</li>
+        <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.time_loop.DiagnosticTimeLoop.in_channel_names">(earth2mip.diagnostic.time_loop.DiagnosticTimeLoop property)</a>
+</li>
+        <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.wind_speed.WindSpeed.in_channel_names">(earth2mip.diagnostic.wind_speed.WindSpeed property)</a>
+</li>
+        <li><a href="modules/index.html#earth2mip.geo_operator.GeoOperator.in_channel_names">(earth2mip.geo_operator.GeoOperator property)</a>
+</li>
+        <li><a href="modules/index.html#earth2mip.time_loop.TimeLoop.in_channel_names">(earth2mip.time_loop.TimeLoop attribute)</a>, <a href="modules/index.html#id3">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.ClimateNet.in_grid">in_grid (earth2mip.diagnostic.climate_net.ClimateNet property)</a>
+
+      <ul>
+        <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO.in_grid">(earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO property)</a>
+</li>
+        <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.wind_speed.WindSpeed.in_grid">(earth2mip.diagnostic.wind_speed.WindSpeed property)</a>
+</li>
+        <li><a href="modules/index.html#earth2mip.geo_operator.GeoOperator.in_grid">(earth2mip.geo_operator.GeoOperator property)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/index.html#earth2mip.weather_events.WeatherEventProperties.initial_condition_source">initial_condition_source (earth2mip.weather_events.WeatherEventProperties attribute)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.schema.InitialConditionSource">InitialConditionSource (class in earth2mip.schema)</a>
+
+      <ul>
+        <li><a href="modules/index.html#earth2mip.weather_events.InitialConditionSource">(class in earth2mip.weather_events)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/index.html#earth2mip.netcdf.initialize_netcdf">initialize_netcdf() (in module earth2mip.netcdf)</a>
+</li>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.InputInjection">InputInjection (class in earth2mip.diagnostic.climate_net)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="K">K</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.cds.keys_to_vals">keys_to_vals() (in module earth2mip.initial_conditions.cds)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/index.html#earth2mip.grid.LatLonGrid.lat">lat (earth2mip.grid.LatLonGrid attribute)</a>
+
+      <ul>
+        <li><a href="modules/index.html#earth2mip.weather_events.MultiPoint.lat">(earth2mip.weather_events.MultiPoint attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/index.html#earth2mip.weather_events.Window.lat_max">lat_max (earth2mip.weather_events.Window attribute)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.weather_events.Window.lat_min">lat_min (earth2mip.weather_events.Window attribute)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.grid.LatLonGrid">LatLonGrid (class in earth2mip.grid)</a>
+</li>
+      <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.cds.PressureLevelCode.level">level (earth2mip.initial_conditions.cds.PressureLevelCode attribute)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.weather_events.list_">list_() (in module earth2mip.weather_events)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.model_registry.ModelRegistry.list_models">list_models() (earth2mip.model_registry.ModelRegistry method)</a>
+</li>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.base.DiagnosticBase.load_config_type">load_config_type() (earth2mip.diagnostic.base.DiagnosticBase class method)</a>
+</li>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.base.DiagnosticBase.load_diagnostic">load_diagnostic() (earth2mip.diagnostic.base.DiagnosticBase class method)</a>
+
+      <ul>
+        <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.ClimateNet.load_diagnostic">(earth2mip.diagnostic.climate_net.ClimateNet class method)</a>
+</li>
+        <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO.load_diagnostic">(earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO class method)</a>
+</li>
+        <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.wind_speed.WindSpeed.load_diagnostic">(earth2mip.diagnostic.wind_speed.WindSpeed class method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.base.DiagnosticBase.load_package">load_package() (earth2mip.diagnostic.base.DiagnosticBase class method)</a>
+
+      <ul>
+        <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.ClimateNet.load_package">(earth2mip.diagnostic.climate_net.ClimateNet class method)</a>
+</li>
+        <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO.load_package">(earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO class method)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/index.html#earth2mip.loaders.LoaderProtocol">LoaderProtocol (class in earth2mip.loaders)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.grid.LatLonGrid.lon">lon (earth2mip.grid.LatLonGrid attribute)</a>
+
+      <ul>
+        <li><a href="modules/index.html#earth2mip.weather_events.MultiPoint.lon">(earth2mip.weather_events.MultiPoint attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/index.html#earth2mip.weather_events.Window.lon_max">lon_max (earth2mip.weather_events.Window attribute)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.weather_events.Window.lon_min">lon_min (earth2mip.weather_events.Window attribute)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.filesystem.ls">ls() (in module earth2mip.filesystem)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/index.html#earth2mip.make_job.main">main() (in module earth2mip.make_job)</a>
+
+      <ul>
+        <li><a href="modules/index.html#earth2mip.score_ensemble_outputs.main">(in module earth2mip.score_ensemble_outputs)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.gfs.GFSChunk.meta_data">meta_data (earth2mip.initial_conditions.gfs.GFSChunk attribute)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.model_registry.Package.metadata">metadata() (earth2mip.model_registry.Package method)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.model_registry.ModelRegistry">ModelRegistry (class in earth2mip.model_registry)</a>
+</li>
+      <li>
+    module
+
+      <ul>
+        <li><a href="modules/earth2mip.datasets.html#module-earth2mip.datasets">earth2mip.datasets</a>
+</li>
+        <li><a href="modules/earth2mip.datasets.html#module-earth2mip.datasets.era5">earth2mip.datasets.era5</a>
+</li>
+        <li><a href="modules/earth2mip.datasets.html#module-earth2mip.datasets.hindcast">earth2mip.datasets.hindcast</a>
+</li>
+        <li><a href="modules/earth2mip.datasets.html#module-earth2mip.datasets.zarr_directory">earth2mip.datasets.zarr_directory</a>
+</li>
+        <li><a href="modules/earth2mip.diagnostic.html#module-earth2mip.diagnostic">earth2mip.diagnostic</a>
+</li>
+        <li><a href="modules/earth2mip.diagnostic.html#module-earth2mip.diagnostic.base">earth2mip.diagnostic.base</a>
+</li>
+        <li><a href="modules/earth2mip.diagnostic.html#module-earth2mip.diagnostic.climate_net">earth2mip.diagnostic.climate_net</a>
+</li>
+        <li><a href="modules/earth2mip.diagnostic.html#module-earth2mip.diagnostic.precipitation_afno">earth2mip.diagnostic.precipitation_afno</a>
+</li>
+        <li><a href="modules/earth2mip.diagnostic.html#module-earth2mip.diagnostic.time_loop">earth2mip.diagnostic.time_loop</a>
+</li>
+        <li><a href="modules/earth2mip.diagnostic.html#module-earth2mip.diagnostic.utils">earth2mip.diagnostic.utils</a>
+</li>
+        <li><a href="modules/earth2mip.diagnostic.html#module-earth2mip.diagnostic.wind_speed">earth2mip.diagnostic.wind_speed</a>
+</li>
+        <li><a href="modules/index.html#module-earth2mip.diagnostics">earth2mip.diagnostics</a>
+</li>
+        <li><a href="modules/index.html#module-earth2mip.ensemble_utils">earth2mip.ensemble_utils</a>
+</li>
+        <li><a href="modules/index.html#module-earth2mip.filesystem">earth2mip.filesystem</a>
+</li>
+        <li><a href="modules/index.html#module-earth2mip.forecast_metrics_io">earth2mip.forecast_metrics_io</a>
+</li>
+        <li><a href="modules/index.html#module-earth2mip.forecasts">earth2mip.forecasts</a>
+</li>
+        <li><a href="modules/index.html#module-earth2mip.geo_operator">earth2mip.geo_operator</a>
+</li>
+        <li><a href="modules/index.html#module-earth2mip.geometry">earth2mip.geometry</a>
+</li>
+        <li><a href="modules/index.html#module-earth2mip.grid">earth2mip.grid</a>
+</li>
+        <li><a href="modules/earth2mip.initial_conditions.html#module-earth2mip.initial_conditions">earth2mip.initial_conditions</a>
+</li>
+        <li><a href="modules/earth2mip.initial_conditions.html#module-earth2mip.initial_conditions.base">earth2mip.initial_conditions.base</a>
+</li>
+        <li><a href="modules/earth2mip.initial_conditions.html#module-earth2mip.initial_conditions.cds">earth2mip.initial_conditions.cds</a>
+</li>
+        <li><a href="modules/earth2mip.initial_conditions.html#module-earth2mip.initial_conditions.gfs">earth2mip.initial_conditions.gfs</a>
+</li>
+        <li><a href="modules/earth2mip.initial_conditions.html#module-earth2mip.initial_conditions.hdf5">earth2mip.initial_conditions.hdf5</a>
+</li>
+        <li><a href="modules/earth2mip.initial_conditions.html#module-earth2mip.initial_conditions.hrmip">earth2mip.initial_conditions.hrmip</a>
+</li>
+        <li><a href="modules/earth2mip.initial_conditions.html#module-earth2mip.initial_conditions.ifs">earth2mip.initial_conditions.ifs</a>
+</li>
+        <li><a href="modules/earth2mip.lagged_ensembles.html#module-earth2mip.lagged_ensembles">earth2mip.lagged_ensembles</a>
+</li>
+        <li><a href="modules/earth2mip.lagged_ensembles.html#module-earth2mip.lagged_ensembles.core">earth2mip.lagged_ensembles.core</a>
+</li>
+        <li><a href="modules/index.html#module-earth2mip.loaders">earth2mip.loaders</a>
+</li>
+        <li><a href="modules/index.html#module-earth2mip.make_job">earth2mip.make_job</a>
+</li>
+        <li><a href="modules/index.html#module-earth2mip.model_registry">earth2mip.model_registry</a>
+</li>
+        <li><a href="modules/index.html#module-earth2mip.netcdf">earth2mip.netcdf</a>
+</li>
+        <li><a href="modules/index.html#module-earth2mip.regrid">earth2mip.regrid</a>
+</li>
+        <li><a href="modules/earth2mip.s2s.html#module-earth2mip.s2s">earth2mip.s2s</a>
+</li>
+        <li><a href="modules/earth2mip.s2s.html#module-earth2mip.s2s.score">earth2mip.s2s.score</a>
+</li>
+        <li><a href="modules/earth2mip.s2s.html#module-earth2mip.s2s.terciles">earth2mip.s2s.terciles</a>
+</li>
+        <li><a href="modules/index.html#module-earth2mip.schema">earth2mip.schema</a>
+</li>
+        <li><a href="modules/index.html#module-earth2mip.score_ensemble_outputs">earth2mip.score_ensemble_outputs</a>
+</li>
+        <li><a href="modules/index.html#module-earth2mip.time">earth2mip.time</a>
+</li>
+        <li><a href="modules/index.html#module-earth2mip.time_loop">earth2mip.time_loop</a>
+</li>
+        <li><a href="modules/index.html#module-earth2mip.weather_events">earth2mip.weather_events</a>
+</li>
+        <li><a href="modules/earth2mip.xarray.html#module-earth2mip.xarray">earth2mip.xarray</a>
+</li>
+        <li><a href="modules/earth2mip.xarray.html#module-earth2mip.xarray.metrics">earth2mip.xarray.metrics</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/index.html#earth2mip.weather_events.MultiPoint">MultiPoint (class in earth2mip.weather_events)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/index.html#earth2mip.time_loop.TimeLoop.n_history_levels">n_history_levels (earth2mip.time_loop.TimeLoop attribute)</a>, <a href="modules/index.html#id4">[1]</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.weather_events.CWBDomain.name">name (earth2mip.weather_events.CWBDomain attribute)</a>
+
+      <ul>
+        <li><a href="modules/index.html#earth2mip.weather_events.MultiPoint.name">(earth2mip.weather_events.MultiPoint attribute)</a>
+</li>
+        <li><a href="modules/index.html#earth2mip.weather_events.WeatherEventProperties.name">(earth2mip.weather_events.WeatherEventProperties attribute)</a>
+</li>
+        <li><a href="modules/index.html#earth2mip.weather_events.Window.name">(earth2mip.weather_events.Window attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/index.html#earth2mip.weather_events.Diagnostic.nbins">nbins (earth2mip.weather_events.Diagnostic attribute)</a>
+</li>
+      <li><a href="modules/earth2mip.datasets.html#earth2mip.datasets.zarr_directory.NestedDirectoryStore">NestedDirectoryStore (class in earth2mip.datasets.zarr_directory)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.weather_events.WeatherEventProperties.netcdf">netcdf (earth2mip.weather_events.WeatherEventProperties attribute)</a>, <a href="modules/index.html#id7">[1]</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.model_registry.NGCDiagnosticPackage">NGCDiagnosticPackage() (in module earth2mip.model_registry)</a>
+</li>
+      <li><a href="modules/earth2mip.lagged_ensembles.html#earth2mip.lagged_ensembles.core.num">num() (in module earth2mip.lagged_ensembles.core)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/index.html#earth2mip.filesystem.open">open() (in module earth2mip.filesystem)</a>
+</li>
+      <li><a href="modules/earth2mip.datasets.html#earth2mip.datasets.era5.open_34_vars">open_34_vars() (in module earth2mip.datasets.era5)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.score_ensemble_outputs.open_ensemble">open_ensemble() (in module earth2mip.score_ensemble_outputs)</a>
+</li>
+      <li><a href="modules/earth2mip.datasets.html#earth2mip.datasets.hindcast.open_forecast">open_forecast() (in module earth2mip.datasets.hindcast)</a>
+</li>
+      <li><a href="modules/earth2mip.datasets.html#earth2mip.datasets.era5.open_hdf5">open_hdf5() (in module earth2mip.datasets.era5)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.score_ensemble_outputs.open_verification">open_verification() (in module earth2mip.score_ensemble_outputs)</a>
+</li>
+      <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.hdf5.open_xarray">open_xarray() (in module earth2mip.initial_conditions.hdf5)</a>
+</li>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.ClimateNet.out_channel_names">out_channel_names (earth2mip.diagnostic.climate_net.ClimateNet property)</a>
+
+      <ul>
+        <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO.out_channel_names">(earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO property)</a>
+</li>
+        <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.time_loop.DiagnosticTimeLoop.out_channel_names">(earth2mip.diagnostic.time_loop.DiagnosticTimeLoop property)</a>
+</li>
+        <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.wind_speed.WindSpeed.out_channel_names">(earth2mip.diagnostic.wind_speed.WindSpeed property)</a>
+</li>
+        <li><a href="modules/index.html#earth2mip.geo_operator.GeoOperator.out_channel_names">(earth2mip.geo_operator.GeoOperator property)</a>
+</li>
+        <li><a href="modules/index.html#earth2mip.time_loop.TimeLoop.out_channel_names">(earth2mip.time_loop.TimeLoop attribute)</a>, <a href="modules/index.html#id5">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.ClimateNet.out_grid">out_grid (earth2mip.diagnostic.climate_net.ClimateNet property)</a>
+
+      <ul>
+        <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO.out_grid">(earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO property)</a>
+</li>
+        <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.wind_speed.WindSpeed.out_grid">(earth2mip.diagnostic.wind_speed.WindSpeed property)</a>
+</li>
+        <li><a href="modules/index.html#earth2mip.geo_operator.GeoOperator.out_grid">(earth2mip.geo_operator.GeoOperator property)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/index.html#earth2mip.model_registry.Package">Package (class in earth2mip.model_registry)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.model_registry.PanguPackage">PanguPackage() (in module earth2mip.model_registry)</a>
+</li>
+      <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.cds.parse_channel">parse_channel() (in module earth2mip.initial_conditions.cds)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.weather_events.CWBDomain.path">path (earth2mip.weather_events.CWBDomain attribute)</a>
+</li>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.precipitation_afno.PeriodicPad2d">PeriodicPad2d (class in earth2mip.diagnostic.precipitation_afno)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.forecasts.Persistence">Persistence (class in earth2mip.forecasts)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.filesystem.pipe">pipe() (in module earth2mip.filesystem)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/earth2mip.s2s.html#earth2mip.s2s.score.plot">plot() (in module earth2mip.s2s.score)</a>
+</li>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO">PrecipitationAFNO (class in earth2mip.diagnostic.precipitation_afno)</a>
+</li>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.precipitation_afno.PrecipNet">PrecipNet (class in earth2mip.diagnostic.precipitation_afno)</a>
+</li>
+      <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.cds.PressureLevelCode">PressureLevelCode (class in earth2mip.initial_conditions.cds)</a>
+</li>
+      <li><a href="modules/earth2mip.xarray.html#earth2mip.xarray.metrics.properscoring_with_cupy">properscoring_with_cupy() (in module earth2mip.xarray.metrics)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.schema.WeatherEvent.properties">properties (earth2mip.schema.WeatherEvent attribute)</a>
+
+      <ul>
+        <li><a href="modules/index.html#earth2mip.weather_events.WeatherEvent.properties">(earth2mip.weather_events.WeatherEvent attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/index.html#earth2mip.model_registry.ModelRegistry.put_metadata">put_metadata() (earth2mip.model_registry.ModelRegistry method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/index.html#earth2mip.diagnostics.Raw">Raw (class in earth2mip.diagnostics)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.weather_events.read">read() (in module earth2mip.weather_events)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.forecast_metrics_io.read_metrics">read_metrics() (in module earth2mip.forecast_metrics_io)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/index.html#earth2mip.score_ensemble_outputs.read_weather_event">read_weather_event() (in module earth2mip.score_ensemble_outputs)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.regrid.RegridLatLon">RegridLatLon (class in earth2mip.regrid)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.weather_events.WeatherEventProperties.restart">restart (earth2mip.weather_events.WeatherEventProperties attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/index.html#earth2mip.score_ensemble_outputs.save_dataset">save_dataset() (in module earth2mip.score_ensemble_outputs)</a>
+</li>
+      <li><a href="modules/earth2mip.s2s.html#earth2mip.s2s.score.score">score() (in module earth2mip.s2s.score)</a>
+</li>
+      <li><a href="modules/earth2mip.xarray.html#earth2mip.xarray.metrics.score_ensemble">score_ensemble() (in module earth2mip.xarray.metrics)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.geometry.select_space">select_space() (in module earth2mip.geometry)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/index.html#earth2mip.model_registry.ModelRegistry.SEPERATOR">SEPERATOR (earth2mip.model_registry.ModelRegistry attribute)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.grid.LatLonGrid.shape">shape (earth2mip.grid.LatLonGrid property)</a>
+</li>
+      <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.cds.SingleLevelCode">SingleLevelCode (class in earth2mip.initial_conditions.cds)</a>
+</li>
+      <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.gfs.GFSChunk.start_byte">start_byte (earth2mip.initial_conditions.gfs.GFSChunk attribute)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.weather_events.WeatherEventProperties.start_time">start_time (earth2mip.weather_events.WeatherEventProperties attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/index.html#earth2mip.regrid.TempestRegridder">TempestRegridder (class in earth2mip.regrid)</a>
+</li>
+      <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.cds.DataSource.time_means">time_means (earth2mip.initial_conditions.cds.DataSource property)</a>
+
+      <ul>
+        <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.hdf5.DataSource.time_means">(earth2mip.initial_conditions.hdf5.DataSource property)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/index.html#earth2mip.time_loop.TimeLoop.time_step">time_step (earth2mip.time_loop.TimeLoop attribute)</a>, <a href="modules/index.html#id6">[1]</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.time_loop.TimeLoop">TimeLoop (class in earth2mip.time_loop)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.forecasts.TimeLoopForecast">TimeLoopForecast (class in earth2mip.forecasts)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/index.html#earth2mip.ensemble_utils.GaussianRandomFieldS2.to">to() (earth2mip.ensemble_utils.GaussianRandomFieldS2 method)</a>
+
+      <ul>
+        <li><a href="modules/index.html#earth2mip.regrid.TempestRegridder.to">(earth2mip.regrid.TempestRegridder method)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/index.html#earth2mip.loaders.torchscript">torchscript() (in module earth2mip.loaders)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.weather_events.CWBDomain.type">type (earth2mip.weather_events.CWBDomain attribute)</a>
+
+      <ul>
+        <li><a href="modules/index.html#earth2mip.weather_events.Diagnostic.type">(earth2mip.weather_events.Diagnostic attribute)</a>
+</li>
+        <li><a href="modules/index.html#earth2mip.weather_events.MultiPoint.type">(earth2mip.weather_events.MultiPoint attribute)</a>
+</li>
+        <li><a href="modules/index.html#earth2mip.weather_events.Window.type">(earth2mip.weather_events.Window attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/index.html#earth2mip.diagnostics.Diagnostics.update">update() (earth2mip.diagnostics.Diagnostics method)</a>
+
+      <ul>
+        <li><a href="modules/index.html#earth2mip.diagnostics.Raw.update">(earth2mip.diagnostics.Raw method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/index.html#earth2mip.netcdf.update_netcdf">update_netcdf() (in module earth2mip.netcdf)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.gfs.GFSChunk.variable_name">variable_name (earth2mip.initial_conditions.gfs.GFSChunk attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/index.html#earth2mip.schema.WeatherEvent">WeatherEvent (class in earth2mip.schema)</a>
+
+      <ul>
+        <li><a href="modules/index.html#earth2mip.weather_events.WeatherEvent">(class in earth2mip.weather_events)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/index.html#earth2mip.weather_events.WeatherEventProperties">WeatherEventProperties (class in earth2mip.weather_events)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/index.html#earth2mip.weather_events.Window">Window (class in earth2mip.weather_events)</a>
+</li>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.wind_speed.WindSpeed">WindSpeed (class in earth2mip.diagnostic.wind_speed)</a>
+</li>
+      <li><a href="modules/earth2mip.diagnostic.html#earth2mip.diagnostic.climate_net.Wrap">Wrap (class in earth2mip.diagnostic.climate_net)</a>
+</li>
+      <li><a href="modules/index.html#earth2mip.forecast_metrics_io.write_metric">write_metric() (in module earth2mip.forecast_metrics_io)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="X">X</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/index.html#earth2mip.forecasts.XarrayForecast">XarrayForecast (class in earth2mip.forecasts)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Y">Y</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/earth2mip.lagged_ensembles.html#earth2mip.lagged_ensembles.core.yield_lagged_ensembles">yield_lagged_ensembles() (in module earth2mip.lagged_ensembles.core)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright 2023, NVIDIA.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
