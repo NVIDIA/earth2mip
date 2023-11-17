@@ -3,48 +3,55 @@
 # https://gitlab-master.nvidia.com/modulus/modulus-launch/-/blob/main/Makefile
 # ALL THESE TARGETS NEED to be here for blossom-ci
 
+.PHONY: install
 install:
 	apt-get install -y libeccodes-dev
 	pip install --upgrade pip
 	pip install -r requirements.txt
 	pip install .[pangu,graphcast]
 
+.PHONY: setup-ci
 setup-ci:
 	pip install .[dev]
 	pre-commit install
 
+.PHONY: format
 format:
 	pre-commit run black -a
 
+.PHONY: lint
 lint:
 	echo "TODO: add interrogate"
 	pre-commit run check-added-large-files -a
 	pre-commit run ruff -a
 
+.PHONY: license
 license:
 	python test/_license/header_check.py
 
+.PHONY: doctest
 doctest:
 	echo "TODO"
 	true
 
+.PHONY: pytest
 pytest:
 	coverage run -m pytest test/
 
+.PHONY: coverage
 coverage:
 	coverage combine
 	coverage report
 
+.PHONY: report
 report:
 	coverage xml
 	curl -Os https://uploader.codecov.io/latest/linux/codecov
 	chmod +x codecov
 	./codecov -v -f e2mip.coverage.xml $(COV_ARGS)
 
+.PHONY: docs
 docs:
 	pip install .[docs]
+	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
-	open docs/_build/html/index.html
-.PHONY: docs
-# sphinx-apidoc -o docs/source/ earth2mip
-
