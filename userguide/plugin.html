@@ -471,8 +471,8 @@ cross reference).  See (examples/pangu_24.py).</p>
 <p>However, sometimes it is more convenient to use the <a class="reference internal" href="clis.html#cli"><span class="std std-ref">CLIs</span></a>,
 especially when deploying in a cluster environment. Doing so requires creating a
 <a class="reference internal" href="concepts.html#model-package"><span class="std std-ref">Model package</span></a>. Under the hood, all the CLIs use
-<code class="xref py py-func docutils literal notranslate"><span class="pre">earth2mip.networks.get_model()</span></code>.</p>
-<p>One can modify the behavior of <code class="xref py py-func docutils literal notranslate"><span class="pre">earth2mip.networks.get_model()</span></code> by either:</p>
+<a class="reference internal" href="../modules/earth2mip.networks.html#earth2mip.networks.get_model" title="earth2mip.networks.get_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">earth2mip.networks.get_model()</span></code></a>.</p>
+<p>One can modify the behavior of <a class="reference internal" href="../modules/earth2mip.networks.html#earth2mip.networks.get_model" title="earth2mip.networks.get_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">earth2mip.networks.get_model()</span></code></a> by either:</p>
 <ol class="arabic simple">
 <li><p>specifying an <code class="docutils literal notranslate"><span class="pre">entrypoint</span></code> which returns TimeLoop.</p></li>
 <li><p>specifying an <code class="docutils literal notranslate"><span class="pre">archicture_entrypoint</span></code> which returns a <code class="docutils literal notranslate"><span class="pre">torch.nn.Module</span></code> that will be wrapped with <code class="xref py py-func docutils literal notranslate"><span class="pre">earth2mip.networks.Inference()</span></code></p></li>
