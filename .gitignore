@@ -24,13 +24,12 @@ outputs/
 examples/models/
 tmp/
 tests/Output.*
+*.png
 
 *.bak
 *.egg-info
 
 *.mp4
-*.png
-*.ico
 # Created by https://www.toptal.com/developers/gitignore/api/python
 .tmp*
 # Edit at https://www.toptal.com/developers/gitignore?templates=python
@@ -223,3 +222,9 @@ build-temp*/
 # Coverage report
 e2mip.coverage.xml
 codecov
+
+# Docs
+docs/_build
+docs/examples
+!docs/.env
+!docs/_static

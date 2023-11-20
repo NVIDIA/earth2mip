@@ -16,7 +16,8 @@
 
 # %% [markdown]
 """
-# Scoring Models in Earth-2 MIP
+Scoring Models
+==============
 
 The following notebook will demonstrate how to use Earth-2 MIP to perform a scoring
 workflow to assess the accuracy of AI models using ERA5 reanalysis data as the
@@ -122,7 +123,7 @@ datasource = hdf5.DataSource.from_path(
 # Test to see if our datasource is working
 time = datetime.datetime(2017, 5, 1, 18)
 out = datasource[time]
-
+print(out.shape)
 
 # %% [markdown]
 """
@@ -184,7 +185,7 @@ y = dataset.rmse.sel(channel="z500")
 ax.plot(t, y)
 ax.set_xlabel("Lead Time (hours)")
 ax.set_ylabel("RMSE")
-ax.set_title("FourcastNet z500 RMSE 2017")
+ax.set_title("DLWP z500 RMSE 2017")
 plt.savefig(f"{output_dir}/dwlp_z500_rmse.png")
 
 
