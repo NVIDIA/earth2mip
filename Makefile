@@ -55,3 +55,10 @@ docs:
 	pip install .[docs]
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
+
+.PHONY: docs-full
+docs-full:
+	pip install .[docs]
+	$(MAKE) -C docs clean
+	rm -rf examples/notebooks/outputs
+	PLOT_GALLERY=True RUN_STALE_EXAMPLES=True $(MAKE) -C docs html

@@ -152,8 +152,20 @@ committing your changes:
 
   ```
 
-
 ## Building Documentation
+
+There are two commands for building the docs:
+
+```bash
+# Build the core and API docs
+make docs
+
+# Build the core, API and example docs
+# This will require all examples to get executed and assumed the correct run env
+make docs-full
+```
+
+### Adding a New Docs Version
 
 To build a release version of docs the following steps need to be taken:
 
