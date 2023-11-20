@@ -37,3 +37,43 @@ repos:
     hooks:
     - id: ruff
       args: [--fix]
+
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.7.0  # Use the sha / tag you want to point at
+    hooks:
+    -   id: mypy
+        # TODO remove earth2mip excludes
+        exclude: |
+              (?x)^(examples|
+                test |
+                docs |
+                earth2mip/datasets |
+                earth2mip/diagnostic |
+                earth2mip/initial_conditions/* |
+                earth2mip/lagged_ensembles/* |
+                earth2mip/networks/* |
+                earth2mip/s2s |
+                earth2mip/xarray |
+                earth2mip/forecasts.py |
+                earth2mip/_cli_utils.py |
+                earth2mip/score_ensemble_outputs.py |
+                earth2mip/inference_medium_range.py |
+                earth2mip/inference_ensemble.py |
+                earth2mip/ensemble_utils.py |
+                earth2mip/time_collection.py |
+                earth2mip/diagnostics.py |
+                earth2mip/model_registry.py |
+                earth2mip/filesystem.py |
+                earth2mip/make_job.py |
+                earth2mip/netcdf.py |
+                earth2mip/geometry.py |
+                earth2mip/weather_events.py |
+                earth2mip/time.py |
+                earth2mip/regrid.py |
+                earth2mip/loaders.py |
+                earth2mip/grid.py |
+                earth2mip/weather_events.py |
+                earth2mip/schema.py |
+                earth2mip/_config.py |
+                conftest.py
+              )

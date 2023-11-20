@@ -24,6 +24,7 @@ lint:
 	echo "TODO: add interrogate"
 	pre-commit run check-added-large-files -a
 	pre-commit run ruff -a
+	pre-commit run mypy -a
 
 .PHONY: license
 license:

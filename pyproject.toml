@@ -99,6 +99,8 @@ version = {attr = "earth2mip.__version__"}
 [tool.setuptools.packages.find]
 include = ["earth2mip", "earth2mip.*"]
 
+
+# ==== RUFF configuration (flake8, bandit, isort) ====
 [tool.ruff]
 # Enable flake8/pycodestyle (`E`), Pyflakes (`F`), flake8-bandit (`S`),
 # isort (`I`), and performance 'PERF' rules.
@@ -136,7 +138,8 @@ markers = [
 ]
 asyncio_mode = "auto"
 
-# Coverage.py configuration (ran using pytest-cov)
+# ==== Coverage.py configuration (ran using pytest-cov) ====
+# See: https://coverage.readthedocs.io/en/latest/config.html
 [tool.coverage.run]
 branch = true
 concurrency = ["multiprocessing", "thread"]
@@ -164,3 +167,21 @@ fail_under = 20
 
 [tool.coverage.xml]
 output = "e2mip.coverage.xml"
+
+# ==== MyPy configuration ====
+# See: https://mypy.readthedocs.io/en/stable/config_file.html
+[tool.mypy]
+python_version = "3.10"
+packages = ['earth2mip']
+exclude = [
+    '^(examples|test|docs)'
+]
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+check_untyped_defs = true
+implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+follow_imports = 'skip' # TODO: Should eventually shut off
+
+
