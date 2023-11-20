@@ -17,7 +17,8 @@
 # flake8-in-file-ignores: noqa: E501
 # %% [markdown]
 """
-# Running Ensemble Inference in Earth-2 MIP
+Running Ensemble Inference
+==========================
 
 The following notebook demostrates how to use Earth-2 MIP's config schema and builtin
 inference workflows to perform ensemmble inference of the FourCastNetv2 small (FCNv2-sm)
@@ -34,12 +35,12 @@ In summary this notebook will cover the following topics:
 """
 
 # %% [markdown]
-"""
-## Set Up
 
-Starting off with imports, hopefully you have already installed Earth-2 MIP from this
-repository. There are a few additional packages needed.
-"""
+# ## Set Up
+
+# Starting off with imports, hopefully you have already installed Earth-2 MIP from this
+# repository. There are a few additional packages needed.
+
 
 # %%
 import json
@@ -47,31 +48,31 @@ import os
 
 import xarray
 
+print("hit")
+
 # %% [markdown]
-"""
-Prior to importing Earth-2 MIP, users need to be aware of a few enviroment variables
-which can be used to customize Earth-2 MIPs global behavior. These must be set prior to
-importing Earth-2 MIP. There are a number of different configuration options, some to
-consider are:
+# Prior to importing Earth-2 MIP, users need to be aware of a few enviroment variables
+# which can be used to customize Earth-2 MIPs global behavior. These must be set prior to
+# importing Earth-2 MIP. There are a number of different configuration options, some to
+# consider are:
 
-- `WORLD_SIZE`: Tells Earth-2 MIP (which uses Modulus under the hood) the number of GPUs
-    to use for inferencing.
-- `MODEL_REGISTRY`: This variable tells Earth-2 MIP where location the model registery.
-    By default this is located in `${HOME}/.cache/earth2mip/models`.
+# - `WORLD_SIZE`: Tells Earth-2 MIP (which uses Modulus under the hood) the number of GPUs
+#     to use for inferencing.
+# - `MODEL_REGISTRY`: This variable tells Earth-2 MIP where location the model registery.
+#     By default this is located in `${HOME}/.cache/earth2mip/models`.
 
-*Key Concept*: A model registry is a folder that Earth-2 MIP will explore to find model
-checkpoints to load. A folder containing the required fileds is referred to as a
-"model package". Model packages typically consist of a few files such as:
+# *Key Concept*: A model registry is a folder that Earth-2 MIP will explore to find model
+# checkpoints to load. A folder containing the required fileds is referred to as a
+# "model package". Model packages typically consist of a few files such as:
 
-- `weights.tar`/`weights.mdlus`: the model checkpoint to load
-- `metadata.json`: a JSON file that contains meta info regarding various details for
-    using the model
-- `config.json`: constains parameters needed to instantiate the model object in python
-- `global_means.npy`: A numpy array containing the mean values used for normalization of
-    data in the model
-- `global_std.npy`: A numpy array containing the standard deviation values used for
-    normalization of data in the model
-"""
+# - `weights.tar`/`weights.mdlus`: the model checkpoint to load
+# - `metadata.json`: a JSON file that contains meta info regarding various details for
+#     using the model
+# - `config.json`: constains parameters needed to instantiate the model object in python
+# - `global_means.npy`: A numpy array containing the mean values used for normalization of
+#     data in the model
+# - `global_std.npy`: A numpy array containing the standard deviation values used for
+#     normalization of data in the model
 
 # %%
 # For this example Set number of GPUs to use to 1
@@ -84,41 +85,38 @@ os.environ["WORLD_SIZE"] = "1"
 from earth2mip import inference_ensemble, registry
 
 # %% [markdown]
-"""
-The cell above created a model registry folder for us, but if this is your first
-notebook its likely empty. Lets fix that. As previously metioned we will be using the
-FCNv2-sm weather model with the checkpoint provided on the Nvidia Modulus model
-registry. The model is shipped via a zip folder containing the required checkpoint files
-discussed above.
+# The cell above created a model registry folder for us, but if this is your first
+# notebook its likely empty. Lets fix that. As previously metioned we will be using the
+# FCNv2-sm weather model with the checkpoint provided on the Nvidia Modulus model
+# registry. The model is shipped via a zip folder containing the required checkpoint files
+# discussed above.
 
-Since this model is built into Earth-2 MIP, the `registry.get_model` function can be
-used to auto-download and extract it (this can take a bit).
-The `e2mip://` prefix on the model URI, will point Earth-2 MIP to use the package
-fetch methods built into the model.
-Without it, Earth-2 MIP will simply look for a `fcnv2_sm` folder in your model registry
-and not attempt to download anything for you.
-Once complete, go look in your `MODEL_REGISTRY` folder and the files needed for FCNv2
-should now be present.
-"""
+# Since this model is built into Earth-2 MIP, the `registry.get_model` function can be
+# used to auto-download and extract it (this can take a bit).
+# The `e2mip://` prefix on the model URI, will point Earth-2 MIP to use the package
+# fetch methods built into the model.
+# Without it, Earth-2 MIP will simply look for a `fcnv2_sm` folder in your model registry
+# and not attempt to download anything for you.
+# Once complete, go look in your `MODEL_REGISTRY` folder and the files needed for FCNv2
+# should now be present.
 
 # %%
 print("Fetching model package...")
 package = registry.get_model("e2mip://fcnv2_sm")
 
 # %% [markdown]
-"""
-The final setup step is to set up your CDS API key so we can access ERA5 data to act as
-an initial state. Earth-2 MIP supports a number of different initial state data sources
-that are supported including HDF5, CDS, GFS, etc. The CDS initial state provides a
-convenient way to access a limited amount of historical weather data. Its recommended
-for accessing an initial state, but larger data requirements should use locally stored
-weather datasets.
+# The final setup step is to set up your CDS API key so we can access ERA5 data to act as
+# an initial state. Earth-2 MIP supports a number of different initial state data sources
+# that are supported including HDF5, CDS, GFS, etc. The CDS initial state provides a
+# convenient way to access a limited amount of historical weather data. Its recommended
+# for accessing an initial state, but larger data requirements should use locally stored
+# weather datasets.
 
-Enter your CDS API uid and key below (found under your profile page).
-If you don't a CDS API key, find out more here.
-- [https://cds.climate.copernicus.eu/cdsapp#!/home](https://cds.climate.copernicus.eu/cdsapp#!/home)
-- [https://cds.climate.copernicus.eu/api-how-to](https://cds.climate.copernicus.eu/api-how-to)
-"""  # noqa: E501
+# Enter your CDS API uid and key below (found under your profile page).
+# If you don't a CDS API key, find out more here.
+# - [https://cds.climate.copernicus.eu/cdsapp#!/home](https://cds.climate.copernicus.eu/cdsapp#!/home)
+# - [https://cds.climate.copernicus.eu/api-how-to](https://cds.climate.copernicus.eu/api-how-to)
+
 
 # %%
 cds_api = os.path.join(os.path.expanduser("~"), ".cdsapirc")
