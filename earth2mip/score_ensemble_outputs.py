@@ -14,17 +14,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional
-import os
 import argparse
-import xarray
+import logging
+import os
 import pathlib
+from typing import Optional
+
+import xarray
+import xskillscore
+
 import earth2mip.time
 from earth2mip import weather_events
 from earth2mip.initial_conditions import hdf5
-import xskillscore
-
-import logging
 
 logger = logging.getLogger(__file__)
 

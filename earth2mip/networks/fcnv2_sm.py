@@ -19,18 +19,18 @@ FCN v2 Small adapter
 
 This model is an outdated version of FCN v2 (SFNO), a more recent one is present in Modulus.
 """
-import logging
 import datetime
-import torch
+import logging
 import pathlib
-import numpy as np
 
-from earth2mip import networks
+import numpy as np
+import torch
+
 import earth2mip.grid
-from modulus.models.fcn_mip_plugin import _fix_state_dict_keys
 
 # TODO: Update to new arch in Modulus!
 import earth2mip.networks.fcnv2 as fcnv2
+from earth2mip import networks
 
 logger = logging.getLogger(__file__)
 
@@ -111,8 +111,33 @@ CHANNELS = [
 ]
 
 
+def _fix_state_dict_keys(state_dict, add_module=False):
+    """Add or remove 'module.' from state_dict keys
+
+    Parameters
+    ----------
+    state_dict : Dict
+        Model state_dict
+    add_module : bool, optional
+        If True, will add 'module.' to keys, by default False
+
+    Returns
+    -------
+    Dict
+        Model state_dict with fixed keys
+    """
+    fixed_state_dict = {}
+    for key, value in state_dict.items():
+        if add_module:
+            new_key = "module." + key
+        else:
+            new_key = key.replace("module.", "")
+        fixed_state_dict[new_key] = value
+    return fixed_state_dict
+
+
 def load(package, *, pretrained=True, device="cuda"):
-    assert pretrained
+    assert pretrained  # noqa
 
     config_path = pathlib.Path(__file__).parent / "fcnv2" / "sfnonet.yaml"
     params = fcnv2.YParams(config_path.as_posix(), "sfno_73ch")

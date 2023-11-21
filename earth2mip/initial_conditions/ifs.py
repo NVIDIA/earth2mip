@@ -16,14 +16,16 @@
 
 import dataclasses
 import datetime
-from typing import List
-from earth2mip.initial_conditions import base
-from modulus.utils import filesystem
-from earth2mip.datasets.era5 import METADATA
-import earth2mip.grid
 import json
-import xarray
+from typing import List
+
 import numpy as np
+import xarray
+from modulus.utils import filesystem
+
+import earth2mip.grid
+from earth2mip.datasets.era5 import METADATA
+from earth2mip.initial_conditions import base
 
 
 def _get_filename(time: datetime.datetime, lead_time: str):
@@ -117,5 +119,5 @@ class DataSource(base.DataSource):
         lon = np.array(metadata["coords"]["lon"])
         ds = ds.roll(lon=len(ds.lon) // 2, roll_coords=True)
         ds["lon"] = ds.lon.where(ds.lon >= 0, ds.lon + 360)
-        assert min(ds.lon) >= 0, min(ds.lon)
+        assert min(ds.lon) >= 0, min(ds.lon)  # noqa
         return ds.interp(lat=lat, lon=lon, kwargs={"fill_value": "extrapolate"})

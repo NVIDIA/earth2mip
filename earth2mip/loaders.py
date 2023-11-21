@@ -14,8 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import torch
 from typing import Protocol
+
+import torch
 
 
 class LoaderProtocol(Protocol):
@@ -37,8 +38,9 @@ def torchscript(package, pretrained=True):
     model = torch.jit.load(p)
 
     if config["add_zenith"]:
-        from earth2mip.networks import CosZenWrapper
         import numpy as np
+
+        from earth2mip.networks import CosZenWrapper
 
         lat = 90 - np.arange(721) * 0.25
         lon = np.arange(1440) * 0.25

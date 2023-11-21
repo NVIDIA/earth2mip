@@ -151,3 +151,46 @@ committing your changes:
     consistent with this project or the open source license(s) involved.
 
   ```
+
+## Building Documentation
+
+There are two commands for building the docs:
+
+```bash
+# Build the core and API docs
+make docs
+
+# Build the core, API and example docs
+# This will require all examples to get executed and assumed the correct run env
+make docs-full
+```
+
+### Adding a New Docs Version
+
+To build a release version of docs the following steps need to be taken:
+
+1. Update the `docs/_static/switcher.json` to include your new docs version under the main branch.
+For example, for release 1.0.0 one would add the following:
+
+```json
+{
+        "name": "1.0.0",
+        "version": "1.0.0",
+        "url": "https://nvidia.github.io/earth2mip/v/1.0.0/"
+}
+```
+
+2. Update the `docs/.env` documentation version variable to the respective version (it
+should match the version string you set in the JSON).
+3. Run `make docs`, this should build the html file. Verify the build looks okay. The
+version drop down won't appear the be updated because its not updated on Github.
+4. You now need to manually move the contents of `docs/_build/html` into the `gh-pages`
+branch of the repo under `v/<version number>`. You'll see other versions inside the `v`
+folder, create your own.
+5. Commit this change with the message `Documentation version <version number> upload`
+and push to the `gh-pages` branch.
+6. Back in `main` branch revert `docs/.env` and commit the updated `switcher.json` plus
+anything else.
+7. Open a PR for merging into main. Upon merge the CI will build for main branch and
+linking should then be set up for the new version.
+

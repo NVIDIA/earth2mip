@@ -14,11 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import json
 from enum import Enum
+from typing import List, Literal, Optional, Union
+
 from pydantic import BaseModel
-from typing import Literal, List, Union, Optional
-import datetime
 
 
 class InitialConditionSource(Enum):

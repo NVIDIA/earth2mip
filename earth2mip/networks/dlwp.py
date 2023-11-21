@@ -15,19 +15,21 @@
 # limitations under the License.
 
 import datetime
-
-import numpy as np
-import xarray
-import modulus
 import logging
-from earth2mip import networks
-import earth2mip.grid
-import torch
 
+import modulus
+import numpy as np
+import torch
+import xarray
 from modulus.utils.filesystem import Package
 from modulus.utils.zenith_angle import cos_zenith_angle
 
+import earth2mip.grid
+from earth2mip import networks
+
 logger = logging.getLogger(__file__)
+
+CHANNELS = ["t850", "z1000", "z700", "z500", "z300", "tcwv", "t2m"]
 
 # TODO: Added here explicitly for better access. This will be imported from:
 # modulus repo after this PR is merged: https://github.com/NVIDIA/modulus/pull/138
@@ -55,7 +57,7 @@ class _DLWPWrapper(torch.nn.Module):
 
     @property
     def channel_names():
-        return ["t850", "z1000", "z700", "z500", "z300", "tcwv", "t2m"]
+        return CHANNELS
 
     def prepare_input(self, input, time):
         device = input.device
@@ -136,7 +138,7 @@ class _DLWPWrapper(torch.nn.Module):
 
 
 def load(package: Package, *, pretrained=True, device="cuda"):
-    assert pretrained
+    assert pretrained  # noqa
 
     # load static datasets
     lsm = xarray.open_dataset(package.get("land_sea_mask_rs_cs.nc"))["lsm"].values

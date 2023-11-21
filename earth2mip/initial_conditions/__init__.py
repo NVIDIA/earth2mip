@@ -14,13 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List
-from earth2mip import config
 import datetime
-from earth2mip import schema, regrid, time_loop
-from earth2mip.initial_conditions import ifs, cds, gfs, hrmip, base, hdf5
+from typing import List
+
 import numpy as np
 import torch
+
+from earth2mip import config, regrid, schema, time_loop
+from earth2mip.initial_conditions import base, cds, gfs, hdf5, hrmip, ifs
 
 __all__ = ["get_data_source", "cds", "ifs", "gfs", "hrmip", "hdf5"]
 

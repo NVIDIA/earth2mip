@@ -17,14 +17,13 @@
 import datetime
 import json
 import logging
-import shutil
 import os
+import shutil
 
-import typer
-from modulus.distributed.manager import DistributedManager
 import torch.distributed
-
+import typer
 from distributed import Client
+from modulus.distributed.manager import DistributedManager
 
 from earth2mip import inference_ensemble, networks, score_ensemble_outputs
 from earth2mip.schema import EnsembleRun
@@ -65,7 +64,7 @@ def main(
         shard: index of the shard
         n_shards: split the input times into this many shards
     """
-    assert shard < n_shards
+    assert shard < n_shards  # noqa
 
     time = datetime.datetime(1, 1, 1)
 
@@ -74,8 +73,8 @@ def main(
         config = json.load(f)
 
     DistributedManager.initialize()
-    model = networks.get_model(config["model"])
     dist = DistributedManager()
+    model = networks.get_model(config["model"], device=dist.device)
 
     protocol = config["protocol"]
     lines = protocol["times"][shard::n_shards]

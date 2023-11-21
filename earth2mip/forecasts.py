@@ -21,24 +21,32 @@ because a forecast evolves forward in time, and we do not store the whole
 forecast necessarily, algorithms in fcn-mip should access ``n_lead_times`` in
 sequential order. This is the purpose of the abstractions here.
 """
-from typing import Sequence, Any, Protocol, Iterator, List
+import asyncio
 import datetime
+import logging
+from typing import Any, Iterator, List, Protocol, Sequence
+
 import torch
 import xarray
-import logging
-import numpy
+
+import earth2mip.grid
+import earth2mip.initial_conditions
 from earth2mip import time_loop
-
-import asyncio
-
 
 logger = logging.getLogger(__name__)
 
 
 class Forecast(Protocol):
-    channel_names: List[str]
+    @property
+    def channel_names(self) -> List[str]:
+        pass
+
+    @property
+    def grid(self) -> earth2mip.grid.LatLonGrid:
+        pass
 
     def __getitem__(self, i: int) -> Iterator[torch.Tensor]:
+        """Shape of returned tensor is (1, n_channels, n_lat, n_lon)"""
         pass
 
 
@@ -62,17 +70,16 @@ class Persistence:
             yield x
 
 
-class TimeLoopForecast:
+class TimeLoopForecast(Forecast):
     """Wrap an fcn-mip TimeLoop object as a forecast"""
 
     def __init__(
         self,
         time_loop: time_loop.TimeLoop,
         times: Sequence[datetime.datetime],
-        observations: Any,
+        data_source: earth2mip.initial_conditions.base.DataSource,
     ):
-        assert len(times) == len(observations)
-        self.observations = observations
+        self._data_source = data_source
         self.time_loop = time_loop
         self._times = times
 
@@ -80,16 +87,18 @@ class TimeLoopForecast:
     def channel_names(self):
         return self.time_loop.out_channel_names
 
+    @property
+    def grid(self):
+        return self.time_loop.grid
+
     async def __getitem__(self, i):
-        # TODO clean-up this interface. pick a consistent type for ``x``.
-        x = await self.observations[i]
-        x = x.sel(channel=self.time_loop.in_channel_names)
-        x = torch.from_numpy(x.values).cuda()
-        x = x[None]
+        x = earth2mip.initial_conditions.get_initial_condition_for_model(
+            self.time_loop, self._data_source, time=self._times[i]
+        )
         count = 0
         dt = self._times[1] - self._times[0]
         yield_every = int(dt // self.time_loop.time_step)
-        assert yield_every * self.time_loop.time_step == dt
+        assert yield_every * self.time_loop.time_step == dt  # noqa
         for time, data, _ in self.time_loop(x=x, time=self._times[i]):
             if count % yield_every == 0:
                 logger.info("forecast %s", time)
@@ -97,22 +106,32 @@ class TimeLoopForecast:
             count += 1
 
 
-class XarrayForecast:
+class XarrayForecast(Forecast):
     """Turn an xarray into a forecast-like dataset"""
 
     def __init__(
-        self, ds: xarray.Dataset, fields, times: Sequence[datetime.datetime], xp=numpy
+        self,
+        ds: xarray.Dataset,
+        fields,
+        times: Sequence[datetime.datetime],
+        device,
     ):
         self._dataset = ds
         self._fields = fields
         self._times = times
-        self.xp = xp
+        self.device = device
 
     @property
     def channel_names(self):
-        return self._dataset.channel.values.tolist()
+        return self._fields
 
-    async def __getitem__(self, i):
+    @property
+    def grid(self):
+        lat = self._dataset.lat.values.tolist()
+        lon = self._dataset.lon.values.tolist()
+        return earth2mip.grid.LatLonGrid(lat, lon)
+
+    async def __getitem__(self, i) -> torch.Tensor:
         initial_time = self._times[i]
         j = i - 1
         all_data = (
@@ -125,5 +144,4 @@ class XarrayForecast:
             j += 1
             time = self._times[j]
             data = all_data.sel(time=time - initial_time)
-            data.data = self.xp.asarray(data.data)
-            yield j, data
+            yield torch.from_numpy(data.values).to(self.device)[None]

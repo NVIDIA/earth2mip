@@ -13,11 +13,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import torch
 from typing import Optional
+
+import torch
+
 from earth2mip import grid
-from earth2mip.model_registry import Package
 from earth2mip.diagnostic.base import DiagnosticBase
+from earth2mip.model_registry import Package
 
 
 class WindSpeed(DiagnosticBase):

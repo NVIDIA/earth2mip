@@ -13,9 +13,46 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import argparse
+import datetime
+from typing import List
 
 from earth2mip import networks, schema
-import argparse
+
+
+class TimeRange:
+    @staticmethod
+    def add_args(parser: argparse.ArgumentParser):
+        parser.add_argument(
+            "--start-time", default="2018-01-01", type=datetime.datetime.fromisoformat
+        )
+        parser.add_argument(
+            "--time-step",
+            default="12",
+            type=lambda h: datetime.timedelta(hours=int(h)),
+            help="time step in hours between times.",
+        )
+        parser.add_argument(
+            "--end-time",
+            default="2018-12-01",
+            help="final time (inclusive).",
+            type=datetime.datetime.fromisoformat,
+        )
+
+    @staticmethod
+    def from_args(args) -> List[datetime.datetime]:
+        """parse the command line arguments and return a TimeRange"""
+        return get_times(args.start_time, args.end_time, args.time_step)
+
+
+def get_times(start_time: datetime, end_time: datetime, step: datetime.timedelta):
+    # the IFS data Jaideep downloaded only has 668 steps (up to end of november 2018)
+    times = []
+    time = start_time
+    while time <= end_time:
+        times.append(time)
+        time += step
+    return times
 
 
 def add_model_args(parser: argparse.ArgumentParser, required=False):

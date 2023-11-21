@@ -27,14 +27,16 @@ adapted from https://raw.githubusercontent.com/ecmwf-lab/ai-models-panguweather/
 # nor does it submit to any jurisdiction.
 """
 # %%
-import os
-import logging
 import datetime
-import torch
+import logging
+import os
+
 import numpy as np
 import onnxruntime as ort
-from earth2mip import networks
+import torch
+
 import earth2mip.grid
+from earth2mip import networks
 
 logger = logging.getLogger(__file__)
 
@@ -66,7 +68,6 @@ class PanguWeather:
         options.enable_mem_reuse = False
         options.intra_op_num_threads = 1
 
-        pangu_weather = self.path
         # That will trigger a FileNotFoundError
         self.device_index = torch.cuda.current_device()
 
@@ -87,8 +88,8 @@ class PanguWeather:
         )
 
     def __call__(self, fields_pl, fields_sfc):
-        assert fields_pl.dtype == torch.float32
-        assert fields_sfc.dtype == torch.float32
+        assert fields_pl.dtype == torch.float32  # noqa
+        assert fields_sfc.dtype == torch.float32  # noqa
         # from https://onnxruntime.ai/docs/api/python/api_summary.html
         binding = self.ort_session.io_binding()
 
@@ -133,10 +134,10 @@ class PanguStacked:
         names = []
         for v in variables:
             for lev in levels:
-                names.append(v + str(lev))
+                names.append(v + str(lev))  # noqa
 
         for v in self.model.param_sfc:
-            names.append(v)
+            names.append(v)  # noqa
         return names
 
     def __call__(self, x):
@@ -146,8 +147,8 @@ class PanguStacked:
         pass
 
     def forward(self, x):
-        assert x.shape[0] == 1
-        assert x.shape[1] == len(self.channel_names())
+        assert x.shape[0] == 1  # noqa
+        assert x.shape[1] == len(self.channel_names())  # noqa
         pl_shape = (5, 13, 721, 1440)
         nchan = pl_shape[0] * pl_shape[1]
         pl = x[:, :nchan]
@@ -210,9 +211,9 @@ class PanguInference(torch.nn.Module):
 
         restart = (time, unnormalized data)
         """
-        assert normalize, "normalize=False not supported"
+        assert normalize, "normalize=False not supported"  # noqa
         # do not implement restart capability
-        restart_data = None
+        # restart_data = None
 
         for k, data in enumerate(self(time, x)):
             yield data
@@ -242,20 +243,22 @@ class PanguInference(torch.nn.Module):
                     time1 += datetime.timedelta(hours=6)
 
                     if self.source:
-                        x1 = self.source(x1, self.time_step)
+                        dt = torch.tensor(self.time_step.total_seconds())
+                        x1 += self.source(x1, time1) * dt
                     x1 = self.model_6(x1)
                     yield time1, x1, restart_data
 
                 time0 += datetime.timedelta(hours=24)
                 if self.source:
-                    x0 = self.source(x0, 4.0 * self.time_step)
+                    dt = torch.tensor(self.time_step.total_seconds())
+                    x0 += self.source(x0, time0) * 4 * dt
                 x0 = self.model_24(x0)
                 yield time0, x0, restart_data
 
 
 def load(package, *, pretrained=True, device="doesn't matter"):
     """Load the sub-stepped pangu weather inference"""
-    assert pretrained
+    assert pretrained  # noqa
 
     p6 = package.get("pangu_weather_6.onnx")
     p24 = package.get("pangu_weather_24.onnx")
@@ -269,7 +272,7 @@ def load_single_model(
     package, *, time_step_hours: int = 24, pretrained=True, device="cuda:0"
 ):
     """Load a single time-step pangu weather"""
-    assert pretrained
+    assert pretrained  # noqa
 
     if time_step_hours == 6:
         return load_6(package, pretrained=pretrained, device=device)
@@ -281,7 +284,7 @@ def load_single_model(
 
 def load_24(package, *, pretrained=True, device="cuda:0"):
     """Load a 24 hour time-step pangu weather"""
-    assert pretrained
+    assert pretrained  # noqa
 
     with torch.cuda.device(device):
         p = package.get("pangu_weather_24.onnx")
@@ -305,7 +308,7 @@ def load_24(package, *, pretrained=True, device="cuda:0"):
 
 def load_6(package, *, pretrained=True, device="cuda:0"):
     """Load a 6 hour time-step pangu weather"""
-    assert pretrained
+    assert pretrained  # noqa
 
     with torch.cuda.device(device):
         p = package.get("pangu_weather_6.onnx")
