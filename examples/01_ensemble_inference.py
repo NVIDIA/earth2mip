@@ -34,10 +34,9 @@ In summary this notebook will cover the following topics:
 - Post processing results
 """
 
-# %% [markdown]
-
-# ## Set Up
-
+# %%
+# Set Up
+# ------
 # Starting off with imports, hopefully you have already installed Earth-2 MIP from this
 # repository. There are a few additional packages needed.
 
@@ -46,25 +45,18 @@ In summary this notebook will cover the following topics:
 import json
 import os
 
-import xarray
-
-print("hit")
-
-# %% [markdown]
+# %%
 # Prior to importing Earth-2 MIP, users need to be aware of a few enviroment variables
 # which can be used to customize Earth-2 MIPs global behavior. These must be set prior to
 # importing Earth-2 MIP. There are a number of different configuration options, some to
 # consider are:
-
 # - `WORLD_SIZE`: Tells Earth-2 MIP (which uses Modulus under the hood) the number of GPUs
 #     to use for inferencing.
 # - `MODEL_REGISTRY`: This variable tells Earth-2 MIP where location the model registery.
 #     By default this is located in `${HOME}/.cache/earth2mip/models`.
-
 # *Key Concept*: A model registry is a folder that Earth-2 MIP will explore to find model
 # checkpoints to load. A folder containing the required fileds is referred to as a
 # "model package". Model packages typically consist of a few files such as:
-
 # - `weights.tar`/`weights.mdlus`: the model checkpoint to load
 # - `metadata.json`: a JSON file that contains meta info regarding various details for
 #     using the model
@@ -73,18 +65,16 @@ print("hit")
 #     data in the model
 # - `global_std.npy`: A numpy array containing the standard deviation values used for
 #     normalization of data in the model
-
 # %%
-# For this example Set number of GPUs to use to 1
-os.environ["WORLD_SIZE"] = "1"
+import dotenv
+import xarray
 
-# Use the default location for the model registry, but one can change its location
-# os.environ['MODEL_REGISTRY'] = "/my/file/path/"
+dotenv.load_dotenv()
 
 # With the enviroment variables set now we import Earth-2 MIP
 from earth2mip import inference_ensemble, registry
 
-# %% [markdown]
+# %%
 # The cell above created a model registry folder for us, but if this is your first
 # notebook its likely empty. Lets fix that. As previously metioned we will be using the
 # FCNv2-sm weather model with the checkpoint provided on the Nvidia Modulus model
@@ -104,7 +94,7 @@ from earth2mip import inference_ensemble, registry
 print("Fetching model package...")
 package = registry.get_model("e2mip://fcnv2_sm")
 
-# %% [markdown]
+# %%
 # The final setup step is to set up your CDS API key so we can access ERA5 data to act as
 # an initial state. Earth-2 MIP supports a number of different initial state data sources
 # that are supported including HDF5, CDS, GFS, etc. The CDS initial state provides a
@@ -128,36 +118,35 @@ if not os.path.exists(cds_api):
         f.write("url: https://cds.climate.copernicus.eu/api/v2\n")
         f.write(f"key: {uid}:{key}\n")
 
-# %% [markdown]
-"""
-## Running Inference
+# %%
+# Running Inference
+# -----------------
+#
+# To run inference we will use the `earth2mip/ensemble_inference.py` part of Earth-2 MIP.
+# When this Python file, we provide either a config JSON file or a JSON serialized string
+# for it to parse. This config contains the information regarding how the model should run
+# inference. The schema of this can be found in `earth2mip/schema/EnsembleRun`.
 
-To run inference we will use the `earth2mip/ensemble_inference.py` part of Earth-2 MIP.
-When this Python file, we provide either a config JSON file or a JSON serialized string
-for it to parse. This config contains the information regarding how the model should run
-inference. The schema of this can be found in `earth2mip/schema/EnsembleRun`.
+# Since we are working in a notebook, lets create this config Pythonically. There are
+# quite a few parameters that can be used, but lets focus in on a few key ones:
 
-Since we are working in a notebook, lets create this config Pythonically. There are
-quite a few parameters that can be used, but lets focus in on a few key ones:
+# - `ensemble_members`: Number ensemble members in the forecast
+# - `noise_amplitude`: The amplitude of the noise pertibation method (we find that a good
+#     value to start with is `0.05`, feel free to experiment)
+# - `simulation_length`: Number of (6h) time-steps to predict
+# - `weather_event`: This defines the weather event as a combination of an initial time
+#     and a domain.
+#     * The domain property defines the IO, ,by telling Earth-2 MIP for what regions
+#     (if `window`) or points (if `multipoint`) data should be stored. It also defines the
+#     `channels` and the diagnostic.  In this example the global field is recorded for the
+#     `t2m` and `u10m` channels.
+# - `output_path`: The output location of the ensemble prediction netCDF file
+# - `weather_model`: The model ID to run. This MUST match the name of the model registry
+#     folder with your checkpoint files. So for this example its `fcnv2_sm`.
 
-- `ensemble_members`: Number ensemble members in the forecast
-- `noise_amplitude`: The amplitude of the noise pertibation method (we find that a good
-    value to start with is `0.05`, feel free to experiment)
-- `simulation_length`: Number of (6h) time-steps to predict
-- `weather_event`: This defines the weather event as a combination of an initial time
-    and a domain.
-    * The domain property defines the IO, ,by telling Earth-2 MIP for what regions
-    (if `window`) or points (if `multipoint`) data should be stored. It also defines the
-    `channels` and the diagnostic.  In this example the global field is recorded for the
-    `t2m` and `u10m` channels.
-- `output_path`: The output location of the ensemble prediction netCDF file
-- `weather_model`: The model ID to run. This MUST match the name of the model registry
-    folder with your checkpoint files. So for this example its `fcnv2_sm`.
-
-Note: While in later notebooks we will demonstrate more Pythonic methods to interact
-with Earth-2 MIP's APIs, the built in inference workflows provide a high-degree of
-control with little to no programming.
-"""
+# Note: While in later notebooks we will demonstrate more Pythonic methods to interact
+# with Earth-2 MIP's APIs, the built in inference workflows provide a high-degree of
+# control with little to no programming.
 
 # %%
 config = {
@@ -189,22 +178,20 @@ config = {
     "noise_reddening": 2.0,
 }
 
-# %% [markdown]
-"""
-Now we run the `main()` function in `earth2mip.inference_ensemble` providing our config
-object which will run inference with the following steps:
+# %%
+# Now we run the `main()` function in `earth2mip.inference_ensemble` providing our config
+# object which will run inference with the following steps:
 
-1. Instantiate and load the FCNv2 small weather model onto the device
-2. Download the initial state data needed from CDS using your saved API key
-3. Perturb the initial state based on the parameters in the config and run a forecast
-    predicton
-4. Save output Xarray dataset to NetCDF file located in
-    `../outputs/01_ensemble_notebook`
-
-(the process may take a while!)
-"""
+# 1. Instantiate and load the FCNv2 small weather model onto the device
+# 2. Download the initial state data needed from CDS using your saved API key
+# 3. Perturb the initial state based on the parameters in the config and run a forecast
+#     predicton
+# 4. Save output Xarray dataset to NetCDF file located in
+#     `../outputs/01_ensemble_notebook`
+# (the process may take a while!)
 
 # %%
+
 # Option 1: Use config file and CLI (use this outside a notebook)
 # with open('./01_config.json', 'w') as f:
 #     json.dump(config, f)
@@ -214,37 +201,35 @@ object which will run inference with the following steps:
 config_str = json.dumps(config)
 inference_ensemble.main(config_str)
 
-# %% [markdown]
-"""
-When the inference is complete we can examine the output in
-`ouputs/01_ensemble_notebook/ensemble_out_0.nc`.
+# %%
+# When the inference is complete we can examine the output in
+# `ouputs/01_ensemble_notebook/ensemble_out_0.nc`.
 
-Note: if the inference is distributed across N GPUs there will be `ensemble_out_0.nc`,
-`ensemble_out_1.nc`, ... `ensemble_out_N-1.nc` output files.
-In this case a function like this could concat the files to a single xarray DataArray:
+# Note: if the inference is distributed across N GPUs there will be `ensemble_out_0.nc`,
+# `ensemble_out_1.nc`, ... `ensemble_out_N-1.nc` output files.
+# In this case a function like this could concat the files to a single xarray DataArray:
 
-```python
-def _open(f, domain, time, chunks={"time": 1}):
-    root = xarray.open_dataset(f, decode_times=False)
-    ds = xarray.open_dataset(f, chunks=chunks, group=domain)
-    ds.attrs = root.attrs
-    return ds.assign_coords(time=lead_time)
+# ```python
+# def _open(f, domain, time, chunks={"time": 1}):
+#     root = xarray.open_dataset(f, decode_times=False)
+#     ds = xarray.open_dataset(f, chunks=chunks, group=domain)
+#     ds.attrs = root.attrs
+#     return ds.assign_coords(time=lead_time)
 
 
-def open_ensemble(path, domain, time):
-    path = pathlib.Path(path)
-    ensemble_files = list(path.glob("ensemble_out_*.nc"))
-    return xarray.concat(
-        [_open(f, group, time) for f in ensemble_files], dim="ensemble"
-    )
-```
+# def open_ensemble(path, domain, time):
+#     path = pathlib.Path(path)
+#     ensemble_files = list(path.glob("ensemble_out_*.nc"))
+#     return xarray.concat(
+#         [_open(f, group, time) for f in ensemble_files], dim="ensemble"
+#     )
+# ```
 
-(TODO: Parallel inference / scoring example)
+# (TODO: Parallel inference / scoring example)
 
-But with our single NetCDF file we can load it into a
-[Xarray Dataset](https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html) with
-just a few lines of code.
-"""
+# But with our single NetCDF file we can load it into a
+# [Xarray Dataset](https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html) with
+# just a few lines of code.
 
 # %%
 
@@ -263,17 +248,15 @@ ensemble_members = config["ensemble_members"]
 ds = open_ensemble(os.path.join(output_path, "ensemble_out_0.nc"), domains)
 ds
 
-# %% [markdown]
-"""
-## Post Processing
+# %%
+# Post Processing
+# ---------------
+# With inference complete, now the fun part: post processing and analysis!
+# You can manipulate the data to your hearts content now that its in an Xarray Dataset.
+# Here we will demonstrate some common plotting / analysis workflows one may be
+# interested. Lets start off with importing all our post processing packages.
 
-With inference complete, now the fun part: post processing and analysis!
-You can manipulate the data to your hearts content now that its in an Xarray Dataset.
-Here we will demonstrate some common plotting / analysis workflows one may be
-interested. Lets start off with importing all our post processing packages.
-
-(You may need to pip install matplotlib and cartopy)
-"""
+# (You may need to pip install matplotlib and cartopy)
 
 # %%
 import cartopy.crs as ccrs
@@ -292,12 +275,10 @@ countries = cfeature.NaturalEarthFeature(
     edgecolor="black",
 )
 
-# %% [markdown]
-"""
-Up first, we can plot a time series of the value of a variable (or statistics of that
-variable) at a given location (lat/lon coord). In this case lets look at the results
-predicted over New York.
-"""
+# %%
+# Up first, we can plot a time series of the value of a variable (or statistics of that
+# variable) at a given location (lat/lon coord). In this case lets look at the results
+# predicted over New York.
 
 # %%
 plt.close("all")
@@ -326,15 +307,13 @@ ax.set_ylabel("std u10m [m/s]")
 plt.tight_layout()
 plt.savefig(f"{output_path}/new_york_zonal_winds.png")
 
-# %% [markdown]
-"""
-Next, lets plot some fields of surface temperature. Since we have an ensemble of
-predictions, lets display the first ensemble member, which is deterministic member,
-and also the last ensemble member and the ensemmble standard deviation. One or both of
-the perturbed members may look a little noisy, thats because our noise amplitude is
-maybe too high. Try lowering the amplitude in the config or changing pertibation type
-to see what happens.
-"""
+# %%
+# Next, lets plot some fields of surface temperature. Since we have an ensemble of
+# predictions, lets display the first ensemble member, which is deterministic member,
+# and also the last ensemble member and the ensemmble standard deviation. One or both of
+# the perturbed members may look a little noisy, thats because our noise amplitude is
+# maybe too high. Try lowering the amplitude in the config or changing pertibation type
+# to see what happens.
 
 # %%
 plt.close("all")
@@ -381,11 +360,9 @@ plt.colorbar(img, ax=ax, shrink=0.40, norm=mcolors.CenteredNorm(vcenter=0))
 gl = ax.gridlines(draw_labels=True, linestyle="--")
 plt.savefig(f"{output_path}/gloabl_surface_temp_contour.png")
 
-# %% [markdown]
-"""
-We can also show a map of the ensemble mean of the 10 meter zonal winds (using some
-Nvidia style coloring!)
-"""
+# %%
+# We can also show a map of the ensemble mean of the 10 meter zonal winds (using some
+# Nvidia style coloring!)
 
 # %%
 
@@ -420,11 +397,9 @@ plt.colorbar(img, ax=ax, shrink=0.40, norm=mcolors.CenteredNorm(vcenter=0))
 gl = ax.gridlines(draw_labels=True, linestyle="--")
 plt.savefig(f"{output_path}/gloabl_mean_zonal_wind_contour.png")
 
-# %% [markdown]
-"""
-Finally lets compute the latitude-weighted global averages and plot time series of
-ensemble standard deviation.
-"""
+# %%
+# Finally lets compute the latitude-weighted global averages and plot time series of
+# ensemble standard deviation.
 
 # %%
 
@@ -442,10 +417,8 @@ plt.xlabel("lead time [k]")
 plt.ylabel("u10m std [m/s]")
 plt.savefig(f"{output_path}/gloabl_std_zonal_surface_wind.png")
 
-# %% [markdown]
-"""
-And that completes the introductory notebook into running ensemble weather predictions
-with AI. In the next notebook, we will look at running different models using more
-Pythonic APIs and plotting geopotential fields.
-"""
+# %%
+# And that completes the introductory notebook into running ensemble weather predictions
+# with AI. In the next notebook, we will look at running different models using more
+# Pythonic APIs and plotting geopotential fields.
 # %%
