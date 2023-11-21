@@ -14,8 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# flake8-in-file-ignores: noqa: E501
-# %% [markdown]
+# %%
 """
 Running Ensemble Inference
 ==========================
@@ -40,7 +39,6 @@ In summary this notebook will cover the following topics:
 # Starting off with imports, hopefully you have already installed Earth-2 MIP from this
 # repository. There are a few additional packages needed.
 
-
 # %%
 import json
 import os
@@ -50,21 +48,20 @@ import os
 # which can be used to customize Earth-2 MIPs global behavior. These must be set prior to
 # importing Earth-2 MIP. There are a number of different configuration options, some to
 # consider are:
-# - `WORLD_SIZE`: Tells Earth-2 MIP (which uses Modulus under the hood) the number of GPUs
-#     to use for inferencing.
-# - `MODEL_REGISTRY`: This variable tells Earth-2 MIP where location the model registery.
-#     By default this is located in `${HOME}/.cache/earth2mip/models`.
+#
+# - `WORLD_SIZE`: Tells Earth-2 MIP (which uses Modulus under the hood) the number of GPUs to use for inferencing.
+# - `MODEL_REGISTRY`: This variable tells Earth-2 MIP where location the model registery. By default this is located in `${HOME}/.cache/earth2mip/models`.
+#
 # *Key Concept*: A model registry is a folder that Earth-2 MIP will explore to find model
 # checkpoints to load. A folder containing the required fileds is referred to as a
 # "model package". Model packages typically consist of a few files such as:
+#
 # - `weights.tar`/`weights.mdlus`: the model checkpoint to load
-# - `metadata.json`: a JSON file that contains meta info regarding various details for
-#     using the model
+# - `metadata.json`: a JSON file that contains meta info regarding various details for using the model
 # - `config.json`: constains parameters needed to instantiate the model object in python
-# - `global_means.npy`: A numpy array containing the mean values used for normalization of
-#     data in the model
-# - `global_std.npy`: A numpy array containing the standard deviation values used for
-#     normalization of data in the model
+# - `global_means.npy`: A numpy array containing the mean values used for normalization of data in the model
+# - `global_std.npy`: A numpy array containing the standard deviation values used for normalization of data in the model
+
 # %%
 import dotenv
 import xarray
@@ -80,7 +77,7 @@ from earth2mip import inference_ensemble, registry
 # FCNv2-sm weather model with the checkpoint provided on the Nvidia Modulus model
 # registry. The model is shipped via a zip folder containing the required checkpoint files
 # discussed above.
-
+#
 # Since this model is built into Earth-2 MIP, the `registry.get_model` function can be
 # used to auto-download and extract it (this can take a bit).
 # The `e2mip://` prefix on the model URI, will point Earth-2 MIP to use the package
@@ -101,12 +98,12 @@ package = registry.get_model("e2mip://fcnv2_sm")
 # convenient way to access a limited amount of historical weather data. Its recommended
 # for accessing an initial state, but larger data requirements should use locally stored
 # weather datasets.
-
+#
 # Enter your CDS API uid and key below (found under your profile page).
 # If you don't a CDS API key, find out more here.
-# - [https://cds.climate.copernicus.eu/cdsapp#!/home](https://cds.climate.copernicus.eu/cdsapp#!/home)
-# - [https://cds.climate.copernicus.eu/api-how-to](https://cds.climate.copernicus.eu/api-how-to)
-
+#
+# - `https://cds.climate.copernicus.eu/cdsapp#!/home <https://cds.climate.copernicus.eu/cdsapp#!/home>`_
+# - `https://cds.climate.copernicus.eu/api-how-to <https://cds.climate.copernicus.eu/api-how-to>`_
 
 # %%
 cds_api = os.path.join(os.path.expanduser("~"), ".cdsapirc")
@@ -126,27 +123,26 @@ if not os.path.exists(cds_api):
 # When this Python file, we provide either a config JSON file or a JSON serialized string
 # for it to parse. This config contains the information regarding how the model should run
 # inference. The schema of this can be found in `earth2mip/schema/EnsembleRun`.
-
+#
 # Since we are working in a notebook, lets create this config Pythonically. There are
 # quite a few parameters that can be used, but lets focus in on a few key ones:
-
+#
 # - `ensemble_members`: Number ensemble members in the forecast
-# - `noise_amplitude`: The amplitude of the noise pertibation method (we find that a good
-#     value to start with is `0.05`, feel free to experiment)
+#
+# - `noise_amplitude`: The amplitude of the noise pertibation method (we find that a good value to start with is `0.05`, feel free to experiment)
+#
 # - `simulation_length`: Number of (6h) time-steps to predict
-# - `weather_event`: This defines the weather event as a combination of an initial time
-#     and a domain.
-#     * The domain property defines the IO, ,by telling Earth-2 MIP for what regions
-#     (if `window`) or points (if `multipoint`) data should be stored. It also defines the
-#     `channels` and the diagnostic.  In this example the global field is recorded for the
-#     `t2m` and `u10m` channels.
+#
+# - `weather_event`: This defines the weather event as a combination of an initial time and a domain.
+#
 # - `output_path`: The output location of the ensemble prediction netCDF file
-# - `weather_model`: The model ID to run. This MUST match the name of the model registry
-#     folder with your checkpoint files. So for this example its `fcnv2_sm`.
-
-# Note: While in later notebooks we will demonstrate more Pythonic methods to interact
-# with Earth-2 MIP's APIs, the built in inference workflows provide a high-degree of
-# control with little to no programming.
+#
+# - `weather_model`: The model ID to run. This MUST match the name of the model registry folder with your checkpoint files. So for this example its `fcnv2_sm`.
+#
+# .. note::
+#   Note: While in later notebooks we will demonstrate more Pythonic methods to interact
+#   with Earth-2 MIP's APIs, the built in inference workflows provide a high-degree of
+#   control with little to no programming.
 
 # %%
 config = {
@@ -181,14 +177,11 @@ config = {
 # %%
 # Now we run the `main()` function in `earth2mip.inference_ensemble` providing our config
 # object which will run inference with the following steps:
-
+#
 # 1. Instantiate and load the FCNv2 small weather model onto the device
 # 2. Download the initial state data needed from CDS using your saved API key
-# 3. Perturb the initial state based on the parameters in the config and run a forecast
-#     predicton
-# 4. Save output Xarray dataset to NetCDF file located in
-#     `../outputs/01_ensemble_notebook`
-# (the process may take a while!)
+# 3. Perturb the initial state based on the parameters in the config and run a forecast predicton
+# 4. Save output Xarray dataset to NetCDF file located in `../outputs/01_ensemble_notebook` (the process may take a while!)
 
 # %%
 
@@ -202,34 +195,29 @@ config_str = json.dumps(config)
 inference_ensemble.main(config_str)
 
 # %%
-# When the inference is complete we can examine the output in
-# `ouputs/01_ensemble_notebook/ensemble_out_0.nc`.
-
-# Note: if the inference is distributed across N GPUs there will be `ensemble_out_0.nc`,
-# `ensemble_out_1.nc`, ... `ensemble_out_N-1.nc` output files.
+# When the inference is complete we can examine the output in `outputs/01_ensemble_notebook/ensemble_out_0.nc`.
+#
+# Note: if the inference is distributed across N GPUs there will be `ensemble_out_0.nc`, `ensemble_out_1.nc`, ... `ensemble_out_N-1.nc` output files.
 # In this case a function like this could concat the files to a single xarray DataArray:
-
-# ```python
-# def _open(f, domain, time, chunks={"time": 1}):
-#     root = xarray.open_dataset(f, decode_times=False)
-#     ds = xarray.open_dataset(f, chunks=chunks, group=domain)
-#     ds.attrs = root.attrs
-#     return ds.assign_coords(time=lead_time)
-
-
-# def open_ensemble(path, domain, time):
-#     path = pathlib.Path(path)
-#     ensemble_files = list(path.glob("ensemble_out_*.nc"))
-#     return xarray.concat(
-#         [_open(f, group, time) for f in ensemble_files], dim="ensemble"
-#     )
-# ```
-
+#
+# .. code-block::
+#
+#       def _open(f, domain, time, chunks={"time": 1}):
+#           root = xarray.open_dataset(f, decode_times=False)
+#           ds = xarray.open_dataset(f, chunks=chunks, group=domain)
+#           ds.attrs = root.attrs
+#           return ds.assign_coords(time=lead_time)
+#
+#       def open_ensemble(path, domain, time):
+#           path = pathlib.Path(path)
+#           ensemble_files = list(path.glob("ensemble_out_*.nc"))
+#           return xarray.concat(
+#             [_open(f, group, time) for f in ensemble_files], dim="ensemble"
+#           )
+#
 # (TODO: Parallel inference / scoring example)
-
-# But with our single NetCDF file we can load it into a
-# [Xarray Dataset](https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html) with
-# just a few lines of code.
+#
+# But with our single NetCDF file we can load it into a `Xarray Dataset <https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html>`_ with just a few lines of code.
 
 # %%
 
@@ -255,7 +243,7 @@ ds
 # You can manipulate the data to your hearts content now that its in an Xarray Dataset.
 # Here we will demonstrate some common plotting / analysis workflows one may be
 # interested. Lets start off with importing all our post processing packages.
-
+#
 # (You may need to pip install matplotlib and cartopy)
 
 # %%
@@ -421,4 +409,3 @@ plt.savefig(f"{output_path}/gloabl_std_zonal_surface_wind.png")
 # And that completes the introductory notebook into running ensemble weather predictions
 # with AI. In the next notebook, we will look at running different models using more
 # Pythonic APIs and plotting geopotential fields.
-# %%

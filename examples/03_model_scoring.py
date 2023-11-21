@@ -45,25 +45,30 @@ import os
 # Additionally, many scoring pipelines require on-prem data.
 # Thus, this will demonstrate how to use the HDF5 datasource.
 # The HDF5 data source assumes that the data to be loaded is stored in the general form:
-# year.h5
-#  | - field (time, channels, grid)
+# ::
+#
+#   year.h5
+#       | - field (time, channels, grid)
+#
 # For AFNO which requires 34 channels with a time-step size of 6 hours, an H5 file will
 # have the following form of data:
-# 2017.h5
-#  | - field (1460, 34, 720, 1440)
-# 2016.h5
-#  | - field (1464, 34, 720, 1440)
-# 2015.h5
-#  | - field (1460, 34, 720, 1440)
+# ::
+#
+#   2017.h5
+#       | - field (1460, 34, 720, 1440)
+#   2016.h5
+#       | - field (1464, 34, 720, 1440)
+#   2015.h5
+#       | - field (1460, 34, 720, 1440)
+#
 # (Note the later two dims have some flexibility with regridding)
 # One option to build these H5 files from scratch is to use the ERA5 mirror scripts
-# provided in [Modulus](https://github.com/NVIDIA/modulus/tree/main/examples/weather/dataset_download).
+# provided in `Modulus <https://github.com/NVIDIA/modulus/tree/main/examples/weather/dataset_download>`_.
 # For the rest of this tutorial, it is assumed that 2017.h5 is present for the full year.
 # %%
 import dotenv
 
 dotenv.load_dotenv()
-
 # can set this with the export ERA5_HDF5=/path/to/root/of/h5/files
 h5_folder = os.getenv("ERA5_HDF5")
 
@@ -94,7 +99,7 @@ model = dlwp.load(package, device=device)
 # metadata. Se
 # The metadata is a JSON/dictionary object that helps Earth-2 MIP index the H5 file.
 # Typically, this can be done by placing a `data.json` file next to the H5 files.
-# See `<this documentation>https://github.com/NVIDIA/earth2mip/blob/f44c580ccc3d98bf349fe97823bb1540e532c80d/earth2mip/initial_conditions/hdf5.py#L38`_
+# See `this documentation <https://github.com/NVIDIA/earth2mip/blob/f44c580ccc3d98bf349fe97823bb1540e532c80d/earth2mip/initial_conditions/hdf5.py#L38>`_
 # for more details on how to set up input data correctly.
 
 # %%
@@ -117,7 +122,7 @@ print(out.shape)
 # intervals.
 # For research, one would typically want this to be much more comprehensive so feel free
 # to customize for you're use case.
-
+#
 # The `score_deterministic` API provides a simple way to calculate RMSE and ACC scores.
 # ACC scores require climatology which is beyond the scope of this example, thus zero
 # values will be provided and only the RMSE will be of concern.
@@ -145,8 +150,7 @@ if not os.path.exists(output_dir):
 # Post Processing
 # ---------------
 # The last step is any post processing / IO that is desired.
-# Typically its recommended to save the output dataset to a netCDF file for further
-# processing.
+# Typically its recommended to save the output dataset to a netCDF file for further processing.
 # Lets plot the RMSE of the z500 (geopotential at pressure level 500) field.
 
 # %%

@@ -83,9 +83,11 @@ package = registry.get_model("e2mip://dlwp")
 # for accessing an initial state, but larger data requirements should use locally stored
 # weather datasets.
 #
-# Enter your CDS API uid and key below (found under your profile page). If you don't a CDS API key, find out more here.
-# - [https://cds.climate.copernicus.eu/cdsapp#!/home](https://cds.climate.copernicus.eu/cdsapp#!/home)
-# - [https://cds.climate.copernicus.eu/api-how-to](https://cds.climate.copernicus.eu/api-how-to)
+# Enter your CDS API uid and key below (found under your profile page).
+# If you don't a CDS API key, find out more here.
+#
+# - `https://cds.climate.copernicus.eu/cdsapp#!/home <https://cds.climate.copernicus.eu/cdsapp#!/home>`_
+# - `https://cds.climate.copernicus.eu/api-how-to <https://cds.climate.copernicus.eu/api-how-to>`_
 
 # %%
 cds_api = os.path.join(os.path.expanduser("~"), ".cdsapirc")
@@ -104,7 +106,7 @@ if not os.path.exists(cds_api):
 # inference. The first step is to load the model from the model registry, which is done
 # using the `registry.get_model` command. This will look in your `MODEL_REGISTRY` folder
 # for the provided name and use this as a filesystem for loading necessary files.
-
+#
 # The model is then loaded into memory using the load function for that particular
 # network. Earth-2 MIP has multiple abstracts that can allow this to be automated that can
 # be used instead if desired.
@@ -133,7 +135,6 @@ pangu_inference_model = pangu.load(package)
 # we will create two seperate data-sources for them.
 
 # %%
-# Initial state data/time
 time = datetime.datetime(2018, 1, 1)
 
 # DLWP datasource
@@ -175,8 +176,7 @@ print(dlwp_ds)
 # Post Processing
 # ---------------
 # With inference complete, now the fun part: post processing and analysis!
-# Here we will just plot the z500 (geopotential at pressure level 500) contour time-series
-# of both models.
+# Here we will just plot the z500 (geopotential at pressure level 500) contour time-series of both models.
 
 # %%
 import matplotlib.pyplot as plt
