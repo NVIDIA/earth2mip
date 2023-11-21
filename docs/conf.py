@@ -106,7 +106,7 @@ favicons = ["favicon.ico"]
 
 # https://sphinx-gallery.github.io/stable/configuration.html
 sphinx_gallery_conf = {
-    "examples_dirs": "../examples/notebooks",
+    "examples_dirs": "../examples/",
     "gallery_dirs": "examples",
     "plot_gallery": plot_gallery,
     "image_srcset": ["2x"],

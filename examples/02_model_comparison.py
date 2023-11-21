@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# %% [markdown]
+# %%
 """
 Basic Inference with Multiple Models
 =====================================
@@ -33,63 +33,61 @@ In summary this notebook will cover the following topics:
 - Post processing results
 """
 
-# %% [markdown]
-"""
-## Set Up
+# %%
+# Set Up
+# ------
+# Starting off with imports, hopefully you have already installed Earth-2 MIP from this
+# repository. See the previous notebook for information about configuring Earth-2 MIP, its
+# assumed enviroment variables have already been properly set.
 
-Starting off with imports, hopefully you have already installed Earth-2 MIP from this
-repository. See the previous notebook for information about configuring Earth-2 MIP, its
-assumed enviroment variables have already been properly set.
-"""
 
 # %%
 import datetime
 import os
 
+import dotenv
 import xarray
+
+dotenv.load_dotenv()
 
 from earth2mip import inference_ensemble, registry
 from earth2mip.initial_conditions import cds
 
-# %% [markdown]
-"""
-The cell above created a model registry folder for us, now we need to populate it with
-model packages.
-We will start with Pangu, which is a model that uses ONNX checkpoints.
-Since this is a built in model, we can use the `registry.get_model` function with the
-`e2mip://` prefix to auto download the checkpoints.
-Under the hood, this is fetching the ONNX checkpoints and creating a `metadata.json`
-file to help Earth-2 MIP know how to load the model into memory for inference.
-"""
+# %%
+# The cell above created a model registry folder for us, now we need to populate it with
+# model packages.
+# We will start with Pangu, which is a model that uses ONNX checkpoints.
+# Since this is a built in model, we can use the `registry.get_model` function with the
+# `e2mip://` prefix to auto download the checkpoints.
+# Under the hood, this is fetching the ONNX checkpoints and creating a `metadata.json`
+# file to help Earth-2 MIP know how to load the model into memory for inference.
 
 # %%
 print("Fetching Pangu model package...")
 package = registry.get_model("e2mip://pangu")
 
-# %% [markdown]
-"""
-Next DLWP model package will need to be downloaded. This model follows the standard
-proceedure most do in Earth-2 MIP, being served via Modulus and hosted on NGC model
-registry.
-"""
+# %%
+# Next DLWP model package will need to be downloaded. This model follows the standard
+# proceedure most do in Earth-2 MIP, being served via Modulus and hosted on NGC model
+# registry.
 
 # %%
 print("Fetching DLWP model package...")
 package = registry.get_model("e2mip://dlwp")
 
-# %% [markdown]
-"""
-The final setup step is to set up your CDS API key so we can access ERA5 data to act as
-an initial state. Earth-2 MIP supports a number of different initial state data sources
-that are supported including HDF5, CDS, GFS, etc. The CDS initial state provides a
-convenient way to access a limited amount of historical weather data. Its recommended
-for accessing an initial state, but larger data requirements should use locally stored
-weather datasets.
-
-Enter your CDS API uid and key below (found under your profile page). If you don't a CDS API key, find out more here.
-- [https://cds.climate.copernicus.eu/cdsapp#!/home](https://cds.climate.copernicus.eu/cdsapp#!/home)
-- [https://cds.climate.copernicus.eu/api-how-to](https://cds.climate.copernicus.eu/api-how-to)
-"""  # noqa: E501
+# %%
+# The final setup step is to set up your CDS API key so we can access ERA5 data to act as
+# an initial state. Earth-2 MIP supports a number of different initial state data sources
+# that are supported including HDF5, CDS, GFS, etc. The CDS initial state provides a
+# convenient way to access a limited amount of historical weather data. Its recommended
+# for accessing an initial state, but larger data requirements should use locally stored
+# weather datasets.
+#
+# Enter your CDS API uid and key below (found under your profile page).
+# If you don't a CDS API key, find out more here.
+#
+# - `https://cds.climate.copernicus.eu/cdsapp#!/home <https://cds.climate.copernicus.eu/cdsapp#!/home>`_
+# - `https://cds.climate.copernicus.eu/api-how-to <https://cds.climate.copernicus.eu/api-how-to>`_
 
 # %%
 cds_api = os.path.join(os.path.expanduser("~"), ".cdsapirc")
@@ -101,19 +99,17 @@ if not os.path.exists(cds_api):
         f.write("url: https://cds.climate.copernicus.eu/api/v2\n")
         f.write(f"key: {uid}:{key}\n")
 
-# %% [markdown]
-"""
-## Running Inference
-
-To run inference of these models we will use some of Earth-2 MIPs Python APIs to perform
-inference. The first step is to load the model from the model registry, which is done
-using the `registry.get_model` command. This will look in your `MODEL_REGISTRY` folder
-for the provided name and use this as a filesystem for loading necessary files.
-
-The model is then loaded into memory using the load function for that particular
-network. Earth-2 MIP has multiple abstracts that can allow this to be automated that can
-be used instead if desired.
-"""
+# %%
+# Running Inference
+# -----------------
+# To run inference of these models we will use some of Earth-2 MIPs Python APIs to perform
+# inference. The first step is to load the model from the model registry, which is done
+# using the `registry.get_model` command. This will look in your `MODEL_REGISTRY` folder
+# for the provided name and use this as a filesystem for loading necessary files.
+#
+# The model is then loaded into memory using the load function for that particular
+# network. Earth-2 MIP has multiple abstracts that can allow this to be automated that can
+# be used instead if desired.
 
 # %%
 import earth2mip.networks.dlwp as dlwp
@@ -132,16 +128,13 @@ dlwp_inference_model = dlwp.load(package)
 package = registry.get_model("pangu")
 pangu_inference_model = pangu.load(package)
 
-# %% [markdown]
-"""
-Next we set up the initial state data source for January 1st, 2018 at 00:00:00 UTC.
-As previously mentioned, we will pull data on the fly from CDS (make sure you set up
-your API key above). Since DLWP and Pangu require different channels (and time steps),
-we will create two seperate data-sources for them.
-"""
+# %%
+# Next we set up the initial state data source for January 1st, 2018 at 00:00:00 UTC.
+# As previously mentioned, we will pull data on the fly from CDS (make sure you set up
+# your API key above). Since DLWP and Pangu require different channels (and time steps),
+# we will create two seperate data-sources for them.
 
 # %%
-# Initial state data/time
 time = datetime.datetime(2018, 1, 1)
 
 # DLWP datasource
@@ -150,17 +143,14 @@ dlwp_data_source = cds.DataSource(dlwp_inference_model.in_channel_names)
 # Pangu datasource, this is much simplier since pangu only uses one timestep as an input
 pangu_data_source = cds.DataSource(pangu_inference_model.in_channel_names)
 
-# %% [markdown]
-"""
-With the initial state downloaded for each and set up in an Xarray dataset, we can now
-run deterministic inference for both which can be achieved using the
-`inference_ensemble.run_basic_inference` method which will produce a Xarray
-[data array](https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html) to then
-work with.
-"""
+# %%
+# With the initial state downloaded for each and set up in an Xarray dataset, we can now
+# run deterministic inference for both which can be achieved using the
+# `inference_ensemble.run_basic_inference` method which will produce a Xarray
+# `data array <https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html>`_ to then
+# work with.
 
 # %%
-# Run Pangu inference
 print("Running Pangu inference")
 pangu_ds = inference_ensemble.run_basic_inference(
     pangu_inference_model,
@@ -172,7 +162,6 @@ pangu_ds.to_netcdf(f"{output_dir}/pangu_inference_out.nc")
 print(pangu_ds)
 
 # %%
-# Run DLWP inference
 print("Running DLWP inference")
 dlwp_ds = inference_ensemble.run_basic_inference(
     dlwp_inference_model,
@@ -183,14 +172,11 @@ dlwp_ds = inference_ensemble.run_basic_inference(
 dlwp_ds.to_netcdf(f"{output_dir}/dlwp_inference_out.nc")
 print(dlwp_ds)
 
-# %% [markdown]
-"""
-## Post Processing
-
-With inference complete, now the fun part: post processing and analysis!
-Here we will just plot the z500 (geopotential at pressure level 500) contour time-series
-of both models.
-"""
+# %%
+# Post Processing
+# ---------------
+# With inference complete, now the fun part: post processing and analysis!
+# Here we will just plot the z500 (geopotential at pressure level 500) contour time-series of both models.
 
 # %%
 import matplotlib.pyplot as plt
@@ -215,9 +201,7 @@ axs[1, 0].set_ylabel("Pangu")
 plt.suptitle("z500 DLWP vs Pangu")
 plt.savefig(f"{output_dir}/pangu_dlwp_z500.png")
 
-# %% [markdown]
-"""
-And that completes the second notebook detailing how to run deterministic inference of
-two models using Earth-2 MIP. In the next notebook, we will look at how to score a
-model compared against ERA5 re-analysis data.
-"""
+# %%
+# And that completes the second notebook detailing how to run deterministic inference of
+# two models using Earth-2 MIP. In the next notebook, we will look at how to score a
+# model compared against ERA5 re-analysis data.
