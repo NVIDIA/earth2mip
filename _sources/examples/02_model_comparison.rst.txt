@@ -34,39 +34,25 @@ In summary this notebook will cover the following topics:
 - Running inference in a Python script
 - Post processing results
 
-.. GENERATED FROM PYTHON SOURCE LINES 37-45
+.. GENERATED FROM PYTHON SOURCE LINES 37-42
 
-.. code-block:: default
+Set Up
+------
+Starting off with imports, hopefully you have already installed Earth-2 MIP from this
+repository. See the previous notebook for information about configuring Earth-2 MIP, its
+assumed enviroment variables have already been properly set.
 
-    """
-    ## Set Up
+.. GENERATED FROM PYTHON SOURCE LINES 45-56
 
-    Starting off with imports, hopefully you have already installed Earth-2 MIP from this
-    repository. See the previous notebook for information about configuring Earth-2 MIP, its
-    assumed enviroment variables have already been properly set.
-    """
-
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-
-    '\n## Set Up\n\nStarting off with imports, hopefully you have already installed Earth-2 MIP from this\nrepository. See the previous notebook for information about configuring Earth-2 MIP, its\nassumed enviroment variables have already been properly set.\n'
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 46-54
-
-.. code-block:: default
+.. code-block:: Python
 
     import datetime
     import os
 
+    import dotenv
     import xarray
+
+    dotenv.load_dotenv()
 
     from earth2mip import inference_ensemble, registry
     from earth2mip.initial_conditions import cds
@@ -78,36 +64,19 @@ In summary this notebook will cover the following topics:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 55-65
+.. GENERATED FROM PYTHON SOURCE LINES 57-64
 
-.. code-block:: default
-
-    """
-    The cell above created a model registry folder for us, now we need to populate it with
-    model packages.
-    We will start with Pangu, which is a model that uses ONNX checkpoints.
-    Since this is a built in model, we can use the `registry.get_model` function with the
-    `e2mip://` prefix to auto download the checkpoints.
-    Under the hood, this is fetching the ONNX checkpoints and creating a `metadata.json`
-    file to help Earth-2 MIP know how to load the model into memory for inference.
-    """
-
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-
-    '\nThe cell above created a model registry folder for us, now we need to populate it with\nmodel packages.\nWe will start with Pangu, which is a model that uses ONNX checkpoints.\nSince this is a built in model, we can use the `registry.get_model` function with the\n`e2mip://` prefix to auto download the checkpoints.\nUnder the hood, this is fetching the ONNX checkpoints and creating a `metadata.json`\nfile to help Earth-2 MIP know how to load the model into memory for inference.\n'
-
-
+The cell above created a model registry folder for us, now we need to populate it with
+model packages.
+We will start with Pangu, which is a model that uses ONNX checkpoints.
+Since this is a built in model, we can use the `registry.get_model` function with the
+`e2mip://` prefix to auto download the checkpoints.
+Under the hood, this is fetching the ONNX checkpoints and creating a `metadata.json`
+file to help Earth-2 MIP know how to load the model into memory for inference.
 
 .. GENERATED FROM PYTHON SOURCE LINES 66-69
 
-.. code-block:: default
+.. code-block:: Python
 
     print("Fetching Pangu model package...")
     package = registry.get_model("e2mip://pangu")
@@ -125,32 +94,15 @@ In summary this notebook will cover the following topics:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 70-76
+.. GENERATED FROM PYTHON SOURCE LINES 70-73
 
-.. code-block:: default
+Next DLWP model package will need to be downloaded. This model follows the standard
+proceedure most do in Earth-2 MIP, being served via Modulus and hosted on NGC model
+registry.
 
-    """
-    Next DLWP model package will need to be downloaded. This model follows the standard
-    proceedure most do in Earth-2 MIP, being served via Modulus and hosted on NGC model
-    registry.
-    """
+.. GENERATED FROM PYTHON SOURCE LINES 75-78
 
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-
-    '\nNext DLWP model package will need to be downloaded. This model follows the standard\nproceedure most do in Earth-2 MIP, being served via Modulus and hosted on NGC model\nregistry.\n'
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 77-80
-
-.. code-block:: default
+.. code-block:: Python
 
     print("Fetching DLWP model package...")
     package = registry.get_model("e2mip://dlwp")
@@ -168,39 +120,24 @@ In summary this notebook will cover the following topics:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 81-94
+.. GENERATED FROM PYTHON SOURCE LINES 79-91
 
-.. code-block:: default
+The final setup step is to set up your CDS API key so we can access ERA5 data to act as
+an initial state. Earth-2 MIP supports a number of different initial state data sources
+that are supported including HDF5, CDS, GFS, etc. The CDS initial state provides a
+convenient way to access a limited amount of historical weather data. Its recommended
+for accessing an initial state, but larger data requirements should use locally stored
+weather datasets.
 
-    """
-    The final setup step is to set up your CDS API key so we can access ERA5 data to act as
-    an initial state. Earth-2 MIP supports a number of different initial state data sources
-    that are supported including HDF5, CDS, GFS, etc. The CDS initial state provides a
-    convenient way to access a limited amount of historical weather data. Its recommended
-    for accessing an initial state, but larger data requirements should use locally stored
-    weather datasets.
+Enter your CDS API uid and key below (found under your profile page).
+If you don't a CDS API key, find out more here.
 
-    Enter your CDS API uid and key below (found under your profile page). If you don't a CDS API key, find out more here.
-    - [https://cds.climate.copernicus.eu/cdsapp#!/home](https://cds.climate.copernicus.eu/cdsapp#!/home)
-    - [https://cds.climate.copernicus.eu/api-how-to](https://cds.climate.copernicus.eu/api-how-to)
-    """  # noqa: E501
+- `https://cds.climate.copernicus.eu/cdsapp#!/home <https://cds.climate.copernicus.eu/cdsapp#!/home>`_
+- `https://cds.climate.copernicus.eu/api-how-to <https://cds.climate.copernicus.eu/api-how-to>`_
 
+.. GENERATED FROM PYTHON SOURCE LINES 93-102
 
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-
-    "\nThe final setup step is to set up your CDS API key so we can access ERA5 data to act as\nan initial state. Earth-2 MIP supports a number of different initial state data sources\nthat are supported including HDF5, CDS, GFS, etc. The CDS initial state provides a\nconvenient way to access a limited amount of historical weather data. Its recommended\nfor accessing an initial state, but larger data requirements should use locally stored\nweather datasets.\n\nEnter your CDS API uid and key below (found under your profile page). If you don't a CDS API key, find out more here.\n- [https://cds.climate.copernicus.eu/cdsapp#!/home](https://cds.climate.copernicus.eu/cdsapp#!/home)\n- [https://cds.climate.copernicus.eu/api-how-to](https://cds.climate.copernicus.eu/api-how-to)\n"
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 95-104
-
-.. code-block:: default
+.. code-block:: Python
 
     cds_api = os.path.join(os.path.expanduser("~"), ".cdsapirc")
     if not os.path.exists(cds_api):
@@ -218,39 +155,22 @@ In summary this notebook will cover the following topics:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 105-118
+.. GENERATED FROM PYTHON SOURCE LINES 103-113
 
-.. code-block:: default
+Running Inference
+-----------------
+To run inference of these models we will use some of Earth-2 MIPs Python APIs to perform
+inference. The first step is to load the model from the model registry, which is done
+using the `registry.get_model` command. This will look in your `MODEL_REGISTRY` folder
+for the provided name and use this as a filesystem for loading necessary files.
 
-    """
-    ## Running Inference
+The model is then loaded into memory using the load function for that particular
+network. Earth-2 MIP has multiple abstracts that can allow this to be automated that can
+be used instead if desired.
 
-    To run inference of these models we will use some of Earth-2 MIPs Python APIs to perform
-    inference. The first step is to load the model from the model registry, which is done
-    using the `registry.get_model` command. This will look in your `MODEL_REGISTRY` folder
-    for the provided name and use this as a filesystem for loading necessary files.
+.. GENERATED FROM PYTHON SOURCE LINES 115-131
 
-    The model is then loaded into memory using the load function for that particular
-    network. Earth-2 MIP has multiple abstracts that can allow this to be automated that can
-    be used instead if desired.
-    """
-
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-
-    '\n## Running Inference\n\nTo run inference of these models we will use some of Earth-2 MIPs Python APIs to perform\ninference. The first step is to load the model from the model registry, which is done\nusing the `registry.get_model` command. This will look in your `MODEL_REGISTRY` folder\nfor the provided name and use this as a filesystem for loading necessary files.\n\nThe model is then loaded into memory using the load function for that particular\nnetwork. Earth-2 MIP has multiple abstracts that can allow this to be automated that can\nbe used instead if desired.\n'
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 119-135
-
-.. code-block:: default
+.. code-block:: Python
 
     import earth2mip.networks.dlwp as dlwp
     import earth2mip.networks.pangu as pangu
@@ -281,37 +201,16 @@ In summary this notebook will cover the following topics:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 136-143
+.. GENERATED FROM PYTHON SOURCE LINES 132-136
 
-.. code-block:: default
+Next we set up the initial state data source for January 1st, 2018 at 00:00:00 UTC.
+As previously mentioned, we will pull data on the fly from CDS (make sure you set up
+your API key above). Since DLWP and Pangu require different channels (and time steps),
+we will create two seperate data-sources for them.
 
-    """
-    Next we set up the initial state data source for January 1st, 2018 at 00:00:00 UTC.
-    As previously mentioned, we will pull data on the fly from CDS (make sure you set up
-    your API key above). Since DLWP and Pangu require different channels (and time steps),
-    we will create two seperate data-sources for them.
-    """
+.. GENERATED FROM PYTHON SOURCE LINES 138-146
 
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-
-    '\nNext we set up the initial state data source for January 1st, 2018 at 00:00:00 UTC.\nAs previously mentioned, we will pull data on the fly from CDS (make sure you set up\nyour API key above). Since DLWP and Pangu require different channels (and time steps),\nwe will create two seperate data-sources for them.\n'
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 144-145
-
-Initial state data/time
-
-.. GENERATED FROM PYTHON SOURCE LINES 145-153
-
-.. code-block:: default
+.. code-block:: Python
 
     time = datetime.datetime(2018, 1, 1)
 
@@ -328,38 +227,17 @@ Initial state data/time
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 154-162
+.. GENERATED FROM PYTHON SOURCE LINES 147-152
 
-.. code-block:: default
+With the initial state downloaded for each and set up in an Xarray dataset, we can now
+run deterministic inference for both which can be achieved using the
+`inference_ensemble.run_basic_inference` method which will produce a Xarray
+`data array <https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html>`_ to then
+work with.
 
-    """
-    With the initial state downloaded for each and set up in an Xarray dataset, we can now
-    run deterministic inference for both which can be achieved using the
-    `inference_ensemble.run_basic_inference` method which will produce a Xarray
-    [data array](https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html) to then
-    work with.
-    """
+.. GENERATED FROM PYTHON SOURCE LINES 154-164
 
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-
-    '\nWith the initial state downloaded for each and set up in an Xarray dataset, we can now\nrun deterministic inference for both which can be achieved using the\n`inference_ensemble.run_basic_inference` method which will produce a Xarray\n[data array](https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html) to then\nwork with.\n'
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 163-164
-
-Run Pangu inference
-
-.. GENERATED FROM PYTHON SOURCE LINES 164-174
-
-.. code-block:: default
+.. code-block:: Python
 
     print("Running Pangu inference")
     pangu_ds = inference_ensemble.run_basic_inference(
@@ -434,13 +312,9 @@ Run Pangu inference
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 175-176
+.. GENERATED FROM PYTHON SOURCE LINES 165-175
 
-Run DLWP inference
-
-.. GENERATED FROM PYTHON SOURCE LINES 176-186
-
-.. code-block:: default
+.. code-block:: Python
 
     print("Running DLWP inference")
     dlwp_ds = inference_ensemble.run_basic_inference(
@@ -462,46 +336,46 @@ Run DLWP inference
 
     Running DLWP inference
     <xarray.DataArray (time: 13, history: 1, channel: 7, lat: 721, lon: 1440)>
-    array([[[[[ 2.50292755e+02,  2.50292755e+02,  2.50292755e+02, ...,
-                2.50292755e+02,  2.50292755e+02,  2.50292755e+02],
-              [ 2.50401154e+02,  2.50401154e+02,  2.50400177e+02, ...,
-                2.50401154e+02,  2.50401154e+02,  2.50401154e+02],
-              [ 2.50458771e+02,  2.50458771e+02,  2.50457794e+02, ...,
-                2.50458771e+02,  2.50458771e+02,  2.50458771e+02],
+    array([[[[[ 2.5029276e+02,  2.5029276e+02,  2.5029276e+02, ...,
+                2.5029276e+02,  2.5029276e+02,  2.5029276e+02],
+              [ 2.5040115e+02,  2.5040115e+02,  2.5040018e+02, ...,
+                2.5040115e+02,  2.5040115e+02,  2.5040115e+02],
+              [ 2.5045877e+02,  2.5045877e+02,  2.5045779e+02, ...,
+                2.5045877e+02,  2.5045877e+02,  2.5045877e+02],
               ...,
-              [ 2.59438263e+02,  2.59438263e+02,  2.59437286e+02, ...,
-                2.59440216e+02,  2.59439240e+02,  2.59439240e+02],
-              [ 2.59341583e+02,  2.59341583e+02,  2.59341583e+02, ...,
-                2.59340607e+02,  2.59340607e+02,  2.59341583e+02],
-              [ 2.59302521e+02,  2.59302521e+02,  2.59302521e+02, ...,
-                2.59302521e+02,  2.59302521e+02,  2.59302521e+02]],
+              [ 2.5943826e+02,  2.5943826e+02,  2.5943729e+02, ...,
+                2.5944022e+02,  2.5943924e+02,  2.5943924e+02],
+              [ 2.5934158e+02,  2.5934158e+02,  2.5934158e+02, ...,
+                2.5934061e+02,  2.5934061e+02,  2.5934158e+02],
+              [ 2.5930252e+02,  2.5930252e+02,  2.5930252e+02, ...,
+                2.5930252e+02,  2.5930252e+02,  2.5930252e+02]],
 
-             [[ 5.56605469e+02,  5.56605469e+02,  5.56605469e+02, ...,
-                5.56605469e+02,  5.56605469e+02,  5.56605469e+02],
-              [ 5.47730469e+02,  5.47730469e+02,  5.47605469e+02, ...,
-                5.47855469e+02,  5.47855469e+02,  5.47730469e+02],
-              [ 5.40480469e+02,  5.40480469e+02,  5.40355469e+02, ...,
-                5.40730469e+02,  5.40730469e+02,  5.40605469e+02],
+             [[ 5.5660547e+02,  5.5660547e+02,  5.5660547e+02, ...,
+                5.5660547e+02,  5.5660547e+02,  5.5660547e+02],
+              [ 5.4773047e+02,  5.4773047e+02,  5.4760547e+02, ...,
+                5.4785547e+02,  5.4785547e+02,  5.4773047e+02],
+              [ 5.4048047e+02,  5.4048047e+02,  5.4035547e+02, ...,
+                5.4073047e+02,  5.4073047e+02,  5.4060547e+02],
     ...
-                1.69586182e+00,  1.69586182e+00,  1.69586182e+00],
-              [ 1.60866356e+00,  1.60866356e+00,  1.60866356e+00, ...,
-                1.69586182e+00,  1.69586182e+00,  1.69586182e+00],
-              [ 1.60866356e+00,  1.60866356e+00,  1.60866356e+00, ...,
-                1.69586182e+00,  1.69586182e+00,  1.69586182e+00]],
+                1.6946373e+00,  1.6946373e+00,  1.6946373e+00],
+              [ 1.6112556e+00,  1.6112556e+00,  1.6112556e+00, ...,
+                1.6946373e+00,  1.6946373e+00,  1.6946373e+00],
+              [ 1.6112556e+00,  1.6112556e+00,  1.6112556e+00, ...,
+                1.6946373e+00,  1.6946373e+00,  1.6946373e+00]],
 
-             [[ 2.51353119e+02,  2.51353119e+02,  2.51353119e+02, ...,
-                2.47414581e+02,  2.47414581e+02,  2.47414581e+02],
-              [ 2.51353119e+02,  2.51353119e+02,  2.51353119e+02, ...,
-                2.47414581e+02,  2.47414581e+02,  2.47414581e+02],
-              [ 2.51353119e+02,  2.51353119e+02,  2.51353119e+02, ...,
-                2.47414581e+02,  2.47414581e+02,  2.47414581e+02],
+             [[ 2.5115109e+02,  2.5115109e+02,  2.5115109e+02, ...,
+                2.4731943e+02,  2.4731943e+02,  2.4731943e+02],
+              [ 2.5115109e+02,  2.5115109e+02,  2.5115109e+02, ...,
+                2.4731943e+02,  2.4731943e+02,  2.4731943e+02],
+              [ 2.5115109e+02,  2.5115109e+02,  2.5115109e+02, ...,
+                2.4731943e+02,  2.4731943e+02,  2.4731943e+02],
               ...,
-              [ 2.50724609e+02,  2.50724609e+02,  2.50724609e+02, ...,
-                2.51468842e+02,  2.51468842e+02,  2.51468842e+02],
-              [ 2.50724609e+02,  2.50724609e+02,  2.50724609e+02, ...,
-                2.51468842e+02,  2.51468842e+02,  2.51468842e+02],
-              [ 2.50724609e+02,  2.50724609e+02,  2.50724609e+02, ...,
-                2.51468842e+02,  2.51468842e+02,  2.51468842e+02]]]]],
+              [ 2.5071286e+02,  2.5071286e+02,  2.5071286e+02, ...,
+                2.5144870e+02,  2.5144870e+02,  2.5144870e+02],
+              [ 2.5071286e+02,  2.5071286e+02,  2.5071286e+02, ...,
+                2.5144870e+02,  2.5144870e+02,  2.5144870e+02],
+              [ 2.5071286e+02,  2.5071286e+02,  2.5071286e+02, ...,
+                2.5144870e+02,  2.5144870e+02,  2.5144870e+02]]]]],
           dtype=float32)
     Coordinates:
       * lat      (lat) float64 90.0 89.75 89.5 89.25 ... -89.25 -89.5 -89.75 -90.0
@@ -513,34 +387,16 @@ Run DLWP inference
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 187-195
+.. GENERATED FROM PYTHON SOURCE LINES 176-180
 
-.. code-block:: default
+Post Processing
+---------------
+With inference complete, now the fun part: post processing and analysis!
+Here we will just plot the z500 (geopotential at pressure level 500) contour time-series of both models.
 
-    """
-    ## Post Processing
+.. GENERATED FROM PYTHON SOURCE LINES 182-204
 
-    With inference complete, now the fun part: post processing and analysis!
-    Here we will just plot the z500 (geopotential at pressure level 500) contour time-series
-    of both models.
-    """
-
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-
-    '\n## Post Processing\n\nWith inference complete, now the fun part: post processing and analysis!\nHere we will just plot the z500 (geopotential at pressure level 500) contour time-series\nof both models.\n'
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 196-218
-
-.. code-block:: default
+.. code-block:: Python
 
     import matplotlib.pyplot as plt
 
@@ -576,32 +432,16 @@ Run DLWP inference
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 219-224
+.. GENERATED FROM PYTHON SOURCE LINES 205-208
 
-.. code-block:: default
-
-    """
-    And that completes the second notebook detailing how to run deterministic inference of
-    two models using Earth-2 MIP. In the next notebook, we will look at how to score a
-    model compared against ERA5 re-analysis data.
-    """
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-
-    '\nAnd that completes the second notebook detailing how to run deterministic inference of\ntwo models using Earth-2 MIP. In the next notebook, we will look at how to score a\nmodel compared against ERA5 re-analysis data.\n'
-
-
+And that completes the second notebook detailing how to run deterministic inference of
+two models using Earth-2 MIP. In the next notebook, we will look at how to score a
+model compared against ERA5 re-analysis data.
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (1 minutes 41.865 seconds)
+   **Total running time of the script:** (1 minutes 54.665 seconds)
 
 
 .. _sphx_glr_download_examples_02_model_comparison.py:
@@ -610,16 +450,13 @@ Run DLWP inference
 
   .. container:: sphx-glr-footer sphx-glr-footer-example
 
+    .. container:: sphx-glr-download sphx-glr-download-jupyter
 
-
+      :download:`Download Jupyter notebook: 02_model_comparison.ipynb <02_model_comparison.ipynb>`
 
     .. container:: sphx-glr-download sphx-glr-download-python
 
       :download:`Download Python source code: 02_model_comparison.py <02_model_comparison.py>`
-
-    .. container:: sphx-glr-download sphx-glr-download-jupyter
-
-      :download:`Download Jupyter notebook: 02_model_comparison.ipynb <02_model_comparison.ipynb>`
 
 
 .. only:: html

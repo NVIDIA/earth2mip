@@ -35,7 +35,7 @@ In summary this notebook will cover the following topics:
 
 .. GENERATED FROM PYTHON SOURCE LINES 36-39
 
-.. code-block:: default
+.. code-block:: Python
 
     import datetime
     import os
@@ -47,72 +47,47 @@ In summary this notebook will cover the following topics:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 40-71
+.. GENERATED FROM PYTHON SOURCE LINES 40-69
 
-.. code-block:: default
+Setting up HDF5 data
+---------------------
+The first step of scoring is handling the target data. One could simply use the
+CDSDatasource to download target data on the fly, but depending on how comprehensive
+the scoring is, this can prove quite slow.
+Additionally, many scoring pipelines require on-prem data.
+Thus, this will demonstrate how to use the HDF5 datasource.
+The HDF5 data source assumes that the data to be loaded is stored in the general form:
+::
 
-    """
-    ## Setting up HDF5 data
+  year.h5
+      | - field (time, channels, grid)
 
-    The first step of scoring is handling the target data. One could simply use the
-    CDSDatasource to download target data on the fly, but depending on how comprehensive
-    the scoring is, this can prove quite slow.
-    Additionally, many scoring pipelines require on-prem data.
-    Thus, this will demonstrate how to use the HDF5 datasource.
+For AFNO which requires 34 channels with a time-step size of 6 hours, an H5 file will
+have the following form of data:
+::
 
-    The HDF5 data source assumes that the data to be loaded is stored in the general form:
+  2017.h5
+      | - field (1460, 34, 720, 1440)
+  2016.h5
+      | - field (1464, 34, 720, 1440)
+  2015.h5
+      | - field (1460, 34, 720, 1440)
 
-    year.h5
-     | - field (time, channels, grid)
+(Note the later two dims have some flexibility with regridding)
+One option to build these H5 files from scratch is to use the ERA5 mirror scripts
+provided in `Modulus <https://github.com/NVIDIA/modulus/tree/main/examples/weather/dataset_download>`_.
+For the rest of this tutorial, it is assumed that 2017.h5 is present for the full year.
+%%
 
-    For AFNO which requires 34 channels with a time-step size of 6 hours, an H5 file will
-    have the following form of data:
+.. GENERATED FROM PYTHON SOURCE LINES 69-75
 
-    2017.h5
-     | - field (1460, 34, 720, 1440)
-    2016.h5
-     | - field (1464, 34, 720, 1440)
-    2015.h5
-     | - field (1460, 34, 720, 1440)
+.. code-block:: Python
 
-    (Note the later two dims have some flexibility with regridding)
+    import dotenv
 
-    One option to build these H5 files from scratch is to use the ERA5 mirror scripts
-    provided in [Modulus](https://github.com/NVIDIA/modulus/tree/main/examples/weather/dataset_download).
-    For the rest of this tutorial, it is assumed that 2017.h5 is present for the full year.
-    """  # noqa: E501
-
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-
-    '\n## Setting up HDF5 data\n\nThe first step of scoring is handling the target data. One could simply use the\nCDSDatasource to download target data on the fly, but depending on how comprehensive\nthe scoring is, this can prove quite slow.\nAdditionally, many scoring pipelines require on-prem data.\nThus, this will demonstrate how to use the HDF5 datasource.\n\nThe HDF5 data source assumes that the data to be loaded is stored in the general form:\n\nyear.h5\n | - field (time, channels, grid)\n\nFor AFNO which requires 34 channels with a time-step size of 6 hours, an H5 file will\nhave the following form of data:\n\n2017.h5\n | - field (1460, 34, 720, 1440)\n2016.h5\n | - field (1464, 34, 720, 1440)\n2015.h5\n | - field (1460, 34, 720, 1440)\n\n(Note the later two dims have some flexibility with regridding)\n\nOne option to build these H5 files from scratch is to use the ERA5 mirror scripts\nprovided in [Modulus](https://github.com/NVIDIA/modulus/tree/main/examples/weather/dataset_download).\nFor the rest of this tutorial, it is assumed that 2017.h5 is present for the full year.\n'
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 72-74
-
-load an values in a .env file where you can specify your H5 root folder by
-adding a line like:
-
-.. GENERATED FROM PYTHON SOURCE LINES 74-84
-
-.. code-block:: default
-
-    try:
-        import dotenv
-
-        dotenv.load_dotenv()
-    except ModuleNotFoundError:
-        pass  # pip install python-dotenv
-
+    dotenv.load_dotenv()
     # can set this with the export ERA5_HDF5=/path/to/root/of/h5/files
-    h5_folder = os.getenv("ERA5_HDF5", "/mount/73vars")
+    h5_folder = os.getenv("ERA5_HDF5")
 
 
 
@@ -120,36 +95,20 @@ adding a line like:
 
 
 
+
+.. GENERATED FROM PYTHON SOURCE LINES 76-83
+
+Loading Models
+--------------
+With the HDF5 datasource loaded the next step is to load our model we wish to score.
+In this tutorial we will be using the built in FourcastNet model.
+Take note of the `e2mip://` which will direct Earth-2 MIP to load a known model package.
+FourcastNet is selected here simply because its a 34 channel model which aligns with the
+H5 files described above.
 
 .. GENERATED FROM PYTHON SOURCE LINES 85-94
 
-.. code-block:: default
-
-    """
-    ## Loading Models
-
-    With the HDF5 datasource loaded the next step is to load our model we wish to score.
-    In this tutorial we will be using the built in FourcastNet model.
-    Take note of the `e2mip://` which will direct Earth-2 MIP to load a known model package.
-    FourcastNet is selected here simply because its a 34 channel model which aligns with the
-    H5 files described above.
-    """
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-
-    '\n## Loading Models\n\nWith the HDF5 datasource loaded the next step is to load our model we wish to score.\nIn this tutorial we will be using the built in FourcastNet model.\nTake note of the `e2mip://` which will direct Earth-2 MIP to load a known model package.\nFourcastNet is selected here simply because its a 34 channel model which aligns with the\nH5 files described above.\n'
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 95-104
-
-.. code-block:: default
+.. code-block:: Python
 
     from modulus.distributed import DistributedManager
 
@@ -167,37 +126,21 @@ adding a line like:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 105-116
+.. GENERATED FROM PYTHON SOURCE LINES 95-104
 
-.. code-block:: default
+HDF5 Datasource
+---------------
+With the H5 files properly formatted, a H5 datasource can now get defined.
+This requires two items: a root directory location of the H5 files as well as some
+metadata. Se
+The metadata is a JSON/dictionary object that helps Earth-2 MIP index the H5 file.
+Typically, this can be done by placing a `data.json` file next to the H5 files.
+See `this documentation <https://github.com/NVIDIA/earth2mip/blob/f44c580ccc3d98bf349fe97823bb1540e532c80d/earth2mip/initial_conditions/hdf5.py#L38>`_
+for more details on how to set up input data correctly.
 
-    """
-    ## HDF5 Datasource
+.. GENERATED FROM PYTHON SOURCE LINES 106-117
 
-    With the H5 files properly formatted, a H5 datasource can now get defined.
-    This requires two items: a root directory location of the H5 files as well as some
-    metadata. Se
-    The metadata is a JSON/dictionary object that helps Earth-2 MIP index the H5 file.
-    Typically, this can be done by placing a `data.json` file next to the H5 files.
-    See [this documentation](https://github.com/NVIDIA/earth2mip/blob/f44c580ccc3d98bf349fe97823bb1540e532c80d/earth2mip/initial_conditions/hdf5.py#L38)
-    for more details on how to set up input data correctly.
-    """  # noqa
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-
-    '\n## HDF5 Datasource\n\nWith the H5 files properly formatted, a H5 datasource can now get defined.\nThis requires two items: a root directory location of the H5 files as well as some\nmetadata. Se\nThe metadata is a JSON/dictionary object that helps Earth-2 MIP index the H5 file.\nTypically, this can be done by placing a `data.json` file next to the H5 files.\nSee [this documentation](https://github.com/NVIDIA/earth2mip/blob/f44c580ccc3d98bf349fe97823bb1540e532c80d/earth2mip/initial_conditions/hdf5.py#L38)\nfor more details on how to set up input data correctly.\n'
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 117-128
-
-.. code-block:: default
+.. code-block:: Python
 
     from earth2mip.initial_conditions import hdf5
 
@@ -223,40 +166,23 @@ adding a line like:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 129-143
+.. GENERATED FROM PYTHON SOURCE LINES 118-129
 
-.. code-block:: default
+Running Scoring
+---------------
+With the datasource and model loaded, scoring can now be performed.
+To score this we will run 10 day forecasts over the span of the entire year at 30 day
+intervals.
+For research, one would typically want this to be much more comprehensive so feel free
+to customize for you're use case.
 
-    """
-    ## Running Scoring
+The `score_deterministic` API provides a simple way to calculate RMSE and ACC scores.
+ACC scores require climatology which is beyond the scope of this example, thus zero
+values will be provided and only the RMSE will be of concern.
 
-    With the datasource and model loaded, scoring can now be performed.
-    To score this we will run 10 day forecasts over the span of the entire year at 30 day
-    intervals.
-    For research, one would typically want this to be much more comprehensive so feel free
-    to customize for you're use case.
+.. GENERATED FROM PYTHON SOURCE LINES 131-149
 
-    The `score_deterministic` API provides a simple way to calculate RMSE and ACC scores.
-    ACC scores require climatology which is beyond the scope of this example, thus zero
-    values will be provided and only the RMSE will be of concern.
-    """
-
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-
-    "\n## Running Scoring\n\nWith the datasource and model loaded, scoring can now be performed.\nTo score this we will run 10 day forecasts over the span of the entire year at 30 day\nintervals.\nFor research, one would typically want this to be much more comprehensive so feel free\nto customize for you're use case.\n\nThe `score_deterministic` API provides a simple way to calculate RMSE and ACC scores.\nACC scores require climatology which is beyond the scope of this example, thus zero\nvalues will be provided and only the RMSE will be of concern.\n"
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 144-162
-
-.. code-block:: default
+.. code-block:: Python
 
     from earth2mip.inference_medium_range import save_scores, time_average_metrics
 
@@ -280,38 +206,37 @@ adding a line like:
 
 
 
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 163-172
-
-.. code-block:: default
-
-    """
-    ## Post Processing
-
-    The last step is any post processing / IO that is desired.
-    Typically its recommended to save the output dataset to a netCDF file for further
-    processing.
-    Lets plot the RMSE of the z500 (geopotential at pressure level 500) field.
-    """
-
-
-
-
-
 .. rst-class:: sphx-glr-script-out
 
  .. code-block:: none
 
+    INFO:inference:Running 2017-01-01 00:00:00
+    INFO:inference:Running 2017-01-31 00:00:00
+    INFO:inference:Running 2017-03-02 00:00:00
+    INFO:inference:Running 2017-04-01 00:00:00
+    INFO:inference:Running 2017-05-01 00:00:00
+    INFO:inference:Running 2017-05-31 00:00:00
+    INFO:inference:Running 2017-06-30 00:00:00
+    INFO:inference:Running 2017-07-30 00:00:00
+    INFO:inference:Running 2017-08-29 00:00:00
+    INFO:inference:Running 2017-09-28 00:00:00
+    INFO:inference:Running 2017-10-28 00:00:00
+    INFO:inference:Running 2017-11-27 00:00:00
 
-    '\n## Post Processing\n\nThe last step is any post processing / IO that is desired.\nTypically its recommended to save the output dataset to a netCDF file for further\nprocessing.\nLets plot the RMSE of the z500 (geopotential at pressure level 500) field.\n'
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 173-192
+.. GENERATED FROM PYTHON SOURCE LINES 150-155
 
-.. code-block:: default
+Post Processing
+---------------
+The last step is any post processing / IO that is desired.
+Typically its recommended to save the output dataset to a netCDF file for further processing.
+Lets plot the RMSE of the z500 (geopotential at pressure level 500) field.
+
+.. GENERATED FROM PYTHON SOURCE LINES 157-176
+
+.. code-block:: Python
 
     import matplotlib.pyplot as plt
     import pandas as pd
@@ -344,31 +269,15 @@ adding a line like:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 193-197
+.. GENERATED FROM PYTHON SOURCE LINES 177-179
 
-.. code-block:: default
-
-    """
-    This completes this introductory notebook on basic scoring of models in Earth-2 MIP,
-    which is founational for comparing the performance of different models.
-    """
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-
-    '\nThis completes this introductory notebook on basic scoring of models in Earth-2 MIP,\nwhich is founational for comparing the performance of different models.\n'
-
-
+This completes this introductory notebook on basic scoring of models in Earth-2 MIP,
+which is founational for comparing the performance of different models.
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (5 minutes 10.308 seconds)
+   **Total running time of the script:** (6 minutes 3.610 seconds)
 
 
 .. _sphx_glr_download_examples_03_model_scoring.py:
@@ -377,16 +286,13 @@ adding a line like:
 
   .. container:: sphx-glr-footer sphx-glr-footer-example
 
+    .. container:: sphx-glr-download sphx-glr-download-jupyter
 
-
+      :download:`Download Jupyter notebook: 03_model_scoring.ipynb <03_model_scoring.ipynb>`
 
     .. container:: sphx-glr-download sphx-glr-download-python
 
       :download:`Download Python source code: 03_model_scoring.py <03_model_scoring.py>`
-
-    .. container:: sphx-glr-download sphx-glr-download-jupyter
-
-      :download:`Download Jupyter notebook: 03_model_scoring.ipynb <03_model_scoring.ipynb>`
 
 
 .. only:: html

@@ -34,32 +34,20 @@ In summary this notebook will cover the following topics:
 - Running ensemble inference in Earth-2 MIP to produce an xarray DataSet
 - Post processing results
 
-.. GENERATED FROM PYTHON SOURCE LINES 38-45
+.. GENERATED FROM PYTHON SOURCE LINES 37-41
 
-.. code-block:: default
+Set Up
+------
+Starting off with imports, hopefully you have already installed Earth-2 MIP from this
+repository. There are a few additional packages needed.
 
+.. GENERATED FROM PYTHON SOURCE LINES 43-46
 
-    # ## Set Up
-
-    # Starting off with imports, hopefully you have already installed Earth-2 MIP from this
-    # repository. There are a few additional packages needed.
-
-
-
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 46-51
-
-.. code-block:: default
+.. code-block:: Python
 
     import json
     import os
 
-    import xarray
 
 
 
@@ -67,56 +55,34 @@ In summary this notebook will cover the following topics:
 
 
 
-
-.. GENERATED FROM PYTHON SOURCE LINES 52-56
+.. GENERATED FROM PYTHON SOURCE LINES 47-64
 
 Prior to importing Earth-2 MIP, users need to be aware of a few enviroment variables
 which can be used to customize Earth-2 MIPs global behavior. These must be set prior to
 importing Earth-2 MIP. There are a number of different configuration options, some to
 consider are:
 
-.. GENERATED FROM PYTHON SOURCE LINES 56-75
+- `WORLD_SIZE`: Tells Earth-2 MIP (which uses Modulus under the hood) the number of GPUs to use for inferencing.
+- `MODEL_REGISTRY`: This variable tells Earth-2 MIP where location the model registery. By default this is located in `${HOME}/.cache/earth2mip/models`.
 
-.. code-block:: default
+*Key Concept*: A model registry is a folder that Earth-2 MIP will explore to find model
+checkpoints to load. A folder containing the required fileds is referred to as a
+"model package". Model packages typically consist of a few files such as:
 
+- `weights.tar`/`weights.mdlus`: the model checkpoint to load
+- `metadata.json`: a JSON file that contains meta info regarding various details for using the model
+- `config.json`: constains parameters needed to instantiate the model object in python
+- `global_means.npy`: A numpy array containing the mean values used for normalization of data in the model
+- `global_std.npy`: A numpy array containing the standard deviation values used for normalization of data in the model
 
-    # - `WORLD_SIZE`: Tells Earth-2 MIP (which uses Modulus under the hood) the number of GPUs
-    #     to use for inferencing.
-    # - `MODEL_REGISTRY`: This variable tells Earth-2 MIP where location the model registery.
-    #     By default this is located in `${HOME}/.cache/earth2mip/models`.
+.. GENERATED FROM PYTHON SOURCE LINES 66-74
 
-    # *Key Concept*: A model registry is a folder that Earth-2 MIP will explore to find model
-    # checkpoints to load. A folder containing the required fileds is referred to as a
-    # "model package". Model packages typically consist of a few files such as:
+.. code-block:: Python
 
-    # - `weights.tar`/`weights.mdlus`: the model checkpoint to load
-    # - `metadata.json`: a JSON file that contains meta info regarding various details for
-    #     using the model
-    # - `config.json`: constains parameters needed to instantiate the model object in python
-    # - `global_means.npy`: A numpy array containing the mean values used for normalization of
-    #     data in the model
-    # - `global_std.npy`: A numpy array containing the standard deviation values used for
-    #     normalization of data in the model
+    import dotenv
+    import xarray
 
-
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 76-77
-
-For this example Set number of GPUs to use to 1
-
-.. GENERATED FROM PYTHON SOURCE LINES 77-85
-
-.. code-block:: default
-
-    os.environ["WORLD_SIZE"] = "1"
-
-    # Use the default location for the model registry, but one can change its location
-    # os.environ['MODEL_REGISTRY'] = "/my/file/path/"
+    dotenv.load_dotenv()
 
     # With the enviroment variables set now we import Earth-2 MIP
     from earth2mip import inference_ensemble, registry
@@ -128,7 +94,7 @@ For this example Set number of GPUs to use to 1
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 86-91
+.. GENERATED FROM PYTHON SOURCE LINES 75-89
 
 The cell above created a model registry folder for us, but if this is your first
 notebook its likely empty. Lets fix that. As previously metioned we will be using the
@@ -136,30 +102,18 @@ FCNv2-sm weather model with the checkpoint provided on the Nvidia Modulus model
 registry. The model is shipped via a zip folder containing the required checkpoint files
 discussed above.
 
-.. GENERATED FROM PYTHON SOURCE LINES 91-101
+Since this model is built into Earth-2 MIP, the `registry.get_model` function can be
+used to auto-download and extract it (this can take a bit).
+The `e2mip://` prefix on the model URI, will point Earth-2 MIP to use the package
+fetch methods built into the model.
+Without it, Earth-2 MIP will simply look for a `fcnv2_sm` folder in your model registry
+and not attempt to download anything for you.
+Once complete, go look in your `MODEL_REGISTRY` folder and the files needed for FCNv2
+should now be present.
 
-.. code-block:: default
+.. GENERATED FROM PYTHON SOURCE LINES 91-94
 
-
-    # Since this model is built into Earth-2 MIP, the `registry.get_model` function can be
-    # used to auto-download and extract it (this can take a bit).
-    # The `e2mip://` prefix on the model URI, will point Earth-2 MIP to use the package
-    # fetch methods built into the model.
-    # Without it, Earth-2 MIP will simply look for a `fcnv2_sm` folder in your model registry
-    # and not attempt to download anything for you.
-    # Once complete, go look in your `MODEL_REGISTRY` folder and the files needed for FCNv2
-    # should now be present.
-
-
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 102-105
-
-.. code-block:: default
+.. code-block:: Python
 
     print("Fetching model package...")
     package = registry.get_model("e2mip://fcnv2_sm")
@@ -177,7 +131,7 @@ discussed above.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 106-112
+.. GENERATED FROM PYTHON SOURCE LINES 95-107
 
 The final setup step is to set up your CDS API key so we can access ERA5 data to act as
 an initial state. Earth-2 MIP supports a number of different initial state data sources
@@ -186,27 +140,15 @@ convenient way to access a limited amount of historical weather data. Its recomm
 for accessing an initial state, but larger data requirements should use locally stored
 weather datasets.
 
-.. GENERATED FROM PYTHON SOURCE LINES 112-119
+Enter your CDS API uid and key below (found under your profile page).
+If you don't a CDS API key, find out more here.
 
-.. code-block:: default
+- `https://cds.climate.copernicus.eu/cdsapp#!/home <https://cds.climate.copernicus.eu/cdsapp#!/home>`_
+- `https://cds.climate.copernicus.eu/api-how-to <https://cds.climate.copernicus.eu/api-how-to>`_
 
+.. GENERATED FROM PYTHON SOURCE LINES 109-118
 
-    # Enter your CDS API uid and key below (found under your profile page).
-    # If you don't a CDS API key, find out more here.
-    # - [https://cds.climate.copernicus.eu/cdsapp#!/home](https://cds.climate.copernicus.eu/cdsapp#!/home)
-    # - [https://cds.climate.copernicus.eu/api-how-to](https://cds.climate.copernicus.eu/api-how-to)
-
-
-
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 120-129
-
-.. code-block:: default
+.. code-block:: Python
 
     cds_api = os.path.join(os.path.expanduser("~"), ".cdsapirc")
     if not os.path.exists(cds_api):
@@ -224,56 +166,39 @@ weather datasets.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 130-160
+.. GENERATED FROM PYTHON SOURCE LINES 119-146
 
-.. code-block:: default
+Running Inference
+-----------------
 
-    """
-    ## Running Inference
+To run inference we will use the `earth2mip/ensemble_inference.py` part of Earth-2 MIP.
+When this Python file, we provide either a config JSON file or a JSON serialized string
+for it to parse. This config contains the information regarding how the model should run
+inference. The schema of this can be found in `earth2mip/schema/EnsembleRun`.
 
-    To run inference we will use the `earth2mip/ensemble_inference.py` part of Earth-2 MIP.
-    When this Python file, we provide either a config JSON file or a JSON serialized string
-    for it to parse. This config contains the information regarding how the model should run
-    inference. The schema of this can be found in `earth2mip/schema/EnsembleRun`.
+Since we are working in a notebook, lets create this config Pythonically. There are
+quite a few parameters that can be used, but lets focus in on a few key ones:
 
-    Since we are working in a notebook, lets create this config Pythonically. There are
-    quite a few parameters that can be used, but lets focus in on a few key ones:
+- `ensemble_members`: Number ensemble members in the forecast
 
-    - `ensemble_members`: Number ensemble members in the forecast
-    - `noise_amplitude`: The amplitude of the noise pertibation method (we find that a good
-        value to start with is `0.05`, feel free to experiment)
-    - `simulation_length`: Number of (6h) time-steps to predict
-    - `weather_event`: This defines the weather event as a combination of an initial time
-        and a domain.
-        * The domain property defines the IO, ,by telling Earth-2 MIP for what regions
-        (if `window`) or points (if `multipoint`) data should be stored. It also defines the
-        `channels` and the diagnostic.  In this example the global field is recorded for the
-        `t2m` and `u10m` channels.
-    - `output_path`: The output location of the ensemble prediction netCDF file
-    - `weather_model`: The model ID to run. This MUST match the name of the model registry
-        folder with your checkpoint files. So for this example its `fcnv2_sm`.
+- `noise_amplitude`: The amplitude of the noise pertibation method (we find that a good value to start with is `0.05`, feel free to experiment)
 
-    Note: While in later notebooks we will demonstrate more Pythonic methods to interact
-    with Earth-2 MIP's APIs, the built in inference workflows provide a high-degree of
-    control with little to no programming.
-    """
+- `simulation_length`: Number of (6h) time-steps to predict
 
+- `weather_event`: This defines the weather event as a combination of an initial time and a domain.
 
+- `output_path`: The output location of the ensemble prediction netCDF file
 
+- `weather_model`: The model ID to run. This MUST match the name of the model registry folder with your checkpoint files. So for this example its `fcnv2_sm`.
 
+.. note::
+  Note: While in later notebooks we will demonstrate more Pythonic methods to interact
+  with Earth-2 MIP's APIs, the built in inference workflows provide a high-degree of
+  control with little to no programming.
 
-.. rst-class:: sphx-glr-script-out
+.. GENERATED FROM PYTHON SOURCE LINES 148-177
 
- .. code-block:: none
-
-
-    "\n## Running Inference\n\nTo run inference we will use the `earth2mip/ensemble_inference.py` part of Earth-2 MIP.\nWhen this Python file, we provide either a config JSON file or a JSON serialized string\nfor it to parse. This config contains the information regarding how the model should run\ninference. The schema of this can be found in `earth2mip/schema/EnsembleRun`.\n\nSince we are working in a notebook, lets create this config Pythonically. There are\nquite a few parameters that can be used, but lets focus in on a few key ones:\n\n- `ensemble_members`: Number ensemble members in the forecast\n- `noise_amplitude`: The amplitude of the noise pertibation method (we find that a good\n    value to start with is `0.05`, feel free to experiment)\n- `simulation_length`: Number of (6h) time-steps to predict\n- `weather_event`: This defines the weather event as a combination of an initial time\n    and a domain.\n    * The domain property defines the IO, ,by telling Earth-2 MIP for what regions\n    (if `window`) or points (if `multipoint`) data should be stored. It also defines the\n    `channels` and the diagnostic.  In this example the global field is recorded for the\n    `t2m` and `u10m` channels.\n- `output_path`: The output location of the ensemble prediction netCDF file\n- `weather_model`: The model ID to run. This MUST match the name of the model registry\n    folder with your checkpoint files. So for this example its `fcnv2_sm`.\n\nNote: While in later notebooks we will demonstrate more Pythonic methods to interact\nwith Earth-2 MIP's APIs, the built in inference workflows provide a high-degree of\ncontrol with little to no programming.\n"
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 161-190
-
-.. code-block:: default
+.. code-block:: Python
 
     config = {
         "ensemble_members": 4,
@@ -311,48 +236,25 @@ weather datasets.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 191-205
+.. GENERATED FROM PYTHON SOURCE LINES 178-185
 
-.. code-block:: default
+Now we run the `main()` function in `earth2mip.inference_ensemble` providing our config
+object which will run inference with the following steps:
 
-    """
-    Now we run the `main()` function in `earth2mip.inference_ensemble` providing our config
-    object which will run inference with the following steps:
+1. Instantiate and load the FCNv2 small weather model onto the device
+2. Download the initial state data needed from CDS using your saved API key
+3. Perturb the initial state based on the parameters in the config and run a forecast predicton
+4. Save output Xarray dataset to NetCDF file located in `../outputs/01_ensemble_notebook` (the process may take a while!)
 
-    1. Instantiate and load the FCNv2 small weather model onto the device
-    2. Download the initial state data needed from CDS using your saved API key
-    3. Perturb the initial state based on the parameters in the config and run a forecast
-        predicton
-    4. Save output Xarray dataset to NetCDF file located in
-        `../outputs/01_ensemble_notebook`
+.. GENERATED FROM PYTHON SOURCE LINES 187-197
 
-    (the process may take a while!)
-    """
+.. code-block:: Python
 
 
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-
-    '\nNow we run the `main()` function in `earth2mip.inference_ensemble` providing our config\nobject which will run inference with the following steps:\n\n1. Instantiate and load the FCNv2 small weather model onto the device\n2. Download the initial state data needed from CDS using your saved API key\n3. Perturb the initial state based on the parameters in the config and run a forecast\n    predicton\n4. Save output Xarray dataset to NetCDF file located in\n    `../outputs/01_ensemble_notebook`\n\n(the process may take a while!)\n'
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 206-210
-
-Option 1: Use config file and CLI (use this outside a notebook)
-with open('./01_config.json', 'w') as f:
-    json.dump(config, f)
-! python3 -m earth2mip.inference_ensemble 01_config.json
-
-.. GENERATED FROM PYTHON SOURCE LINES 210-215
-
-.. code-block:: default
-
+    # Option 1: Use config file and CLI (use this outside a notebook)
+    # with open('./01_config.json', 'w') as f:
+    #     json.dump(config, f)
+    # ! python3 -m earth2mip.inference_ensemble 01_config.json
 
     # Option 2: Feed in JSON string directly into main function
     config_str = json.dumps(config)
@@ -381,57 +283,35 @@ with open('./01_config.json', 'w') as f:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 216-247
+.. GENERATED FROM PYTHON SOURCE LINES 198-221
 
-.. code-block:: default
+When the inference is complete we can examine the output in `outputs/01_ensemble_notebook/ensemble_out_0.nc`.
 
-    """
-    When the inference is complete we can examine the output in
-    `ouputs/01_ensemble_notebook/ensemble_out_0.nc`.
+Note: if the inference is distributed across N GPUs there will be `ensemble_out_0.nc`, `ensemble_out_1.nc`, ... `ensemble_out_N-1.nc` output files.
+In this case a function like this could concat the files to a single xarray DataArray:
 
-    Note: if the inference is distributed across N GPUs there will be `ensemble_out_0.nc`,
-    `ensemble_out_1.nc`, ... `ensemble_out_N-1.nc` output files.
-    In this case a function like this could concat the files to a single xarray DataArray:
+.. code-block::
 
-    ```python
-    def _open(f, domain, time, chunks={"time": 1}):
-        root = xarray.open_dataset(f, decode_times=False)
-        ds = xarray.open_dataset(f, chunks=chunks, group=domain)
-        ds.attrs = root.attrs
-        return ds.assign_coords(time=lead_time)
+      def _open(f, domain, time, chunks={"time": 1}):
+          root = xarray.open_dataset(f, decode_times=False)
+          ds = xarray.open_dataset(f, chunks=chunks, group=domain)
+          ds.attrs = root.attrs
+          return ds.assign_coords(time=lead_time)
 
-
-    def open_ensemble(path, domain, time):
-        path = pathlib.Path(path)
-        ensemble_files = list(path.glob("ensemble_out_*.nc"))
-        return xarray.concat(
+      def open_ensemble(path, domain, time):
+          path = pathlib.Path(path)
+          ensemble_files = list(path.glob("ensemble_out_*.nc"))
+          return xarray.concat(
             [_open(f, group, time) for f in ensemble_files], dim="ensemble"
-        )
-    ```
+          )
 
-    (TODO: Parallel inference / scoring example)
+(TODO: Parallel inference / scoring example)
 
-    But with our single NetCDF file we can load it into a
-    [Xarray Dataset](https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html) with
-    just a few lines of code.
-    """
+But with our single NetCDF file we can load it into a `Xarray Dataset <https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html>`_ with just a few lines of code.
 
+.. GENERATED FROM PYTHON SOURCE LINES 223-239
 
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-
-    '\nWhen the inference is complete we can examine the output in\n`ouputs/01_ensemble_notebook/ensemble_out_0.nc`.\n\nNote: if the inference is distributed across N GPUs there will be `ensemble_out_0.nc`,\n`ensemble_out_1.nc`, ... `ensemble_out_N-1.nc` output files.\nIn this case a function like this could concat the files to a single xarray DataArray:\n\n```python\ndef _open(f, domain, time, chunks={"time": 1}):\n    root = xarray.open_dataset(f, decode_times=False)\n    ds = xarray.open_dataset(f, chunks=chunks, group=domain)\n    ds.attrs = root.attrs\n    return ds.assign_coords(time=lead_time)\n\n\ndef open_ensemble(path, domain, time):\n    path = pathlib.Path(path)\n    ensemble_files = list(path.glob("ensemble_out_*.nc"))\n    return xarray.concat(\n        [_open(f, group, time) for f in ensemble_files], dim="ensemble"\n    )\n```\n\n(TODO: Parallel inference / scoring example)\n\nBut with our single NetCDF file we can load it into a\n[Xarray Dataset](https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html) with\njust a few lines of code.\n'
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 248-264
-
-.. code-block:: default
+.. code-block:: Python
 
 
 
@@ -838,16 +718,16 @@ with open('./01_config.json', 'w') as f:
         model:          fcnv2_sm
         config:         {&quot;weather_model&quot;: &quot;fcnv2_sm&quot;, &quot;simulation_length&quot;: 10, &quot;p...
         weather_event:  {&quot;properties&quot;: {&quot;name&quot;: &quot;Globe&quot;, &quot;start_time&quot;: &quot;2018-06-0...
-        date_created:   2023-11-17T20:31:17.384814
-        history:        /ngeneva/code/earth2mip/examples/notebooks/01_ensemble_in...
+        date_created:   2023-11-21T06:34:36.073913
+        history:        /ngeneva/code/earth2mip/examples/01_ensemble_inference.py
         institution:    NVIDIA
-        Conventions:    CF-1.10</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.Dataset</div></div><ul class='xr-sections'><li class='xr-section-item'><input id='section-083c77f7-0a26-4b15-abb3-7bdb9d319b26' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-083c77f7-0a26-4b15-abb3-7bdb9d319b26' class='xr-section-summary'  title='Expand/collapse section'>Dimensions:</label><div class='xr-section-inline-details'><ul class='xr-dim-list'><li><span class='xr-has-index'>lat</span>: 721</li><li><span class='xr-has-index'>lon</span>: 1440</li><li><span>ensemble</span>: 4</li><li><span class='xr-has-index'>time</span>: 11</li></ul></div><div class='xr-section-details'></div></li><li class='xr-section-item'><input id='section-d5f08501-ecd1-4a43-a6e1-220a01058c74' class='xr-section-summary-in' type='checkbox'  checked><label for='section-d5f08501-ecd1-4a43-a6e1-220a01058c74' class='xr-section-summary' >Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>lat</span></div><div class='xr-var-dims'>(lat)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>90.0 89.75 89.5 ... -89.75 -90.0</div><input id='attrs-40a8fa2d-4cd2-44a8-8f00-18935cb10edd' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-40a8fa2d-4cd2-44a8-8f00-18935cb10edd' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-e2cce591-262b-497b-bb3d-b3dcbf1ce935' class='xr-var-data-in' type='checkbox'><label for='data-e2cce591-262b-497b-bb3d-b3dcbf1ce935' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>degrees_north</dd><dt><span>standard_name :</span></dt><dd>latitude</dd><dt><span>long_name :</span></dt><dd>latitude</dd></dl></div><div class='xr-var-data'><pre>array([ 90.  ,  89.75,  89.5 , ..., -89.5 , -89.75, -90.  ], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>lon</span></div><div class='xr-var-dims'>(lon)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>0.0 0.25 0.5 ... 359.2 359.5 359.8</div><input id='attrs-a04bfc7b-acec-4735-90e6-023de020bdce' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-a04bfc7b-acec-4735-90e6-023de020bdce' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-cb9eb387-56d8-4169-87c6-ec86ca2e764e' class='xr-var-data-in' type='checkbox'><label for='data-cb9eb387-56d8-4169-87c6-ec86ca2e764e' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>degrees_east</dd><dt><span>standard_name :</span></dt><dd>longitude</dd><dt><span>long_name :</span></dt><dd>longitude</dd></dl></div><div class='xr-var-data'><pre>array([0.0000e+00, 2.5000e-01, 5.0000e-01, ..., 3.5925e+02, 3.5950e+02,
-           3.5975e+02], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>datetime64[ns]</div><div class='xr-var-preview xr-preview'>2018-06-01 ... 2018-06-03T12:00:00</div><input id='attrs-30e6d43d-cb89-4098-b089-5f2fd35790d0' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-30e6d43d-cb89-4098-b089-5f2fd35790d0' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-c8a90f8c-4814-4ea5-ac46-bd194f2c3430' class='xr-var-data-in' type='checkbox'><label for='data-c8a90f8c-4814-4ea5-ac46-bd194f2c3430' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;2018-06-01T00:00:00.000000000&#x27;, &#x27;2018-06-01T06:00:00.000000000&#x27;,
+        Conventions:    CF-1.10</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.Dataset</div></div><ul class='xr-sections'><li class='xr-section-item'><input id='section-c8cef467-6e5d-46cb-a855-5dde720054ce' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-c8cef467-6e5d-46cb-a855-5dde720054ce' class='xr-section-summary'  title='Expand/collapse section'>Dimensions:</label><div class='xr-section-inline-details'><ul class='xr-dim-list'><li><span class='xr-has-index'>lat</span>: 721</li><li><span class='xr-has-index'>lon</span>: 1440</li><li><span>ensemble</span>: 4</li><li><span class='xr-has-index'>time</span>: 11</li></ul></div><div class='xr-section-details'></div></li><li class='xr-section-item'><input id='section-a62a02c2-4799-487e-90cd-939bf29e633a' class='xr-section-summary-in' type='checkbox'  checked><label for='section-a62a02c2-4799-487e-90cd-939bf29e633a' class='xr-section-summary' >Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>lat</span></div><div class='xr-var-dims'>(lat)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>90.0 89.75 89.5 ... -89.75 -90.0</div><input id='attrs-7398f865-e41a-430a-959d-1627fae81242' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-7398f865-e41a-430a-959d-1627fae81242' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-6fa2a1ee-38d5-4ad2-a8e4-6d385de30d03' class='xr-var-data-in' type='checkbox'><label for='data-6fa2a1ee-38d5-4ad2-a8e4-6d385de30d03' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>degrees_north</dd><dt><span>standard_name :</span></dt><dd>latitude</dd><dt><span>long_name :</span></dt><dd>latitude</dd></dl></div><div class='xr-var-data'><pre>array([ 90.  ,  89.75,  89.5 , ..., -89.5 , -89.75, -90.  ], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>lon</span></div><div class='xr-var-dims'>(lon)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>0.0 0.25 0.5 ... 359.2 359.5 359.8</div><input id='attrs-2f39620a-a46f-491e-9b86-9db0d1c29150' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-2f39620a-a46f-491e-9b86-9db0d1c29150' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-c24dcb0f-c03d-4438-81c1-04d3939e309b' class='xr-var-data-in' type='checkbox'><label for='data-c24dcb0f-c03d-4438-81c1-04d3939e309b' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>degrees_east</dd><dt><span>standard_name :</span></dt><dd>longitude</dd><dt><span>long_name :</span></dt><dd>longitude</dd></dl></div><div class='xr-var-data'><pre>array([0.0000e+00, 2.5000e-01, 5.0000e-01, ..., 3.5925e+02, 3.5950e+02,
+           3.5975e+02], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>datetime64[ns]</div><div class='xr-var-preview xr-preview'>2018-06-01 ... 2018-06-03T12:00:00</div><input id='attrs-3efca526-998c-4c16-8685-db0a14a0d2bd' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-3efca526-998c-4c16-8685-db0a14a0d2bd' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-5debc74d-d991-4786-8777-c8fcc125211f' class='xr-var-data-in' type='checkbox'><label for='data-5debc74d-d991-4786-8777-c8fcc125211f' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;2018-06-01T00:00:00.000000000&#x27;, &#x27;2018-06-01T06:00:00.000000000&#x27;,
            &#x27;2018-06-01T12:00:00.000000000&#x27;, &#x27;2018-06-01T18:00:00.000000000&#x27;,
            &#x27;2018-06-02T00:00:00.000000000&#x27;, &#x27;2018-06-02T06:00:00.000000000&#x27;,
            &#x27;2018-06-02T12:00:00.000000000&#x27;, &#x27;2018-06-02T18:00:00.000000000&#x27;,
            &#x27;2018-06-03T00:00:00.000000000&#x27;, &#x27;2018-06-03T06:00:00.000000000&#x27;,
-           &#x27;2018-06-03T12:00:00.000000000&#x27;], dtype=&#x27;datetime64[ns]&#x27;)</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-495a5958-c4c9-4213-8bf6-92c44c1b36ca' class='xr-section-summary-in' type='checkbox'  checked><label for='section-495a5958-c4c9-4213-8bf6-92c44c1b36ca' class='xr-section-summary' >Data variables: <span>(6)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>imin</span></div><div class='xr-var-dims'>()</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-d7c5546f-f75e-4e08-8c5d-ab1d2cc07c8d' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-d7c5546f-f75e-4e08-8c5d-ab1d2cc07c8d' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-c9ec9e7c-851b-4332-b5f8-31350e923594' class='xr-var-data-in' type='checkbox'><label for='data-c9ec9e7c-851b-4332-b5f8-31350e923594' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>[1 values with dtype=int64]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>imax</span></div><div class='xr-var-dims'>()</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-ed66cbd1-ccb2-4304-9bbf-9a44ab777655' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-ed66cbd1-ccb2-4304-9bbf-9a44ab777655' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-6f3a172c-a490-42c9-8207-e09ed716c0a6' class='xr-var-data-in' type='checkbox'><label for='data-6f3a172c-a490-42c9-8207-e09ed716c0a6' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>[1 values with dtype=int64]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>jmin</span></div><div class='xr-var-dims'>()</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-2783cfee-edf4-478c-8cbd-67ec4500226a' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-2783cfee-edf4-478c-8cbd-67ec4500226a' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-44c866df-9927-4d1f-a9b7-ab92982cf530' class='xr-var-data-in' type='checkbox'><label for='data-44c866df-9927-4d1f-a9b7-ab92982cf530' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>[1 values with dtype=int64]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>jmax</span></div><div class='xr-var-dims'>()</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-eafe06a9-3e71-49f1-b600-768545048317' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-eafe06a9-3e71-49f1-b600-768545048317' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-81abf1a9-dae5-4d91-b4ef-6d34531c2114' class='xr-var-data-in' type='checkbox'><label for='data-81abf1a9-dae5-4d91-b4ef-6d34531c2114' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>[1 values with dtype=int64]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>t2m</span></div><div class='xr-var-dims'>(ensemble, time, lat, lon)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>dask.array&lt;chunksize=(4, 1, 721, 1440), meta=np.ndarray&gt;</div><input id='attrs-f13fe3c5-db7d-4fe0-9fe5-6944060fe7d2' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-f13fe3c5-db7d-4fe0-9fe5-6944060fe7d2' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-5fbc6a2e-af37-4332-8b5a-488310de4e30' class='xr-var-data-in' type='checkbox'><label for='data-5fbc6a2e-af37-4332-8b5a-488310de4e30' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><table>
+           &#x27;2018-06-03T12:00:00.000000000&#x27;], dtype=&#x27;datetime64[ns]&#x27;)</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-b9ec0bc4-4261-4a6d-9278-d398fe1b2f87' class='xr-section-summary-in' type='checkbox'  checked><label for='section-b9ec0bc4-4261-4a6d-9278-d398fe1b2f87' class='xr-section-summary' >Data variables: <span>(6)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>imin</span></div><div class='xr-var-dims'>()</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-89a7ad13-0ed3-4465-acee-8227baebf712' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-89a7ad13-0ed3-4465-acee-8227baebf712' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-e609ffeb-a31f-4450-a501-3ebbbf4e67c3' class='xr-var-data-in' type='checkbox'><label for='data-e609ffeb-a31f-4450-a501-3ebbbf4e67c3' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>[1 values with dtype=int64]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>imax</span></div><div class='xr-var-dims'>()</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-340776e5-14d8-4446-82c3-7a999ef94d0a' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-340776e5-14d8-4446-82c3-7a999ef94d0a' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-456a326a-4051-4b1f-91bb-22e803b3cf52' class='xr-var-data-in' type='checkbox'><label for='data-456a326a-4051-4b1f-91bb-22e803b3cf52' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>[1 values with dtype=int64]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>jmin</span></div><div class='xr-var-dims'>()</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-0f7f8313-d7bc-4d09-86e3-f16403ebe096' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-0f7f8313-d7bc-4d09-86e3-f16403ebe096' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-b3dba99d-510e-4472-8b79-6373b72f09e8' class='xr-var-data-in' type='checkbox'><label for='data-b3dba99d-510e-4472-8b79-6373b72f09e8' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>[1 values with dtype=int64]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>jmax</span></div><div class='xr-var-dims'>()</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-6c1b48dd-9b10-48ce-9d4d-a98f9db86558' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-6c1b48dd-9b10-48ce-9d4d-a98f9db86558' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-470441eb-a72f-4bd6-8db6-3f2c11cf3e25' class='xr-var-data-in' type='checkbox'><label for='data-470441eb-a72f-4bd6-8db6-3f2c11cf3e25' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>[1 values with dtype=int64]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>t2m</span></div><div class='xr-var-dims'>(ensemble, time, lat, lon)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>dask.array&lt;chunksize=(4, 1, 721, 1440), meta=np.ndarray&gt;</div><input id='attrs-a6f09283-9d2f-4483-8cf6-522090ac742f' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-a6f09283-9d2f-4483-8cf6-522090ac742f' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-7e14d61f-171a-49e5-9985-441361553c76' class='xr-var-data-in' type='checkbox'><label for='data-7e14d61f-171a-49e5-9985-441361553c76' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><table>
         <tr>
             <td>
                 <table style="border-collapse: collapse;">
@@ -961,7 +841,7 @@ with open('./01_config.json', 'w') as f:
     </svg>
             </td>
         </tr>
-    </table></div></li><li class='xr-var-item'><div class='xr-var-name'><span>u10m</span></div><div class='xr-var-dims'>(ensemble, time, lat, lon)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>dask.array&lt;chunksize=(4, 1, 721, 1440), meta=np.ndarray&gt;</div><input id='attrs-04fb4348-2560-40c6-9fed-f1c0f32c326c' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-04fb4348-2560-40c6-9fed-f1c0f32c326c' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-ff2a8bd0-eb88-4428-ae57-4fcea6f222b3' class='xr-var-data-in' type='checkbox'><label for='data-ff2a8bd0-eb88-4428-ae57-4fcea6f222b3' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><table>
+    </table></div></li><li class='xr-var-item'><div class='xr-var-name'><span>u10m</span></div><div class='xr-var-dims'>(ensemble, time, lat, lon)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>dask.array&lt;chunksize=(4, 1, 721, 1440), meta=np.ndarray&gt;</div><input id='attrs-2ce2c23d-2f4b-48f1-8409-4a47a99b049f' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-2ce2c23d-2f4b-48f1-8409-4a47a99b049f' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-7606a641-9171-478d-9e0e-1108a0356b56' class='xr-var-data-in' type='checkbox'><label for='data-7606a641-9171-478d-9e0e-1108a0356b56' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><table>
         <tr>
             <td>
                 <table style="border-collapse: collapse;">
@@ -1075,58 +955,41 @@ with open('./01_config.json', 'w') as f:
     </svg>
             </td>
         </tr>
-    </table></div></li></ul></div></li><li class='xr-section-item'><input id='section-031c8463-640b-41f5-9bf9-f6d6fea9b761' class='xr-section-summary-in' type='checkbox'  ><label for='section-031c8463-640b-41f5-9bf9-f6d6fea9b761' class='xr-section-summary' >Indexes: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-index-name'><div>lat</div></div><div class='xr-index-preview'>PandasIndex</div><div></div><input id='index-defa556e-4335-465e-95d8-b56bf5b8ef2f' class='xr-index-data-in' type='checkbox'/><label for='index-defa556e-4335-465e-95d8-b56bf5b8ef2f' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([  90.0,  89.75,   89.5,  89.25,   89.0,  88.75,   88.5,  88.25,   88.0,
+    </table></div></li></ul></div></li><li class='xr-section-item'><input id='section-6dccf2cd-7da5-4578-9977-5149e1fe833f' class='xr-section-summary-in' type='checkbox'  ><label for='section-6dccf2cd-7da5-4578-9977-5149e1fe833f' class='xr-section-summary' >Indexes: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-index-name'><div>lat</div></div><div class='xr-index-preview'>PandasIndex</div><div></div><input id='index-a65390d4-2c30-4722-aa03-905f75999350' class='xr-index-data-in' type='checkbox'/><label for='index-a65390d4-2c30-4722-aa03-905f75999350' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([  90.0,  89.75,   89.5,  89.25,   89.0,  88.75,   88.5,  88.25,   88.0,
             87.75,
            ...
            -87.75,  -88.0, -88.25,  -88.5, -88.75,  -89.0, -89.25,  -89.5, -89.75,
             -90.0],
-          dtype=&#x27;float32&#x27;, name=&#x27;lat&#x27;, length=721))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>lon</div></div><div class='xr-index-preview'>PandasIndex</div><div></div><input id='index-ae507463-d446-42c7-888e-5663c350257d' class='xr-index-data-in' type='checkbox'/><label for='index-ae507463-d446-42c7-888e-5663c350257d' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([   0.0,   0.25,    0.5,   0.75,    1.0,   1.25,    1.5,   1.75,    2.0,
+          dtype=&#x27;float32&#x27;, name=&#x27;lat&#x27;, length=721))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>lon</div></div><div class='xr-index-preview'>PandasIndex</div><div></div><input id='index-a48e3f9d-8437-428f-be6c-13f2dc538ebb' class='xr-index-data-in' type='checkbox'/><label for='index-a48e3f9d-8437-428f-be6c-13f2dc538ebb' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([   0.0,   0.25,    0.5,   0.75,    1.0,   1.25,    1.5,   1.75,    2.0,
              2.25,
            ...
             357.5, 357.75,  358.0, 358.25,  358.5, 358.75,  359.0, 359.25,  359.5,
            359.75],
-          dtype=&#x27;float32&#x27;, name=&#x27;lon&#x27;, length=1440))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>time</div></div><div class='xr-index-preview'>PandasIndex</div><div></div><input id='index-d17f5d2d-0a68-46f1-b631-6f188ec2d079' class='xr-index-data-in' type='checkbox'/><label for='index-d17f5d2d-0a68-46f1-b631-6f188ec2d079' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(DatetimeIndex([&#x27;2018-06-01 00:00:00&#x27;, &#x27;2018-06-01 06:00:00&#x27;,
+          dtype=&#x27;float32&#x27;, name=&#x27;lon&#x27;, length=1440))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>time</div></div><div class='xr-index-preview'>PandasIndex</div><div></div><input id='index-ec177dd1-2386-485e-bea0-d949f67a5ce3' class='xr-index-data-in' type='checkbox'/><label for='index-ec177dd1-2386-485e-bea0-d949f67a5ce3' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(DatetimeIndex([&#x27;2018-06-01 00:00:00&#x27;, &#x27;2018-06-01 06:00:00&#x27;,
                    &#x27;2018-06-01 12:00:00&#x27;, &#x27;2018-06-01 18:00:00&#x27;,
                    &#x27;2018-06-02 00:00:00&#x27;, &#x27;2018-06-02 06:00:00&#x27;,
                    &#x27;2018-06-02 12:00:00&#x27;, &#x27;2018-06-02 18:00:00&#x27;,
                    &#x27;2018-06-03 00:00:00&#x27;, &#x27;2018-06-03 06:00:00&#x27;,
                    &#x27;2018-06-03 12:00:00&#x27;],
-                  dtype=&#x27;datetime64[ns]&#x27;, name=&#x27;time&#x27;, freq=None))</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-4ccfe801-1b1f-4289-aa20-506789463e04' class='xr-section-summary-in' type='checkbox'  checked><label for='section-4ccfe801-1b1f-4289-aa20-506789463e04' class='xr-section-summary' >Attributes: <span>(7)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'><dt><span>model :</span></dt><dd>fcnv2_sm</dd><dt><span>config :</span></dt><dd>{&quot;weather_model&quot;: &quot;fcnv2_sm&quot;, &quot;simulation_length&quot;: 10, &quot;perturbation_strategy&quot;: &quot;correlated&quot;, &quot;perturbation_channels&quot;: null, &quot;noise_reddening&quot;: 2.0, &quot;noise_amplitude&quot;: 0.05, &quot;output_frequency&quot;: 1, &quot;output_grid&quot;: null, &quot;ensemble_members&quot;: 4, &quot;seed&quot;: 12345, &quot;ensemble_batch_size&quot;: 1, &quot;forecast_name&quot;: null, &quot;weather_event&quot;: {&quot;properties&quot;: {&quot;name&quot;: &quot;Globe&quot;, &quot;start_time&quot;: &quot;2018-06-01T00:00:00&quot;, &quot;initial_condition_source&quot;: &quot;cds&quot;, &quot;netcdf&quot;: &quot;&quot;, &quot;restart&quot;: &quot;&quot;}, &quot;domains&quot;: [{&quot;type&quot;: &quot;Window&quot;, &quot;name&quot;: &quot;global&quot;, &quot;lat_min&quot;: -90, &quot;lat_max&quot;: 90, &quot;lon_min&quot;: 0, &quot;lon_max&quot;: 360, &quot;diagnostics&quot;: [{&quot;type&quot;: &quot;raw&quot;, &quot;function&quot;: &quot;&quot;, &quot;channels&quot;: [&quot;t2m&quot;, &quot;u10m&quot;], &quot;nbins&quot;: 10}]}]}, &quot;output_dir&quot;: null, &quot;output_path&quot;: &quot;outputs/01_ensemble_notebook&quot;, &quot;restart_frequency&quot;: null, &quot;grf_noise_alpha&quot;: 2.0, &quot;grf_noise_sigma&quot;: 5.0, &quot;grf_noise_tau&quot;: 2.0}</dd><dt><span>weather_event :</span></dt><dd>{&quot;properties&quot;: {&quot;name&quot;: &quot;Globe&quot;, &quot;start_time&quot;: &quot;2018-06-01T00:00:00&quot;, &quot;initial_condition_source&quot;: &quot;cds&quot;, &quot;netcdf&quot;: &quot;&quot;, &quot;restart&quot;: &quot;&quot;}, &quot;domains&quot;: [{&quot;type&quot;: &quot;Window&quot;, &quot;name&quot;: &quot;global&quot;, &quot;lat_min&quot;: -90, &quot;lat_max&quot;: 90, &quot;lon_min&quot;: 0, &quot;lon_max&quot;: 360, &quot;diagnostics&quot;: [{&quot;type&quot;: &quot;raw&quot;, &quot;function&quot;: &quot;&quot;, &quot;channels&quot;: [&quot;t2m&quot;, &quot;u10m&quot;], &quot;nbins&quot;: 10}]}]}</dd><dt><span>date_created :</span></dt><dd>2023-11-17T20:31:17.384814</dd><dt><span>history :</span></dt><dd>/ngeneva/code/earth2mip/examples/notebooks/01_ensemble_inference.py</dd><dt><span>institution :</span></dt><dd>NVIDIA</dd><dt><span>Conventions :</span></dt><dd>CF-1.10</dd></dl></div></li></ul></div></div>
+                  dtype=&#x27;datetime64[ns]&#x27;, name=&#x27;time&#x27;, freq=None))</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-8ebcee9d-bb89-404a-a323-3ca08c22016e' class='xr-section-summary-in' type='checkbox'  checked><label for='section-8ebcee9d-bb89-404a-a323-3ca08c22016e' class='xr-section-summary' >Attributes: <span>(7)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'><dt><span>model :</span></dt><dd>fcnv2_sm</dd><dt><span>config :</span></dt><dd>{&quot;weather_model&quot;: &quot;fcnv2_sm&quot;, &quot;simulation_length&quot;: 10, &quot;perturbation_strategy&quot;: &quot;correlated&quot;, &quot;perturbation_channels&quot;: null, &quot;noise_reddening&quot;: 2.0, &quot;noise_amplitude&quot;: 0.05, &quot;output_frequency&quot;: 1, &quot;output_grid&quot;: null, &quot;ensemble_members&quot;: 4, &quot;seed&quot;: 12345, &quot;ensemble_batch_size&quot;: 1, &quot;forecast_name&quot;: null, &quot;weather_event&quot;: {&quot;properties&quot;: {&quot;name&quot;: &quot;Globe&quot;, &quot;start_time&quot;: &quot;2018-06-01T00:00:00&quot;, &quot;initial_condition_source&quot;: &quot;cds&quot;, &quot;netcdf&quot;: &quot;&quot;, &quot;restart&quot;: &quot;&quot;}, &quot;domains&quot;: [{&quot;type&quot;: &quot;Window&quot;, &quot;name&quot;: &quot;global&quot;, &quot;lat_min&quot;: -90, &quot;lat_max&quot;: 90, &quot;lon_min&quot;: 0, &quot;lon_max&quot;: 360, &quot;diagnostics&quot;: [{&quot;type&quot;: &quot;raw&quot;, &quot;function&quot;: &quot;&quot;, &quot;channels&quot;: [&quot;t2m&quot;, &quot;u10m&quot;], &quot;nbins&quot;: 10}]}]}, &quot;output_dir&quot;: null, &quot;output_path&quot;: &quot;outputs/01_ensemble_notebook&quot;, &quot;restart_frequency&quot;: null, &quot;grf_noise_alpha&quot;: 2.0, &quot;grf_noise_sigma&quot;: 5.0, &quot;grf_noise_tau&quot;: 2.0}</dd><dt><span>weather_event :</span></dt><dd>{&quot;properties&quot;: {&quot;name&quot;: &quot;Globe&quot;, &quot;start_time&quot;: &quot;2018-06-01T00:00:00&quot;, &quot;initial_condition_source&quot;: &quot;cds&quot;, &quot;netcdf&quot;: &quot;&quot;, &quot;restart&quot;: &quot;&quot;}, &quot;domains&quot;: [{&quot;type&quot;: &quot;Window&quot;, &quot;name&quot;: &quot;global&quot;, &quot;lat_min&quot;: -90, &quot;lat_max&quot;: 90, &quot;lon_min&quot;: 0, &quot;lon_max&quot;: 360, &quot;diagnostics&quot;: [{&quot;type&quot;: &quot;raw&quot;, &quot;function&quot;: &quot;&quot;, &quot;channels&quot;: [&quot;t2m&quot;, &quot;u10m&quot;], &quot;nbins&quot;: 10}]}]}</dd><dt><span>date_created :</span></dt><dd>2023-11-21T06:34:36.073913</dd><dt><span>history :</span></dt><dd>/ngeneva/code/earth2mip/examples/01_ensemble_inference.py</dd><dt><span>institution :</span></dt><dd>NVIDIA</dd><dt><span>Conventions :</span></dt><dd>CF-1.10</dd></dl></div></li></ul></div></div>
     </div>
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 265-276
+.. GENERATED FROM PYTHON SOURCE LINES 240-248
 
-.. code-block:: default
+Post Processing
+---------------
+With inference complete, now the fun part: post processing and analysis!
+You can manipulate the data to your hearts content now that its in an Xarray Dataset.
+Here we will demonstrate some common plotting / analysis workflows one may be
+interested. Lets start off with importing all our post processing packages.
 
-    """
-    ## Post Processing
+(You may need to pip install matplotlib and cartopy)
 
-    With inference complete, now the fun part: post processing and analysis!
-    You can manipulate the data to your hearts content now that its in an Xarray Dataset.
-    Here we will demonstrate some common plotting / analysis workflows one may be
-    interested. Lets start off with importing all our post processing packages.
+.. GENERATED FROM PYTHON SOURCE LINES 250-266
 
-    (You may need to pip install matplotlib and cartopy)
-    """
-
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-
-    '\n## Post Processing\n\nWith inference complete, now the fun part: post processing and analysis!\nYou can manipulate the data to your hearts content now that its in an Xarray Dataset.\nHere we will demonstrate some common plotting / analysis workflows one may be\ninterested. Lets start off with importing all our post processing packages.\n\n(You may need to pip install matplotlib and cartopy)\n'
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 277-293
-
-.. code-block:: default
+.. code-block:: Python
 
     import cartopy.crs as ccrs
     import cartopy.feature as cfeature
@@ -1151,32 +1014,15 @@ with open('./01_config.json', 'w') as f:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 294-300
+.. GENERATED FROM PYTHON SOURCE LINES 267-270
 
-.. code-block:: default
+Up first, we can plot a time series of the value of a variable (or statistics of that
+variable) at a given location (lat/lon coord). In this case lets look at the results
+predicted over New York.
 
-    """
-    Up first, we can plot a time series of the value of a variable (or statistics of that
-    variable) at a given location (lat/lon coord). In this case lets look at the results
-    predicted over New York.
-    """
+.. GENERATED FROM PYTHON SOURCE LINES 272-298
 
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-
-    '\nUp first, we can plot a time series of the value of a variable (or statistics of that\nvariable) at a given location (lat/lon coord). In this case lets look at the results\npredicted over New York.\n'
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 301-327
-
-.. code-block:: default
+.. code-block:: Python
 
     plt.close("all")
     lead_time = np.array(
@@ -1216,35 +1062,18 @@ with open('./01_config.json', 'w') as f:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 328-337
+.. GENERATED FROM PYTHON SOURCE LINES 299-305
 
-.. code-block:: default
+Next, lets plot some fields of surface temperature. Since we have an ensemble of
+predictions, lets display the first ensemble member, which is deterministic member,
+and also the last ensemble member and the ensemmble standard deviation. One or both of
+the perturbed members may look a little noisy, thats because our noise amplitude is
+maybe too high. Try lowering the amplitude in the config or changing pertibation type
+to see what happens.
 
-    """
-    Next, lets plot some fields of surface temperature. Since we have an ensemble of
-    predictions, lets display the first ensemble member, which is deterministic member,
-    and also the last ensemble member and the ensemmble standard deviation. One or both of
-    the perturbed members may look a little noisy, thats because our noise amplitude is
-    maybe too high. Try lowering the amplitude in the config or changing pertibation type
-    to see what happens.
-    """
+.. GENERATED FROM PYTHON SOURCE LINES 307-351
 
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-
-    '\nNext, lets plot some fields of surface temperature. Since we have an ensemble of\npredictions, lets display the first ensemble member, which is deterministic member,\nand also the last ensemble member and the ensemmble standard deviation. One or both of\nthe perturbed members may look a little noisy, thats because our noise amplitude is\nmaybe too high. Try lowering the amplitude in the config or changing pertibation type\nto see what happens.\n'
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 338-382
-
-.. code-block:: default
+.. code-block:: Python
 
     plt.close("all")
     fig = plt.figure(figsize=(15, 10))
@@ -1302,31 +1131,14 @@ with open('./01_config.json', 'w') as f:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 383-388
+.. GENERATED FROM PYTHON SOURCE LINES 352-354
 
-.. code-block:: default
+We can also show a map of the ensemble mean of the 10 meter zonal winds (using some
+Nvidia style coloring!)
 
-    """
-    We can also show a map of the ensemble mean of the 10 meter zonal winds (using some
-    Nvidia style coloring!)
-    """
+.. GENERATED FROM PYTHON SOURCE LINES 356-388
 
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-
-    '\nWe can also show a map of the ensemble mean of the 10 meter zonal winds (using some\nNvidia style coloring!)\n'
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 389-421
-
-.. code-block:: default
+.. code-block:: Python
 
 
 
@@ -1372,31 +1184,14 @@ with open('./01_config.json', 'w') as f:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 422-427
+.. GENERATED FROM PYTHON SOURCE LINES 389-391
 
-.. code-block:: default
+Finally lets compute the latitude-weighted global averages and plot time series of
+ensemble standard deviation.
 
-    """
-    Finally lets compute the latitude-weighted global averages and plot time series of
-    ensemble standard deviation.
-    """
+.. GENERATED FROM PYTHON SOURCE LINES 393-408
 
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-
-    '\nFinally lets compute the latitude-weighted global averages and plot time series of\nensemble standard deviation.\n'
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 428-443
-
-.. code-block:: default
+.. code-block:: Python
 
 
 
@@ -1425,32 +1220,16 @@ with open('./01_config.json', 'w') as f:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 444-449
+.. GENERATED FROM PYTHON SOURCE LINES 409-412
 
-.. code-block:: default
-
-    """
-    And that completes the introductory notebook into running ensemble weather predictions
-    with AI. In the next notebook, we will look at running different models using more
-    Pythonic APIs and plotting geopotential fields.
-    """
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-
-    '\nAnd that completes the introductory notebook into running ensemble weather predictions\nwith AI. In the next notebook, we will look at running different models using more\nPythonic APIs and plotting geopotential fields.\n'
-
-
+And that completes the introductory notebook into running ensemble weather predictions
+with AI. In the next notebook, we will look at running different models using more
+Pythonic APIs and plotting geopotential fields.
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (2 minutes 44.096 seconds)
+   **Total running time of the script:** (2 minutes 58.428 seconds)
 
 
 .. _sphx_glr_download_examples_01_ensemble_inference.py:
@@ -1459,16 +1238,13 @@ with open('./01_config.json', 'w') as f:
 
   .. container:: sphx-glr-footer sphx-glr-footer-example
 
+    .. container:: sphx-glr-download sphx-glr-download-jupyter
 
-
+      :download:`Download Jupyter notebook: 01_ensemble_inference.ipynb <01_ensemble_inference.ipynb>`
 
     .. container:: sphx-glr-download sphx-glr-download-python
 
       :download:`Download Python source code: 01_ensemble_inference.py <01_ensemble_inference.py>`
-
-    .. container:: sphx-glr-download sphx-glr-download-jupyter
-
-      :download:`Download Jupyter notebook: 01_ensemble_inference.ipynb <01_ensemble_inference.ipynb>`
 
 
 .. only:: html

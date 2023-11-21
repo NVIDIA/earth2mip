@@ -1,12 +1,12 @@
 
 :orphan:
 
-.. _sphx_glr_examples_sg_execution_times:
+.. _sphx_glr_sg_execution_times:
 
 
 Computation times
 =================
-**06:03.610** total execution time for 3 files **from examples**:
+**06:03.610** total execution time for 3 files **from all galleries**:
 
 .. container::
 
@@ -32,12 +32,12 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
-   * - :ref:`sphx_glr_examples_03_model_scoring.py` (``03_model_scoring.py``)
+   * - :ref:`sphx_glr_examples_03_model_scoring.py` (``../examples/03_model_scoring.py``)
      - 06:03.610
      - 0.0
-   * - :ref:`sphx_glr_examples_01_ensemble_inference.py` (``01_ensemble_inference.py``)
+   * - :ref:`sphx_glr_examples_01_ensemble_inference.py` (``../examples/01_ensemble_inference.py``)
      - 00:00.000
      - 0.0
-   * - :ref:`sphx_glr_examples_02_model_comparison.py` (``02_model_comparison.py``)
+   * - :ref:`sphx_glr_examples_02_model_comparison.py` (``../examples/02_model_comparison.py``)
      - 00:00.000
      - 0.0

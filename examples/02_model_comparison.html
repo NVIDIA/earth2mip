@@ -471,83 +471,60 @@ Earth-2 MIP using Python APIs for greater control over inference workflows.</p>
 <li><p>Running inference in a Python script</p></li>
 <li><p>Post processing results</p></li>
 </ul>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">## Set Up</span>
-
-<span class="sd">Starting off with imports, hopefully you have already installed Earth-2 MIP from this</span>
-<span class="sd">repository. See the previous notebook for information about configuring Earth-2 MIP, its</span>
-<span class="sd">assumed enviroment variables have already been properly set.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;\n## Set Up\n\nStarting off with imports, hopefully you have already installed Earth-2 MIP from this\nrepository. See the previous notebook for information about configuring Earth-2 MIP, its\nassumed enviroment variables have already been properly set.\n&#39;
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">datetime</span>
+<section id="set-up">
+<h2>Set Up<a class="headerlink" href="#set-up" title="Link to this heading">#</a></h2>
+<p>Starting off with imports, hopefully you have already installed Earth-2 MIP from this
+repository. See the previous notebook for information about configuring Earth-2 MIP, its
+assumed enviroment variables have already been properly set.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">datetime</span>
 <span class="kn">import</span> <span class="nn">os</span>
 
+<span class="kn">import</span> <span class="nn">dotenv</span>
 <span class="kn">import</span> <span class="nn">xarray</span>
+
+<span class="n">dotenv</span><span class="o">.</span><span class="n">load_dotenv</span><span class="p">()</span>
 
 <span class="kn">from</span> <span class="nn">earth2mip</span> <span class="kn">import</span> <span class="n">inference_ensemble</span><span class="p">,</span> <span class="n">registry</span>
 <span class="kn">from</span> <span class="nn">earth2mip.initial_conditions</span> <span class="kn">import</span> <span class="n">cds</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">The cell above created a model registry folder for us, now we need to populate it with</span>
-<span class="sd">model packages.</span>
-<span class="sd">We will start with Pangu, which is a model that uses ONNX checkpoints.</span>
-<span class="sd">Since this is a built in model, we can use the `registry.get_model` function with the</span>
-<span class="sd">`e2mip://` prefix to auto download the checkpoints.</span>
-<span class="sd">Under the hood, this is fetching the ONNX checkpoints and creating a `metadata.json`</span>
-<span class="sd">file to help Earth-2 MIP know how to load the model into memory for inference.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;\nThe cell above created a model registry folder for us, now we need to populate it with\nmodel packages.\nWe will start with Pangu, which is a model that uses ONNX checkpoints.\nSince this is a built in model, we can use the `registry.get_model` function with the\n`e2mip://` prefix to auto download the checkpoints.\nUnder the hood, this is fetching the ONNX checkpoints and creating a `metadata.json`\nfile to help Earth-2 MIP know how to load the model into memory for inference.\n&#39;
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fetching Pangu model package...&quot;</span><span class="p">)</span>
+<p>The cell above created a model registry folder for us, now we need to populate it with
+model packages.
+We will start with Pangu, which is a model that uses ONNX checkpoints.
+Since this is a built in model, we can use the <cite>registry.get_model</cite> function with the
+<cite>e2mip://</cite> prefix to auto download the checkpoints.
+Under the hood, this is fetching the ONNX checkpoints and creating a <cite>metadata.json</cite>
+file to help Earth-2 MIP know how to load the model into memory for inference.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fetching Pangu model package...&quot;</span><span class="p">)</span>
 <span class="n">package</span> <span class="o">=</span> <span class="n">registry</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="s2">&quot;e2mip://pangu&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Fetching Pangu model package...
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Next DLWP model package will need to be downloaded. This model follows the standard</span>
-<span class="sd">proceedure most do in Earth-2 MIP, being served via Modulus and hosted on NGC model</span>
-<span class="sd">registry.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;\nNext DLWP model package will need to be downloaded. This model follows the standard\nproceedure most do in Earth-2 MIP, being served via Modulus and hosted on NGC model\nregistry.\n&#39;
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fetching DLWP model package...&quot;</span><span class="p">)</span>
+<p>Next DLWP model package will need to be downloaded. This model follows the standard
+proceedure most do in Earth-2 MIP, being served via Modulus and hosted on NGC model
+registry.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fetching DLWP model package...&quot;</span><span class="p">)</span>
 <span class="n">package</span> <span class="o">=</span> <span class="n">registry</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="s2">&quot;e2mip://dlwp&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Fetching DLWP model package...
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">The final setup step is to set up your CDS API key so we can access ERA5 data to act as</span>
-<span class="sd">an initial state. Earth-2 MIP supports a number of different initial state data sources</span>
-<span class="sd">that are supported including HDF5, CDS, GFS, etc. The CDS initial state provides a</span>
-<span class="sd">convenient way to access a limited amount of historical weather data. Its recommended</span>
-<span class="sd">for accessing an initial state, but larger data requirements should use locally stored</span>
-<span class="sd">weather datasets.</span>
-
-<span class="sd">Enter your CDS API uid and key below (found under your profile page). If you don&#39;t a CDS API key, find out more here.</span>
-<span class="sd">- [https://cds.climate.copernicus.eu/cdsapp#!/home](https://cds.climate.copernicus.eu/cdsapp#!/home)</span>
-<span class="sd">- [https://cds.climate.copernicus.eu/api-how-to](https://cds.climate.copernicus.eu/api-how-to)</span>
-<span class="sd">&quot;&quot;&quot;</span>  <span class="c1"># noqa: E501</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&quot;\nThe final setup step is to set up your CDS API key so we can access ERA5 data to act as\nan initial state. Earth-2 MIP supports a number of different initial state data sources\nthat are supported including HDF5, CDS, GFS, etc. The CDS initial state provides a\nconvenient way to access a limited amount of historical weather data. Its recommended\nfor accessing an initial state, but larger data requirements should use locally stored\nweather datasets.\n\nEnter your CDS API uid and key below (found under your profile page). If you don&#39;t a CDS API key, find out more here.\n- [https://cds.climate.copernicus.eu/cdsapp#!/home](https://cds.climate.copernicus.eu/cdsapp#!/home)\n- [https://cds.climate.copernicus.eu/api-how-to](https://cds.climate.copernicus.eu/api-how-to)\n&quot;
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cds_api</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~&quot;</span><span class="p">),</span> <span class="s2">&quot;.cdsapirc&quot;</span><span class="p">)</span>
+<p>The final setup step is to set up your CDS API key so we can access ERA5 data to act as
+an initial state. Earth-2 MIP supports a number of different initial state data sources
+that are supported including HDF5, CDS, GFS, etc. The CDS initial state provides a
+convenient way to access a limited amount of historical weather data. Its recommended
+for accessing an initial state, but larger data requirements should use locally stored
+weather datasets.</p>
+<p>Enter your CDS API uid and key below (found under your profile page).
+If you don’t a CDS API key, find out more here.</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://cds.climate.copernicus.eu/cdsapp#!/home">https://cds.climate.copernicus.eu/cdsapp#!/home</a></p></li>
+<li><p><a class="reference external" href="https://cds.climate.copernicus.eu/api-how-to">https://cds.climate.copernicus.eu/api-how-to</a></p></li>
+</ul>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">cds_api</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~&quot;</span><span class="p">),</span> <span class="s2">&quot;.cdsapirc&quot;</span><span class="p">)</span>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">cds_api</span><span class="p">):</span>
     <span class="n">uid</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Enter in CDS UID (e.g. 123456): &quot;</span><span class="p">)</span>
     <span class="n">key</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Enter your CDS API key (e.g. 12345678-1234-1234-1234-123456123456): &quot;</span><span class="p">)</span>
@@ -557,24 +534,17 @@ Earth-2 MIP using Python APIs for greater control over inference workflows.</p>
         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;key: </span><span class="si">{</span><span class="n">uid</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">## Running Inference</span>
-
-<span class="sd">To run inference of these models we will use some of Earth-2 MIPs Python APIs to perform</span>
-<span class="sd">inference. The first step is to load the model from the model registry, which is done</span>
-<span class="sd">using the `registry.get_model` command. This will look in your `MODEL_REGISTRY` folder</span>
-<span class="sd">for the provided name and use this as a filesystem for loading necessary files.</span>
-
-<span class="sd">The model is then loaded into memory using the load function for that particular</span>
-<span class="sd">network. Earth-2 MIP has multiple abstracts that can allow this to be automated that can</span>
-<span class="sd">be used instead if desired.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;\n## Running Inference\n\nTo run inference of these models we will use some of Earth-2 MIPs Python APIs to perform\ninference. The first step is to load the model from the model registry, which is done\nusing the `registry.get_model` command. This will look in your `MODEL_REGISTRY` folder\nfor the provided name and use this as a filesystem for loading necessary files.\n\nThe model is then loaded into memory using the load function for that particular\nnetwork. Earth-2 MIP has multiple abstracts that can allow this to be automated that can\nbe used instead if desired.\n&#39;
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">earth2mip.networks.dlwp</span> <span class="k">as</span> <span class="nn">dlwp</span>
+</section>
+<section id="running-inference">
+<h2>Running Inference<a class="headerlink" href="#running-inference" title="Link to this heading">#</a></h2>
+<p>To run inference of these models we will use some of Earth-2 MIPs Python APIs to perform
+inference. The first step is to load the model from the model registry, which is done
+using the <cite>registry.get_model</cite> command. This will look in your <cite>MODEL_REGISTRY</cite> folder
+for the provided name and use this as a filesystem for loading necessary files.</p>
+<p>The model is then loaded into memory using the load function for that particular
+network. Earth-2 MIP has multiple abstracts that can allow this to be automated that can
+be used instead if desired.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">earth2mip.networks.dlwp</span> <span class="k">as</span> <span class="nn">dlwp</span>
 <span class="kn">import</span> <span class="nn">earth2mip.networks.pangu</span> <span class="k">as</span> <span class="nn">pangu</span>
 
 <span class="c1"># Output directoy</span>
@@ -594,19 +564,11 @@ Earth-2 MIP using Python APIs for greater control over inference workflows.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Loading models into memory
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Next we set up the initial state data source for January 1st, 2018 at 00:00:00 UTC.</span>
-<span class="sd">As previously mentioned, we will pull data on the fly from CDS (make sure you set up</span>
-<span class="sd">your API key above). Since DLWP and Pangu require different channels (and time steps),</span>
-<span class="sd">we will create two seperate data-sources for them.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;\nNext we set up the initial state data source for January 1st, 2018 at 00:00:00 UTC.\nAs previously mentioned, we will pull data on the fly from CDS (make sure you set up\nyour API key above). Since DLWP and Pangu require different channels (and time steps),\nwe will create two seperate data-sources for them.\n&#39;
-</pre></div>
-</div>
-<p>Initial state data/time</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2018</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<p>Next we set up the initial state data source for January 1st, 2018 at 00:00:00 UTC.
+As previously mentioned, we will pull data on the fly from CDS (make sure you set up
+your API key above). Since DLWP and Pangu require different channels (and time steps),
+we will create two seperate data-sources for them.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2018</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
 <span class="c1"># DLWP datasource</span>
 <span class="n">dlwp_data_source</span> <span class="o">=</span> <span class="n">cds</span><span class="o">.</span><span class="n">DataSource</span><span class="p">(</span><span class="n">dlwp_inference_model</span><span class="o">.</span><span class="n">in_channel_names</span><span class="p">)</span>
@@ -615,20 +577,12 @@ Earth-2 MIP using Python APIs for greater control over inference workflows.</p>
 <span class="n">pangu_data_source</span> <span class="o">=</span> <span class="n">cds</span><span class="o">.</span><span class="n">DataSource</span><span class="p">(</span><span class="n">pangu_inference_model</span><span class="o">.</span><span class="n">in_channel_names</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">With the initial state downloaded for each and set up in an Xarray dataset, we can now</span>
-<span class="sd">run deterministic inference for both which can be achieved using the</span>
-<span class="sd">`inference_ensemble.run_basic_inference` method which will produce a Xarray</span>
-<span class="sd">[data array](https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html) to then</span>
-<span class="sd">work with.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;\nWith the initial state downloaded for each and set up in an Xarray dataset, we can now\nrun deterministic inference for both which can be achieved using the\n`inference_ensemble.run_basic_inference` method which will produce a Xarray\n[data array](https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html) to then\nwork with.\n&#39;
-</pre></div>
-</div>
-<p>Run Pangu inference</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Running Pangu inference&quot;</span><span class="p">)</span>
+<p>With the initial state downloaded for each and set up in an Xarray dataset, we can now
+run deterministic inference for both which can be achieved using the
+<cite>inference_ensemble.run_basic_inference</cite> method which will produce a Xarray
+<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html">data array</a> to then
+work with.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Running Pangu inference&quot;</span><span class="p">)</span>
 <span class="n">pangu_ds</span> <span class="o">=</span> <span class="n">inference_ensemble</span><span class="o">.</span><span class="n">run_basic_inference</span><span class="p">(</span>
     <span class="n">pangu_inference_model</span><span class="p">,</span>
     <span class="n">n</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span>  <span class="c1"># Note we run 24 steps here because Pangu is at 6 hour dt</span>
@@ -692,8 +646,7 @@ Coordinates:
 Dimensions without coordinates: history
 </pre></div>
 </div>
-<p>Run DLWP inference</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Running DLWP inference&quot;</span><span class="p">)</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Running DLWP inference&quot;</span><span class="p">)</span>
 <span class="n">dlwp_ds</span> <span class="o">=</span> <span class="n">inference_ensemble</span><span class="o">.</span><span class="n">run_basic_inference</span><span class="p">(</span>
     <span class="n">dlwp_inference_model</span><span class="p">,</span>
     <span class="n">n</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>  <span class="c1"># Note we run 12 steps here because DLWP is at 12 hour dt</span>
@@ -706,46 +659,46 @@ Dimensions without coordinates: history
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Running DLWP inference
 &lt;xarray.DataArray (time: 13, history: 1, channel: 7, lat: 721, lon: 1440)&gt;
-array([[[[[ 2.50292755e+02,  2.50292755e+02,  2.50292755e+02, ...,
-            2.50292755e+02,  2.50292755e+02,  2.50292755e+02],
-          [ 2.50401154e+02,  2.50401154e+02,  2.50400177e+02, ...,
-            2.50401154e+02,  2.50401154e+02,  2.50401154e+02],
-          [ 2.50458771e+02,  2.50458771e+02,  2.50457794e+02, ...,
-            2.50458771e+02,  2.50458771e+02,  2.50458771e+02],
+array([[[[[ 2.5029276e+02,  2.5029276e+02,  2.5029276e+02, ...,
+            2.5029276e+02,  2.5029276e+02,  2.5029276e+02],
+          [ 2.5040115e+02,  2.5040115e+02,  2.5040018e+02, ...,
+            2.5040115e+02,  2.5040115e+02,  2.5040115e+02],
+          [ 2.5045877e+02,  2.5045877e+02,  2.5045779e+02, ...,
+            2.5045877e+02,  2.5045877e+02,  2.5045877e+02],
           ...,
-          [ 2.59438263e+02,  2.59438263e+02,  2.59437286e+02, ...,
-            2.59440216e+02,  2.59439240e+02,  2.59439240e+02],
-          [ 2.59341583e+02,  2.59341583e+02,  2.59341583e+02, ...,
-            2.59340607e+02,  2.59340607e+02,  2.59341583e+02],
-          [ 2.59302521e+02,  2.59302521e+02,  2.59302521e+02, ...,
-            2.59302521e+02,  2.59302521e+02,  2.59302521e+02]],
+          [ 2.5943826e+02,  2.5943826e+02,  2.5943729e+02, ...,
+            2.5944022e+02,  2.5943924e+02,  2.5943924e+02],
+          [ 2.5934158e+02,  2.5934158e+02,  2.5934158e+02, ...,
+            2.5934061e+02,  2.5934061e+02,  2.5934158e+02],
+          [ 2.5930252e+02,  2.5930252e+02,  2.5930252e+02, ...,
+            2.5930252e+02,  2.5930252e+02,  2.5930252e+02]],
 
-         [[ 5.56605469e+02,  5.56605469e+02,  5.56605469e+02, ...,
-            5.56605469e+02,  5.56605469e+02,  5.56605469e+02],
-          [ 5.47730469e+02,  5.47730469e+02,  5.47605469e+02, ...,
-            5.47855469e+02,  5.47855469e+02,  5.47730469e+02],
-          [ 5.40480469e+02,  5.40480469e+02,  5.40355469e+02, ...,
-            5.40730469e+02,  5.40730469e+02,  5.40605469e+02],
+         [[ 5.5660547e+02,  5.5660547e+02,  5.5660547e+02, ...,
+            5.5660547e+02,  5.5660547e+02,  5.5660547e+02],
+          [ 5.4773047e+02,  5.4773047e+02,  5.4760547e+02, ...,
+            5.4785547e+02,  5.4785547e+02,  5.4773047e+02],
+          [ 5.4048047e+02,  5.4048047e+02,  5.4035547e+02, ...,
+            5.4073047e+02,  5.4073047e+02,  5.4060547e+02],
 ...
-            1.69586182e+00,  1.69586182e+00,  1.69586182e+00],
-          [ 1.60866356e+00,  1.60866356e+00,  1.60866356e+00, ...,
-            1.69586182e+00,  1.69586182e+00,  1.69586182e+00],
-          [ 1.60866356e+00,  1.60866356e+00,  1.60866356e+00, ...,
-            1.69586182e+00,  1.69586182e+00,  1.69586182e+00]],
+            1.6946373e+00,  1.6946373e+00,  1.6946373e+00],
+          [ 1.6112556e+00,  1.6112556e+00,  1.6112556e+00, ...,
+            1.6946373e+00,  1.6946373e+00,  1.6946373e+00],
+          [ 1.6112556e+00,  1.6112556e+00,  1.6112556e+00, ...,
+            1.6946373e+00,  1.6946373e+00,  1.6946373e+00]],
 
-         [[ 2.51353119e+02,  2.51353119e+02,  2.51353119e+02, ...,
-            2.47414581e+02,  2.47414581e+02,  2.47414581e+02],
-          [ 2.51353119e+02,  2.51353119e+02,  2.51353119e+02, ...,
-            2.47414581e+02,  2.47414581e+02,  2.47414581e+02],
-          [ 2.51353119e+02,  2.51353119e+02,  2.51353119e+02, ...,
-            2.47414581e+02,  2.47414581e+02,  2.47414581e+02],
+         [[ 2.5115109e+02,  2.5115109e+02,  2.5115109e+02, ...,
+            2.4731943e+02,  2.4731943e+02,  2.4731943e+02],
+          [ 2.5115109e+02,  2.5115109e+02,  2.5115109e+02, ...,
+            2.4731943e+02,  2.4731943e+02,  2.4731943e+02],
+          [ 2.5115109e+02,  2.5115109e+02,  2.5115109e+02, ...,
+            2.4731943e+02,  2.4731943e+02,  2.4731943e+02],
           ...,
-          [ 2.50724609e+02,  2.50724609e+02,  2.50724609e+02, ...,
-            2.51468842e+02,  2.51468842e+02,  2.51468842e+02],
-          [ 2.50724609e+02,  2.50724609e+02,  2.50724609e+02, ...,
-            2.51468842e+02,  2.51468842e+02,  2.51468842e+02],
-          [ 2.50724609e+02,  2.50724609e+02,  2.50724609e+02, ...,
-            2.51468842e+02,  2.51468842e+02,  2.51468842e+02]]]]],
+          [ 2.5071286e+02,  2.5071286e+02,  2.5071286e+02, ...,
+            2.5144870e+02,  2.5144870e+02,  2.5144870e+02],
+          [ 2.5071286e+02,  2.5071286e+02,  2.5071286e+02, ...,
+            2.5144870e+02,  2.5144870e+02,  2.5144870e+02],
+          [ 2.5071286e+02,  2.5071286e+02,  2.5071286e+02, ...,
+            2.5144870e+02,  2.5144870e+02,  2.5144870e+02]]]]],
       dtype=float32)
 Coordinates:
   * lat      (lat) float64 90.0 89.75 89.5 89.25 ... -89.25 -89.5 -89.75 -90.0
@@ -755,19 +708,12 @@ Coordinates:
 Dimensions without coordinates: history
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">## Post Processing</span>
-
-<span class="sd">With inference complete, now the fun part: post processing and analysis!</span>
-<span class="sd">Here we will just plot the z500 (geopotential at pressure level 500) contour time-series</span>
-<span class="sd">of both models.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;\n## Post Processing\n\nWith inference complete, now the fun part: post processing and analysis!\nHere we will just plot the z500 (geopotential at pressure level 500) contour time-series\nof both models.\n&#39;
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</section>
+<section id="post-processing">
+<h2>Post Processing<a class="headerlink" href="#post-processing" title="Link to this heading">#</a></h2>
+<p>With inference complete, now the fun part: post processing and analysis!
+Here we will just plot the z500 (geopotential at pressure level 500) contour time-series of both models.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
 <span class="c1"># Open dataset from saved NetCDFs</span>
 <span class="n">pangu_ds</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">open_dataarray</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">/pangu_inference_out.nc&quot;</span><span class="p">)</span>
@@ -790,26 +736,20 @@ Dimensions without coordinates: history
 <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">/pangu_dlwp_z500.png&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_02_model_comparison_001.png" srcset="../_images/sphx_glr_02_model_comparison_001.png, ../_images/sphx_glr_02_model_comparison_001_2_00x.png 2.00x" alt="z500 DLWP vs Pangu, 2018-01-01 00:00:00, 2018-01-01 12:00:00, 2018-01-02 00:00:00, 2018-01-02 12:00:00, 2018-01-03 00:00:00, 2018-01-03 12:00:00, 2018-01-04 00:00:00, 2018-01-04 12:00:00, 2018-01-05 00:00:00, 2018-01-05 12:00:00, 2018-01-06 00:00:00, 2018-01-06 12:00:00, 2018-01-07 00:00:00" class = "sphx-glr-single-img"/><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">And that completes the second notebook detailing how to run deterministic inference of</span>
-<span class="sd">two models using Earth-2 MIP. In the next notebook, we will look at how to score a</span>
-<span class="sd">model compared against ERA5 re-analysis data.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;\nAnd that completes the second notebook detailing how to run deterministic inference of\ntwo models using Earth-2 MIP. In the next notebook, we will look at how to score a\nmodel compared against ERA5 re-analysis data.\n&#39;
-</pre></div>
-</div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (1 minutes 41.865 seconds)</p>
+<img src="../_images/sphx_glr_02_model_comparison_001.png" srcset="../_images/sphx_glr_02_model_comparison_001.png, ../_images/sphx_glr_02_model_comparison_001_2_00x.png 2.00x" alt="z500 DLWP vs Pangu, 2018-01-01 00:00:00, 2018-01-01 12:00:00, 2018-01-02 00:00:00, 2018-01-02 12:00:00, 2018-01-03 00:00:00, 2018-01-03 12:00:00, 2018-01-04 00:00:00, 2018-01-04 12:00:00, 2018-01-05 00:00:00, 2018-01-05 12:00:00, 2018-01-06 00:00:00, 2018-01-06 12:00:00, 2018-01-07 00:00:00" class = "sphx-glr-single-img"/><p>And that completes the second notebook detailing how to run deterministic inference of
+two models using Earth-2 MIP. In the next notebook, we will look at how to score a
+model compared against ERA5 re-analysis data.</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (1 minutes 54.665 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-02-model-comparison-py">
-<div class="sphx-glr-download sphx-glr-download-python docutils container">
-<p><a class="reference download internal" download="" href="../_downloads/5156c59ebbc4d7b2939e45adc563ab65/02_model_comparison.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">02_model_comparison.py</span></code></a></p>
-</div>
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/c1436aff1bb09a35926c7dc9bf763886/02_model_comparison.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">02_model_comparison.ipynb</span></code></a></p>
 </div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/5156c59ebbc4d7b2939e45adc563ab65/02_model_comparison.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">02_model_comparison.py</span></code></a></p>
+</div>
 </div>
 <p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
 </section>
 
 
@@ -848,6 +788,18 @@ Dimensions without coordinates: history
             
               
                 <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#set-up">Set Up</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-inference">Running Inference</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#post-processing">Post Processing</a></li>
+</ul>
+  </nav></div>
 
   <div class="sidebar-secondary-item">
   <div class="tocsection sourcelink">

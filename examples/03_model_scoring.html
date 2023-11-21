@@ -51,7 +51,7 @@
         </script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="API" href="../modules/index.html" />
+    <link rel="next" title="&lt;no title&gt;" href="utils/index.html" />
     <link rel="prev" title="Basic Inference with Multiple Models" href="02_model_comparison.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -470,73 +470,53 @@ a year’s worth of data.</p>
 <li><p>Implementing a basic scoring workflow in Earth-2 MIP</p></li>
 <li><p>HDF5 datasource and the expected data format of the H5 files</p></li>
 </ul>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">datetime</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">datetime</span>
 <span class="kn">import</span> <span class="nn">os</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">## Setting up HDF5 data</span>
-
-<span class="sd">The first step of scoring is handling the target data. One could simply use the</span>
-<span class="sd">CDSDatasource to download target data on the fly, but depending on how comprehensive</span>
-<span class="sd">the scoring is, this can prove quite slow.</span>
-<span class="sd">Additionally, many scoring pipelines require on-prem data.</span>
-<span class="sd">Thus, this will demonstrate how to use the HDF5 datasource.</span>
-
-<span class="sd">The HDF5 data source assumes that the data to be loaded is stored in the general form:</span>
-
-<span class="sd">year.h5</span>
-<span class="sd"> | - field (time, channels, grid)</span>
-
-<span class="sd">For AFNO which requires 34 channels with a time-step size of 6 hours, an H5 file will</span>
-<span class="sd">have the following form of data:</span>
-
-<span class="sd">2017.h5</span>
-<span class="sd"> | - field (1460, 34, 720, 1440)</span>
-<span class="sd">2016.h5</span>
-<span class="sd"> | - field (1464, 34, 720, 1440)</span>
-<span class="sd">2015.h5</span>
-<span class="sd"> | - field (1460, 34, 720, 1440)</span>
-
-<span class="sd">(Note the later two dims have some flexibility with regridding)</span>
-
-<span class="sd">One option to build these H5 files from scratch is to use the ERA5 mirror scripts</span>
-<span class="sd">provided in [Modulus](https://github.com/NVIDIA/modulus/tree/main/examples/weather/dataset_download).</span>
-<span class="sd">For the rest of this tutorial, it is assumed that 2017.h5 is present for the full year.</span>
-<span class="sd">&quot;&quot;&quot;</span>  <span class="c1"># noqa: E501</span>
+<section id="setting-up-hdf5-data">
+<h2>Setting up HDF5 data<a class="headerlink" href="#setting-up-hdf5-data" title="Link to this heading">#</a></h2>
+<p>The first step of scoring is handling the target data. One could simply use the
+CDSDatasource to download target data on the fly, but depending on how comprehensive
+the scoring is, this can prove quite slow.
+Additionally, many scoring pipelines require on-prem data.
+Thus, this will demonstrate how to use the HDF5 datasource.
+The HDF5 data source assumes that the data to be loaded is stored in the general form:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">year</span><span class="o">.</span><span class="n">h5</span>
+    <span class="o">|</span> <span class="o">-</span> <span class="n">field</span> <span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;\n## Setting up HDF5 data\n\nThe first step of scoring is handling the target data. One could simply use the\nCDSDatasource to download target data on the fly, but depending on how comprehensive\nthe scoring is, this can prove quite slow.\nAdditionally, many scoring pipelines require on-prem data.\nThus, this will demonstrate how to use the HDF5 datasource.\n\nThe HDF5 data source assumes that the data to be loaded is stored in the general form:\n\nyear.h5\n | - field (time, channels, grid)\n\nFor AFNO which requires 34 channels with a time-step size of 6 hours, an H5 file will\nhave the following form of data:\n\n2017.h5\n | - field (1460, 34, 720, 1440)\n2016.h5\n | - field (1464, 34, 720, 1440)\n2015.h5\n | - field (1460, 34, 720, 1440)\n\n(Note the later two dims have some flexibility with regridding)\n\nOne option to build these H5 files from scratch is to use the ERA5 mirror scripts\nprovided in [Modulus](https://github.com/NVIDIA/modulus/tree/main/examples/weather/dataset_download).\nFor the rest of this tutorial, it is assumed that 2017.h5 is present for the full year.\n&#39;
+<p>For AFNO which requires 34 channels with a time-step size of 6 hours, an H5 file will
+have the following form of data:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">2017.</span><span class="n">h5</span>
+    <span class="o">|</span> <span class="o">-</span> <span class="n">field</span> <span class="p">(</span><span class="mi">1460</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">720</span><span class="p">,</span> <span class="mi">1440</span><span class="p">)</span>
+<span class="mf">2016.</span><span class="n">h5</span>
+    <span class="o">|</span> <span class="o">-</span> <span class="n">field</span> <span class="p">(</span><span class="mi">1464</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">720</span><span class="p">,</span> <span class="mi">1440</span><span class="p">)</span>
+<span class="mf">2015.</span><span class="n">h5</span>
+    <span class="o">|</span> <span class="o">-</span> <span class="n">field</span> <span class="p">(</span><span class="mi">1460</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">720</span><span class="p">,</span> <span class="mi">1440</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>load an values in a .env file where you can specify your H5 root folder by
-adding a line like:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">dotenv</span>
+<p>(Note the later two dims have some flexibility with regridding)
+One option to build these H5 files from scratch is to use the ERA5 mirror scripts
+provided in <a class="reference external" href="https://github.com/NVIDIA/modulus/tree/main/examples/weather/dataset_download">Modulus</a>.
+For the rest of this tutorial, it is assumed that 2017.h5 is present for the full year.
+%%</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dotenv</span>
 
-    <span class="n">dotenv</span><span class="o">.</span><span class="n">load_dotenv</span><span class="p">()</span>
-<span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
-    <span class="k">pass</span>  <span class="c1"># pip install python-dotenv</span>
-
+<span class="n">dotenv</span><span class="o">.</span><span class="n">load_dotenv</span><span class="p">()</span>
 <span class="c1"># can set this with the export ERA5_HDF5=/path/to/root/of/h5/files</span>
-<span class="n">h5_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;ERA5_HDF5&quot;</span><span class="p">,</span> <span class="s2">&quot;/mount/73vars&quot;</span><span class="p">)</span>
+<span class="n">h5_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;ERA5_HDF5&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">## Loading Models</span>
-
-<span class="sd">With the HDF5 datasource loaded the next step is to load our model we wish to score.</span>
-<span class="sd">In this tutorial we will be using the built in FourcastNet model.</span>
-<span class="sd">Take note of the `e2mip://` which will direct Earth-2 MIP to load a known model package.</span>
-<span class="sd">FourcastNet is selected here simply because its a 34 channel model which aligns with the</span>
-<span class="sd">H5 files described above.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;\n## Loading Models\n\nWith the HDF5 datasource loaded the next step is to load our model we wish to score.\nIn this tutorial we will be using the built in FourcastNet model.\nTake note of the `e2mip://` which will direct Earth-2 MIP to load a known model package.\nFourcastNet is selected here simply because its a 34 channel model which aligns with the\nH5 files described above.\n&#39;
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">modulus.distributed</span> <span class="kn">import</span> <span class="n">DistributedManager</span>
+</section>
+<section id="loading-models">
+<h2>Loading Models<a class="headerlink" href="#loading-models" title="Link to this heading">#</a></h2>
+<p>With the HDF5 datasource loaded the next step is to load our model we wish to score.
+In this tutorial we will be using the built in FourcastNet model.
+Take note of the <cite>e2mip://</cite> which will direct Earth-2 MIP to load a known model package.
+FourcastNet is selected here simply because its a 34 channel model which aligns with the
+H5 files described above.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">modulus.distributed</span> <span class="kn">import</span> <span class="n">DistributedManager</span>
 
 <span class="kn">from</span> <span class="nn">earth2mip</span> <span class="kn">import</span> <span class="n">registry</span>
 <span class="kn">from</span> <span class="nn">earth2mip.networks</span> <span class="kn">import</span> <span class="n">dlwp</span>
@@ -546,23 +526,17 @@ adding a line like:</p>
 <span class="n">model</span> <span class="o">=</span> <span class="n">dlwp</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">## HDF5 Datasource</span>
-
-<span class="sd">With the H5 files properly formatted, a H5 datasource can now get defined.</span>
-<span class="sd">This requires two items: a root directory location of the H5 files as well as some</span>
-<span class="sd">metadata. Se</span>
-<span class="sd">The metadata is a JSON/dictionary object that helps Earth-2 MIP index the H5 file.</span>
-<span class="sd">Typically, this can be done by placing a `data.json` file next to the H5 files.</span>
-<span class="sd">See [this documentation](https://github.com/NVIDIA/earth2mip/blob/f44c580ccc3d98bf349fe97823bb1540e532c80d/earth2mip/initial_conditions/hdf5.py#L38)</span>
-<span class="sd">for more details on how to set up input data correctly.</span>
-<span class="sd">&quot;&quot;&quot;</span>  <span class="c1"># noqa</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;\n## HDF5 Datasource\n\nWith the H5 files properly formatted, a H5 datasource can now get defined.\nThis requires two items: a root directory location of the H5 files as well as some\nmetadata. Se\nThe metadata is a JSON/dictionary object that helps Earth-2 MIP index the H5 file.\nTypically, this can be done by placing a `data.json` file next to the H5 files.\nSee [this documentation](https://github.com/NVIDIA/earth2mip/blob/f44c580ccc3d98bf349fe97823bb1540e532c80d/earth2mip/initial_conditions/hdf5.py#L38)\nfor more details on how to set up input data correctly.\n&#39;
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">earth2mip.initial_conditions</span> <span class="kn">import</span> <span class="n">hdf5</span>
+</section>
+<section id="hdf5-datasource">
+<h2>HDF5 Datasource<a class="headerlink" href="#hdf5-datasource" title="Link to this heading">#</a></h2>
+<p>With the H5 files properly formatted, a H5 datasource can now get defined.
+This requires two items: a root directory location of the H5 files as well as some
+metadata. Se
+The metadata is a JSON/dictionary object that helps Earth-2 MIP index the H5 file.
+Typically, this can be done by placing a <cite>data.json</cite> file next to the H5 files.
+See <a class="reference external" href="https://github.com/NVIDIA/earth2mip/blob/f44c580ccc3d98bf349fe97823bb1540e532c80d/earth2mip/initial_conditions/hdf5.py#L38">this documentation</a>
+for more details on how to set up input data correctly.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">earth2mip.initial_conditions</span> <span class="kn">import</span> <span class="n">hdf5</span>
 
 <span class="n">datasource</span> <span class="o">=</span> <span class="n">hdf5</span><span class="o">.</span><span class="n">DataSource</span><span class="o">.</span><span class="n">from_path</span><span class="p">(</span>
     <span class="n">root</span><span class="o">=</span><span class="n">h5_folder</span><span class="p">,</span> <span class="n">channel_names</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">channel_names</span>
@@ -577,25 +551,18 @@ adding a line like:</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>(7, 721, 1440)
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">## Running Scoring</span>
-
-<span class="sd">With the datasource and model loaded, scoring can now be performed.</span>
-<span class="sd">To score this we will run 10 day forecasts over the span of the entire year at 30 day</span>
-<span class="sd">intervals.</span>
-<span class="sd">For research, one would typically want this to be much more comprehensive so feel free</span>
-<span class="sd">to customize for you&#39;re use case.</span>
-
-<span class="sd">The `score_deterministic` API provides a simple way to calculate RMSE and ACC scores.</span>
-<span class="sd">ACC scores require climatology which is beyond the scope of this example, thus zero</span>
-<span class="sd">values will be provided and only the RMSE will be of concern.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&quot;\n## Running Scoring\n\nWith the datasource and model loaded, scoring can now be performed.\nTo score this we will run 10 day forecasts over the span of the entire year at 30 day\nintervals.\nFor research, one would typically want this to be much more comprehensive so feel free\nto customize for you&#39;re use case.\n\nThe `score_deterministic` API provides a simple way to calculate RMSE and ACC scores.\nACC scores require climatology which is beyond the scope of this example, thus zero\nvalues will be provided and only the RMSE will be of concern.\n&quot;
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">earth2mip.inference_medium_range</span> <span class="kn">import</span> <span class="n">save_scores</span><span class="p">,</span> <span class="n">time_average_metrics</span>
+</section>
+<section id="running-scoring">
+<h2>Running Scoring<a class="headerlink" href="#running-scoring" title="Link to this heading">#</a></h2>
+<p>With the datasource and model loaded, scoring can now be performed.
+To score this we will run 10 day forecasts over the span of the entire year at 30 day
+intervals.
+For research, one would typically want this to be much more comprehensive so feel free
+to customize for you’re use case.</p>
+<p>The <cite>score_deterministic</cite> API provides a simple way to calculate RMSE and ACC scores.
+ACC scores require climatology which is beyond the scope of this example, thus zero
+values will be provided and only the RMSE will be of concern.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">earth2mip.inference_medium_range</span> <span class="kn">import</span> <span class="n">save_scores</span><span class="p">,</span> <span class="n">time_average_metrics</span>
 
 <span class="n">time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2017</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 <span class="n">initial_times</span> <span class="o">=</span> <span class="p">[</span><span class="n">time</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">30</span> <span class="o">*</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">12</span><span class="p">)]</span>
@@ -614,20 +581,27 @@ adding a line like:</p>
     <span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">## Post Processing</span>
-
-<span class="sd">The last step is any post processing / IO that is desired.</span>
-<span class="sd">Typically its recommended to save the output dataset to a netCDF file for further</span>
-<span class="sd">processing.</span>
-<span class="sd">Lets plot the RMSE of the z500 (geopotential at pressure level 500) field.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>INFO:inference:Running 2017-01-01 00:00:00
+INFO:inference:Running 2017-01-31 00:00:00
+INFO:inference:Running 2017-03-02 00:00:00
+INFO:inference:Running 2017-04-01 00:00:00
+INFO:inference:Running 2017-05-01 00:00:00
+INFO:inference:Running 2017-05-31 00:00:00
+INFO:inference:Running 2017-06-30 00:00:00
+INFO:inference:Running 2017-07-30 00:00:00
+INFO:inference:Running 2017-08-29 00:00:00
+INFO:inference:Running 2017-09-28 00:00:00
+INFO:inference:Running 2017-10-28 00:00:00
+INFO:inference:Running 2017-11-27 00:00:00
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;\n## Post Processing\n\nThe last step is any post processing / IO that is desired.\nTypically its recommended to save the output dataset to a netCDF file for further\nprocessing.\nLets plot the RMSE of the z500 (geopotential at pressure level 500) field.\n&#39;
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</section>
+<section id="post-processing">
+<h2>Post Processing<a class="headerlink" href="#post-processing" title="Link to this heading">#</a></h2>
+<p>The last step is any post processing / IO that is desired.
+Typically its recommended to save the output dataset to a netCDF file for further processing.
+Lets plot the RMSE of the z500 (geopotential at pressure level 500) field.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="kn">from</span> <span class="nn">earth2mip.forecast_metrics_io</span> <span class="kn">import</span> <span class="n">read_metrics</span>
@@ -646,25 +620,19 @@ adding a line like:</p>
 <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">/dwlp_z500_rmse.png&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_03_model_scoring_001.png" srcset="../_images/sphx_glr_03_model_scoring_001.png, ../_images/sphx_glr_03_model_scoring_001_2_00x.png 2.00x" alt="DLWP z500 RMSE 2017" class = "sphx-glr-single-img"/><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This completes this introductory notebook on basic scoring of models in Earth-2 MIP,</span>
-<span class="sd">which is founational for comparing the performance of different models.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;\nThis completes this introductory notebook on basic scoring of models in Earth-2 MIP,\nwhich is founational for comparing the performance of different models.\n&#39;
-</pre></div>
-</div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (5 minutes 10.308 seconds)</p>
+<img src="../_images/sphx_glr_03_model_scoring_001.png" srcset="../_images/sphx_glr_03_model_scoring_001.png, ../_images/sphx_glr_03_model_scoring_001_2_00x.png 2.00x" alt="DLWP z500 RMSE 2017" class = "sphx-glr-single-img"/><p>This completes this introductory notebook on basic scoring of models in Earth-2 MIP,
+which is founational for comparing the performance of different models.</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (6 minutes 3.610 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-03-model-scoring-py">
-<div class="sphx-glr-download sphx-glr-download-python docutils container">
-<p><a class="reference download internal" download="" href="../_downloads/e7dd64fd5a97d2bb1384029a3e0c499a/03_model_scoring.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">03_model_scoring.py</span></code></a></p>
-</div>
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/eecc36fe4757f89c762af258b6ca201c/03_model_scoring.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">03_model_scoring.ipynb</span></code></a></p>
 </div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/e7dd64fd5a97d2bb1384029a3e0c499a/03_model_scoring.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">03_model_scoring.py</span></code></a></p>
+</div>
 </div>
 <p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
 </section>
 
 
@@ -687,11 +655,11 @@ adding a line like:</p>
       </div>
     </a>
     <a class="right-next"
-       href="../modules/index.html"
+       href="utils/index.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">API</p>
+        <p class="prev-next-title">&lt;no title&gt;</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -703,6 +671,20 @@ adding a line like:</p>
             
               
                 <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-up-hdf5-data">Setting up HDF5 data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-models">Loading Models</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hdf5-datasource">HDF5 Datasource</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-scoring">Running Scoring</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#post-processing">Post Processing</a></li>
+</ul>
+  </nav></div>
 
   <div class="sidebar-secondary-item">
   <div class="tocsection sourcelink">
