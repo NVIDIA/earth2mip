@@ -121,7 +121,7 @@ ignore = ["E501", "S311", "S310"]
 "test/*.py" = ["S101"]
 
 # Ignore `E402` (imports at top of file) for example scripts
-"examples/**/*.py" = ["E402"]
+"examples/*.py" = ["E402", "I001"]
 
 # For network arch code
 # Ignore `E741` (ambigious variable names)

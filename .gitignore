@@ -215,6 +215,9 @@ pages
 ecwmf/
 .env
 
+## Examples
+!examples/.env
+
 # Apptainer
 build-temp*/
 *.sif/
