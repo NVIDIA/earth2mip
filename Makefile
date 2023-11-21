@@ -61,5 +61,5 @@ docs:
 docs-full:
 	pip install .[docs]
 	$(MAKE) -C docs clean
-	rm -rf examples/notebooks/outputs
+	rm -rf examples/outputs
 	PLOT_GALLERY=True RUN_STALE_EXAMPLES=True $(MAKE) -C docs html
