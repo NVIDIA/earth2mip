@@ -39,18 +39,10 @@ for more details and other options.
 
 ## Getting Started
 
-The [notebooks](./examples/notebooks/) folder contains reference Jupyter
-notebooks for a few common use cases.
-These are the best ways to start exploring Earth-2 MIP:
-
-1. [Ensemble Inference](./examples/notebooks/01_ensemble_inference.ipynb) - This
-notebook will demonstrate how to perturb the initial conditions to generate ensemble of
-inference outputs for a given pre-trained model and generate some standard metrics to
-evaluate the skill of the model.
-
-2. [Model Inter Comparison](./examples/notebooks/02_model_comparison.ipynb) - This
-notebook will showcase how to generate forecasts from multiple models with Earth-2 MIP
-and how to compare their predictions.
+Earth-2 MIP provides a set of examples which can be viewed on the [examples documentation](https://nvidia.github.io/earth2mip/examples/index.html)
+page which can be used to get started with various workflows.
+These examples can be downloaded both as Jupyer Notebooks and Python scripts.
+The source Python scripts can be found in the [examples](./examples/) folders.
 
 ### Basic Inference
 
@@ -139,11 +131,8 @@ table below.
 \* = coming soon
 
 Some models require additional dependencies not installed by default.
-To install all optional model dependencies use:
-
-```python
-pip install .[pangu,graphcast]
-```
+Refer to the [installation instructions](https://nvidia.github.io/earth2mip/userguide/install.html)
+for details.
 
 We want to integrate your model into the scoreboard to show the community!
 The best way to do this is via [NVIDIA Modulus](https://github.com/NVIDIA/modulus).
