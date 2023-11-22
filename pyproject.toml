@@ -59,7 +59,7 @@ pangu = [
     "onnxruntime-gpu>=1.15.1",
 ]
 graphcast = [
-    "jax>=0.4.16",
+    "jax[cuda12_pip]>=0.4.16",
     "graphcast @ https://github.com/deepmind/graphcast/archive/e622a15c1b9742d78f9b662f2af262604d58c204.tar.gz",
     "gcsfs>=2023.6.0",
 ]
