@@ -470,21 +470,8 @@ document.write(`
 <h1>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h1>
 <p>Earth-2 MIP is a Python package and can be installed from source using pip.
 However, we suggest setting up a dedicated run environment for Earth-2 MIP.</p>
-<section id="installing-from-pypi">
-<h2>Installing from PyPi<a class="headerlink" href="#installing-from-pypi" title="Link to this heading">#</a></h2>
-<p>Presently Earth-2 MIP is not on PyPi. Install from source in the mean time.</p>
-</section>
-<section id="install-from-release-wheel-coming-soon">
-<h2>Install from Release Wheel (Coming soon)<a class="headerlink" href="#install-from-release-wheel-coming-soon" title="Link to this heading">#</a></h2>
-<p>Built Python wheels can be access in Earth-2 MIPs releases on Github.
-Navigate to the latest release of Earth-2 MIP and download the latest <code class="docutils literal notranslate"><span class="pre">.whl</span></code>.
-Install using pip:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>wheel_file.whl
-</pre></div>
-</div>
-</section>
-<section id="install-from-source">
-<h2>Install from Source<a class="headerlink" href="#install-from-source" title="Link to this heading">#</a></h2>
+<section id="install-from-source-recommended">
+<h2>Install from Source (Recommended)<a class="headerlink" href="#install-from-source-recommended" title="Link to this heading">#</a></h2>
 <p>To install Earth-2 MIP from source:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:NVIDIA/earth2mip.git
 
@@ -492,12 +479,25 @@ Install using pip:</p>
 </pre></div>
 </div>
 </section>
+<section id="install-from-release-wheel">
+<h2>Install from Release Wheel<a class="headerlink" href="#install-from-release-wheel" title="Link to this heading">#</a></h2>
+<p>Built Python wheels can be accessed in Earth-2 MIPs releases on Github:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-L<span class="w"> </span>https://github.com/NVIDIA/earth2mip/releases/download/v0.1.0/earth2mip-0.1.0-py3-none-any.whl<span class="w"> </span>&gt;<span class="w"> </span>earth2mip-0.1.0-py3-none-any.whl
+
+pip<span class="w"> </span>install<span class="w"> </span>earth2mip-0.1.0-py3-none-any.whl
+</pre></div>
+</div>
+</section>
+<section id="installing-from-pypi">
+<h2>Installing from PyPi<a class="headerlink" href="#installing-from-pypi" title="Link to this heading">#</a></h2>
+<p>Presently Earth-2 MIP is not on PyPi. Install from source in the mean time.</p>
+</section>
 </section>
 <section id="earth-2-mip-environments">
 <h1>Earth-2 MIP Environments<a class="headerlink" href="#earth-2-mip-environments" title="Link to this heading">#</a></h1>
-<p>When running Earth-2 MIP, it is highly encourage to do so in a dedicated environment to
+<p>When running Earth-2 MIP, it is highly encouraged to do so in a dedicated environment to
 mitigate the chance of unforseen package conflicts.
-Docker is the prefered environment, but if you are not familiar with docker or cannnot
+Docker is the preferred environment, but if you are not familiar with docker or cannnot
 run a docker container Conda is typically a suitable alternative.</p>
 <section id="conda-environment">
 <h2>Conda Environment<a class="headerlink" href="#conda-environment" title="Link to this heading">#</a></h2>
@@ -526,7 +526,7 @@ python<span class="w"> </span>-m<span class="w"> </span>ipykernel<span class="w"
 <p>For the most consistent environment, we suggest using the Modulus docker container
 that is avaiable on the Nvidia container registry.
 Launch the Modulus docker container with port mapping as below:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>--shm-size<span class="o">=</span>1g<span class="w"> </span>--ulimit<span class="w"> </span><span class="nv">memlock</span><span class="o">=</span>-1<span class="w"> </span>--ulimit<span class="w"> </span><span class="nv">stack</span><span class="o">=</span><span class="m">67108864</span><span class="w"> </span>--runtime<span class="w"> </span>nvidia<span class="w"> </span>-p<span class="w"> </span><span class="m">8888</span>:8888<span class="w"> </span>-it<span class="w"> </span>nvcr.io/nvidia/modulus/modulus:23.08
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>--shm-size<span class="o">=</span>1g<span class="w"> </span>--ulimit<span class="w"> </span><span class="nv">memlock</span><span class="o">=</span>-1<span class="w"> </span>--ulimit<span class="w"> </span><span class="nv">stack</span><span class="o">=</span><span class="m">67108864</span><span class="w"> </span>--runtime<span class="w"> </span>nvidia<span class="w"> </span>-p<span class="w"> </span><span class="m">8888</span>:8888<span class="w"> </span>-it<span class="w"> </span>nvcr.io/nvidia/modulus/modulus:23.11
 </pre></div>
 </div>
 <div class="admonition note">
@@ -535,7 +535,64 @@ Launch the Modulus docker container with port mapping as below:</p>
 local machine.
 This is a requirement needed when using Jupyter Lab to run the notebook examples.</p>
 </div>
-<p>Once inside the container install Earth-2 MIP, using your prefered method.</p>
+<p>Once inside the container install Earth-2 MIP, using your preferred method.
+Note you will have to pip install every time you run the container.
+Alternatively, you can not use <code class="docutils literal notranslate"><span class="pre">--rm</span></code> in the run command and keep the stopped
+container to then <a class="reference external" href="https://docs.docker.com/engine/reference/commandline/start/">start again</a>
+in the future.</p>
+</section>
+<section id="singularity-apptainer-environment">
+<h2>Singularity / Apptainer Environment<a class="headerlink" href="#singularity-apptainer-environment" title="Link to this heading">#</a></h2>
+<p>On many systems, singularity/apptainer is the containerize environment solution of choice,
+typically due to better security.
+The modulus docker container can be converted into a singularity container with the
+following definition file being placed in the root of the Earth-2 MIP
+repository:</p>
+<div class="highlight-dockerfile notranslate"><div class="highlight"><pre><span></span>Bootstrap:<span class="w"> </span>docker
+<span class="k">FROM</span><span class="s">:</span><span class="w"> </span>nvcr.io/nvidia/modulus/modulus:23.11
+
+%files
+<span class="w">    </span>earth2mip/*<span class="w"> </span>/workspace/earth2mip/earth2mip/
+<span class="w">    </span>MANIFEST.in<span class="w"> </span>/workspace/earth2mip/MANIFEST.in
+<span class="w">    </span>setup.cfg<span class="w"> </span>/workspace/earth2mip/setup.cfg
+<span class="w">    </span>setup.py<span class="w"> </span>/workspace/earth2mip/setup.py
+<span class="w">    </span>README.md<span class="w"> </span>/workspace/earth2mip/README.md
+<span class="w">    </span>LICENSE.txt<span class="w"> </span>/workspace/earth2mip/LICENSE.txt
+<span class="w">    </span>examples/README.md<span class="w"> </span>/workspace/earth2mip/examples/README.md
+
+%post
+<span class="w">    </span><span class="nb">cd</span><span class="w"> </span>/workspace/earth2mip<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pip3<span class="w"> </span>install<span class="w"> </span>.
+<span class="w">    </span>pip3<span class="w"> </span>install<span class="w"> </span>cartopy
+
+%environment
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">HOME</span><span class="o">=</span>/workspace/earth2mip/
+
+%runscript
+<span class="w">    </span><span class="nb">cd</span><span class="w"> </span>~
+
+%labels
+<span class="w">    </span>AUTHOR<span class="w"> </span>NVIDIA<span class="w"> </span>Earth-2<span class="w"> </span>and<span class="w"> </span>Modulus<span class="w"> </span>Team
+</pre></div>
+</div>
+<p>A Singularity Image Format (<code class="docutils literal notranslate"><span class="pre">sif</span></code>) file can get built with the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>singularity<span class="w"> </span>build<span class="w"> </span>--fakeroot<span class="w"> </span>--sandbox<span class="w"> </span>earth2mip.sif<span class="w"> </span>earth2mip.def
+</pre></div>
+</div>
+<p>This can then be ran using the following execute command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>singularity<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-B<span class="w"> </span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span>:/workspace/earth2mip<span class="w"> </span>--nv<span class="w"> </span>earth2mip.sif<span class="w"> </span>bash<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;cd ~&#39;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The following translates easily to apptainer where the commands / definition file can be
+translated easily. See <a class="reference external" href="https://apptainer.org/docs/admin/main/singularity_migration.html">migration guide</a>
+for additional details.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Singularity / Apptainer containers are not recommended for running Jupyter lab.
+Instead consider a conda environment.</p>
+</div>
 </section>
 </section>
 <section id="optional-dependicies">
@@ -610,14 +667,15 @@ use case.</p>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Installation</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-from-source-recommended">Install from Source (Recommended)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-from-release-wheel">Install from Release Wheel</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-from-pypi">Installing from PyPi</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-from-release-wheel-coming-soon">Install from Release Wheel (Coming soon)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-from-source">Install from Source</a></li>
 </ul>
 </li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#earth-2-mip-environments">Earth-2 MIP Environments</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conda-environment">Conda Environment</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#docker-environment">Docker Environment</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#singularity-apptainer-environment">Singularity / Apptainer Environment</a></li>
 </ul>
 </li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-dependicies">Optional Dependicies</a><ul class="visible nav section-nav flex-column">
