@@ -51,20 +51,22 @@ import os
 #       | - field (time, channels, grid)
 #
 # For DLWP which requires 7 channels with a time-step size of 12 hours, an H5 file will
-# have the following form of data:
+# have the following form of data for an entire year:
 # ::
 #
 #   2017.h5
-#       | - field (1460, 7, 720, 1440)
+#       | - field (730, 7, 720, 1440)
 #   2016.h5
-#       | - field (1464, 7, 720, 1440)
+#       | - field (730, 7, 720, 1440)
 #   2015.h5
-#       | - field (1460, 7, 720, 1440)
+#       | - field (730, 7, 720, 1440)
 #
 # .. note::
-#   There is some flexibility with the dimensions of the data in the H5 files. The
-#   fields may contain additional channels not needed by the model. Additionally, the
-#   later two dims have some flexibility with regridding.
+#   There is some flexibility with the dimensions of the data in the H5 files. The time
+#   dimension may be some factor of 12 (such as 6hr dt or 4hr dt) and the fields may
+#   contain additional channels not needed by the model. The data source will select the
+#   necessary data for the model. Additionally, the later two dims have some flexibility
+#   with regridding.
 #
 # One option to build these H5 files from scratch is to use the ERA5 mirror scripts
 # provided in `Modulus <https://github.com/NVIDIA/modulus/tree/main/examples/weather/dataset_download>`_.
