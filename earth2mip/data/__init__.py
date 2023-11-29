@@ -12,5 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .random import Random  # noqa
+from .base import DataSource  # noqa
+from .rand import Random  # noqa
 from .xr import DataArrayFile, DataSetFile  # noqa

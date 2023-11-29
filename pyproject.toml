@@ -14,6 +14,7 @@ requires-python = ">=3.10"
 license = {text = "Apache 2.0"}
 dependencies = [
     "altair>=4.2.2",
+    "boto3",
     "cdsapi >= 0.6.1",
     "cfgrib >= 0.9.10.3",
     "cftime",
@@ -27,6 +28,7 @@ dependencies = [
     "h5netcdf>=1.0.0",
     "importlib_metadata>=6.7.0",
     "joblib>=1.1.0",
+    "loguru>=0.6.0",
     "netCDF4>=1.6.4",
     "numpy",
     "nvidia-modulus >= 0.4.0",
