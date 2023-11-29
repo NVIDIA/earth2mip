@@ -1,9 +1,12 @@
 # Earth-2 MIP (Alpha)
 
 <!-- markdownlint-disable -->
-[![Project Status: Active - The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
+[![Project Status: Active - The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![GitHub](https://img.shields.io/github/license/NVIDIA/earth2mip)](https://github.com/NVIDIA/earth2mip/blob/master/LICENSE.txt)
-[![Documentstion](https://img.shields.io/badge/docs-online-green)](https://nvidia.github.io/earth2mip/)
+[![Documentstion](https://img.shields.io/website?up_message=online&up_color=green&down_message=down&down_color=red&url=https%3A%2F%2Fnvidia.github.io%2Fearth2mip%2F&label=docs)](https://nvidia.github.io/earth2mip/)
+[![codecov](https://codecov.io/gh/NickGeneva/earth2mip/graph/badge.svg?token=0PDBMHCH2C)](https://codecov.io/gh/NickGeneva/earth2mip/tree/main)
+[![Python versionm: 3.10, 3.11, 3.12](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue
+)](https://github.com/NVIDIA/earth2mip)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 <!-- markdownlint-enable -->
 
@@ -31,26 +34,15 @@ git clone git@github.com:NVIDIA/earth2mip.git
 cd earth2mip && pip install .
 ```
 
-To verify installation run:
-
-```bash
-make pytest
-```
+See [installation documentation](https://nvidia.github.io/earth2mip/userguide/install.html)
+for more details and other options.
 
 ## Getting Started
 
-The [notebooks](./examples/notebooks/) folder contains reference Jupyter
-notebooks for a few common use cases.
-These are the best ways to start exploring Earth-2 MIP:
-
-1. [Ensemble Inference](./examples/notebooks/01_ensemble_inference.ipynb) - This
-notebook will demonstrate how to perturb the initial conditions to generate ensemble of
-inference outputs for a given pre-trained model and generate some standard metrics to
-evaluate the skill of the model.
-
-2. [Model Inter Comparison](./examples/notebooks/02_model_comparison.ipynb) - This
-notebook will showcase how to generate forecasts from multiple models with Earth-2 MIP
-and how to compare their predictions.
+Earth-2 MIP provides a set of examples which can be viewed on the [examples documentation](https://nvidia.github.io/earth2mip/examples/index.html)
+page which can be used to get started with various workflows.
+These examples can be downloaded both as Jupyer Notebooks and Python scripts.
+The source Python scripts can be found in the [examples](./examples/) folders.
 
 ### Basic Inference
 
@@ -137,6 +129,10 @@ table below.
 <!-- markdownlint-enable -->
 
 \* = coming soon
+
+Some models require additional dependencies not installed by default.
+Refer to the [installation instructions](https://nvidia.github.io/earth2mip/userguide/install.html)
+for details.
 
 We want to integrate your model into the scoreboard to show the community!
 The best way to do this is via [NVIDIA Modulus](https://github.com/NVIDIA/modulus).

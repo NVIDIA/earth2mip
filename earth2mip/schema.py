@@ -14,12 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List, Optional, Mapping, Any
+import datetime
+from enum import Enum
+from typing import Any, List, Mapping, Optional
+
 import pydantic
+
 from earth2mip import weather_events
 from earth2mip.weather_events import InitialConditionSource, WeatherEvent
-from enum import Enum
-import datetime
 
 __all__ = ["InitialConditionSource", "WeatherEvent"]
 

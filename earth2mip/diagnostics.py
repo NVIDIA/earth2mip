@@ -14,13 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import torch
+from typing import Union
+
 import numpy as np
-from earth2mip.weather_events import CWBDomain, Window, MultiPoint
+import torch
+from netCDF4._netCDF4 import Group
+
 from earth2mip import weather_events
 from earth2mip.schema import Grid
-from netCDF4._netCDF4 import Group
-from typing import Union
+from earth2mip.weather_events import CWBDomain, MultiPoint, Window
 
 
 class Diagnostics:

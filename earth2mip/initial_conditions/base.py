@@ -14,10 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.from typing import Protocol, List, runtime_checkable
 
-from typing import List, runtime_checkable, Protocol
 import datetime
-from earth2mip import grid
+from typing import List, Protocol, runtime_checkable
+
 import numpy as np
+
+from earth2mip import grid
 
 
 @runtime_checkable

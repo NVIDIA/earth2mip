@@ -13,11 +13,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import dataclasses
 import datetime
 import functools
+import logging
 import os
-from typing import List, Literal
+from typing import List
 
 import einops
 import haiku as hk
@@ -29,15 +29,12 @@ import torch
 import xarray
 from graphcast import checkpoint, data_utils, graphcast
 from graphcast.graphcast import TaskConfig
-import pytz
 from modulus.utils.zenith_angle import toa_incident_solar_radiation_accumulated
 
 import earth2mip.grid
+import earth2mip.time
 from earth2mip.initial_conditions import cds
 from earth2mip.time_loop import TimeLoop
-import earth2mip.time
-
-import logging
 
 __all__ = ["load_time_loop", "load_time_loop_operational", "load_time_loop_small"]
 
@@ -148,20 +145,20 @@ def get_codes(variables: List[str], levels: List[int], time_levels: List[int]):
     for v in sorted(variables):
         if v in time_dependent:
             for history in time_levels:
-                output.append((history, v))
+                output.append((history, v))  # noqa
         elif v in static_inputs:
-            output.append(v)
+            output.append(v)  # noqa
         elif v in lookup_code:
             code = lookup_code[v]
             if v in pl_inputs:
                 for history in time_levels:
                     for level in levels:
-                        output.append(
+                        output.append(  # noqa
                             (history, cds.PressureLevelCode(code, level=level))
                         )
             else:
                 for history in time_levels:
-                    output.append((history, cds.SingleLevelCode(code)))
+                    output.append((history, cds.SingleLevelCode(code)))  # noqa
         else:
             raise NotImplementedError(v)
     return output
@@ -441,7 +438,7 @@ class GraphcastTimeLoop(TimeLoop):
         return s, diagnostics
 
     def __call__(self, time, x, restart=None):
-        assert not restart, "not implemented"
+        assert not restart, "not implemented"  # noqa
         ngrid = len(self.grid.lon) * len(self.grid.lat)
         array = torch.empty([ngrid, 1, len(self.in_codes)], device=x.device)
 

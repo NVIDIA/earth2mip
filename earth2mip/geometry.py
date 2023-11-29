@@ -36,9 +36,9 @@ def get_bounds_window(geom, lat, lon):
 def select_space(data, lat, lon, domain):
     lat = np.asarray(lat)
     lon = np.asarray(lon)
-    assert data.ndim == 4, data.ndim
-    assert data.shape[2] == lat.size, lat.size
-    assert data.shape[3] == lon.size, lon.size
+    assert data.ndim == 4, data.ndim  # noqa
+    assert data.shape[2] == lat.size, lat.size  # noqa
+    assert data.shape[3] == lon.size, lon.size  # noqa
     domain_type = domain.type
     if domain_type == "Window" or domain_type == LAT_AVERAGE or domain_type == "global":
         lat_sl, lon_sl = get_bounds_window(domain, lat, lon)

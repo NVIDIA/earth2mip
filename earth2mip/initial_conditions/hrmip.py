@@ -14,16 +14,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List
-from earth2mip.initial_conditions.base import DataSource
-import os
 import datetime
 import json
-from earth2mip import filesystem, config
-import earth2mip.grid
 import logging
-import numpy as np
+import os
+from typing import List
+
 import h5py
+import numpy as np
+
+import earth2mip.grid
+from earth2mip import config, filesystem
+from earth2mip.initial_conditions.base import DataSource
 
 logger = logging.getLogger(__name__)
 
@@ -54,11 +56,9 @@ def _get_hdf5(path: str, metadata, time: datetime.datetime) -> np.ndarray:
             elif nm == "sl":
                 sl = f[nm][ic : ic + 1]
 
-    assert "pl" in locals() and "sl" in locals()
+    assert "pl" in locals() and "sl" in locals()  # noqa
 
-    pl_list: List[str] = []
-    for var_idx in range(pl.shape[1]):
-        pl_list.append(pl[:, var_idx])
+    pl_list: List[str] = [pl[:, var_idx] for var_idx in range(pl.shape[1])]
     pl = np.concatenate(pl_list, axis=1)  # pressure level vars flattened
     data = np.concatenate([pl, sl], axis=1)
     return data
