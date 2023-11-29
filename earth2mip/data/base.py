@@ -36,5 +36,12 @@ class DataSource(Protocol):
         channel : str or List[str]
             Strings or list of strings that refer to the
             channel/variables to return.
+
+        Returns
+        -------
+        xr.DataArray
+            An xarray data-array with the dimensions [time, channel, ....]. The coords
+            should be provided. Time coordinate should be a datetime array and the
+            channel coordinate should be array of strings with E2-MIP channel ids.
         """
         pass
