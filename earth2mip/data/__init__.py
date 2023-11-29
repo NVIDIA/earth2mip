@@ -13,5 +13,6 @@
 # limitations under the License.
 
 from .base import DataSource  # noqa
+from .gfs import GFS  # noq
 from .rand import Random  # noqa
 from .xr import DataArrayFile, DataSetFile  # noqa

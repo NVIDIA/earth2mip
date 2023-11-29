@@ -89,6 +89,9 @@ class GFS:
         if isinstance(time, datetime.datetime):
             time = [time]
 
+        # Create cache dir if doesnt exist
+        pathlib.Path(self.cache).mkdir(parents=True, exist_ok=True)
+
         # Make sure input time is valid
         self._validate_time(time)
 
@@ -99,8 +102,9 @@ class GFS:
             data_arrays.append(data_array)
 
         # Delete cache if needed
-        if not self.cache:
-            shutil.rmtree(self.cache)
+        if not self._cache:
+            print(self.cache.rstrip("/"))
+            shutil.rmtree(self.cache.rstrip("/"))
 
         return xr.concat(data_arrays, dim="time")
 
@@ -192,16 +196,16 @@ class GFS:
         for time in times:
             if not time.hour % 6 == 0:
                 raise ValueError(
-                    f"Requested date time {time} needs to be 6 hour interval."
+                    f"Requested date time {time} needs to be 6 hour interval for GFS"
                 )
 
-            if time < datetime.datetime(year=2012, month=2, day=26):
+            if time < datetime.datetime(year=2021, month=2, day=26):
                 raise ValueError(
-                    f"Requested date time {time} needs to be after Feburary 26th, 2021."
+                    f"Requested date time {time} needs to be after Feburary 26th, 2021 for GFS"
                 )
 
             if not self.available(time):
-                raise ValueError(f"Requested date time {time} not available")
+                raise ValueError(f"Requested date time {time} not available in GFS")
 
     def _fetch_index(self, time: datetime.datetime) -> dict[str, tuple[int, int]]:
         """Fetch GFS atmospheric index file
@@ -280,8 +284,6 @@ class GFS:
             cache_location = os.path.join(
                 cache_location, f"tmp_{DistributedManager().rank}"
             )
-        # Create cache dir if doesnt exist
-        pathlib.Path(cache_location).mkdir(parents=True, exist_ok=True)
         return cache_location
 
     @classmethod
@@ -314,120 +316,3 @@ class GFS:
             raise e
 
         return "KeyCount" in resp and resp["KeyCount"] > 0
-
-
-if __name__ == "__main__":
-
-    ds = GFS()
-
-    time = datetime.datetime(year=2022, month=2, day=1)
-    channel = [
-        "u10m",
-        "v10m",
-        "u100m",
-        "v100m",
-        "t2m",
-        "sp",
-        "msl",
-        "tcwv",
-        "u50",
-        "u100",
-        "u150",
-        "u200",
-        "u250",
-        "u300",
-        "u400",
-        "u500",
-        "u600",
-        "u700",
-        "u850",
-        "u925",
-        "u1000",
-        "v50",
-        "v100",
-        "v150",
-        "v200",
-        "v250",
-        "v300",
-        "v400",
-        "v500",
-        "v600",
-        "v700",
-        "v850",
-        "v925",
-        "v1000",
-        "z50",
-        "z100",
-        "z150",
-        "z200",
-        "z250",
-        "z300",
-        "z400",
-        "z500",
-        "z600",
-        "z700",
-        "z850",
-        "z925",
-        "z1000",
-        "t50",
-        "t100",
-        "t150",
-        "t200",
-        "t250",
-        "t300",
-        "t400",
-        "t500",
-        "t600",
-        "t700",
-        "t850",
-        "t925",
-        "t1000",
-        "r50",
-        "r100",
-        "r150",
-        "r200",
-        "r250",
-        "r300",
-        "r400",
-        "r500",
-        "r600",
-        "r700",
-        "r850",
-        "r925",
-        "r1000",
-    ]
-
-    da = ds(time, channel)
-
-    # Create a sample NumPy array with dimensions [73, 721, 1440]
-    # Replace this with your actual NumPy array
-    data_array = da.values
-
-    # Determine the number of rows and columns for the subplots
-    num_rows = 10  # You can adjust this based on your preference
-    num_cols = 8  # You can adjust this based on your preference
-
-    import matplotlib.pyplot as plt
-
-    # Create a grid of subplots
-    fig, axes = plt.subplots(num_rows, num_cols, figsize=(24, 20))
-
-    # Plot contours for each subplot
-    for i in range(min(num_rows * num_cols, data_array.shape[1])):
-        row = i // num_cols
-        col = i % num_cols
-        ax = axes[row, col]
-
-        contour = ax.contourf(data_array[0, i, :, :], cmap="viridis")
-        ax.set_title(f'Contour {da.coords["channel"][i].values}')
-
-        # Add colorbar for the last column of subplots
-        cbar = plt.colorbar(contour, ax=ax, orientation="vertical", shrink=0.8)
-        cbar.set_label("Values")
-
-    # Adjust layout and show the plot
-    plt.tight_layout()
-    # plt.show()
-    plt.savefig("300dpi.png", dpi=500)
-
-    print(da)
