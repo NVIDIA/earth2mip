@@ -70,7 +70,7 @@ class GFSLexicon(metaclass=LexiconType):
         "z700": "HGT::700 mb",
         "z850": "HGT::850 mb",
         "z925": "HGT::925 mb",
-        "z1000": "HGT::100 mb",
+        "z1000": "HGT::1000 mb",
         "t50": "TMP::50 mb",
         "t100": "TMP::100 mb",
         "t150": "TMP::150 mb",
