@@ -13,3 +13,4 @@
 # limitations under the License.
 
 from .random import Random  # noqa
+from .xr import DataArrayFile, DataSetFile  # noqa
