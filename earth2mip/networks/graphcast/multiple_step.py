@@ -1,3 +1,118 @@
+"""
+# Inputs
+eval inputs:
+xarray.Dataset {
+dimensions:
+        batch = 1 ;
+        time = 2 ;
+        lat = 721 ;
+        lon = 1440 ;
+        level = 37 ;
+
+variables:
+        float32 2m_temperature(batch, time, lat, lon) ;
+        float32 mean_sea_level_pressure(batch, time, lat, lon) ;
+        float32 10m_v_component_of_wind(batch, time, lat, lon) ;
+        float32 10m_u_component_of_wind(batch, time, lat, lon) ;
+        float32 total_precipitation_6hr(batch, time, lat, lon) ;
+        float32 temperature(batch, time, level, lat, lon) ;
+        float32 geopotential(batch, time, level, lat, lon) ;
+        float32 u_component_of_wind(batch, time, level, lat, lon) ;
+        float32 v_component_of_wind(batch, time, level, lat, lon) ;
+        float32 vertical_velocity(batch, time, level, lat, lon) ;
+        float32 specific_humidity(batch, time, level, lat, lon) ;
+        float32 toa_incident_solar_radiation(batch, time, lat, lon) ;
+        float32 year_progress_sin(batch, time) ;
+        float32 year_progress_cos(batch, time) ;
+        float32 day_progress_sin(batch, time, lon) ;
+        float32 day_progress_cos(batch, time, lon) ;
+        float32 geopotential_at_surface(lat, lon) ;
+        float32 land_sea_mask(lat, lon) ;
+        float32 lon(lon) ;
+                lon:long_name = longitude ;
+                lon:units = degrees_east ;
+        float32 lat(lat) ;
+                lat:long_name = latitude ;
+                lat:units = degrees_north ;
+        int32 level(level) ;
+        timedelta64[ns] time(time) ;
+
+// global attributes:
+}
+<xarray.DataArray 'time' (time: 2)>
+array([-21600000000000,               0], dtype='timedelta64[ns]')
+Coordinates:
+  * time     (time) timedelta64[ns] -1 days +18:00:00 00:00:00
+
+
+# forcings
+xarray.Dataset {
+dimensions:
+        batch = 1 ;
+        time = 1 ;
+        lat = 721 ;
+        lon = 1440 ;
+
+variables:
+        float32 toa_incident_solar_radiation(batch, time, lat, lon) ;
+        float32 year_progress_sin(batch, time) ;
+        float32 year_progress_cos(batch, time) ;
+        float32 day_progress_sin(batch, time, lon) ;
+        float32 day_progress_cos(batch, time, lon) ;
+        float32 lon(lon) ;
+                lon:long_name = longitude ;
+                lon:units = degrees_east ;
+        float32 lat(lat) ;
+                lat:long_name = latitude ;
+                lat:units = degrees_north ;
+        timedelta64[ns] time(time) ;
+
+// global attributes:
+}<xarray.DataArray 'time' (time: 1)>
+array([21600000000000], dtype='timedelta64[ns]')
+Coordinates:
+  * time     (time) timedelta64[ns] 06:00:00
+
+
+# Outputs
+
+predictions:
+xarray.Dataset {
+dimensions:
+        time = 1 ;
+        batch = 1 ;
+        lat = 721 ;
+        lon = 1440 ;
+        level = 37 ;
+
+variables:
+        float32 10m_u_component_of_wind(time, batch, lat, lon) ;
+        float32 10m_v_component_of_wind(time, batch, lat, lon) ;
+        float32 2m_temperature(time, batch, lat, lon) ;
+        float32 geopotential(time, batch, level, lat, lon) ;
+        float32 mean_sea_level_pressure(time, batch, lat, lon) ;
+        float32 specific_humidity(time, batch, level, lat, lon) ;
+        float32 temperature(time, batch, level, lat, lon) ;
+        float32 total_precipitation_6hr(time, batch, lat, lon) ;
+        float32 u_component_of_wind(time, batch, level, lat, lon) ;
+        float32 v_component_of_wind(time, batch, level, lat, lon) ;
+        float32 vertical_velocity(time, batch, level, lat, lon) ;
+        float32 lon(lon) ;
+                lon:long_name = longitude ;
+                lon:units = degrees_east ;
+        float32 lat(lat) ;
+                lat:long_name = latitude ;
+                lat:units = degrees_north ;
+        int32 level(level) ;
+        timedelta64[ns] time(time) ;
+
+// global attributes:
+}
+<xarray.DataArray 'time' (time: 1)>
+array([21600000000000], dtype='timedelta64[ns]')
+Coordinates:
+  * time     (time) timedelta64[ns] 06:00:00
+"""
 # @title Imports
 import os
 import dataclasses
@@ -348,12 +463,6 @@ def main():
     print("eval targets")
     eval_targets.info()
     print(eval_targets.time)
-
-    print("")
-    print("eval forcings")
-    eval_forcings.info()
-    print(eval_forcings.time)
-
     predictions = rollout.chunked_prediction(
         run_forward_jitted,
         rng=jax.random.PRNGKey(0),
@@ -362,7 +471,7 @@ def main():
         forcings=eval_forcings,
     )
     print("predictions:")
-    predictions.to_netcdf("predictions.nc")
+    predictions.to_netcdf("predictions_new.nc")
     predictions.info()
     print(predictions.time)
 
