@@ -66,8 +66,8 @@ class ERA5H5:
 
     dt_hours: float = 6.0
     channel: list[str] = CHANNELS
-    lat: np.array = np.linspace(90, -90, 721)
-    lon: np.array = np.linspace(0, 359.75, 1440)
+    ERA5_LAT: np.array = np.linspace(90, -90, 721)
+    ERA5_LON: np.array = np.linspace(0, 359.75, 1440)
 
     def __init__(
         self, file_path: str, meta_data: Optional[dict] = None, cache: bool = True
@@ -139,9 +139,9 @@ class ERA5H5:
             if "channel" in meta_data["coords"]:
                 self.channel = meta_data["coords"]["channel"]
             if "lat" in meta_data["coords"]:
-                self.lat = meta_data["coords"]["lat"]
+                self.ERA5_LAT = meta_data["coords"]["lat"]
             if "lon" in meta_data["coords"]:
-                self.lon = meta_data["coords"]["lon"]
+                self.ERA5_LON = meta_data["coords"]["lon"]
 
     @property
     def cache(self) -> str:
@@ -211,8 +211,8 @@ class ERA5H5:
                 for i in da.time
             ],
             channel=self.channel,
-            lat=self.lat,
-            lon=self.lon,
+            lat=self.ERA5_LAT,
+            lon=self.ERA5_LON,
         )
         return da.sel(time=[date], channel=channel)
 

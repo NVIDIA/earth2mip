@@ -32,9 +32,6 @@ from tqdm import tqdm
 from earth2mip import config
 from earth2mip.lexicon import GFSLexicon
 
-logger.remove()
-logger.add(lambda msg: tqdm.write(msg, end=""))
-
 
 class GFS:
     """The global forecast service (GFS) re-analysis data source provided on an
