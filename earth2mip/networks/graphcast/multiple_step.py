@@ -312,6 +312,7 @@ def main():
     model_name = "GraphCast - ERA5 1979-2017 - resolution 0.25 - pressure levels 37 - mesh 2to6 - precipitation input and output.npz"
     root = "/lustre/fsw/sw_earth2_ml/graphcast/"
     root = "/home/nbrenowitz/mnt/selene/fsw/sw_earth2_ml/graphcast/"
+    root = ".tmp"
     checkpoint_path = os.path.join(root, "params", model_name)
 
     # load checkpoint:
@@ -405,27 +406,6 @@ def main():
         predictor = construct_wrapped_graphcast(model_config, task_config)
         return predictor(inputs, targets_template=targets_template, forcings=forcings)
 
-    @hk.transform_with_state
-    def loss_fn(model_config, task_config, inputs, targets, forcings):
-        predictor = construct_wrapped_graphcast(model_config, task_config)
-        loss, diagnostics = predictor.loss(inputs, targets, forcings)
-        return xarray_tree.map_structure(
-            lambda x: xarray_jax.unwrap_data(x.mean(), require_jax=True),
-            (loss, diagnostics),
-        )
-
-    def grads_fn(params, state, model_config, task_config, inputs, targets, forcings):
-        def _aux(params, state, i, t, f):
-            (loss, diagnostics), next_state = loss_fn.apply(
-                params, state, jax.random.PRNGKey(0), model_config, task_config, i, t, f
-            )
-            return loss, (diagnostics, next_state)
-
-        (loss, (diagnostics, next_state)), grads = jax.value_and_grad(
-            _aux, has_aux=True
-        )(params, state, inputs, targets, forcings)
-        return loss, diagnostics, next_state, grads
-
     # Jax doesn't seem to like passing configs as args through the jit. Passing it
     # in via partial (instead of capture by closure) forces jax to invalidate the
     # jit cache if you change configs.
@@ -451,30 +431,72 @@ def main():
             forcings=eval_forcings,
         )
 
-    loss_fn_jitted = drop_state(with_params(jax.jit(with_configs(loss_fn.apply))))
-    grads_fn_jitted = with_params(jax.jit(with_configs(grads_fn)))
     run_forward_jitted = drop_state(
         with_params(jax.jit(with_configs(run_forward.apply)))
     )
 
-    print("eval inputs")
-    eval_inputs.info()
-    print(eval_inputs.time)
-    print("eval targets")
-    eval_targets.info()
-    print(eval_targets.time)
-    predictions = rollout.chunked_prediction(
-        run_forward_jitted,
-        rng=jax.random.PRNGKey(0),
-        inputs=eval_inputs,
-        targets_template=eval_targets * np.nan,
-        forcings=eval_forcings,
-    )
-    print("predictions:")
-    predictions.to_netcdf("predictions_new.nc")
-    predictions.info()
-    print(predictions.time)
+    rng = jax.random.PRNGKey(0)
 
+    from graphcast.rollout import _get_next_inputs
+    from graphcast.data_utils import add_derived_vars
+
+    def step(time, eval_inputs, rng):
+        rng, this_rng = jax.random.split(rng)
+
+        # get forcings
+        forcings = example_batch.toa_incident_solar_radiation.isel(
+            time=slice(time, time + 1)
+        ).to_dataset()
+        forcings["datetime"] = (["batch", "time"], [[time]])
+        add_derived_vars(forcings)
+        forcings = forcings.drop_vars("datetime")
+
+        predictions = run_forward_jitted(
+            rng=this_rng,
+            inputs=eval_inputs,
+            targets_template=eval_targets,
+            forcings=eval_forcings,
+        )
+
+        next_frame = xarray.merge([predictions, eval_forcings])
+        return _get_next_inputs(eval_inputs, next_frame), rng
+
+    import pandas as pd
+    import subprocess
+
+    time = pd.Timestamp("2022-01-01T00:00:00.000000000")
+    next, rng = step(0, eval_inputs, rng)
+    assert not np.any(np.isnan(next)).to_array().any()
+
+    for t in range(20):
+        next, rng = step(0, next, rng)
+        assert not np.any(np.isnan(next)).to_array().any()
+        plt.clf()
+        next.specific_humidity[0, -1].sel(level=925).plot.imshow(vmin=0, vmax=30e-3)
+        plt.savefig(f"{t:03d}.png")
+
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-y",
+            "-framerate",
+            "10",
+            "-i",
+            "%03d.png",
+            "-c:v",
+            "libx264",
+            "-r",
+            "30",
+            "output.mp4",
+        ]
+    )
+
+    from IPython import embed
+
+    embed()
+
+
+import logging
 
 if __name__ == "__main__":
     main()
