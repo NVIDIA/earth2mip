@@ -44,8 +44,8 @@ class GFS:
     cache : bool, optional
         Cache data source on local memory, by default True
 
-    Note
-    ----
+    Warning
+    -------
     This is a remote data source and can potentially download a large amount of data
     to your local machine for large requests.
 

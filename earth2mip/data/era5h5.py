@@ -45,6 +45,10 @@ class ERA5H5:
         subdirB/2016.h5
         2015.h5
 
+    The H5 files should have the followings data:
+
+        fields: [time, channel, lat, lon]
+
     data.json should have fields
 
         coords.channel - list of channels (default 73 fcn v2 channel set)
@@ -62,6 +66,11 @@ class ERA5H5:
         values in data.json, by default None
     cache : bool, optional
         Cache data if remote, by default True
+
+    Warning
+    -------
+    When using a s3 object store. This is a remote data source and can potentially
+    download a large amount of data to your local machine for large requests.
     """
 
     dt_hours: float = 6.0
@@ -103,6 +112,9 @@ class ERA5H5:
         if isinstance(time, datetime.datetime):
             time = [time]
 
+        # Create cache dir if doesnt exist
+        pathlib.Path(self.cache).mkdir(parents=True, exist_ok=True)
+
         fs = self._get_fs()
         # Search for H5 files in provided directory
         h5_files = fs.glob(os.path.join(self.file_path, "**.h5"), maxdepth=2)
@@ -139,9 +151,9 @@ class ERA5H5:
             if "channel" in meta_data["coords"]:
                 self.channel = meta_data["coords"]["channel"]
             if "lat" in meta_data["coords"]:
-                self.ERA5_LAT = meta_data["coords"]["lat"]
+                self.ERA5_LAT = np.array(meta_data["coords"]["lat"])
             if "lon" in meta_data["coords"]:
-                self.ERA5_LON = meta_data["coords"]["lon"]
+                self.ERA5_LON = np.array(meta_data["coords"]["lon"])
 
     @property
     def cache(self) -> str:
