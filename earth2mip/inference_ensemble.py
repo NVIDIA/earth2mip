@@ -229,7 +229,8 @@ def get_initializer(
                 sigma=config.grf_noise_sigma,
                 alpha=config.grf_noise_alpha,
                 tau=config.grf_noise_tau,
-            ).to(device)
+                device=device,
+            )
         elif config.perturbation_strategy == PerturbationStrategy.bred_vector:
             noise = generate_bred_vector(
                 x,
