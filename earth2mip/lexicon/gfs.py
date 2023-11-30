@@ -20,9 +20,15 @@ from .base import LexiconType
 
 
 class GFSLexicon(metaclass=LexiconType):
-    """Global Forecast System Lexicon"""
+    """Global Forecast System Lexicon
+    GFS specified <Parameter ID>::<Level/ Layer>
 
-    # https://www.nco.ncep.noaa.gov/pmb/products/gfs/gfs.t00z.pgrb2.0p25.f000.shtml
+    Note
+    ----
+    Additional resources:
+    https://www.nco.ncep.noaa.gov/pmb/products/gfs/gfs.t00z.pgrb2.0p25.f000.shtml
+    """
+
     VOCAB = {
         "u10m": "UGRD::10 m above ground",
         "v10m": "VGRD::10 m above ground",
