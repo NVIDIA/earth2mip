@@ -132,6 +132,8 @@ from graphcast import normalization
 from graphcast import rollout
 from graphcast import xarray_jax
 from graphcast import xarray_tree
+from graphcast.rollout import _get_next_inputs
+from graphcast.data_utils import add_derived_vars
 from IPython.display import HTML
 import haiku as hk
 import jax
@@ -308,6 +310,195 @@ class CachedGraphcast(graphcast.GraphCast):
             self._initialized = True
 
 
+class GraphcastStepper:
+    def __init__(
+        self, run_forward, eval_inputs, eval_targets, eval_forcings, task_config
+    ):
+        self.run_forward = run_forward
+        self.eval_inputs = eval_inputs
+        self.eval_targets = eval_targets
+        self.eval_forcings = eval_forcings
+        self.task_config = task_config
+
+    def get_forcings(self, time, lat, lon):
+        """
+        Args:
+            time: (batch, time) shaped array
+            lat: (lat,) shaped array
+            lon: (lon,) shaped array
+        Returns:
+            forcings: Dataset, maximum dims are (batch, time, lat, lon)
+
+        """
+        from modulus.utils.zenith_angle import toa_incident_solar_radiation_accumulated
+
+        forcings = xarray.Dataset()
+        forcings["datetime"] = (["batch", "time"], time)
+        forcings["lon"] = self.eval_inputs.lon
+        forcings["lat"] = self.eval_inputs.lat
+        forcings = forcings.set_coords(["datetime", "lon", "lat"])
+        seconds_since_epoch = (
+            forcings.coords["datetime"].data.astype("datetime64[s]").astype(np.int64)
+        )
+        t = seconds_since_epoch[..., None, None]
+        lat = lat[:, None]
+        tisr = toa_incident_solar_radiation_accumulated(t, lat, lon)
+        forcings["toa_incident_solar_radiation"] = (
+            ["batch", "time", "lat", "lon"],
+            tisr,
+        )
+        add_derived_vars(forcings)
+        forcings = forcings.drop_vars("datetime")
+        return forcings.transpose("batch", "time", "lat", "lon")
+
+    def step(self, time, inputs, rng):
+        rng, this_rng = jax.random.split(rng)
+
+        forcings_template = self.eval_forcings.isel(time=slice(0, 1))
+        target_template = self.eval_targets.isel(time=slice(0, 1))
+
+        # get forcings
+        forcing_time = time + forcings_template.time.values
+        # add batch dim
+        forcing_time = forcing_time[None]
+        forcings = self.get_forcings(
+            forcing_time, self.eval_forcings.lat.values, self.eval_forcings.lon.values
+        )
+        forcings = forcings.assign_coords(
+            time=self.eval_forcings.time.isel(time=slice(0, 1))
+        )
+        del forcings["year_progress"]
+        del forcings["day_progress"]
+
+        predictions = self.run_forward(
+            rng=this_rng,
+            inputs=inputs,
+            targets_template=target_template,
+            forcings=forcings,
+        )
+        time = time + np.timedelta64(6, "h")
+        next_frame = xarray.merge([predictions, forcings])
+        return time, _get_next_inputs(inputs, next_frame), rng
+
+    def get_num_channels_x(self):
+        vars_3d = sorted(
+            set(graphcast.ALL_ATMOSPHERIC_VARS) & set(self.task_config.input_variables)
+        )
+        vars_surface = sorted(
+            set(graphcast.TARGET_SURFACE_VARS) & set(self.task_config.input_variables)
+        )
+        return len(vars_3d) * len(self.task_config.pressure_levels) + len(vars_surface)
+
+    def get_in_channel_names(self) -> list[str]:
+        from earth2mip.networks.graphcast import CODE_TO_GRAPHCAST_NAME
+        from earth2mip.initial_conditions import cds
+
+        vars_3d = sorted(
+            set(graphcast.ALL_ATMOSPHERIC_VARS) & set(self.task_config.input_variables)
+        )
+        vars_surface = sorted(
+            set(graphcast.TARGET_SURFACE_VARS) & set(self.task_config.input_variables)
+        )
+        graphcast_name_to_code = {
+            val: key for key, val in CODE_TO_GRAPHCAST_NAME.items()
+        }
+
+        pl_codes = [
+            cds.PressureLevelCode(id=graphcast_name_to_code[v], level=level)
+            for v in vars_3d
+            for level in self.task_config.pressure_levels
+        ]
+        sl_codes = [
+            cds.SingleLevelCode(id=graphcast_name_to_code[v]) for v in vars_surface
+        ]
+        all_codes = pl_codes + sl_codes
+        names = [str(c) for c in all_codes]
+        return names
+
+    @staticmethod
+    def pack(ds: xarray.Dataset) -> np.ndarray:
+        """Stack a dataset into a single array
+
+        The inverse operation to get_inputs. an xarray dataset is stacked, first
+        the 3d variables, and then the surface variables. Forcings and static
+        variables are ignored. Variable names are sorted before stacking to
+        ensure deterministic order.
+
+        Returns:
+            (batch, time, channel, lat, lon) shaped array.
+
+        """
+        vars_3d = sorted(set(graphcast.ALL_ATMOSPHERIC_VARS) & set(ds))
+        vars_surface = sorted(set(graphcast.TARGET_SURFACE_VARS) & set(ds))
+
+        pl = [
+            ds[v].transpose("batch", "time", "level", "lat", "lon").data
+            for v in vars_3d
+        ]
+        sl = [ds[v].data[:, :, np.newaxis] for v in vars_surface]
+
+        return np.concatenate(pl + sl, axis=2)
+
+    def get_inputs(self, x, time, dt):
+        """get xarray inputs from stacked array x
+
+        Args:
+            x: (batch, time, channel, lat, lon) shaped array
+                packed along the channel dimension. The order is 3d variables,
+                then surface.
+            time: the time of x[:, -1] (np.timedelta64)
+            dt: the time difference along the time dimension
+        Returns:
+            xarray.Dataset like eval_inputs. Forcings are computed from time, lat, lon.
+        """
+        b, t, _, nx, ny = x.shape
+        levels = self.task_config.pressure_levels
+        vars_3d = sorted(
+            set(graphcast.ALL_ATMOSPHERIC_VARS) & set(self.task_config.input_variables)
+        )
+        vars_surface = sorted(
+            set(graphcast.TARGET_SURFACE_VARS) & set(self.task_config.input_variables)
+        )
+        vars_static = sorted(
+            set(graphcast.STATIC_VARS) & set(self.task_config.input_variables)
+        )
+
+        n3d = len(levels) * len(vars_3d)
+        pl = x[:, :, :n3d]
+
+        n2d = len(vars_surface)
+        sl = x[:, :, n3d : n3d + n2d]
+
+        assert n2d + n3d == x.shape[2]
+        inputs = xarray.Dataset()
+        time_offset = np.arange(-t + 1, 1, 1) * dt
+        assert time_offset.shape == (t,)
+        inputs["time"] = (["time"], time_offset)
+        inputs["level"] = (["level"], np.array(levels))
+
+        pl = pl.reshape(b, t, len(vars_3d), len(levels), nx, ny)
+        for i, var in enumerate(vars_3d):
+            inputs[var] = (["batch", "time", "level", "lat", "lon"], pl[:, :, i])
+
+        for i, var in enumerate(vars_surface):
+            inputs[var] = (["batch", "time", "lat", "lon"], sl[:, :, i])
+
+        for var in vars_static:
+            inputs[var] = self.eval_inputs[var]
+
+        forcings = self.get_forcings(
+            time + time_offset[None],
+            self.eval_inputs.lat.values,
+            self.eval_inputs.lon.values,
+        )
+        del forcings["year_progress"]
+        del forcings["day_progress"]
+        inputs.update(forcings)
+        inputs = inputs.set_coords(["time", "level", "lat", "lon"])
+
+        return inputs
+
+
 def main():
     model_name = "GraphCast - ERA5 1979-2017 - resolution 0.25 - pressure levels 37 - mesh 2to6 - precipitation input and output.npz"
     root = "/lustre/fsw/sw_earth2_ml/graphcast/"
@@ -437,205 +628,30 @@ def main():
 
     rng = jax.random.PRNGKey(0)
 
-    from graphcast.rollout import _get_next_inputs
-    from graphcast.data_utils import add_derived_vars
-
-    def get_forcings(time, lat, lon):
-        """
-        Args:
-            time: (batch, time) shaped array
-            lat: (lat,) shaped array
-            lon: (lon,) shaped array
-        Returns:
-            forcings: Dataset, maximum dims are (batch, time, lat, lon)
-
-        """
-        from modulus.utils.zenith_angle import toa_incident_solar_radiation_accumulated
-
-        forcings = xarray.Dataset()
-        forcings["datetime"] = (["batch", "time"], time)
-        forcings["lon"] = eval_inputs.lon
-        forcings["lat"] = eval_inputs.lat
-        forcings = forcings.set_coords(["datetime", "lon", "lat"])
-        seconds_since_epoch = (
-            forcings.coords["datetime"].data.astype("datetime64[s]").astype(np.int64)
-        )
-        t = seconds_since_epoch[..., None, None]
-        lat = lat[:, None]
-        tisr = toa_incident_solar_radiation_accumulated(t, lat, lon)
-        forcings["toa_incident_solar_radiation"] = (
-            ["batch", "time", "lat", "lon"],
-            tisr,
-        )
-        add_derived_vars(forcings)
-        forcings = forcings.drop_vars("datetime")
-        return forcings.transpose("batch", "time", "lat", "lon")
-
-    def step(time, inputs, rng):
-        rng, this_rng = jax.random.split(rng)
-
-        forcings_template = eval_forcings.isel(time=slice(0, 1))
-        target_template = eval_targets.isel(time=slice(0, 1))
-
-        # get forcings
-        forcing_time = time + forcings_template.time.values
-        # add batch dim
-        forcing_time = forcing_time[None]
-        forcings = get_forcings(
-            forcing_time, eval_forcings.lat.values, eval_forcings.lon.values
-        )
-        forcings = forcings.assign_coords(
-            time=eval_forcings.time.isel(time=slice(0, 1))
-        )
-        del forcings["year_progress"]
-        del forcings["day_progress"]
-
-        predictions = run_forward_jitted(
-            rng=this_rng,
-            inputs=inputs,
-            targets_template=target_template,
-            forcings=forcings,
-        )
-        time = time + np.timedelta64(6, "h")
-        next_frame = xarray.merge([predictions, forcings])
-        return time, _get_next_inputs(inputs, next_frame), rng
-
-    def get_num_channels_x():
-        vars_3d = sorted(
-            set(graphcast.ALL_ATMOSPHERIC_VARS) & set(task_config.input_variables)
-        )
-        vars_surface = sorted(
-            set(graphcast.TARGET_SURFACE_VARS) & set(task_config.input_variables)
-        )
-        return len(vars_3d) * len(task_config.pressure_levels) + len(vars_surface)
-
-    # TODO combine pack, get_inputs into a class
-    def get_in_channel_names() -> list[str]:
-        from earth2mip.networks.graphcast import CODE_TO_GRAPHCAST_NAME
-        from earth2mip.initial_conditions import cds
-
-        vars_3d = sorted(
-            set(graphcast.ALL_ATMOSPHERIC_VARS) & set(task_config.input_variables)
-        )
-        vars_surface = sorted(
-            set(graphcast.TARGET_SURFACE_VARS) & set(task_config.input_variables)
-        )
-        graphcast_name_to_code = {
-            val: key for key, val in CODE_TO_GRAPHCAST_NAME.items()
-        }
-
-        pl_codes = [
-            cds.PressureLevelCode(id=graphcast_name_to_code[v], level=level)
-            for v in vars_3d
-            for level in task_config.pressure_levels
-        ]
-        sl_codes = [
-            cds.SingleLevelCode(id=graphcast_name_to_code[v]) for v in vars_surface
-        ]
-        all_codes = pl_codes + sl_codes
-        names = [str(c) for c in all_codes]
-        return names
-
-    def pack(ds: xarray.Dataset) -> np.ndarray:
-        """Stack a dataset into a single array
-
-        The inverse operation to get_inputs. an xarray dataset is stacked, first
-        the 3d variables, and then the surface variables. Forcings and static
-        variables are ignored. Variable names are sorted before stacking to
-        ensure deterministic order.
-
-        Returns:
-            (batch, time, channel, lat, lon) shaped array.
-
-        """
-        vars_3d = sorted(set(graphcast.ALL_ATMOSPHERIC_VARS) & set(ds))
-        vars_surface = sorted(set(graphcast.TARGET_SURFACE_VARS) & set(ds))
-
-        pl = [
-            ds[v].transpose("batch", "time", "level", "lat", "lon").data
-            for v in vars_3d
-        ]
-        sl = [ds[v].data[:, :, np.newaxis] for v in vars_surface]
-
-        return np.concatenate(pl + sl, axis=2)
-
-    def get_inputs(x, time, dt):
-        """get xarray inputs from stacked array x
-
-        Args:
-            x: (batch, time, channel, lat, lon) shaped array
-                packed along the channel dimension. The order is 3d variables,
-                then surface.
-            time: the time of x[:, -1] (np.timedelta64)
-            dt: the time difference along the time dimension
-        Returns:
-            xarray.Dataset like eval_inputs. Forcings are computed from time, lat, lon.
-        """
-        b, t, _, nx, ny = x.shape
-        levels = task_config.pressure_levels
-        vars_3d = sorted(
-            set(graphcast.ALL_ATMOSPHERIC_VARS) & set(task_config.input_variables)
-        )
-        vars_surface = sorted(
-            set(graphcast.TARGET_SURFACE_VARS) & set(task_config.input_variables)
-        )
-        vars_static = sorted(
-            set(graphcast.STATIC_VARS) & set(task_config.input_variables)
-        )
-
-        n3d = len(levels) * len(vars_3d)
-        pl = x[:, :, :n3d]
-
-        n2d = len(vars_surface)
-        sl = x[:, :, n3d : n3d + n2d]
-
-        assert n2d + n3d == x.shape[2]
-        inputs = xarray.Dataset()
-        time_offset = np.arange(-t + 1, 1, 1) * dt
-        assert time_offset.shape == (t,)
-        inputs["time"] = (["time"], time_offset)
-        inputs["level"] = (["level"], np.array(levels))
-
-        pl = pl.reshape(b, t, len(vars_3d), len(levels), nx, ny)
-        for i, var in enumerate(vars_3d):
-            inputs[var] = (["batch", "time", "level", "lat", "lon"], pl[:, :, i])
-
-        for i, var in enumerate(vars_surface):
-            inputs[var] = (["batch", "time", "lat", "lon"], sl[:, :, i])
-
-        for var in vars_static:
-            inputs[var] = eval_inputs[var]
-
-        forcings = get_forcings(
-            time + time_offset[None], eval_inputs.lat.values, eval_inputs.lon.values
-        )
-        del forcings["year_progress"]
-        del forcings["day_progress"]
-        inputs.update(forcings)
-        inputs = inputs.set_coords(["time", "level", "lat", "lon"])
-
-        return inputs
-
     import pandas as pd
 
     # time is actually the penultimate time step
     time = example_batch.datetime[0, -(eval_steps + 1)].values
     dt = pd.Timedelta("6h")
+
+    stepper = GraphcastStepper(
+        run_forward_jitted, eval_inputs, eval_targets, eval_forcings, task_config
+    )
     import torch.utils.tensorboard as tb
 
     writer = tb.SummaryWriter("runs")
 
     # test get_inputs
-    shape = (1, 2, get_num_channels_x(), 721, 1440)
+    shape = (1, 2, stepper.get_num_channels_x(), 721, 1440)
     x = np.arange(np.prod(shape)).reshape(shape)
-    state = get_inputs(x, time, dt)
-    x_round_trip = pack(state)
+    state = stepper.get_inputs(x, time, dt)
+    x_round_trip = stepper.pack(state)
     np.testing.assert_array_equal(x, x_round_trip)
 
     # test on real inputs
-    shape = (1, 2, get_num_channels_x(), 721, 1440)
-    x = pack(eval_inputs)
-    state = get_inputs(x, time, dt)
+    shape = (1, 2, stepper.get_num_channels_x(), 721, 1440)
+    x = stepper.pack(eval_inputs)
+    state = stepper.get_inputs(x, time, dt)
     tisr_name = "toa_incident_solar_radiation"
     xarray.testing.assert_equal(state.drop(tisr_name), eval_inputs.drop(tisr_name))
     for t in range(2):
@@ -657,18 +673,18 @@ def main():
     # TODO test get_forcings
 
     # TEST channel_names
-    names = get_in_channel_names()
-    assert len(names) == get_num_channels_x()
+    names = stepper.get_in_channel_names()
+    assert len(names) == stepper.get_num_channels_x()
     print(names)
 
     # run simulation
-    x = pack(eval_inputs)
-    next = get_inputs(x, time, dt)
+    x = stepper.pack(eval_inputs)
+    next = stepper.get_inputs(x, time, dt)
     next = eval_inputs
     states = []
     for t in range(5):
         print(time)
-        time, next, rng = step(time, next, rng)
+        time, next, rng = stepper.step(time, next, rng)
         assert not np.any(np.isnan(next)).to_array().any()
         next.specific_humidity[0, -1].sel(level=925).plot.imshow(vmin=0, vmax=30e-3)
         writer.add_figure("q925", plt.gcf(), t)
