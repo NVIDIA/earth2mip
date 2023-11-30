@@ -226,7 +226,7 @@ def main():
     assert example_batch.dims["time"] >= 3  # 2 for input, >=1 for targets
 
     # get eval data
-    eval_steps = 3
+    eval_steps = 10
     (
         eval_inputs,
         eval_targets,
@@ -369,5 +369,4 @@ def main():
 
 
 if __name__ == "__main__":
-    with jax.disable_jit():
-        main()
+    main()
