@@ -469,7 +469,7 @@ def main():
         )
         add_derived_vars(forcings)
         forcings = forcings.drop_vars("datetime")
-        return forcings
+        return forcings.transpose("batch", "time", "lat", "lon")
 
     def step(time, inputs, rng):
         rng, this_rng = jax.random.split(rng)
@@ -481,24 +481,186 @@ def main():
         forcings = get_forcings(
             forcing_time, eval_forcings.lat.values, eval_forcings.lon.values
         )
+        forcings = forcings.assign_coords(
+            time=eval_forcings.time.isel(time=slice(0, 1))
+        )
+        del forcings["year_progress"]
+        del forcings["day_progress"]
 
         predictions = run_forward_jitted(
             rng=this_rng,
             inputs=inputs,
-            targets_template=eval_targets,
-            forcings=eval_forcings,
+            targets_template=eval_targets.isel(time=slice(0, 1)),
+            forcings=forcings,
         )
         time = time + np.timedelta64(6, "h")
         next_frame = xarray.merge([predictions, forcings])
         return time, _get_next_inputs(inputs, next_frame), rng
 
+    def get_num_channels_x():
+        vars_3d = sorted(
+            set(graphcast.ALL_ATMOSPHERIC_VARS) & set(task_config.input_variables)
+        )
+        vars_surface = sorted(
+            set(graphcast.TARGET_SURFACE_VARS) & set(task_config.input_variables)
+        )
+        return len(vars_3d) * len(task_config.pressure_levels) + len(vars_surface)
+
+    # TODO combine pack, get_inputs into a class
+    def get_in_channel_names() -> list[str]:
+        from earth2mip.networks.graphcast import CODE_TO_GRAPHCAST_NAME
+        from earth2mip.initial_conditions import cds
+
+        vars_3d = sorted(
+            set(graphcast.ALL_ATMOSPHERIC_VARS) & set(task_config.input_variables)
+        )
+        vars_surface = sorted(
+            set(graphcast.TARGET_SURFACE_VARS) & set(task_config.input_variables)
+        )
+        graphcast_name_to_code = {
+            val: key for key, val in CODE_TO_GRAPHCAST_NAME.items()
+        }
+
+        pl_codes = [
+            cds.PressureLevelCode(id=graphcast_name_to_code[v], level=level)
+            for v in vars_3d
+            for level in task_config.pressure_levels
+        ]
+        sl_codes = [
+            cds.SingleLevelCode(id=graphcast_name_to_code[v]) for v in vars_surface
+        ]
+        all_codes = pl_codes + sl_codes
+        names = [str(c) for c in all_codes]
+        return names
+
+    def pack(ds: xarray.Dataset) -> np.ndarray:
+        """Stack a dataset into a single array
+
+        The inverse operation to get_inputs. an xarray dataset is stacked, first
+        the 3d variables, and then the surface variables. Forcings and static
+        variables are ignored. Variable names are sorted before stacking to
+        ensure deterministic order.
+
+        Returns:
+            (batch, time, channel, lat, lon) shaped array.
+
+        """
+        vars_3d = sorted(set(graphcast.ALL_ATMOSPHERIC_VARS) & set(ds))
+        vars_surface = sorted(set(graphcast.TARGET_SURFACE_VARS) & set(ds))
+
+        pl = [
+            ds[v].transpose("batch", "time", "level", "lat", "lon").data
+            for v in vars_3d
+        ]
+        sl = [ds[v].data[:, :, np.newaxis] for v in vars_surface]
+
+        return np.concatenate(pl + sl, axis=2)
+
+    def get_inputs(x, time, dt):
+        """get xarray inputs from stacked array x
+
+        Args:
+            x: (batch, time, channel, lat, lon) shaped array
+                packed along the channel dimension. The order is 3d variables,
+                then surface.
+            time: the time of x[:, -1] (np.timedelta64)
+            dt: the time difference along the time dimension
+        Returns:
+            xarray.Dataset like eval_inputs. Forcings are computed from time, lat, lon.
+        """
+        b, t, _, nx, ny = x.shape
+        levels = task_config.pressure_levels
+        vars_3d = sorted(
+            set(graphcast.ALL_ATMOSPHERIC_VARS) & set(task_config.input_variables)
+        )
+        vars_surface = sorted(
+            set(graphcast.TARGET_SURFACE_VARS) & set(task_config.input_variables)
+        )
+        vars_static = sorted(
+            set(graphcast.STATIC_VARS) & set(task_config.input_variables)
+        )
+
+        n3d = len(levels) * len(vars_3d)
+        pl = x[:, :, :n3d]
+
+        n2d = len(vars_surface)
+        sl = x[:, :, n3d : n3d + n2d]
+
+        assert n2d + n3d == x.shape[2]
+        inputs = xarray.Dataset()
+        time_offset = np.arange(-t + 1, 1, 1) * dt
+        assert time_offset.shape == (t,)
+        inputs["time"] = (["time"], time_offset)
+        inputs["level"] = (["level"], np.array(levels))
+
+        pl = pl.reshape(b, t, len(vars_3d), len(levels), nx, ny)
+        for i, var in enumerate(vars_3d):
+            inputs[var] = (["batch", "time", "level", "lat", "lon"], pl[:, :, i])
+
+        for i, var in enumerate(vars_surface):
+            inputs[var] = (["batch", "time", "lat", "lon"], sl[:, :, i])
+
+        for var in vars_static:
+            inputs[var] = eval_inputs[var]
+
+        forcings = get_forcings(
+            time + time_offset[None], eval_inputs.lat.values, eval_inputs.lon.values
+        )
+        del forcings["year_progress"]
+        del forcings["day_progress"]
+        inputs.update(forcings)
+        inputs = inputs.set_coords(["time", "level", "lat", "lon"])
+
+        return inputs
+
     import pandas as pd
 
-    time = pd.Timestamp("2022-01-01T00:00:00.000000000")
-    next = eval_inputs
+    # time is actually the penultimate time step
+    time = example_batch.datetime[0, -2].values
+    dt = pd.Timedelta("6h")
     import torch.utils.tensorboard as tb
 
     writer = tb.SummaryWriter("runs")
+
+    # test get_inputs
+    shape = (1, 2, get_num_channels_x(), 721, 1440)
+    x = np.arange(np.prod(shape)).reshape(shape)
+    state = get_inputs(x, time, dt)
+    x_round_trip = pack(state)
+    np.testing.assert_array_equal(x, x_round_trip)
+
+    # test on real inputs
+    shape = (1, 2, get_num_channels_x(), 721, 1440)
+    x = pack(eval_inputs)
+    state = get_inputs(x, time, dt)
+    tisr_name = "toa_incident_solar_radiation"
+    xarray.testing.assert_equal(state.drop(tisr_name), eval_inputs.drop(tisr_name))
+    for t in range(2):
+        fig, (a, b, c) = plt.subplots(3, 1, figsize=(10, 10))
+
+        truth = eval_inputs.toa_incident_solar_radiation[0, t]
+        ours = state.toa_incident_solar_radiation[0, t]
+
+        truth.plot.imshow(ax=a)
+        ours.plot.imshow(ax=b)
+        (truth - ours).plot.imshow(ax=c)
+        a.set_title("truth")
+        b.set_title("ours")
+        c.set_title("diff")
+        writer.add_figure("input_tisr", fig, t)
+    # TODO this is a large tolerance (though only .1% in terms of peak amplitude of TISR)
+    xarray.testing.assert_allclose(state[tisr_name], eval_inputs[tisr_name], atol=3500)
+
+    # TODO test get_forcings
+
+    # TEST channel_names
+    names = get_in_channel_names()
+    assert len(names) == get_num_channels_x()
+    print(names)
+
+    # run simulation
+    x = pack(eval_inputs)
+    next = get_inputs(x, time, dt)
     for t in range(12):
         print(time)
         time, next, rng = step(time, next, rng)
@@ -506,14 +668,14 @@ def main():
         next.specific_humidity[0, -1].sel(level=925).plot.imshow(vmin=0, vmax=30e-3)
         writer.add_figure("q925", plt.gcf(), t)
 
-        fig, (a, b) = plt.subplots(2, 1, figsize=(10, 10))
-        next.toa_incident_solar_radiation[0, -1].plot.imshow(ax=a)
-        the_time = (example_batch.datetime == time).squeeze()
-        tisr_in_batch = example_batch.toa_incident_solar_radiation.isel(
-            time=the_time
-        ).squeeze()
-        tisr_in_batch.squeeze().plot.imshow(ax=b)
-        writer.add_figure("tisr", fig, t)
+        # fig, (a, b) = plt.subplots(2, 1, figsize=(10, 10))
+        # next.toa_incident_solar_radiation[0, -1].plot.imshow(ax=a)
+        # the_time = (example_batch.datetime == time).squeeze()
+        # tisr_in_batch = example_batch.toa_incident_solar_radiation.isel(
+        #     time=the_time
+        # ).squeeze()
+        # tisr_in_batch.squeeze().plot.imshow(ax=b)
+        # writer.add_figure("tisr", fig, t)
         assert not np.any(np.isnan(next)).to_array().any()
 
     from IPython import embed
