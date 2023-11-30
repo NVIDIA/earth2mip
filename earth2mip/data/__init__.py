@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from .base import DataSource  # noqa
+from .era5h5 import ERA5H5  # noqa
 from .gfs import GFS  # noq
 from .rand import Random  # noqa
 from .xr import DataArrayFile, DataSetFile  # noqa

@@ -57,6 +57,11 @@ class Random:
             most currently available data.
         channel : str
             Channel(s) requested. Must be a subset of era5 available channels.
+
+        Returns
+        -------
+        xr.DataArray
+            Random data array
         """
 
         if isinstance(channel, str):

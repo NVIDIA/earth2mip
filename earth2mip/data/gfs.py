@@ -25,7 +25,6 @@ import numpy as np
 import s3fs
 import xarray as xr
 from botocore import UNSIGNED
-from botocore.config import Config
 from loguru import logger
 from modulus.distributed.manager import DistributedManager
 from tqdm import tqdm
@@ -38,9 +37,10 @@ logger.add(lambda msg: tqdm.write(msg, end=""))
 
 
 class GFS:
-    """The global forecast service (GFS) re-analysis data source. GFS is a weather
-    forecast model developed by NOAA. This data source is provided on a 0.25 degree lat
-    lon grid at 6-hour intervals spanning from Feb 26th 2021 to present date.
+    """The global forecast service (GFS) re-analysis data source provided on an
+    equirectangular grid. GFS is a weather forecast model developed by NOAA. This data
+    source is provided on a 0.25 degree lat lon grid at 6-hour intervals spanning from
+    Feb 26th 2021 to present date.
 
     Parameters
     ----------
@@ -49,11 +49,13 @@ class GFS:
 
     Note
     ----
-    Additional information on the data repository can be referenced here:
-    https://registry.opendata.aws/noaa-gfs-bdp-pds/
+    This is a remote data source and can potentially download a large amount of data
+    to your local machine for large requests.
 
     Note
     ----
+    Additional information on the data repository can be referenced here:
+    https://registry.opendata.aws/noaa-gfs-bdp-pds/
     Additional information about GFS solver can be referenced here:
     https://www.emc.ncep.noaa.gov/emc/pages/numerical_forecast_systems/gfs.php
     """
@@ -61,7 +63,7 @@ class GFS:
     GFS_BUCKET_NAME = "noaa-gfs-bdp-pds"
     MAX_BYTE_SIZE = 2000000
 
-    GFS_LAT = np.linspace(-90, 90, 721)
+    GFS_LAT = np.linspace(90, -90, 721)
     GFS_LON = np.linspace(0, 359.75, 1440)
 
     def __init__(self, cache: bool = True):
@@ -78,10 +80,14 @@ class GFS:
         Parameters
         ----------
         time : Union[datetime.datetime, list[datetime.datetime]]
-            Optional time requested for data. If None, takes
-            most currently available data.
+            Timestamps to return data for.
         channel : str
             Channel(s) requested. Must be a subset of era5 available channels.
+
+        Returns
+        -------
+        xr.DataArray
+            GFS weather data array
         """
         if isinstance(channel, str):
             channel = [channel]
@@ -103,8 +109,7 @@ class GFS:
 
         # Delete cache if needed
         if not self._cache:
-            print(self.cache.rstrip("/"))
-            shutil.rmtree(self.cache.rstrip("/"))
+            shutil.rmtree(self.cache)
 
         return xr.concat(data_arrays, dim="time")
 
@@ -232,6 +237,7 @@ class GFS:
             index_lines = [line.rstrip() for line in file]
 
         index_table = {}
+        # Note we actually drop the last variable here (Vertical Speed Shear)
         for i, line in enumerate(index_lines[:-1]):
             lsplit = line.split(":")
             if len(lsplit) < 7:
@@ -303,7 +309,9 @@ class GFS:
         bool
             If date time is avaiable
         """
-        s3 = boto3.client("s3", config=Config(signature_version=UNSIGNED))
+        s3 = boto3.client(
+            "s3", config=botocore.config.Config(signature_version=UNSIGNED)
+        )
         # Object store directory for given time
         # Should contain two keys: atmos and wave
         file_name = f"gfs.{time.year}{time.month:0>2}{time.day:0>2}/{time.hour:0>2}/"

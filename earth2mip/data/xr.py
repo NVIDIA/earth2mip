@@ -49,6 +49,11 @@ class DataArrayFile:
         channel : str or List[str]
             Strings or list of strings that refer to the
             channel/variables to return.
+
+        Returns
+        -------
+        xr.DataArray
+            Loaded data array
         """
         return self.da.sel(time=time, channel=channel)
 
@@ -87,5 +92,10 @@ class DataSetFile:
         channel : str or List[str]
             Strings or list of strings that refer to the
             channel/variables to return.
+
+        Returns
+        -------
+        xr.DataArray
+            Loaded data array
         """
         return self.da.sel(time=time, channel=channel)
