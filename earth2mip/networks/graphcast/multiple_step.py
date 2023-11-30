@@ -440,56 +440,81 @@ def main():
     from graphcast.rollout import _get_next_inputs
     from graphcast.data_utils import add_derived_vars
 
-    def step(time, eval_inputs, rng):
+    def get_forcings(time, lat, lon):
+        """
+        Args:
+            time: (batch, time) shaped array
+            lat: (lat,) shaped array
+            lon: (lon,) shaped array
+        Returns:
+            forcings: Dataset, maximum dims are (batch, time, lat, lon)
+
+        """
+        from modulus.utils.zenith_angle import toa_incident_solar_radiation_accumulated
+
+        forcings = xarray.Dataset()
+        forcings["datetime"] = (["batch", "time"], time)
+        forcings["lon"] = eval_inputs.lon
+        forcings["lat"] = eval_inputs.lat
+        forcings = forcings.set_coords(["datetime", "lon", "lat"])
+        seconds_since_epoch = (
+            forcings.coords["datetime"].data.astype("datetime64[s]").astype(np.int64)
+        )
+        t = seconds_since_epoch[..., None, None]
+        lat = lat[:, None]
+        tisr = toa_incident_solar_radiation_accumulated(t, lat, lon)
+        forcings["toa_incident_solar_radiation"] = (
+            ["batch", "time", "lat", "lon"],
+            tisr,
+        )
+        add_derived_vars(forcings)
+        forcings = forcings.drop_vars("datetime")
+        return forcings
+
+    def step(time, inputs, rng):
         rng, this_rng = jax.random.split(rng)
 
         # get forcings
-        forcings = example_batch.toa_incident_solar_radiation.isel(
-            time=slice(time, time + 1)
-        ).to_dataset()
-        forcings["datetime"] = (["batch", "time"], [[time]])
-        add_derived_vars(forcings)
-        forcings = forcings.drop_vars("datetime")
+        forcing_time = time + eval_forcings.time.values
+        # add batch dim
+        forcing_time = forcing_time[None]
+        forcings = get_forcings(
+            forcing_time, eval_forcings.lat.values, eval_forcings.lon.values
+        )
 
         predictions = run_forward_jitted(
             rng=this_rng,
-            inputs=eval_inputs,
+            inputs=inputs,
             targets_template=eval_targets,
             forcings=eval_forcings,
         )
-
-        next_frame = xarray.merge([predictions, eval_forcings])
-        return _get_next_inputs(eval_inputs, next_frame), rng
+        time = time + np.timedelta64(6, "h")
+        next_frame = xarray.merge([predictions, forcings])
+        return time, _get_next_inputs(inputs, next_frame), rng
 
     import pandas as pd
-    import subprocess
 
     time = pd.Timestamp("2022-01-01T00:00:00.000000000")
-    next, rng = step(0, eval_inputs, rng)
-    assert not np.any(np.isnan(next)).to_array().any()
+    next = eval_inputs
+    import torch.utils.tensorboard as tb
 
-    for t in range(20):
-        next, rng = step(0, next, rng)
+    writer = tb.SummaryWriter("runs")
+    for t in range(12):
+        print(time)
+        time, next, rng = step(time, next, rng)
         assert not np.any(np.isnan(next)).to_array().any()
-        plt.clf()
         next.specific_humidity[0, -1].sel(level=925).plot.imshow(vmin=0, vmax=30e-3)
-        plt.savefig(f"{t:03d}.png")
+        writer.add_figure("q925", plt.gcf(), t)
 
-    subprocess.run(
-        [
-            "ffmpeg",
-            "-y",
-            "-framerate",
-            "10",
-            "-i",
-            "%03d.png",
-            "-c:v",
-            "libx264",
-            "-r",
-            "30",
-            "output.mp4",
-        ]
-    )
+        fig, (a, b) = plt.subplots(2, 1, figsize=(10, 10))
+        next.toa_incident_solar_radiation[0, -1].plot.imshow(ax=a)
+        the_time = (example_batch.datetime == time).squeeze()
+        tisr_in_batch = example_batch.toa_incident_solar_radiation.isel(
+            time=the_time
+        ).squeeze()
+        tisr_in_batch.squeeze().plot.imshow(ax=b)
+        writer.add_figure("tisr", fig, t)
+        assert not np.any(np.isnan(next)).to_array().any()
 
     from IPython import embed
 
