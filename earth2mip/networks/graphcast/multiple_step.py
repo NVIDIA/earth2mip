@@ -341,7 +341,7 @@ def main():
     assert example_batch.dims["time"] >= 3  # 2 for input, >=1 for targets
 
     # get eval data
-    eval_steps = 1
+    eval_steps = 10
     (
         eval_inputs,
         eval_targets,
@@ -474,8 +474,11 @@ def main():
     def step(time, inputs, rng):
         rng, this_rng = jax.random.split(rng)
 
+        forcings_template = eval_forcings.isel(time=slice(0, 1))
+        target_template = eval_targets.isel(time=slice(0, 1))
+
         # get forcings
-        forcing_time = time + eval_forcings.time.values
+        forcing_time = time + forcings_template.time.values
         # add batch dim
         forcing_time = forcing_time[None]
         forcings = get_forcings(
@@ -490,7 +493,7 @@ def main():
         predictions = run_forward_jitted(
             rng=this_rng,
             inputs=inputs,
-            targets_template=eval_targets.isel(time=slice(0, 1)),
+            targets_template=target_template,
             forcings=forcings,
         )
         time = time + np.timedelta64(6, "h")
@@ -616,7 +619,7 @@ def main():
     import pandas as pd
 
     # time is actually the penultimate time step
-    time = example_batch.datetime[0, -2].values
+    time = example_batch.datetime[0, -(eval_steps + 1)].values
     dt = pd.Timedelta("6h")
     import torch.utils.tensorboard as tb
 
@@ -661,12 +664,15 @@ def main():
     # run simulation
     x = pack(eval_inputs)
     next = get_inputs(x, time, dt)
-    for t in range(12):
+    next = eval_inputs
+    states = []
+    for t in range(5):
         print(time)
         time, next, rng = step(time, next, rng)
         assert not np.any(np.isnan(next)).to_array().any()
         next.specific_humidity[0, -1].sel(level=925).plot.imshow(vmin=0, vmax=30e-3)
         writer.add_figure("q925", plt.gcf(), t)
+        states.append(next.isel(time=-1))
 
         # fig, (a, b) = plt.subplots(2, 1, figsize=(10, 10))
         # next.toa_incident_solar_radiation[0, -1].plot.imshow(ax=a)
@@ -677,6 +683,49 @@ def main():
         # tisr_in_batch.squeeze().plot.imshow(ax=b)
         # writer.add_figure("tisr", fig, t)
         assert not np.any(np.isnan(next)).to_array().any()
+
+    predictions = xarray.concat(states, dim="time")
+
+    # Compare against reference
+    reference = xarray.open_dataset("predictions.nc")
+    for var in predictions:
+        predictions[var].data = predictions[var].values
+    predictions = predictions.drop("time")
+    reference = reference.isel(time=slice(0, predictions.sizes["time"]))
+
+    level = 500
+    field = "u_component_of_wind"
+    time = 0
+
+    diff = predictions.geopotential.sel(level=500) - reference.geopotential.sel(
+        level=500
+    )
+    fig, (a, b, c) = plt.subplots(3, 1, figsize=(10, 10), sharex=True, sharey=True)
+    p = predictions[field].sel(level=level)[0, time]
+    t = reference[field].sel(level=level)[time, 0]
+    diff = t - p
+    p.plot.imshow(ax=a)
+    a.set_title("predictions")
+    t.plot.imshow(ax=b)
+    b.set_title("reference")
+    diff.plot.imshow(ax=c)
+    c.set_title("diff")
+
+    for ax in [a, b, c]:
+        ax.grid()
+
+    writer.add_figure(f"difference/{time}/{field}/{level}", fig, time)
+
+    # ensure that difference wrt reference.  This looks like a large tolerance
+    # but does detect shifts in time of 6 hours the image clearly shows the
+    # difference is small
+    t = reference.isel(time=slice(0, 2))
+    num = predictions.isel(time=slice(0, 2)) - t
+    nn = np.abs(num).mean(["batch", "time", "lat", "lon"])
+    denom = np.abs(t).mean(["batch", "time", "lat", "lon"])
+    lims = nn < denom * 0.01
+    fraction_close = lims.mean().to_array().mean()
+    assert fraction_close > 0.8
 
     from IPython import embed
 
