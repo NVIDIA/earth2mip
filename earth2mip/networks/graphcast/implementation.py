@@ -221,6 +221,22 @@ class CachedGraphcast(graphcast.GraphCast):
             self._initialized = True
 
 
+def get_channel_names(variables, pressure_levels):
+    vars_3d = sorted(set(graphcast.ALL_ATMOSPHERIC_VARS) & set(variables))
+    vars_surface = sorted(set(graphcast.TARGET_SURFACE_VARS) & set(variables))
+    graphcast_name_to_code = {val: key for key, val in CODE_TO_GRAPHCAST_NAME.items()}
+
+    pl_codes = [
+        cds.PressureLevelCode(id=graphcast_name_to_code[v], level=level)
+        for v in vars_3d
+        for level in pressure_levels
+    ]
+    sl_codes = [cds.SingleLevelCode(id=graphcast_name_to_code[v]) for v in vars_surface]
+    all_codes = pl_codes + sl_codes
+    names = [str(c) for c in all_codes]
+    return names
+
+
 class GraphcastStepper:
     def __init__(
         self, run_forward, eval_inputs, eval_targets, eval_forcings, task_config
@@ -294,7 +310,7 @@ class GraphcastStepper:
         )
         time = time + np.timedelta64(6, "h")
         next_frame = xarray.merge([predictions, forcings])
-        return time, _get_next_inputs(inputs, next_frame), rng
+        return time, _get_next_inputs(inputs, next_frame), predictions, rng
 
     def get_num_channels_x(self):
         vars_3d = sorted(
@@ -306,28 +322,15 @@ class GraphcastStepper:
         return len(vars_3d) * len(self.task_config.pressure_levels) + len(vars_surface)
 
     def get_in_channel_names(self) -> list[str]:
-
-        vars_3d = sorted(
-            set(graphcast.ALL_ATMOSPHERIC_VARS) & set(self.task_config.input_variables)
+        return get_channel_names(
+            self.task_config.input_variables, self.task_config.pressure_levels
         )
-        vars_surface = sorted(
-            set(graphcast.TARGET_SURFACE_VARS) & set(self.task_config.input_variables)
-        )
-        graphcast_name_to_code = {
-            val: key for key, val in CODE_TO_GRAPHCAST_NAME.items()
-        }
 
-        pl_codes = [
-            cds.PressureLevelCode(id=graphcast_name_to_code[v], level=level)
-            for v in vars_3d
-            for level in self.task_config.pressure_levels
-        ]
-        sl_codes = [
-            cds.SingleLevelCode(id=graphcast_name_to_code[v]) for v in vars_surface
-        ]
-        all_codes = pl_codes + sl_codes
-        names = [str(c) for c in all_codes]
-        return names
+    @property
+    def out_channel_names(self) -> list[str]:
+        return get_channel_names(
+            self.task_config.target_variables, self.task_config.pressure_levels
+        )
 
     @staticmethod
     def pack(ds: xarray.Dataset) -> np.ndarray:

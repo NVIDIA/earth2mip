@@ -56,9 +56,7 @@ time = datetime.datetime(2018, 1, 1)
 data_source = cds.DataSource(time_loop.in_channel_names)
 x = get_initial_condition_for_model(time_loop, data_source, time)
 
-# TODO return back to tp06
-# field = "tp06"
-field = "q925"
+field = "tp06"
 i = time_loop.out_channel_names.index(field)
 for k, (time, x, _) in enumerate(time_loop(time, x)):
     print(k)
