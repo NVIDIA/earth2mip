@@ -1,5 +1,9 @@
-Earth-2 MIP Data Sources
+Data Sources
 ========================
+
+Data sources used for downloading, caching and reading different weather / climate data
+APIs into `Xarray data arrays <https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html>`_.
+Used for fetching initial conditions for inference and validation data for scoring.
 
 earth2mip.data.CDS
 ------------------------
