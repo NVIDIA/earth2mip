@@ -31,7 +31,7 @@ class GraphcastTimeLoop(time_loop.TimeLoop):
 
     @property
     def out_channel_names(self):
-        return self.in_channel_names
+        return self.stepper.out_channel_names
 
     def __call__(
         self, time: datetime.datetime, x: torch.Tensor, restart: Optional[Any] = None
@@ -59,14 +59,28 @@ class GraphcastTimeLoop(time_loop.TimeLoop):
         time = pd.Timestamp(time)
         dt = pd.Timedelta("6h")
         x_jax = torch_to_jax(x)
-        yield time.to_pydatetime(), x[:, -1], None
+
+        # get initial targets with nan filled for channels not in input
+        b, _, _, ny, nx = x.shape
+        targets = torch.full(
+            [b, len(self.out_channel_names), ny, nx],
+            dtype=x.dtype,
+            fill_value=np.nan,
+            device=x.device,
+        )
+        index = pd.Index(self.in_channel_names)
+        indexer = index.get_indexer(self.stepper.out_channel_names)
+        mask = indexer != -1
+        targets[:, mask] = x[:, -1, indexer[mask]]
+        yield time.to_pydatetime(), targets, None
+
+        # begin time loop
         next = self.stepper.get_inputs(x_jax, time, dt)
         while True:
-            # TODO also return outputs like tp06
-            time, next, rng = self.stepper.step(time, next, rng)
+            time, next, targets, rng = self.stepper.step(time, next, rng)
             assert not np.any(np.isnan(next)).to_array().any()
 
-            array = self.stepper.pack(next)
+            array = self.stepper.pack(targets)
             output = jax_to_torch(array)
             assert output.ndim == 5
             yield time.to_pydatetime(), output[:, -1], next
