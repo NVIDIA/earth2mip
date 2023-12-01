@@ -38,7 +38,9 @@ logger.add(lambda msg: tqdm.write(msg, end=""), colorize=True)
 
 class IFS:
     """The integrated forecast system (IFS) initial state data source provided on an
-    equirectangular grid. This data is part of ECMWF's open data project on AWS.
+    equirectangular grid. This data is part of ECMWF's open data project on AWS. This
+    data source is provided on a 0.4 degree lat lon grid at 6-hour intervals spanning
+    from Jan 18th 2023 to present date.
 
     Parameters
     ----------
@@ -60,8 +62,9 @@ class IFS:
     Note
     ----
     Additional information on the data repository can be referenced here:
-    https://confluence.ecmwf.int/display/DAC/ECMWF+open+data%3A+real-time+forecasts
-    https://registry.opendata.aws/ecmwf-forecasts/
+
+    - https://confluence.ecmwf.int/display/DAC/ECMWF+open+data%3A+real-time+forecasts
+    - https://registry.opendata.aws/ecmwf-forecasts/
     """
 
     IFS_BUCKET_NAME = "ecmwf-forecasts"

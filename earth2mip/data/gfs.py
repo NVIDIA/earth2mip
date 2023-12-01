@@ -62,9 +62,9 @@ class GFS:
     Note
     ----
     Additional information on the data repository can be referenced here:
-    https://registry.opendata.aws/noaa-gfs-bdp-pds/
-    Additional information about GFS solver can be referenced here:
-    https://www.emc.ncep.noaa.gov/emc/pages/numerical_forecast_systems/gfs.php
+
+    - https://registry.opendata.aws/noaa-gfs-bdp-pds/
+    - https://www.emc.ncep.noaa.gov/emc/pages/numerical_forecast_systems/gfs.php
     """
 
     GFS_BUCKET_NAME = "noaa-gfs-bdp-pds"

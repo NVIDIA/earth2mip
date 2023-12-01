@@ -39,6 +39,8 @@ class ERA5H5:
 
     Works with a directory structure like this:
 
+    .. code-block:: text
+
         data.json
         subdirA/2018.h5
         subdirB/2017.h5
@@ -47,9 +49,13 @@ class ERA5H5:
 
     The H5 files should have the followings data:
 
+    .. code-block:: text
+
         fields: [time, channel, lat, lon]
 
     data.json should have fields
+
+    .. code-block:: text
 
         coords.channel - list of channels (default 73 fcn v2 channel set)
         coords.lat - list of latitude coords (default 0.25 degree)

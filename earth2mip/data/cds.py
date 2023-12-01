@@ -35,7 +35,9 @@ logger.add(lambda msg: tqdm.write(msg, end=""), colorize=True)
 
 
 class CDS:
-    """The climate data source (CDS) serving ERA5 re-analysis data.
+    """The climate data source (CDS) serving ERA5 re-analysis data. This data soure
+    requires users to have a CDS API access key which can be obtained for free on the
+    CDS webpage.
 
     Parameters
     ----------
@@ -52,7 +54,7 @@ class CDS:
     Note
     ----
     Additional information on the data repository can be referenced here:
-    https://cds.climate.copernicus.eu/cdsapp#!/home
+    - https://cds.climate.copernicus.eu/cdsapp#!/home
     """
 
     MAX_BYTE_SIZE = 20000000
