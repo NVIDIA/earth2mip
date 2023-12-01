@@ -134,6 +134,10 @@ Some models require additional dependencies not installed by default.
 Refer to the [installation instructions](https://nvidia.github.io/earth2mip/userguide/install.html)
 for details.
 
+*Note* : Each model checkpoint may have its own unique license. We encourage users to
+familiarize themselves with each to understand implications for their particular use
+case.
+
 We want to integrate your model into the scoreboard to show the community!
 The best way to do this is via [NVIDIA Modulus](https://github.com/NVIDIA/modulus).
 You can contribute your model (both the training code as well as model checkpoint) and
