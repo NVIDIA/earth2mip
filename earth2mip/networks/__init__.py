@@ -16,7 +16,7 @@
 
 import urllib
 import warnings
-from typing import Optional, Tuple, Any, Iterator, List, Callable
+from typing import Optional, Tuple, Any, Iterator, Callable
 import sys
 import datetime
 
