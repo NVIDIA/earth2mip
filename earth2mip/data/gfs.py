@@ -32,9 +32,12 @@ from tqdm import tqdm
 from earth2mip import config
 from earth2mip.lexicon import GFSLexicon
 
+logger.remove()
+logger.add(lambda msg: tqdm.write(msg, end=""), colorize=True)
+
 
 class GFS:
-    """The global forecast service (GFS) re-analysis data source provided on an
+    """The global forecast service (GFS) initial state data source provided on an
     equirectangular grid. GFS is a weather forecast model developed by NOAA. This data
     source is provided on a 0.25 degree lat lon grid at 6-hour intervals spanning from
     Feb 26th 2021 to present date.
@@ -43,11 +46,18 @@ class GFS:
     ----------
     cache : bool, optional
         Cache data source on local memory, by default True
+    verbose : bool, optional
+        Print download progress, by default True
 
     Warning
     -------
     This is a remote data source and can potentially download a large amount of data
     to your local machine for large requests.
+
+    Note
+    ----
+    This data source only fetches the initial state of GFS and does not fetch an
+    predicted time steps.
 
     Note
     ----
@@ -58,13 +68,14 @@ class GFS:
     """
 
     GFS_BUCKET_NAME = "noaa-gfs-bdp-pds"
-    MAX_BYTE_SIZE = 2000000
+    MAX_BYTE_SIZE = 5000000
 
     GFS_LAT = np.linspace(90, -90, 721)
     GFS_LON = np.linspace(0, 359.75, 1440)
 
-    def __init__(self, cache: bool = True):
+    def __init__(self, cache: bool = True, verbose: bool = True):
         self._cache = cache
+        self._verbose = verbose
 
     def __call__(
         self,
@@ -77,7 +88,7 @@ class GFS:
         Parameters
         ----------
         time : Union[datetime.datetime, list[datetime.datetime]]
-            Timestamps to return data for.
+            Timestamps to return data for (UTC).
         channel : str
             Channel(s) requested. Must be a subset of era5 available channels.
 
@@ -140,6 +151,7 @@ class GFS:
         index_file = self._fetch_index(time)
 
         file_name = f"gfs.{time.year}{time.month:0>2}{time.day:0>2}/{time.hour:0>2}"
+        # Would need to update "f000" for getting forecast steps
         file_name = os.path.join(
             file_name, f"atmos/gfs.t{time.hour:0>2}z.pgrb2.0p25.f000"
         )
@@ -156,7 +168,10 @@ class GFS:
             },
         )
 
-        for i, channel in enumerate(tqdm(channels, desc="Loading GFS channels")):
+        # TODO: Add MP here
+        for i, channel in enumerate(
+            tqdm(channels, desc="Loading GFS channels", disable=(not self._verbose))
+        ):
             # Convert from E2 MIP channel ID to GFS id and modifier
             try:
                 gfs_name, modifier = GFSLexicon[channel]
@@ -259,7 +274,7 @@ class GFS:
         filename = sha.hexdigest()
 
         cache_path = os.path.join(self.cache, filename)
-        fs = s3fs.S3FileSystem(anon=True)
+        fs = s3fs.S3FileSystem(anon=True, client_kwargs={})
         fs.get_file(path, cache_path)
 
         return cache_path
@@ -272,7 +287,7 @@ class GFS:
 
         cache_path = os.path.join(self.cache, filename)
 
-        fs = s3fs.S3FileSystem(anon=True)
+        fs = s3fs.S3FileSystem(anon=True, client_kwargs={})
         if not pathlib.Path(cache_path).is_file():
             data = fs.read_block(path, offset=byte_offset, length=byte_length)
             with open(cache_path, "wb") as file:

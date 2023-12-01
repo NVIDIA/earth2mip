@@ -96,7 +96,7 @@ class ERA5H5:
         Parameters
         ----------
         time : Union[datetime.datetime, list[datetime.datetime]]
-            Timestamps to return data for.
+            Timestamps to return data for (UTC).
         channel : str
             Channel(s) requested. Must be a subset of era5 available channels.
 

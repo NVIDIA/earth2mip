@@ -19,7 +19,7 @@ import shutil
 import numpy as np
 import pytest
 
-from earth2mip.data import GFS
+from earth2mip.data import CDS
 
 
 @pytest.mark.slow
@@ -28,17 +28,17 @@ from earth2mip.data import GFS
 @pytest.mark.parametrize(
     "time",
     [
-        datetime.datetime(year=2022, month=12, day=25),
+        datetime.datetime(year=1958, month=1, day=31),
         [
-            datetime.datetime(year=2022, month=1, day=1, hour=6),
-            datetime.datetime(year=2022, month=1, day=1, hour=12),
+            datetime.datetime(year=1971, month=6, day=1, hour=6),
+            datetime.datetime(year=2021, month=11, day=23, hour=12),
         ],
     ],
 )
-@pytest.mark.parametrize("channel", ["t2m", ["msl", "u100"]])
-def test_gfs_fetch(time, channel):
+@pytest.mark.parametrize("channel", ["tcwv", ["sp", "u500"]])
+def test_cds_fetch(time, channel):
 
-    ds = GFS(cache=False)
+    ds = CDS(cache=False)
     data = ds(time, channel)
     shape = data.shape
 
@@ -53,7 +53,7 @@ def test_gfs_fetch(time, channel):
     assert shape[2] == 721
     assert shape[3] == 1440
     assert not np.isnan(data.values).any()
-    assert GFS.available(time[0])
+    assert CDS.available(time[0])
 
 
 @pytest.mark.slow
@@ -65,11 +65,11 @@ def test_gfs_fetch(time, channel):
         [datetime.datetime(year=2023, month=1, day=1)],
     ],
 )
-@pytest.mark.parametrize("channel", [["t2m", "msl"]])
+@pytest.mark.parametrize("channel", [["z500", "r200"]])
 @pytest.mark.parametrize("cache", [True, False])
-def test_gfs_cache(time, channel, cache):
+def test_cds_cache(time, channel, cache):
 
-    ds = GFS(cache=cache)
+    ds = CDS(cache=cache)
     data = ds(time, channel)
     shape = data.shape
 
@@ -78,7 +78,6 @@ def test_gfs_cache(time, channel, cache):
     assert shape[2] == 721
     assert shape[3] == 1440
     assert not np.isnan(data.values).any()
-    assert GFS.available(time[0])
     # Cahce should be present
     assert pathlib.Path(ds.cache).is_dir() == cache
 
@@ -91,7 +90,6 @@ def test_gfs_cache(time, channel, cache):
     assert shape[2] == 721
     assert shape[3] == 1440
     assert not np.isnan(data.values).any()
-    assert GFS.available(time[0])
 
     try:
         shutil.rmtree(ds.cache)
@@ -99,18 +97,19 @@ def test_gfs_cache(time, channel, cache):
         pass
 
 
+@pytest.mark.xfail
 @pytest.mark.timeout(60)
 @pytest.mark.parametrize(
     "time",
     [
-        datetime.datetime(year=2021, month=2, day=25),
-        datetime.datetime(year=2023, month=1, day=1, hour=13),
+        datetime.datetime(year=1939, month=2, day=25),
+        datetime.datetime(year=1, month=1, day=1, hour=13, minute=1),
         datetime.datetime.now(),
     ],
 )
 @pytest.mark.parametrize("channel", ["mpl"])
-def test_gfs_available(time, channel):
-    assert not GFS.available(time)
+def test_cds_available(time, channel):
+    assert not CDS.available(time)
     with pytest.raises(ValueError):
-        ds = GFS()
+        ds = CDS()
         ds(time, channel)

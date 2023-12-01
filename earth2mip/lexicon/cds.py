@@ -21,7 +21,7 @@ from .base import LexiconType
 
 class CDSLexicon(metaclass=LexiconType):
     """Climate Data Store Lexicon
-    GFS specified <dataset>::<Variable ID>::<Pressure Level>
+    CDS specified <dataset>::<Variable ID>::<Pressure Level>
 
     Note
     ----
@@ -124,9 +124,9 @@ class CDSLexicon(metaclass=LexiconType):
 
     @classmethod
     def get_item(cls, val: str) -> tuple[str, Callable]:
-        gfs_key = cls.VOCAB[val]
+        cds_key = cls.VOCAB[val]
 
         def mod(x: np.array) -> np.array:
             return x
 
-        return gfs_key, mod
+        return cds_key, mod
