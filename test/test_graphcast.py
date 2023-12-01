@@ -13,53 +13,44 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import datetime
-
-import numpy as np
-import pytest
-import torch
-from graphcast.graphcast import TASK, TASK_13, TASK_13_PRECIP_OUT
-
-import earth2mip.grid
-from earth2mip.model_registry import Package
 from earth2mip.networks import graphcast
+from earth2mip.networks.graphcast.implementation import get_forcings, get_channel_names
+import pytest
+from earth2mip.model_registry import Package
+import numpy as np
 
 
-@pytest.mark.parametrize("task", [TASK, TASK_13_PRECIP_OUT, TASK_13])
-def test_graphcast_time_loop(task):
-    nlat = 4
-    nlon = 8
-    ngrid = nlat * nlon
-    batch = 1
-    history = 2
-    grid = earth2mip.grid.equiangular_lat_lon_grid(nlat, nlon)
+def test_get_forcings():
+    # time.shape == (1, 1) == (batch, time)
+    time = np.array([[np.datetime64("2018-01-01T00:00:00")]])
+    lat = np.arange(-90, 90)
+    lon = np.arange(0, 360)
+    f = get_forcings(time, lat, lon)
+    w = np.cos(np.deg2rad(f.lat))
+    ans = f["toa_incident_solar_radiation"].weighted(w).mean().item()
+    seconds_in_hour = 3600
+    solar_constant = 1361 / 4
+    approx = solar_constant * seconds_in_hour
+    assert ans == pytest.approx(approx, rel=0.05)
+    assert f["toa_incident_solar_radiation"].shape == (1, 1, 180, 360)
+    assert f["day_progress_cos"].dims == ("batch", "time", "lon")
+    assert f["day_progress_sin"].dims == ("batch", "time", "lon")
+    assert f["year_progress_cos"].dims == ("batch", "time")
+    assert f["year_progress_sin"].dims == ("batch", "time")
 
-    def forward(rng, x):
-        assert x.shape == (ngrid, batch, len(in_codes))
-        return np.zeros([ngrid, batch, len(target_codes)])
 
-    static_variables = {
-        "land_sea_mask": np.zeros(grid.shape),
-        "geopotential_at_surface": np.zeros(grid.shape),
-    }
-
-    in_codes, target_codes = graphcast.get_codes_from_task_config(task)
-    mean = np.zeros(len(in_codes))
-    scale = np.ones(len(in_codes))
-    diff_scale = np.ones(len(target_codes))
-    loop = graphcast.GraphcastTimeLoop(
-        forward, static_variables, mean, scale, diff_scale, task_config=task, grid=grid
+def test_get_channel_names():
+    names = get_channel_names(
+        [
+            "toa_incidient_solar_radiation",
+            "2m_temperature",
+            "geopotential",
+            "specific_humidity",
+        ],
+        pressure_levels=[1, 2, 3],
     )
-    initial_time = datetime.datetime(2018, 1, 1)
-
-    x = torch.zeros([batch, history, len(loop.in_channel_names), nlat, nlon])
-    for k, (time, y, _) in enumerate(loop(initial_time, x)):
-        assert not np.all(np.isnan(y.numpy()))
-        assert y.shape == (batch, len(loop.out_channel_names), nlat, nlon)
-        assert isinstance(y, torch.Tensor)
-        if k == 1:
-            break
+    # no tisr since it is a forcing variable
+    assert names == ["z1", "z2", "z3", "q1", "q2", "q3", "t2m"]
 
 
 @pytest.mark.slow
