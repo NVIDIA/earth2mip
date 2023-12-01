@@ -5,6 +5,12 @@ Data sources used for downloading, caching and reading different weather / clima
 APIs into `Xarray data arrays <https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html>`_.
 Used for fetching initial conditions for inference and validation data for scoring.
 
+.. note ::
+
+    Each data source may have its own respective license. We encourage users to
+    familiarize themselves with each and the limitations it may impose on their use
+    case.
+
 earth2mip.data.CDS
 ------------------------
 
