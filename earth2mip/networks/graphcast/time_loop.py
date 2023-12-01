@@ -91,4 +91,6 @@ def jax_to_torch(x):
 
 
 def torch_to_jax(x):
+    # contiguous is important to avoid very mysterious errors with mixed up
+    # channels. dlpack is not reliable with non-contiguous tensors
     return jax.dlpack.from_dlpack(torch.utils.dlpack.to_dlpack(x.contiguous()))
