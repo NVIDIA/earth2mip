@@ -121,9 +121,16 @@ import functools
 import math
 import re
 from typing import Optional
+from typing import Protocol, List, Iterator, Tuple, Any, Optional
 
+import torch
+import jax.dlpack
 import cartopy.crs as ccrs
 from graphcast import autoregressive
+import pandas as pd
+from earth2mip import time_loop, inference_ensemble
+from earth2mip.initial_conditions import hdf5
+import earth2mip.grid
 from graphcast import casting
 from graphcast import checkpoint
 from graphcast import data_utils
@@ -319,6 +326,8 @@ class GraphcastStepper:
         self.eval_targets = eval_targets
         self.eval_forcings = eval_forcings
         self.task_config = task_config
+        self.lat = eval_inputs.lat.values
+        self.lon = eval_inputs.lon.values
 
     def get_forcings(self, time, lat, lon):
         """
@@ -332,10 +341,15 @@ class GraphcastStepper:
         """
         from modulus.utils.zenith_angle import toa_incident_solar_radiation_accumulated
 
+        # TODO catch this warning
+        # hc = np.arccos(-A / B)
+        # /usr/local/lib/python3.10/dist-packages/modulus/utils/zenith_angle.py:276: RuntimeWarning: invalid value encountered in arccos
+        # hc = np.arccos(-A / B)
+
         forcings = xarray.Dataset()
         forcings["datetime"] = (["batch", "time"], time)
-        forcings["lon"] = self.eval_inputs.lon
-        forcings["lat"] = self.eval_inputs.lat
+        forcings["lon"] = (["lon"], self.lon)
+        forcings["lat"] = (["lat"], self.lat)
         forcings = forcings.set_coords(["datetime", "lon", "lat"])
         seconds_since_epoch = (
             forcings.coords["datetime"].data.astype("datetime64[s]").astype(np.int64)
@@ -361,9 +375,7 @@ class GraphcastStepper:
         forcing_time = time + forcings_template.time.values
         # add batch dim
         forcing_time = forcing_time[None]
-        forcings = self.get_forcings(
-            forcing_time, self.eval_forcings.lat.values, self.eval_forcings.lon.values
-        )
+        forcings = self.get_forcings(forcing_time, self.lat, self.lon)
         forcings = forcings.assign_coords(
             time=self.eval_forcings.time.isel(time=slice(0, 1))
         )
@@ -432,12 +444,14 @@ class GraphcastStepper:
         vars_surface = sorted(set(graphcast.TARGET_SURFACE_VARS) & set(ds))
 
         pl = [
-            ds[v].transpose("batch", "time", "level", "lat", "lon").data
+            xarray_jax.unwrap(
+                ds[v].transpose("batch", "time", "level", "lat", "lon").data
+            )
             for v in vars_3d
         ]
-        sl = [ds[v].data[:, :, np.newaxis] for v in vars_surface]
+        sl = [xarray_jax.unwrap(ds[v].data)[:, :, np.newaxis] for v in vars_surface]
 
-        return np.concatenate(pl + sl, axis=2)
+        return jax.numpy.concatenate(pl + sl, axis=2)
 
     def get_inputs(self, x, time, dt):
         """get xarray inputs from stacked array x
@@ -497,6 +511,222 @@ class GraphcastStepper:
         inputs = inputs.set_coords(["time", "level", "lat", "lon"])
 
         return inputs
+
+
+class GraphcastTimeLoop(time_loop.TimeLoop):
+    def __init__(self, stepper: GraphcastStepper, device=None):
+        self.stepper = stepper
+        self.grid = earth2mip.grid.LatLonGrid(
+            self.stepper.lat.tolist(), self.stepper.lon.tolist()
+        )
+        self.history_time_step = pd.Timedelta("6h")
+        self.time_step = pd.Timedelta("6h")
+        self.n_history_levels = (
+            pd.Timedelta(stepper.task_config.input_duration) // self.history_time_step
+        )
+        self.device = device or torch.cuda.current_device()
+        self.dtype = torch.float32
+
+    @property
+    def in_channel_names(self):
+        return self.stepper.get_in_channel_names()
+
+    @property
+    def out_channel_names(self):
+        return self.in_channel_names
+
+    def __call__(
+        self, time: datetime.datetime, x: torch.Tensor, restart: Optional[Any] = None
+    ) -> Iterator[Tuple[datetime.datetime, torch.Tensor, Any]]:
+        """
+        Args:
+            x: an initial condition. has shape (B, n_history_levels,
+                len(in_channel_names), Y, X).  (Y, X) should be consistent with
+                ``grid``. The history dimension is in increasing order, so the
+                current state corresponds to x[:, -1].  Specifically, ``x[:,
+                -i]`` is the data correspond to ``time - (i-1) *
+                self.history_time_step``.
+            time: the datetime to start with, by default assumed to be in UTC.
+            restart: if provided this restart information (typically some torch
+                Tensor) can be used to restart the time loop
+
+        Yields:
+            (time, output, restart) tuples. ``output`` is a tensor with
+                shape (B, len(out_channel_names), Y, X) which will be used for
+                diagnostics. Restart data should encode the state of the time
+                loop.
+        """
+        assert not restart
+        rng = jax.random.PRNGKey(0)
+        time = pd.Timestamp(time)
+        dt = pd.Timedelta("6h")
+        x_jax = torch_to_jax(x)
+        yield time.to_pydatetime(), x[:, -1], None
+        next = self.stepper.get_inputs(x_jax, time, dt)
+        while True:
+            time, next, rng = self.stepper.step(time, next, rng)
+            assert not np.any(np.isnan(next)).to_array().any()
+
+            array = self.stepper.pack(next)
+            output = jax_to_torch(array)
+            assert output.ndim == 5
+            yield time.to_pydatetime(), output[:, -1], next
+
+
+def jax_to_torch(x):
+    return torch.from_dlpack(jax.dlpack.to_dlpack(x))
+
+
+def torch_to_jax(x):
+    return jax.dlpack.from_dlpack(torch.utils.dlpack.to_dlpack(x.contiguous()))
+
+
+def load_graphcast():
+    model_name = "GraphCast - ERA5 1979-2017 - resolution 0.25 - pressure levels 37 - mesh 2to6 - precipitation input and output.npz"
+    root = "/lustre/fsw/sw_earth2_ml/graphcast/"
+    root = "/home/nbrenowitz/mnt/selene/fsw/sw_earth2_ml/graphcast/"
+    root = ".tmp"
+    checkpoint_path = os.path.join(root, "params", model_name)
+
+    # load checkpoint:
+    with open(checkpoint_path, "rb") as f:
+        ckpt = checkpoint.load(f, graphcast.CheckPoint)
+        params = ckpt.params
+        state = {}
+
+    model_config = ckpt.model_config
+    task_config = ckpt.task_config
+    print("Model description:\n", ckpt.description, "\n")
+    print("Model license:\n", ckpt.license, "\n")
+
+    # load dataset
+    dataset_filename = os.path.join(
+        root, "dataset", "source-era5_date-2022-01-01_res-0.25_levels-37_steps-12.nc"
+    )
+    example_batch = xarray.open_dataset(dataset_filename)
+    assert example_batch.dims["time"] >= 3  # 2 for input, >=1 for targets
+
+    # get eval data
+    eval_steps = 1
+    (
+        eval_inputs,
+        eval_targets,
+        eval_forcings,
+    ) = data_utils.extract_inputs_targets_forcings(
+        example_batch,
+        target_lead_times=slice("6h", f"{eval_steps*6}h"),
+        **dataclasses.asdict(task_config),
+    )
+
+    print("All Examples:  ", example_batch.dims.mapping)
+    print("Eval Inputs:   ", eval_inputs.dims.mapping)
+    print("Eval Targets:  ", eval_targets.dims.mapping)
+    print("Eval Forcings: ", eval_forcings.dims.mapping)
+
+    # run autoregression
+    assert model_config.resolution in (0, 360.0 / eval_inputs.sizes["lon"]), (
+        "Model resolution doesn't match the data resolution. You likely want to "
+        "re-filter the dataset list, and download the correct data."
+    )
+
+    print("Inputs:  ", eval_inputs.dims.mapping)
+    print("Targets: ", eval_targets.dims.mapping)
+    print("Forcings:", eval_forcings.dims.mapping)
+
+    # load stats
+    with open(os.path.join(root, "stats/diffs_stddev_by_level.nc"), "rb") as f:
+        diffs_stddev_by_level = xarray.load_dataset(f).compute()
+    with open(os.path.join(root, "stats/mean_by_level.nc"), "rb") as f:
+        mean_by_level = xarray.load_dataset(f).compute()
+    with open(os.path.join(root, "stats/stddev_by_level.nc"), "rb") as f:
+        stddev_by_level = xarray.load_dataset(f).compute()
+
+    # jit the stuff
+    # @title Build jitted functions, and possibly initialize random weights
+    def construct_wrapped_graphcast(
+        model_config: graphcast.ModelConfig, task_config: graphcast.TaskConfig
+    ):
+        """Constructs and wraps the GraphCast Predictor."""
+        # Deeper one-step predictor.
+        predictor = CachedGraphcast(model_config, task_config)
+
+        # Modify inputs/outputs to `graphcast.GraphCast` to handle conversion to
+        # from/to float32 to/from BFloat16
+        predictor = casting.Bfloat16Cast(predictor)
+
+        # Modify inputs/outputs to `casting.Bfloat16Cast` so the casting to/from
+        # BFloat16 happens after applying normalization to the inputs/targets.
+        predictor = normalization.InputsAndResiduals(
+            predictor,
+            diffs_stddev_by_level=diffs_stddev_by_level,
+            mean_by_level=mean_by_level,
+            stddev_by_level=stddev_by_level,
+        )
+
+        # Wraps everything so the one-step model can produce trajectories.
+        predictor = autoregressive.Predictor(predictor, gradient_checkpointing=True)
+        return predictor
+
+    @hk.transform_with_state
+    def run_forward(model_config, task_config, inputs, targets_template, forcings):
+        predictor = construct_wrapped_graphcast(model_config, task_config)
+        return predictor(inputs, targets_template=targets_template, forcings=forcings)
+
+    # Jax doesn't seem to like passing configs as args through the jit. Passing it
+    # in via partial (instead of capture by closure) forces jax to invalidate the
+    # jit cache if you change configs.
+    def with_configs(fn):
+        return functools.partial(fn, model_config=model_config, task_config=task_config)
+
+    # Always pass params and state, so the usage below are simpler
+    def with_params(fn):
+        return functools.partial(fn, params=params, state=state)
+
+    # Our models aren't stateful, so the state is always empty, so just return the
+    # predictions. This is requiredy by our rollout code, and generally simpler.
+    def drop_state(fn):
+        return lambda **kw: fn(**kw)[0]
+
+    init_jitted = jax.jit(with_configs(run_forward.init))
+
+    if params is None:
+        params, state = init_jitted(
+            rng=jax.random.PRNGKey(0),
+            inputs=eval_inputs,
+            targets_template=eval_targets,
+            forcings=eval_forcings,
+        )
+
+    run_forward_jitted = drop_state(
+        with_params(jax.jit(with_configs(run_forward.apply)))
+    )
+
+    rng = jax.random.PRNGKey(0)
+
+    import pandas as pd
+
+    # time is actually the penultimate time step
+    time = example_batch.datetime[0, -(eval_steps + 1)].values
+    dt = pd.Timedelta("6h")
+
+    stepper = GraphcastStepper(
+        run_forward_jitted, eval_inputs, eval_targets, eval_forcings, task_config
+    )
+    # run simulation
+    loop = GraphcastTimeLoop(stepper)
+    return loop
+
+
+def main1():
+    loop = load_graphcast()
+    time = datetime.datetime(2018, 1, 6)
+    path = "/home/nbrenowitz/mnt/selene/fsw/sw_earth2_ml/noah/validation_data_2018/"
+    ds = hdf5.DataSource.from_path(path)
+    prediction = inference_ensemble.run_basic_inference(loop, 40, ds, time)
+    prediction.to_dataset("channel")["q925"].to_netcdf("out.nc")
+    from IPython import embed
+
+    embed()
 
 
 def main():
@@ -751,4 +981,4 @@ def main():
 import logging
 
 if __name__ == "__main__":
-    main()
+    main1()
