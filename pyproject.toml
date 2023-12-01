@@ -22,6 +22,7 @@ dependencies = [
     "distributed>=2023.1.0",
     "eccodes>=1.4.0",
     "ecmwflibs>=0.5.2",
+    "ecmwf-opendata>=0.2.0",
     "einops",
     "fsspec",
     "h5py>=3.2.0",

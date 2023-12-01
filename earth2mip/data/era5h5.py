@@ -227,14 +227,3 @@ class ERA5H5:
             lon=self.ERA5_LON,
         )
         return da.sel(time=[date], channel=channel)
-
-
-if __name__ == "__main__":
-
-    ds = ERA5H5("/mount/73vars/")
-
-    channel = ["t2m"]
-    time = datetime.datetime(year=2017, month=12, day=4, hour=6)
-
-    da = ds(time, channel)
-    print(da)

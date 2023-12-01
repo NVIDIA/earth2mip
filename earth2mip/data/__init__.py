@@ -16,5 +16,6 @@ from .base import DataSource  # noqa
 from .cds import CDS  # noq
 from .era5h5 import ERA5H5  # noqa
 from .gfs import GFS  # noq
+from .ifs import IFS  # noq
 from .rand import Random  # noqa
 from .xr import DataArrayFile, DataSetFile  # noqa

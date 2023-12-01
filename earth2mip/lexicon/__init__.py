@@ -14,3 +14,4 @@
 
 from .cds import CDSLexicon
 from .gfs import GFSLexicon
+from .ifs import IFSLexicon
