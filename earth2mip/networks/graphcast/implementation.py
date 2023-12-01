@@ -159,35 +159,6 @@ CODE_TO_GRAPHCAST_NAME = {
 }
 
 
-def parse_file_parts(file_name):
-    return dict(part.split("-", 1) for part in file_name.split("_"))
-
-
-# @title Plotting functions
-def data_valid_for_model(
-    file_name: str,
-    model_config: graphcast.ModelConfig,
-    task_config: graphcast.TaskConfig,
-):
-
-    file_parts = parse_file_parts(file_name.removesuffix(".nc"))
-
-    return (
-        model_config.resolution in (0, float(file_parts["res"]))
-        and len(task_config.pressure_levels) == int(file_parts["levels"])
-        and (
-            (
-                "total_precipitation_6hr" in task_config.input_variables
-                and file_parts["source"] in ("era5", "fake")
-            )
-            or (
-                "total_precipitation_6hr" not in task_config.input_variables
-                and file_parts["source"] in ("hres", "fake")
-            )
-        )
-    )
-
-
 class CachedGraphcast(graphcast.GraphCast):
     """GraphCast with cached graph structures"""
 
@@ -224,6 +195,10 @@ class CachedGraphcast(graphcast.GraphCast):
 
 
 def get_channel_names(variables, pressure_levels):
+    """Return e2mip style channel names like "z500" for a packed array
+
+    The packed array contains ``variables`` and ``pressure levels``.
+    """
     vars_3d = sorted(set(graphcast.ALL_ATMOSPHERIC_VARS) & set(variables))
     vars_surface = sorted(set(graphcast.TARGET_SURFACE_VARS) & set(variables))
     graphcast_name_to_code = {val: key for key, val in CODE_TO_GRAPHCAST_NAME.items()}
@@ -239,6 +214,46 @@ def get_channel_names(variables, pressure_levels):
     return names
 
 
+def get_forcings(time, lat, lon):
+    """
+    Args:
+        time: (batch, time) shaped array
+        lat: (lat,) shaped array
+        lon: (lon,) shaped array
+    Returns:
+        forcings: Dataset, maximum dims are (batch, time, lat, lon)
+
+    """
+
+    forcings = xarray.Dataset()
+    forcings["datetime"] = (["batch", "time"], time)
+    forcings["lon"] = (["lon"], lon)
+    forcings["lat"] = (["lat"], lat)
+    forcings = forcings.set_coords(["datetime", "lon", "lat"])
+    seconds_since_epoch = (
+        forcings.coords["datetime"].data.astype("datetime64[s]").astype(np.int64)
+    )
+    t = seconds_since_epoch[..., None, None]
+    lat = lat[:, None]
+    lon = lon[None, :]
+
+    # catch this warning
+    # /usr/local/lib/python3.10/dist-packages/modulus/utils/zenith_angle.py:276:
+    # RuntimeWarning: invalid value encountered in arccos
+    # hc = np.arccos(-A / B)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", RuntimeWarning)
+        tisr = toa_incident_solar_radiation_accumulated(t, lat, lon)
+
+    forcings["toa_incident_solar_radiation"] = (
+        ["batch", "time", "lat", "lon"],
+        tisr,
+    )
+    add_derived_vars(forcings)
+    forcings = forcings.drop_vars("datetime")
+    return forcings.transpose("batch", "time", "lat", "lon")
+
+
 class GraphcastStepper:
     def __init__(
         self, run_forward, eval_inputs, eval_targets, eval_forcings, task_config
@@ -251,45 +266,6 @@ class GraphcastStepper:
         self.lat = eval_inputs.lat.values
         self.lon = eval_inputs.lon.values
 
-    def get_forcings(self, time, lat, lon):
-        """
-        Args:
-            time: (batch, time) shaped array
-            lat: (lat,) shaped array
-            lon: (lon,) shaped array
-        Returns:
-            forcings: Dataset, maximum dims are (batch, time, lat, lon)
-
-        """
-
-        forcings = xarray.Dataset()
-        forcings["datetime"] = (["batch", "time"], time)
-        forcings["lon"] = (["lon"], self.lon)
-        forcings["lat"] = (["lat"], self.lat)
-        forcings = forcings.set_coords(["datetime", "lon", "lat"])
-        seconds_since_epoch = (
-            forcings.coords["datetime"].data.astype("datetime64[s]").astype(np.int64)
-        )
-        t = seconds_since_epoch[..., None, None]
-        lat = lat[:, None]
-        lon = lon[None, :]
-
-        # catch this warning
-        # /usr/local/lib/python3.10/dist-packages/modulus/utils/zenith_angle.py:276:
-        # RuntimeWarning: invalid value encountered in arccos
-        # hc = np.arccos(-A / B)
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", RuntimeWarning)
-            tisr = toa_incident_solar_radiation_accumulated(t, lat, lon)
-
-        forcings["toa_incident_solar_radiation"] = (
-            ["batch", "time", "lat", "lon"],
-            tisr,
-        )
-        add_derived_vars(forcings)
-        forcings = forcings.drop_vars("datetime")
-        return forcings.transpose("batch", "time", "lat", "lon")
-
     def step(self, time, inputs, rng):
         rng, this_rng = jax.random.split(rng)
 
@@ -300,7 +276,7 @@ class GraphcastStepper:
         forcing_time = time + forcings_template.time.values
         # add batch dim
         forcing_time = forcing_time[None]
-        forcings = self.get_forcings(forcing_time, self.lat, self.lon)
+        forcings = get_forcings(forcing_time, self.lat, self.lon)
         forcings = forcings.assign_coords(
             time=self.eval_forcings.time.isel(time=slice(0, 1))
         )
@@ -410,7 +386,7 @@ class GraphcastStepper:
         for var in vars_static:
             inputs[var] = self.eval_inputs[var]
 
-        forcings = self.get_forcings(
+        forcings = get_forcings(
             time + time_offset[None],
             self.eval_inputs.lat.values,
             self.eval_inputs.lon.values,
