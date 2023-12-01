@@ -1,4 +1,5 @@
 """
+# TODO add license text from graphcast
 # Inputs
 eval inputs:
 xarray.Dataset {
@@ -133,6 +134,7 @@ import jax
 import numpy as np
 import xarray
 import joblib
+import warnings
 
 from modulus.utils.zenith_angle import toa_incident_solar_radiation_accumulated
 from earth2mip.initial_conditions import cds
@@ -260,12 +262,6 @@ class GraphcastStepper:
 
         """
 
-        # TODO catch this warning
-        # hc = np.arccos(-A / B)
-        # /usr/local/lib/python3.10/dist-packages/modulus/utils/zenith_angle.py:276:
-        # RuntimeWarning: invalid value encountered in arccos
-        # hc = np.arccos(-A / B)
-
         forcings = xarray.Dataset()
         forcings["datetime"] = (["batch", "time"], time)
         forcings["lon"] = (["lon"], self.lon)
@@ -276,7 +272,16 @@ class GraphcastStepper:
         )
         t = seconds_since_epoch[..., None, None]
         lat = lat[:, None]
-        tisr = toa_incident_solar_radiation_accumulated(t, lat, lon)
+        lon = lon[None, :]
+
+        # catch this warning
+        # /usr/local/lib/python3.10/dist-packages/modulus/utils/zenith_angle.py:276:
+        # RuntimeWarning: invalid value encountered in arccos
+        # hc = np.arccos(-A / B)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", RuntimeWarning)
+            tisr = toa_incident_solar_radiation_accumulated(t, lat, lon)
+
         forcings["toa_incident_solar_radiation"] = (
             ["batch", "time", "lat", "lon"],
             tisr,
