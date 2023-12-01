@@ -384,11 +384,11 @@ def main():
     states = []
     for t in range(5):
         print(time)
-        time, next, rng = stepper.step(time, next, rng)
+        time, next, target, rng = stepper.step(time, next, rng)
         assert not np.any(np.isnan(next)).to_array().any()
-        next.specific_humidity[0, -1].sel(level=925).plot.imshow(vmin=0, vmax=30e-3)
+        target.specific_humidity[0, -1].sel(level=925).plot.imshow(vmin=0, vmax=30e-3)
         writer.add_figure("q925", plt.gcf(), t)
-        states.append(next.isel(time=-1))
+        states.append(target.isel(time=-1))
 
         # fig, (a, b) = plt.subplots(2, 1, figsize=(10, 10))
         # next.toa_incident_solar_radiation[0, -1].plot.imshow(ax=a)
