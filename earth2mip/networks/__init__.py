@@ -18,7 +18,9 @@ import datetime
 import sys
 import urllib
 import warnings
-from typing import Any, Callable, Iterator, List, Optional, Tuple
+from typing import Optional, Tuple, Any, Iterator, Callable
+import sys
+import datetime
 
 import numpy as np
 import torch

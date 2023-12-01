@@ -43,6 +43,7 @@ logging.basicConfig(level=logging.INFO)
 # Can review the data in graphcast Google storage bucket here:
 # https://console.cloud.google.com/storage/browser/dm_graphcast/dataset?pageState=(%22StorageObjectListTable%22:(%22f%22:%22%255B%255D%22))&prefix=&forceOnObjectsSortingFiltering=false
 root = "gs://dm_graphcast"
+root = "/home/nbrenowitz/mnt/selene/fsw/sw_earth2_ml/graphcast/"
 package = Package(root, seperator="/")
 time_loop = earth2mip.networks.graphcast.load_time_loop_operational(package)
 
@@ -55,10 +56,15 @@ time = datetime.datetime(2018, 1, 1)
 data_source = cds.DataSource(time_loop.in_channel_names)
 x = get_initial_condition_for_model(time_loop, data_source, time)
 
-i = time_loop.out_channel_names.index("tp06")
+# TODO return back to tp06
+# field = "tp06"
+field = "q925"
+i = time_loop.out_channel_names.index(field)
 for k, (time, x, _) in enumerate(time_loop(time, x)):
     print(k)
+    plt.clf()
     plt.pcolormesh(x[0, i].cpu().numpy())
+    plt.colorbar()
     plt.savefig(f"{k:03d}.png")
     if k == 10:
         break
