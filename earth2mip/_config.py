@@ -63,5 +63,8 @@ class Settings(BaseSettings):
     # where to store regridding files
     MAP_FILES: str = ""
 
+    # End point for s3 commands
+    S3_ENDPOINT: str = "https://pbss.s8k.io"
+
     class Config:
         env_file = ".env"
