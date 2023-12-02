@@ -100,7 +100,7 @@ StateT = TypeVar("StateT")
 class TimeStepper(Protocol[StateT]):
     """An functional interface that can be used for time stepping
 
-        s -> (state, output)
+        state -> (state, output)
 
     This uses a generic state, but concrete Tensors as input and output.  This
     allows users to directly control the time-stepping logic and potentially
