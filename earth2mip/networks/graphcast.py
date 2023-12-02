@@ -13,32 +13,42 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import datetime
-import functools
-import logging
+# TODO add license text from graphcast
 import os
-from typing import List
-
-import einops
-import haiku as hk
-import jax
-import jax.dlpack
-import jax.numpy as jnp
-import numpy as np
-import torch
-import xarray
-from graphcast import checkpoint, data_utils, graphcast
-from graphcast.graphcast import TaskConfig
-from modulus.utils.zenith_angle import toa_incident_solar_radiation_accumulated
-
-import earth2mip.grid
-import earth2mip.time
-from earth2mip.initial_conditions import cds
-from earth2mip.time_loop import TimeLoop
+import dataclasses
+import functools
+from earth2mip.time_loop import TimeStepperLoop
 
 __all__ = ["load_time_loop", "load_time_loop_operational", "load_time_loop_small"]
 
-# see ecwmf parameter table https://codes.ecmwf.int/grib/param-db/?&filter=grib1&table=128
+
+import torch
+import pandas as pd
+import datetime
+import jax.dlpack
+from graphcast import autoregressive
+from graphcast import casting
+from graphcast import checkpoint
+from graphcast import data_utils
+from graphcast import graphcast
+from graphcast import normalization
+from graphcast import xarray_jax
+from graphcast.rollout import _get_next_inputs
+from graphcast.data_utils import add_derived_vars
+import haiku as hk
+import jax
+import numpy as np
+import xarray
+import joblib
+import warnings
+
+from modulus.utils.zenith_angle import toa_incident_solar_radiation_accumulated
+from earth2mip.initial_conditions import cds
+from earth2mip import time_loop
+import earth2mip.grid
+
+
+# see ecwmf parameter table https://codes.ecmwf.int/grib/param-db/?&filter=grib1&table=128 # noqa
 CODE_TO_GRAPHCAST_NAME = {
     167: "2m_temperature",
     151: "mean_sea_level_pressure",
@@ -56,238 +66,522 @@ CODE_TO_GRAPHCAST_NAME = {
     172: "land_sea_mask",
 }
 
-sl_inputs = {
-    "2m_temperature": 167,
-    "mean_sea_level_pressure": 151,
-    "10m_v_component_of_wind": 166,
-    "10m_u_component_of_wind": 165,
-    "toa_incident_solar_radiation": 212,
-}
 
-pl_inputs = {
-    "temperature": 130,
-    "geopotential": 129,
-    "u_component_of_wind": 131,
-    "v_component_of_wind": 132,
-    "vertical_velocity": 135,
-    "specific_humidity": 133,
-}
-
-static_inputs = {
-    "geopotential_at_surface": 162051,
-    "land_sea_mask": "172",
-}
-
-levels = [
-    1,
-    2,
-    3,
-    5,
-    7,
-    10,
-    20,
-    30,
-    50,
-    70,
-    100,
-    125,
-    150,
-    175,
-    200,
-    225,
-    250,
-    300,
-    350,
-    400,
-    450,
-    500,
-    550,
-    600,
-    650,
-    700,
-    750,
-    775,
-    800,
-    825,
-    850,
-    875,
-    900,
-    925,
-    950,
-    975,
-    1000,
-]
-
-time_dependent = {
-    "toa_incident_solar_radiation": None,
-    "year_progress_sin": None,
-    "year_progress_cos": None,
-    "day_progress_sin": None,
-    "day_progress_cos": None,
-}
-
-
-def get_codes(variables: List[str], levels: List[int], time_levels: List[int]):
-    """This defines a precise notion of input and output channels. Describing the
-    input and output channels of graphcast requires a tuple of
-
-    - The time level: t-1, t, or t+1
-    - The ECWMF parameter ID
-    - The pressure level if applicable
-
-    For convenience and backwards compatibility, it is nice to have a string
-    representation of this tuple (e.g. "t850" -> (id=130, level=850)).
-    earth2mip.initial_conditions.cds has utilities for doing this, but does not
-    include "history". please note there is no I/O in this code.
-    """
-    lookup_code = cds.keys_to_vals(CODE_TO_GRAPHCAST_NAME)
-    output = []
-    for v in sorted(variables):
-        if v in time_dependent:
-            for history in time_levels:
-                output.append((history, v))  # noqa
-        elif v in static_inputs:
-            output.append(v)  # noqa
-        elif v in lookup_code:
-            code = lookup_code[v]
-            if v in pl_inputs:
-                for history in time_levels:
-                    for level in levels:
-                        output.append(  # noqa
-                            (history, cds.PressureLevelCode(code, level=level))
-                        )
-            else:
-                for history in time_levels:
-                    output.append((history, cds.SingleLevelCode(code)))  # noqa
-        else:
-            raise NotImplementedError(v)
-    return output
-
-
-def get_state_codes(task_config: TaskConfig, time_level: int = 0):
-    state_variables = [
-        v for v in task_config.target_variables if v in task_config.input_variables
-    ]
-    return get_codes(
-        state_variables, levels=task_config.pressure_levels, time_levels=[time_level]
-    )
-
-
-def get_data_for_code_scalar(code, scalar):
-    match code:
-        case _, cds.PressureLevelCode(id, level):
-            arr = scalar[CODE_TO_GRAPHCAST_NAME[id]].sel(level=level).values
-        case _, cds.SingleLevelCode(id):
-            arr = scalar[CODE_TO_GRAPHCAST_NAME[id]].values
-        case "land_sea_mask":
-            arr = scalar[code].values
-        case "geopotential_at_surface":
-            arr = scalar[code].values
-        case _, str(s):
-            arr = scalar[s].values
-    return arr
-
-
-def get_codes_from_task_config(task_config: TaskConfig):
-    x_codes = get_codes(
-        task_config.input_variables,
-        levels=task_config.pressure_levels,
-        time_levels=[0, 1],
-    )
-    f_codes = get_codes(
-        task_config.forcing_variables,
-        levels=task_config.pressure_levels,
-        time_levels=[2],
-    )
-    t_codes = get_codes(
-        task_config.target_variables,
-        levels=task_config.pressure_levels,
-        time_levels=[0],
-    )
-    return x_codes + f_codes, t_codes
+def jax_to_torch(x):
+    return torch.from_dlpack(jax.dlpack.to_dlpack(x))
 
 
 def torch_to_jax(x):
-    return jax.dlpack.from_dlpack(torch.to_dlpack(x))
+    # contiguous is important to avoid very mysterious errors with mixed up
+    # channels. dlpack is not reliable with non-contiguous tensors
+    return jax.dlpack.from_dlpack(torch.utils.dlpack.to_dlpack(x.contiguous()))
 
 
-class NoXarrayGraphcast(graphcast.GraphCast):
-    """A graphcast model that does not use xarray
+class CachedGraphcast(graphcast.GraphCast):
+    """GraphCast with cached graph structures"""
 
-    When initially developing this feature, the xarray logic was introducing
-    NaNs that were difficult to track down.  For this reason, we wrap the core
-    graphcast ML model which takes a single array of inputs with shape [nlat*nlon, batch, channels].
-
-    Here is the original __call__ implementation:
-    https://github.com/google-deepmind/graphcast/blob/858301cde5de5c728f8172f782dafba1ea07ac2e/graphcast/graphcast.py#L357
-
-    """
-
-    def __call__(self, grid_node_features, lat, lon):
-        # Transfer data for the grid to the mesh,
-        # [num_mesh_nodes, batch, latent_size], [num_grid_nodes, batch, latent_size]
-        if not self._initialized:
+    def _maybe_init(self, sample_inputs):
+        if self._initialized:
+            return
+        else:
             self._init_mesh_properties()
-            self._init_grid_properties(grid_lat=lat, grid_lon=lon)
-            self._grid2mesh_graph_structure = self._init_grid2mesh_graph()
-            self._mesh_graph_structure = self._init_mesh_graph()
-            self._mesh2grid_graph_structure = self._init_mesh2grid_graph()
+            self._init_grid_properties(
+                grid_lat=sample_inputs.lat, grid_lon=sample_inputs.lon
+            )
 
+            if os.path.exists(".cache.pkl"):
+                print("Loading cached graph structures from .cache.pkl")
+                (
+                    self._mesh2grid_graph_structure,
+                    self._mesh_graph_structure,
+                    self._grid2mesh_graph_structure,
+                ) = joblib.load(".cache.pkl")
+            else:
+                self._grid2mesh_graph_structure = self._init_grid2mesh_graph()
+                self._mesh_graph_structure = self._init_mesh_graph()
+                self._mesh2grid_graph_structure = self._init_mesh2grid_graph()
+                print("Saving graph structures to .cache.pkl")
+                joblib.dump(
+                    [
+                        self._mesh2grid_graph_structure,
+                        self._mesh_graph_structure,
+                        self._grid2mesh_graph_structure,
+                    ],
+                    ".cache.pkl",
+                )
             self._initialized = True
 
-        (latent_mesh_nodes, latent_grid_nodes) = self._run_grid2mesh_gnn(
-            grid_node_features
+
+def get_channel_names(variables, pressure_levels):
+    """Return e2mip style channel names like "z500" for a packed array
+
+    The packed array contains ``variables`` and ``pressure levels``.
+    """
+    vars_3d = sorted(set(graphcast.ALL_ATMOSPHERIC_VARS) & set(variables))
+    vars_surface = sorted(set(graphcast.TARGET_SURFACE_VARS) & set(variables))
+    graphcast_name_to_code = {val: key for key, val in CODE_TO_GRAPHCAST_NAME.items()}
+
+    pl_codes = [
+        cds.PressureLevelCode(id=graphcast_name_to_code[v], level=level)
+        for v in vars_3d
+        for level in pressure_levels
+    ]
+    sl_codes = [cds.SingleLevelCode(id=graphcast_name_to_code[v]) for v in vars_surface]
+    all_codes = pl_codes + sl_codes
+    names = [str(c) for c in all_codes]
+    return names
+
+
+def get_forcings(time, lat, lon):
+    """
+    Args:
+        time: (batch, time) shaped array
+        lat: (lat,) shaped array
+        lon: (lon,) shaped array
+    Returns:
+        forcings: Dataset, maximum dims are (batch, time, lat, lon)
+
+    """
+
+    forcings = xarray.Dataset()
+    forcings["datetime"] = (["batch", "time"], time)
+    forcings["lon"] = (["lon"], lon)
+    forcings["lat"] = (["lat"], lat)
+    forcings = forcings.set_coords(["datetime", "lon", "lat"])
+    seconds_since_epoch = (
+        forcings.coords["datetime"].data.astype("datetime64[s]").astype(np.int64)
+    )
+    t = seconds_since_epoch[..., None, None]
+    lat = lat[:, None]
+    lon = lon[None, :]
+
+    # catch this warning
+    # /usr/local/lib/python3.10/dist-packages/modulus/utils/zenith_angle.py:276:
+    # RuntimeWarning: invalid value encountered in arccos
+    # hc = np.arccos(-A / B)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", RuntimeWarning)
+        tisr = toa_incident_solar_radiation_accumulated(t, lat, lon)
+
+    forcings["toa_incident_solar_radiation"] = (
+        ["batch", "time", "lat", "lon"],
+        tisr,
+    )
+    add_derived_vars(forcings)
+    forcings = forcings.drop_vars("datetime")
+    return forcings.transpose("batch", "time", "lat", "lon")
+
+
+class GraphcastStepper(time_loop.TimeStepper):
+    """
+
+    Some information about the input and output state of graphcast::
+
+        # Inputs
+        eval inputs:
+        xarray.Dataset {
+        dimensions:
+                batch = 1 ;
+                time = 2 ;
+                lat = 721 ;
+                lon = 1440 ;
+                level = 37 ;
+
+        variables:
+                float32 2m_temperature(batch, time, lat, lon) ;
+                float32 mean_sea_level_pressure(batch, time, lat, lon) ;
+                float32 10m_v_component_of_wind(batch, time, lat, lon) ;
+                float32 10m_u_component_of_wind(batch, time, lat, lon) ;
+                float32 total_precipitation_6hr(batch, time, lat, lon) ;
+                float32 temperature(batch, time, level, lat, lon) ;
+                float32 geopotential(batch, time, level, lat, lon) ;
+                float32 u_component_of_wind(batch, time, level, lat, lon) ;
+                float32 v_component_of_wind(batch, time, level, lat, lon) ;
+                float32 vertical_velocity(batch, time, level, lat, lon) ;
+                float32 specific_humidity(batch, time, level, lat, lon) ;
+                float32 toa_incident_solar_radiation(batch, time, lat, lon) ;
+                float32 year_progress_sin(batch, time) ;
+                float32 year_progress_cos(batch, time) ;
+                float32 day_progress_sin(batch, time, lon) ;
+                float32 day_progress_cos(batch, time, lon) ;
+                float32 geopotential_at_surface(lat, lon) ;
+                float32 land_sea_mask(lat, lon) ;
+                float32 lon(lon) ;
+                        lon:long_name = longitude ;
+                        lon:units = degrees_east ;
+                float32 lat(lat) ;
+                        lat:long_name = latitude ;
+                        lat:units = degrees_north ;
+                int32 level(level) ;
+                timedelta64[ns] time(time) ;
+
+        // global attributes:
+        }
+        <xarray.DataArray 'time' (time: 2)>
+        array([-21600000000000,               0], dtype='timedelta64[ns]')
+        Coordinates:
+        * time     (time) timedelta64[ns] -1 days +18:00:00 00:00:00
+
+
+        # forcings
+        xarray.Dataset {
+        dimensions:
+                batch = 1 ;
+                time = 1 ;
+                lat = 721 ;
+                lon = 1440 ;
+
+        variables:
+                float32 toa_incident_solar_radiation(batch, time, lat, lon) ;
+                float32 year_progress_sin(batch, time) ;
+                float32 year_progress_cos(batch, time) ;
+                float32 day_progress_sin(batch, time, lon) ;
+                float32 day_progress_cos(batch, time, lon) ;
+                float32 lon(lon) ;
+                        lon:long_name = longitude ;
+                        lon:units = degrees_east ;
+                float32 lat(lat) ;
+                        lat:long_name = latitude ;
+                        lat:units = degrees_north ;
+                timedelta64[ns] time(time) ;
+
+        // global attributes:
+        }<xarray.DataArray 'time' (time: 1)>
+        array([21600000000000], dtype='timedelta64[ns]')
+        Coordinates:
+        * time     (time) timedelta64[ns] 06:00:00
+
+
+        # Outputs
+
+        predictions:
+        xarray.Dataset {
+        dimensions:
+                time = 1 ;
+                batch = 1 ;
+                lat = 721 ;
+                lon = 1440 ;
+                level = 37 ;
+
+        variables:
+                float32 10m_u_component_of_wind(time, batch, lat, lon) ;
+                float32 10m_v_component_of_wind(time, batch, lat, lon) ;
+                float32 2m_temperature(time, batch, lat, lon) ;
+                float32 geopotential(time, batch, level, lat, lon) ;
+                float32 mean_sea_level_pressure(time, batch, lat, lon) ;
+                float32 specific_humidity(time, batch, level, lat, lon) ;
+                float32 temperature(time, batch, level, lat, lon) ;
+                float32 total_precipitation_6hr(time, batch, lat, lon) ;
+                float32 u_component_of_wind(time, batch, level, lat, lon) ;
+                float32 v_component_of_wind(time, batch, level, lat, lon) ;
+                float32 vertical_velocity(time, batch, level, lat, lon) ;
+                float32 lon(lon) ;
+                        lon:long_name = longitude ;
+                        lon:units = degrees_east ;
+                float32 lat(lat) ;
+                        lat:long_name = latitude ;
+                        lat:units = degrees_north ;
+                int32 level(level) ;
+                timedelta64[ns] time(time) ;
+
+        // global attributes:
+        }
+        <xarray.DataArray 'time' (time: 1)>
+        array([21600000000000], dtype='timedelta64[ns]')
+        Coordinates:
+        * time     (time) timedelta64[ns] 06:00:00
+    """
+
+    def __init__(
+        self,
+        run_forward,
+        eval_inputs,
+        eval_targets,
+        eval_forcings,
+        task_config,
+        device=None,
+    ):
+        self.run_forward = run_forward
+        self.eval_inputs = eval_inputs
+        self.eval_targets = eval_targets
+        self.eval_forcings = eval_forcings
+        self.task_config = task_config
+        self.lat = eval_inputs.lat.values
+        self.lon = eval_inputs.lon.values
+        self._grid = earth2mip.grid.LatLonGrid(self.lat.tolist(), self.lon.tolist())
+        self._history_time_step = pd.Timedelta("6h")
+        self._n_history_levels = (
+            pd.Timedelta(task_config.input_duration) // self._history_time_step
+        )
+        self._device = device or torch.cuda.current_device()
+
+    @property
+    def input_info(self) -> time_loop.GeoTensorInfo:
+        return time_loop.GeoTensorInfo(
+            channel_names=self._get_in_channel_names(),
+            grid=self._grid,
+            n_history_levels=self._n_history_levels,
+            history_time_step=self._history_time_step,
         )
 
-        # Run message passing in the multimesh.
-        # [num_mesh_nodes, batch, latent_size]
-        updated_latent_mesh_nodes = self._run_mesh_gnn(latent_mesh_nodes)
-
-        # Transfer data frome the mesh to the grid.
-        # [num_grid_nodes, batch, output_size]
-        output_grid_nodes = self._run_mesh2grid_gnn(
-            updated_latent_mesh_nodes, latent_grid_nodes
+    @property
+    def output_info(self) -> time_loop.GeoTensorInfo:
+        return time_loop.GeoTensorInfo(
+            channel_names=self._out_channel_names,
+            grid=self._grid,
+            n_history_levels=self._n_history_levels,
+            history_time_step=self._history_time_step,
         )
 
-        return output_grid_nodes
+    @property
+    def dtype(self):
+        return torch.float32
+
+    @property
+    def device(self):
+        return self._device
+
+    @property
+    def time_step(self) -> datetime.timedelta:
+        return datetime.timedelta(hours=6)
+
+    def initialize(self, x: torch.Tensor, time: datetime.datetime):
+        x_jax = torch_to_jax(x)
+        time = pd.Timestamp(time)
+        dt = pd.Timedelta(self.time_step)
+        inputs = self._get_inputs(x_jax, time, dt)
+        rng = jax.random.PRNGKey(0)
+        state = (time, inputs, rng)
+        return state
+
+    def step(self, state):
+        time, inputs, rng = state
+        time, inputs, predictions_xr, rng = self._step(time, inputs, rng)
+        array = self._pack(predictions_xr)
+        tensor = jax_to_torch(array)
+        new_state = (time, inputs, rng)
+        assert tensor.shape[1] == 1, "targets should only contain 1 time level"
+        return new_state, tensor[:, 0]
+
+    def _step(self, time, inputs, rng):
+        rng, this_rng = jax.random.split(rng)
+
+        forcings_template = self.eval_forcings.isel(time=slice(0, 1))
+        target_template = self.eval_targets.isel(time=slice(0, 1))
+
+        # get forcings
+        forcing_time = time + forcings_template.time.values
+        # add batch dim
+        forcing_time = forcing_time[None]
+        forcings = get_forcings(forcing_time, self.lat, self.lon)
+        forcings = forcings.assign_coords(
+            time=self.eval_forcings.time.isel(time=slice(0, 1))
+        )
+        del forcings["year_progress"]
+        del forcings["day_progress"]
+
+        predictions = self.run_forward(
+            rng=this_rng,
+            inputs=inputs,
+            targets_template=target_template,
+            forcings=forcings,
+        )
+        time = time + np.timedelta64(6, "h")
+        next_frame = xarray.merge([predictions, forcings])
+        return time, _get_next_inputs(inputs, next_frame), predictions, rng
+
+    def _get_num_channels_x(self):
+        vars_3d = sorted(
+            set(graphcast.ALL_ATMOSPHERIC_VARS) & set(self.task_config.input_variables)
+        )
+        vars_surface = sorted(
+            set(graphcast.TARGET_SURFACE_VARS) & set(self.task_config.input_variables)
+        )
+        return len(vars_3d) * len(self.task_config.pressure_levels) + len(vars_surface)
+
+    def _get_in_channel_names(self) -> list[str]:
+        return get_channel_names(
+            self.task_config.input_variables, self.task_config.pressure_levels
+        )
+
+    @property
+    def _out_channel_names(self) -> list[str]:
+        return get_channel_names(
+            self.task_config.target_variables, self.task_config.pressure_levels
+        )
+
+    @staticmethod
+    def _pack(ds: xarray.Dataset) -> np.ndarray:
+        """Stack a dataset into a single array
+
+        The inverse operation to get_inputs. an xarray dataset is stacked, first
+        the 3d variables, and then the surface variables. Forcings and static
+        variables are ignored. Variable names are sorted before stacking to
+        ensure deterministic order.
+
+        Returns:
+            (batch, time, channel, lat, lon) shaped array.
+
+        """
+        vars_3d = sorted(set(graphcast.ALL_ATMOSPHERIC_VARS) & set(ds))
+        vars_surface = sorted(set(graphcast.TARGET_SURFACE_VARS) & set(ds))
+
+        pl = [
+            xarray_jax.unwrap(
+                ds[v].transpose("batch", "time", "level", "lat", "lon").data
+            )
+            for v in vars_3d
+        ]
+        sl = [xarray_jax.unwrap(ds[v].data)[:, :, np.newaxis] for v in vars_surface]
+
+        return jax.numpy.concatenate(pl + sl, axis=2)
+
+    def _get_inputs(self, x, time, dt):
+        """get xarray inputs from stacked array x
+
+        Args:
+            x: (batch, time, channel, lat, lon) shaped array
+                packed along the channel dimension. The order is 3d variables,
+                then surface.
+            time: the time of x[:, -1] (np.timedelta64)
+            dt: the time difference along the time dimension
+        Returns:
+            xarray.Dataset like eval_inputs. Forcings are computed from time, lat, lon.
+        """
+        b, t, _, nx, ny = x.shape
+        levels = self.task_config.pressure_levels
+        vars_3d = sorted(
+            set(graphcast.ALL_ATMOSPHERIC_VARS) & set(self.task_config.input_variables)
+        )
+        vars_surface = sorted(
+            set(graphcast.TARGET_SURFACE_VARS) & set(self.task_config.input_variables)
+        )
+        vars_static = sorted(
+            set(graphcast.STATIC_VARS) & set(self.task_config.input_variables)
+        )
+
+        n3d = len(levels) * len(vars_3d)
+        pl = x[:, :, :n3d]
+
+        n2d = len(vars_surface)
+        sl = x[:, :, n3d : n3d + n2d]
+
+        assert n2d + n3d == x.shape[2]
+        inputs = xarray.Dataset()
+        time_offset = np.arange(-t + 1, 1, 1) * dt
+        assert time_offset.shape == (t,)
+        inputs["time"] = (["time"], time_offset)
+        inputs["level"] = (["level"], np.array(levels))
+
+        pl = pl.reshape(b, t, len(vars_3d), len(levels), nx, ny)
+        for i, var in enumerate(vars_3d):
+            inputs[var] = (["batch", "time", "level", "lat", "lon"], pl[:, :, i])
+
+        for i, var in enumerate(vars_surface):
+            inputs[var] = (["batch", "time", "lat", "lon"], sl[:, :, i])
+
+        for var in vars_static:
+            inputs[var] = self.eval_inputs[var]
+
+        forcings = get_forcings(
+            time + time_offset[None],
+            self.eval_inputs.lat.values,
+            self.eval_inputs.lon.values,
+        )
+        del forcings["year_progress"]
+        del forcings["day_progress"]
+        inputs.update(forcings)
+        inputs = inputs.set_coords(["time", "level", "lat", "lon"])
+
+        return inputs
 
 
-def load_run_forward_from_checkpoint(checkpoint, grid):
-    """
-    This function is mostly copied from
-    https://github.com/google-deepmind/graphcast/tree/main
+def load_stepper(
+    checkpoint_path: str,
+    dataset_filename: str,
+    stats_dir: str,
+    device: torch.device = None,
+):
+    # load checkpoint:
+    with open(checkpoint_path, "rb") as f:
+        ckpt = checkpoint.load(f, graphcast.CheckPoint)
+        params = ckpt.params
+        state = {}
 
-    License info:
+    model_config = ckpt.model_config
+    task_config = ckpt.task_config
+    print("Model description:\n", ckpt.description, "\n")
+    print("Model license:\n", ckpt.license, "\n")
 
-    # Copyright 2023 DeepMind Technologies Limited.
-    #
-    # Licensed under the Apache License, Version 2.0 (the "License");
-    # you may not use this file except in compliance with the License.
-    # You may obtain a copy of the License at
-    #
-    #      http://www.apache.org/licenses/LICENSE-2.0
-    #
-    # Unless required by applicable law or agreed to in writing, software
-    # distributed under the License is distributed on an "AS-IS" BASIS,
-    # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    # See the License for the specific language governing permissions and
-    # limitations under the License.
-    """
-    state = {}
-    params = checkpoint.params
-    model_config = checkpoint.model_config
-    task_config = checkpoint.task_config
-    print("Model description:\n", checkpoint.description, "\n")
-    print("Model license:\n", checkpoint.license, "\n")
+    # load dataset
+    example_batch = xarray.open_dataset(dataset_filename)
+    assert example_batch.dims["time"] >= 3  # 2 for input, >=1 for targets
 
-    lat = np.array(grid.lat)
-    lon = np.array(grid.lon)
+    # get eval data
+    eval_steps = 1
+    (
+        eval_inputs,
+        eval_targets,
+        eval_forcings,
+    ) = data_utils.extract_inputs_targets_forcings(
+        example_batch,
+        target_lead_times=slice("6h", f"{eval_steps*6}h"),
+        **dataclasses.asdict(task_config),
+    )
+
+    print("All Examples:  ", example_batch.dims.mapping)
+    print("Eval Inputs:   ", eval_inputs.dims.mapping)
+    print("Eval Targets:  ", eval_targets.dims.mapping)
+    print("Eval Forcings: ", eval_forcings.dims.mapping)
+
+    # run autoregression
+    assert model_config.resolution in (0, 360.0 / eval_inputs.sizes["lon"]), (
+        "Model resolution doesn't match the data resolution. You likely want to "
+        "re-filter the dataset list, and download the correct data."
+    )
+
+    print("Inputs:  ", eval_inputs.dims.mapping)
+    print("Targets: ", eval_targets.dims.mapping)
+    print("Forcings:", eval_forcings.dims.mapping)
+
+    # load stats
+    with open(os.path.join(stats_dir, "diffs_stddev_by_level.nc"), "rb") as f:
+        diffs_stddev_by_level = xarray.load_dataset(f).compute()
+    with open(os.path.join(stats_dir, "mean_by_level.nc"), "rb") as f:
+        mean_by_level = xarray.load_dataset(f).compute()
+    with open(os.path.join(stats_dir, "stddev_by_level.nc"), "rb") as f:
+        stddev_by_level = xarray.load_dataset(f).compute()
+
+    # jit the stuff
+    # @title Build jitted functions, and possibly initialize random weights
+    def construct_wrapped_graphcast(
+        model_config: graphcast.ModelConfig, task_config: graphcast.TaskConfig
+    ):
+        """Constructs and wraps the GraphCast Predictor."""
+        # Deeper one-step predictor.
+        predictor = CachedGraphcast(model_config, task_config)
+
+        # Modify inputs/outputs to `graphcast.GraphCast` to handle conversion to
+        # from/to float32 to/from BFloat16
+        predictor = casting.Bfloat16Cast(predictor)
+
+        # Modify inputs/outputs to `casting.Bfloat16Cast` so the casting to/from
+        # BFloat16 happens after applying normalization to the inputs/targets.
+        predictor = normalization.InputsAndResiduals(
+            predictor,
+            diffs_stddev_by_level=diffs_stddev_by_level,
+            mean_by_level=mean_by_level,
+            stddev_by_level=stddev_by_level,
+        )
+
+        # Wraps everything so the one-step model can produce trajectories.
+        predictor = autoregressive.Predictor(predictor, gradient_checkpointing=True)
+        return predictor
 
     @hk.transform_with_state
-    def run_forward(model_config, task_config, x):
-        x = x.astype(jnp.float16)
-        predictor = NoXarrayGraphcast(model_config, task_config)
-        return predictor(x, lat, lon)
+    def run_forward(model_config, task_config, inputs, targets_template, forcings):
+        predictor = construct_wrapped_graphcast(model_config, task_config)
+        return predictor(inputs, targets_template=targets_template, forcings=forcings)
 
     # Jax doesn't seem to like passing configs as args through the jit. Passing it
     # in via partial (instead of capture by closure) forces jax to invalidate the
@@ -304,183 +598,18 @@ def load_run_forward_from_checkpoint(checkpoint, grid):
     def drop_state(fn):
         return lambda **kw: fn(**kw)[0]
 
-    return drop_state(with_params(jax.jit(with_configs(run_forward.apply))))
-
-
-class GraphcastTimeLoop(TimeLoop):
-    """
-    # packing notes
-    # to graph inputs
-    # 1. b h c y x -> (y x) b (h c)
-    # 2. normalize
-    # 3. x = cat([in, f])
-    # 4. y = denorm(f(x)) + x
-
-    """
-
-    n_history_levels: int = 2
-    history_time_step: datetime.timedelta = datetime.timedelta(hours=6)
-    time_step: datetime.timedelta = datetime.timedelta(hours=6)
-    dtype: torch.dtype = torch.float32
-
-    def __init__(
-        self,
-        forward,
-        static_variables,
-        mean,
-        scale,
-        target_scale: np.ndarray,
+    run_forward_jitted = drop_state(
+        with_params(jax.jit(with_configs(run_forward.apply)))
+    )
+    stepper = GraphcastStepper(
+        run_forward_jitted,
+        eval_inputs,
+        eval_targets,
+        eval_forcings,
         task_config,
-        grid: earth2mip.grid.LatLonGrid,
-        device=None,
-    ):
-        in_codes, t_codes = get_codes_from_task_config(task_config)
-        self.device = device
-        self.grid = grid
-        self.task_config = task_config
-        self.forward = forward
-        self._static_variables = static_variables
-        self.mean = mean
-        self.scale = scale
-        self.target_scale = target_scale
-        self.in_codes = in_codes
-        self.target_codes = t_codes
-
-        self.prog_levels = [
-            [in_codes.index(k) for k in get_state_codes(task_config, t)]
-            for t in range(2)
-        ]
-
-        self.in_channel_names = [str(c) for _, c in get_state_codes(task_config, 0)]
-
-        # setup output names
-        state_codes = get_state_codes(self.task_config, 0)
-        state_names = [str(c) for _, c in state_codes]
-        self._diagnostic_names = [
-            str(c) for _, c in self.target_codes if str(c) not in state_names
-        ]
-        self.out_channel_names = state_names + self._diagnostic_names
-
-    def set_static(self, array, field, arr):
-        k = self.in_codes.index(field)
-        array[:, 0, k] = einops.rearrange(arr, "y x ->  (y x)")
-
-    def set_static_variables(self, array):
-        for field, arr in self._static_variables.items():
-            arr = torch.from_numpy(arr)
-            self.set_static(array, field, arr)
-
-    def set_forcing(self, array, v, t, data):
-        # (y x) b c
-        i = self.in_codes.index((t, v))
-        return array.at[:, :, i].set(data)
-
-    def set_forcings(self, x, time: datetime.datetime, t: int):
-        seconds = time.timestamp()
-        lat, lon = np.meshgrid(self.grid.lat, self.grid.lon, indexing="ij")
-
-        lat = lat.reshape([-1, 1])
-        lon = lon.reshape([-1, 1])
-
-        day_progress = data_utils.get_day_progress(seconds, lon)
-        year_progress = data_utils.get_year_progress(seconds)
-        x = self.set_forcing(x, "day_progress_sin", t, np.sin(day_progress))
-        x = self.set_forcing(x, "day_progress_cos", t, np.cos(day_progress))
-        x = self.set_forcing(x, "year_progress_sin", t, np.sin(year_progress))
-        x = self.set_forcing(x, "year_progress_cos", t, np.cos(year_progress))
-
-        timestamp = earth2mip.time.datetime_to_timestamp(time)
-        tisr = toa_incident_solar_radiation_accumulated(timestamp, lat, lon)
-
-        return self.set_forcing(x, "toa_incident_solar_radiation", t, tisr)
-
-    def set_prognostic(self, array, t: int, data):
-        index = self.prog_levels[t]
-        return array.at[:, :, index].set(data)
-
-    def get_prognostic(self, array, t: int):
-        index = self.prog_levels[t]
-        return array[:, :, index]
-
-    def split_target(self, target):
-        state_codes = get_state_codes(self.task_config, 0)
-        index = np.array([c in state_codes for c in self.target_codes])
-
-        state_increment = target[:, :, index]
-        diagnostics = target[:, :, ~index]
-        return state_increment, diagnostics
-
-    def _to_latlon(self, array):
-        array = einops.rearrange(array, "(y x) b c -> b c y x", y=len(self.grid.lat))
-        p = jax.dlpack.to_dlpack(array)
-        pt = torch.from_dlpack(p)
-        return torch.flip(pt, [-2])
-
-    def _input_codes(self):
-        return list(get_codes(self.task_config))
-
-    def step(self, rng, time, s):
-        s = self.set_forcings(s, time - 1 * self.history_time_step, 0)
-        s = self.set_forcings(s, time, 1)
-        s = self.set_forcings(s, time + self.history_time_step, 2)
-
-        x = (s - self.mean) / self.scale
-        d = self.forward(rng=rng, x=x) * self.target_scale
-        diff, diagnostics = self.split_target(d)
-        x_next = self.get_prognostic(s, 1) + diff
-
-        # update array
-        s = self.set_prognostic(s, 0, self.get_prognostic(s, 1))
-        s = self.set_prognostic(s, 1, x_next)
-
-        # add state to output diagnostics
-        diagnostics = jnp.concatenate([x_next, diagnostics], axis=-1)
-        return s, diagnostics
-
-    def __call__(self, time, x, restart=None):
-        assert not restart, "not implemented"  # noqa
-        ngrid = len(self.grid.lon) * len(self.grid.lat)
-        array = torch.empty([ngrid, 1, len(self.in_codes)], device=x.device)
-
-        # set input data
-        x_codes = [cds.parse_channel(name) for name in self.in_channel_names]
-        for t in range(2):
-            index_in_input = [self.in_codes.index((t, c)) for c in x_codes]
-            array[:, :, index_in_input] = einops.rearrange(
-                torch.flip(x[:, t], [-2]), "b c y x -> (y x) b c"
-            )
-
-        self.set_static_variables(array)
-
-        rng = jax.random.PRNGKey(0)
-        s = torch_to_jax(array)
-
-        # fill in state for the first time step
-        # the precipitation prediction won't be available until the first timestep
-        diagnostics = jnp.full([ngrid, x.shape[0], len(self.out_channel_names)], np.nan)
-        state = self.get_prognostic(s, 1)
-        diagnostics = diagnostics.at[:, :, : state.shape[-1]].set(state)
-
-        while True:
-            yield time, self._to_latlon(diagnostics), None
-            s, diagnostics = self.step(rng, time, s)
-            time = time + self.time_step
-
-
-def get_static_data(package, resolution):
-    dataset_location = {
-        0.25: "dataset/source-era5_date-2022-01-01_res-0.25_levels-37_steps-01.nc",
-        1.0: "dataset/source-era5_date-2022-01-01_res-1.0_levels-13_steps-01.nc",
-    }[resolution]
-
-    static_data_path = package.get(dataset_location)
-
-    with open(static_data_path, "rb") as f:
-        example_batch = xarray.load_dataset(f).compute()
-    return {
-        key: example_batch[key].values
-        for key in ["land_sea_mask", "geopotential_at_surface"]
-    }
+        device=device,
+    )
+    return stepper
 
 
 def _load_time_loop_from_description(
@@ -488,61 +617,16 @@ def _load_time_loop_from_description(
     checkpoint_path: str,
     resolution: float,
     device="cuda:0",
-):
-
-    grid = {
-        0.25: earth2mip.grid.equiangular_lat_lon_grid(721, 1440),
-        1.0: earth2mip.grid.equiangular_lat_lon_grid(181, 360),
+) -> TimeStepperLoop:
+    checkpoint = package.get(os.path.join("params", checkpoint_path))
+    dataset = {
+        0.25: "source-era5_date-2022-01-01_res-0.25_levels-13_steps-04.nc",
+        1.0: "source-era5_date-2022-01-01_res-1.0_levels-13_steps-04.nc",
     }[resolution]
-
-    def join(*args):
-        return package.get(os.path.join(*args))
-
-    checkpoint_path = join("params", checkpoint_path)
-    # load checkpoint:
-    with open(checkpoint_path, "rb") as f:
-        ckpt = checkpoint.load(f, graphcast.CheckPoint)
-        task_config: graphcast.TaskConfig = ckpt.task_config
-        run_forward = load_run_forward_from_checkpoint(
-            ckpt,
-            grid=grid,
-        )
-
-    size = os.path.getsize(checkpoint_path)
-    logging.info(f"Checkpoint Size in MB: {size / 1e6}")
-
-    static_variables = get_static_data(package, resolution)
-
-    # load stats
-    with open(join("stats/diffs_stddev_by_level.nc"), "rb") as f:
-        diffs_stddev_by_level = xarray.load_dataset(f).compute()
-    with open(join("stats/mean_by_level.nc"), "rb") as f:
-        mean_by_level = xarray.load_dataset(f).compute()
-    with open(join("stats/stddev_by_level.nc"), "rb") as f:
-        stddev_by_level = xarray.load_dataset(f).compute()
-
-    # select needed channels from stats
-    in_codes, t_codes = get_codes_from_task_config(task_config)
-    mean = np.array(
-        [get_data_for_code_scalar(code, mean_by_level) for code in in_codes]
-    )
-    scale = np.array(
-        [get_data_for_code_scalar(code, stddev_by_level) for code in in_codes]
-    )
-    target_scale = np.array(
-        [get_data_for_code_scalar(code, diffs_stddev_by_level) for code in t_codes]
-    )
-
-    return GraphcastTimeLoop(
-        run_forward,
-        static_variables,
-        mean,
-        scale,
-        target_scale,
-        task_config,
-        grid=grid,
-        device=device,
-    )
+    dataset_path = package.get(os.path.join("dataset", dataset))
+    stats_dir = package.get("stats", recursive=True)
+    stepper = load_stepper(checkpoint, dataset_path, stats_dir, device=device)
+    return TimeStepperLoop(stepper)
 
 
 # explicit graphcast versions
@@ -550,10 +634,10 @@ def load_time_loop(
     package,
     pretrained=True,
     device="cuda:0",
-):
+) -> TimeStepperLoop:
     return _load_time_loop_from_description(
         package=package,
-        checkpoint_path="GraphCast - ERA5 1979-2017 - resolution 0.25 - pressure levels 37 - mesh 2to6 - precipitation input and output.npz",
+        checkpoint_path="GraphCast - ERA5 1979-2017 - resolution 0.25 - pressure levels 37 - mesh 2to6 - precipitation input and output.npz",  # noqa
         resolution=0.25,
         device=device,
     )
@@ -563,10 +647,10 @@ def load_time_loop_small(
     package,
     pretrained=True,
     device="cuda:0",
-):
+) -> TimeStepperLoop:
     return _load_time_loop_from_description(
         package=package,
-        checkpoint_path="GraphCast_small - ERA5 1979-2015 - resolution 1.0 - pressure levels 13 - mesh 2to5 - precipitation input and output.npz",
+        checkpoint_path="GraphCast_small - ERA5 1979-2015 - resolution 1.0 - pressure levels 13 - mesh 2to5 - precipitation input and output.npz",  # noqa
         resolution=1.0,
         device=device,
     )
@@ -576,10 +660,10 @@ def load_time_loop_operational(
     package,
     pretrained=True,
     device="cuda:0",
-):
+) -> TimeStepperLoop:
     return _load_time_loop_from_description(
         package=package,
-        checkpoint_path="GraphCast_operational - ERA5-HRES 1979-2021 - resolution 0.25 - pressure levels 13 - mesh 2to6 - precipitation output only.npz",
+        checkpoint_path="GraphCast_operational - ERA5-HRES 1979-2021 - resolution 0.25 - pressure levels 13 - mesh 2to6 - precipitation output only.npz",  # noqa
         resolution=0.25,
         device=device,
     )
