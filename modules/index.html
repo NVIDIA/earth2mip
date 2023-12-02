@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="../_static/favicon.ico" rel="icon" type="image/x-icon">
-    <title>API &#8212; Earth-2 MIP 0.1.0 documentation</title>
+    <title>API &#8212; Earth-2 MIP 0.2.0a0 documentation</title>
   
   
   
@@ -39,7 +39,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
   <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
 
-    <script src="../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../_static/documentation_options.js?v=312c242a"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'modules/index';</script>
@@ -51,7 +51,7 @@
         </script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="earth2mip.datasets package" href="earth2mip.datasets.html" />
+    <link rel="next" title="Data Sources" href="earth2mip.data.html" />
     <link rel="prev" title="Scoring Models" href="../examples/03_model_scoring.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -392,6 +392,7 @@ document.write(`
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="earth2mip.data.html">Data Sources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="earth2mip.datasets.html">earth2mip.datasets package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="earth2mip.diagnostic.html">earth2mip.diagnostic package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="earth2mip.initial_conditions.html">earth2mip.initial_conditions package</a></li>
@@ -457,6 +458,7 @@ document.write(`
 <h1>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="earth2mip.data.html">Data Sources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="earth2mip.datasets.html">earth2mip.datasets package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="earth2mip.diagnostic.html">earth2mip.diagnostic package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="earth2mip.initial_conditions.html">earth2mip.initial_conditions package</a></li>
@@ -472,6 +474,19 @@ document.write(`
 <dt class="sig sig-object py" id="earth2mip.diagnostics.Diagnostics">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.diagnostics.</span></span><span class="sig-name descname"><span class="pre">Diagnostics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagnostic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostics.Diagnostics" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>group</strong> (<em>Group</em>) – </p></li>
+<li><p><strong>domain</strong> (<a class="reference internal" href="#earth2mip.weather_events.CWBDomain" title="earth2mip.weather_events.CWBDomain"><em>CWBDomain</em></a><em> | </em><a class="reference internal" href="#earth2mip.weather_events.Window" title="earth2mip.weather_events.Window"><em>Window</em></a><em> | </em><a class="reference internal" href="#earth2mip.weather_events.MultiPoint" title="earth2mip.weather_events.MultiPoint"><em>MultiPoint</em></a>) – </p></li>
+<li><p><strong>grid</strong> (<em>Grid</em>) – </p></li>
+<li><p><strong>diagnostic</strong> (<a class="reference internal" href="#earth2mip.weather_events.Diagnostic" title="earth2mip.weather_events.Diagnostic"><em>Diagnostic</em></a>) – </p></li>
+<li><p><strong>lat</strong> (<em>ndarray</em>) – </p></li>
+<li><p><strong>lon</strong> (<em>ndarray</em>) – </p></li>
+<li><p><strong>device</strong> (<em>device</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="earth2mip.diagnostics.Diagnostics.get_dimensions">
 <span class="sig-name descname"><span class="pre">get_dimensions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostics.Diagnostics.get_dimensions" title="Link to this definition">#</a></dt>
@@ -498,6 +513,19 @@ document.write(`
 <dt class="sig sig-object py" id="earth2mip.diagnostics.Raw">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.diagnostics.</span></span><span class="sig-name descname"><span class="pre">Raw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagnostic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostics.Raw" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#earth2mip.diagnostics.Diagnostics" title="earth2mip.diagnostics.Diagnostics"><code class="xref py py-class docutils literal notranslate"><span class="pre">Diagnostics</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>group</strong> (<em>Group</em>) – </p></li>
+<li><p><strong>domain</strong> (<a class="reference internal" href="#earth2mip.weather_events.CWBDomain" title="earth2mip.weather_events.CWBDomain"><em>CWBDomain</em></a><em> | </em><a class="reference internal" href="#earth2mip.weather_events.Window" title="earth2mip.weather_events.Window"><em>Window</em></a><em> | </em><a class="reference internal" href="#earth2mip.weather_events.MultiPoint" title="earth2mip.weather_events.MultiPoint"><em>MultiPoint</em></a>) – </p></li>
+<li><p><strong>grid</strong> (<em>Grid</em>) – </p></li>
+<li><p><strong>diagnostic</strong> (<a class="reference internal" href="#earth2mip.weather_events.Diagnostic" title="earth2mip.weather_events.Diagnostic"><em>Diagnostic</em></a>) – </p></li>
+<li><p><strong>lat</strong> (<em>ndarray</em>) – </p></li>
+<li><p><strong>lon</strong> (<em>ndarray</em>) – </p></li>
+<li><p><strong>device</strong> (<em>device</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="earth2mip.diagnostics.Raw.get_dimensions">
 <span class="sig-name descname"><span class="pre">get_dimensions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostics.Raw.get_dimensions" title="Link to this definition">#</a></dt>
@@ -511,7 +539,17 @@ document.write(`
 <dl class="py method">
 <dt class="sig sig-object py" id="earth2mip.diagnostics.Raw.update">
 <span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostics.Raw.update" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>time_index</strong> (<em>int</em>) – </p></li>
+<li><p><strong>batch_id</strong> (<em>int</em>) – </p></li>
+<li><p><strong>batch_size</strong> (<em>int</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -679,8 +717,17 @@ only argument)</p></li>
 <dt class="sig sig-object py" id="earth2mip.ensemble_utils.generate_bred_vector">
 <span class="sig-prename descclassname"><span class="pre">earth2mip.ensemble_utils.</span></span><span class="sig-name descname"><span class="pre">generate_bred_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_amplitude</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integration_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inflate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.ensemble_utils.generate_bred_vector" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></span></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>model</strong> (<a class="reference internal" href="#earth2mip.time_loop.TimeLoop" title="earth2mip.time_loop.TimeLoop"><em>TimeLoop</em></a>) – </p></li>
+<li><p><strong>noise_amplitude</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>time</strong> (<em>datetime</em><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>integration_steps</strong> (<em>int</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tensor</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -702,8 +749,14 @@ only argument)</p></li>
 <dt class="sig sig-object py" id="earth2mip.filesystem.download_cached">
 <span class="sig-prename descclassname"><span class="pre">earth2mip.filesystem.</span></span><span class="sig-name descname"><span class="pre">download_cached</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recursive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.filesystem.download_cached" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em>) – </p></li>
+<li><p><strong>recursive</strong> (<em>bool</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -712,8 +765,11 @@ only argument)</p></li>
 <dt class="sig sig-object py" id="earth2mip.filesystem.glob">
 <span class="sig-prename descclassname"><span class="pre">earth2mip.filesystem.</span></span><span class="sig-name descname"><span class="pre">glob</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxdepth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.filesystem.glob" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pattern</strong> (<em>str</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>List</em>[str]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -749,8 +805,11 @@ only argument)</p></li>
 <dd><p>Reads all csv files in the given directory and returns a pandas Series
 containing all the metric values.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code></span></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>directory</strong> (<em>str</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Series</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -760,8 +819,18 @@ containing all the metric values.</p>
 <span class="sig-prename descclassname"><span class="pre">earth2mip.forecast_metrics_io.</span></span><span class="sig-name descname"><span class="pre">write_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lead_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.forecast_metrics_io.write_metric" title="Link to this definition">#</a></dt>
 <dd><p>Writes a single metric value to the given file object in csv format.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f</strong> (<em>IO</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+<li><p><strong>initial_time</strong> (<em>datetime</em>) – </p></li>
+<li><p><strong>lead_time</strong> (<em>timedelta</em>) – </p></li>
+<li><p><strong>channel</strong> (<em>str</em>) – </p></li>
+<li><p><strong>metric</strong> (<em>str</em>) – </p></li>
+<li><p><strong>value</strong> (<em>float</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -796,6 +865,11 @@ sequential order. This is the purpose of the abstractions here.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>persistence forecast. This forecast always returns the initial condition.</p>
 <p>Yields (channel, lat, lon)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>observations</strong> (<em>Any</em>) – </p>
+</dd>
+</dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="earth2mip.forecasts.Persistence.channel_names">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">channel_names</span></span><a class="headerlink" href="#earth2mip.forecasts.Persistence.channel_names" title="Link to this definition">#</a></dt>
@@ -808,6 +882,15 @@ sequential order. This is the purpose of the abstractions here.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.forecasts.</span></span><span class="sig-name descname"><span class="pre">TimeLoopForecast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_loop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">times</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_source</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.forecasts.TimeLoopForecast" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#earth2mip.forecasts.Forecast" title="earth2mip.forecasts.Forecast"><code class="xref py py-class docutils literal notranslate"><span class="pre">Forecast</span></code></a></p>
 <p>Wrap an fcn-mip TimeLoop object as a forecast</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time_loop</strong> (<a class="reference internal" href="#earth2mip.time_loop.TimeLoop" title="earth2mip.time_loop.TimeLoop"><em>TimeLoop</em></a>) – </p></li>
+<li><p><strong>times</strong> (<em>Sequence</em><em>[</em><em>datetime</em><em>]</em>) – </p></li>
+<li><p><strong>data_source</strong> (<a class="reference internal" href="earth2mip.initial_conditions.html#earth2mip.initial_conditions.base.DataSource" title="earth2mip.initial_conditions.base.DataSource"><em>DataSource</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="earth2mip.forecasts.TimeLoopForecast.channel_names">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">channel_names</span></span><a class="headerlink" href="#earth2mip.forecasts.TimeLoopForecast.channel_names" title="Link to this definition">#</a></dt>
@@ -825,6 +908,14 @@ sequential order. This is the purpose of the abstractions here.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.forecasts.</span></span><span class="sig-name descname"><span class="pre">XarrayForecast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">times</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.forecasts.XarrayForecast" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#earth2mip.forecasts.Forecast" title="earth2mip.forecasts.Forecast"><code class="xref py py-class docutils literal notranslate"><span class="pre">Forecast</span></code></a></p>
 <p>Turn an xarray into a forecast-like dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ds</strong> (<em>Dataset</em>) – </p></li>
+<li><p><strong>times</strong> (<em>Sequence</em><em>[</em><em>datetime</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="earth2mip.forecasts.XarrayForecast.channel_names">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">channel_names</span></span><a class="headerlink" href="#earth2mip.forecasts.XarrayForecast.channel_names" title="Link to this definition">#</a></dt>
@@ -893,7 +984,12 @@ progressively.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="earth2mip.geometry.bilinear">
 <span class="sig-prename descclassname"><span class="pre">earth2mip.geometry.</span></span><span class="sig-name descname"><span class="pre">bilinear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dims</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_coords</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.geometry.bilinear" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>tensor</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="earth2mip.geometry.get_batch_size">
@@ -915,16 +1011,24 @@ progressively.</p>
 <span id="earth2mip-grid-module"></span><h2>earth2mip.grid module<a class="headerlink" href="#module-earth2mip.grid" title="Link to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="earth2mip.grid.LatLonGrid">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.grid.</span></span><span class="sig-name descname"><span class="pre">LatLonGrid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.grid.LatLonGrid" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.grid.</span></span><span class="sig-name descname"><span class="pre">LatLonGrid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.grid.LatLonGrid" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lat</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – </p></li>
+<li><p><strong>lon</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.grid.LatLonGrid.lat">
-<span class="sig-name descname"><span class="pre">lat</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code><span class="pre">]</span></em><a class="headerlink" href="#earth2mip.grid.LatLonGrid.lat" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">lat</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#earth2mip.grid.LatLonGrid.lat" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.grid.LatLonGrid.lon">
-<span class="sig-name descname"><span class="pre">lon</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code><span class="pre">]</span></em><a class="headerlink" href="#earth2mip.grid.LatLonGrid.lon" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">lon</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#earth2mip.grid.LatLonGrid.lon" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -941,8 +1045,15 @@ progressively.</p>
 <p>Lat is ordered from 90 to -90. Includes -90 and only if if includes_south_pole is True.
 Lon is ordered from 0 to 360. includes 0, but not 360.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#earth2mip.grid.LatLonGrid" title="earth2mip.grid.LatLonGrid"><code class="xref py py-class docutils literal notranslate"><span class="pre">LatLonGrid</span></code></a></span></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nlat</strong> (<em>int</em>) – </p></li>
+<li><p><strong>nlon</strong> (<em>int</em>) – </p></li>
+<li><p><strong>includes_south_pole</strong> (<em>bool</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#earth2mip.grid.LatLonGrid" title="earth2mip.grid.LatLonGrid"><em>LatLonGrid</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -951,8 +1062,11 @@ Lon is ordered from 0 to 360. includes 0, but not 360.</p>
 <dt class="sig sig-object py" id="earth2mip.grid.from_enum">
 <span class="sig-prename descclassname"><span class="pre">earth2mip.grid.</span></span><span class="sig-name descname"><span class="pre">from_enum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid_enum</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.grid.from_enum" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#earth2mip.grid.LatLonGrid" title="earth2mip.grid.LatLonGrid"><code class="xref py py-class docutils literal notranslate"><span class="pre">LatLonGrid</span></code></a></span></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>grid_enum</strong> (<em>Grid</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#earth2mip.grid.LatLonGrid" title="earth2mip.grid.LatLonGrid"><em>LatLonGrid</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -967,10 +1081,13 @@ Lon is ordered from 0 to 360. includes 0, but not 360.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>group</strong> – the torch distributed group to use for the calculation</p></li>
-<li><p><strong>progress</strong> – if True use tqdm to show a progress bar</p></li>
-<li><p><strong>data_source</strong> – a Mapping object indexed by datetime and returning an
+<li><p><strong>group</strong> (<em>Any</em><em> | </em><em>None</em>) – the torch distributed group to use for the calculation</p></li>
+<li><p><strong>progress</strong> (<em>bool</em>) – if True use tqdm to show a progress bar</p></li>
+<li><p><strong>data_source</strong> (<em>Any</em><em> | </em><em>None</em>) – a Mapping object indexed by datetime and returning an
 xarray.Dataset object.</p></li>
+<li><p><strong>model</strong> (<a class="reference internal" href="#earth2mip.time_loop.TimeLoop" title="earth2mip.time_loop.TimeLoop"><em>TimeLoop</em></a>) – </p></li>
+<li><p><strong>config</strong> (<em>EnsembleRun</em>) – </p></li>
+<li><p><strong>perturb</strong> (<em>Any</em><em> | </em><em>None</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -984,13 +1101,10 @@ xarray.Dataset object.</p></li>
 <span class="sig-prename descclassname"><span class="pre">earth2mip.inference_medium_range.</span></span><span class="sig-name descname"><span class="pre">score_deterministic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_times</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_mean</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.inference_medium_range.score_deterministic" title="Link to this definition">#</a></dt>
 <dd><p>Compute deterministic accs and rmses</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></span></p>
-</dd>
-<dt class="field-even">Parameters<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>model</strong> – the inference class</p></li>
-<li><p><strong>n</strong> – the number of lead times</p></li>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<a class="reference internal" href="#earth2mip.time_loop.TimeLoop" title="earth2mip.time_loop.TimeLoop"><em>TimeLoop</em></a>) – the inference class</p></li>
+<li><p><strong>n</strong> (<em>int</em>) – the number of lead times</p></li>
 <li><p><strong>initial_times</strong> – the initial_times to compute over</p></li>
 <li><p><strong>data_source</strong> – a mapping from time to dataset, used for the initial
 condition and the scoring</p></li>
@@ -998,8 +1112,8 @@ condition and the scoring</p></li>
 Used for ACC.</p></li>
 </ul>
 </dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><dl>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl>
 <dt>an xarray dataset wtih this structure::</dt><dd><p>netcdf dlwp.baseline {
 dimensions:</p>
 <blockquote>
@@ -1031,8 +1145,8 @@ initial_times:calendar = “proleptic_gregorian” ;</p>
 </dl>
 </p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>metrics</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>metrics</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1078,7 +1192,16 @@ initial_times:calendar = “proleptic_gregorian” ;</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="earth2mip.make_job.main">
 <span class="sig-prename descclassname"><span class="pre">earth2mip.make_job.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.make_job.main" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>str</em>) – </p></li>
+<li><p><strong>config</strong> (<em>str</em>) – </p></li>
+<li><p><strong>output</strong> (<em>str</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 <section id="module-earth2mip.model_registry">
@@ -1144,44 +1267,86 @@ can be stabilized and packaged within fcn-mip for long-term archival.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="earth2mip.model_registry.DLWPPackage">
 <span class="sig-prename descclassname"><span class="pre">earth2mip.model_registry.</span></span><span class="sig-name descname"><span class="pre">DLWPPackage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seperator</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.model_registry.DLWPPackage" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> (<em>str</em>) – </p></li>
+<li><p><strong>seperator</strong> (<em>str</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="earth2mip.model_registry.FCNPackage">
 <span class="sig-prename descclassname"><span class="pre">earth2mip.model_registry.</span></span><span class="sig-name descname"><span class="pre">FCNPackage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seperator</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.model_registry.FCNPackage" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> (<em>str</em>) – </p></li>
+<li><p><strong>seperator</strong> (<em>str</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="earth2mip.model_registry.FCNv2Package">
 <span class="sig-prename descclassname"><span class="pre">earth2mip.model_registry.</span></span><span class="sig-name descname"><span class="pre">FCNv2Package</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seperator</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.model_registry.FCNv2Package" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> (<em>str</em>) – </p></li>
+<li><p><strong>seperator</strong> (<em>str</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="earth2mip.model_registry.ModelRegistry">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.model_registry.</span></span><span class="sig-name descname"><span class="pre">ModelRegistry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.model_registry.ModelRegistry" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – </p>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.model_registry.ModelRegistry.SEPERATOR">
-<span class="sig-name descname"><span class="pre">SEPERATOR</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/'</span></em><a class="headerlink" href="#earth2mip.model_registry.ModelRegistry.SEPERATOR" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">SEPERATOR</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/'</span></em><a class="headerlink" href="#earth2mip.model_registry.ModelRegistry.SEPERATOR" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="earth2mip.model_registry.ModelRegistry.get_builtin_model">
 <span class="sig-name descname"><span class="pre">get_builtin_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.model_registry.ModelRegistry.get_builtin_model" title="Link to this definition">#</a></dt>
 <dd><p>Built in models that have globally buildable packages</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – </p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="earth2mip.model_registry.ModelRegistry.get_center_path">
 <span class="sig-name descname"><span class="pre">get_center_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.model_registry.ModelRegistry.get_center_path" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="earth2mip.model_registry.ModelRegistry.get_metadata">
 <span class="sig-name descname"><span class="pre">get_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.model_registry.ModelRegistry.get_metadata" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></span></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Model</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1189,12 +1354,22 @@ can be stabilized and packaged within fcn-mip for long-term archival.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="earth2mip.model_registry.ModelRegistry.get_model">
 <span class="sig-name descname"><span class="pre">get_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.model_registry.ModelRegistry.get_model" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="earth2mip.model_registry.ModelRegistry.get_model_path">
 <span class="sig-name descname"><span class="pre">get_model_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.model_registry.ModelRegistry.get_model_path" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="earth2mip.model_registry.ModelRegistry.get_path">
@@ -1204,12 +1379,22 @@ can be stabilized and packaged within fcn-mip for long-term archival.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="earth2mip.model_registry.ModelRegistry.get_scale_path">
 <span class="sig-name descname"><span class="pre">get_scale_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.model_registry.ModelRegistry.get_scale_path" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="earth2mip.model_registry.ModelRegistry.get_weight_path">
 <span class="sig-name descname"><span class="pre">get_weight_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.model_registry.ModelRegistry.get_weight_path" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="earth2mip.model_registry.ModelRegistry.list_models">
@@ -1219,14 +1404,31 @@ can be stabilized and packaged within fcn-mip for long-term archival.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="earth2mip.model_registry.ModelRegistry.put_metadata">
 <span class="sig-name descname"><span class="pre">put_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.model_registry.ModelRegistry.put_metadata" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>metadata</strong> (<em>Model</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="earth2mip.model_registry.NGCDiagnosticPackage">
 <span class="sig-prename descclassname"><span class="pre">earth2mip.model_registry.</span></span><span class="sig-name descname"><span class="pre">NGCDiagnosticPackage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seperator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.model_registry.NGCDiagnosticPackage" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> (<em>str</em>) – </p></li>
+<li><p><strong>seperator</strong> (<em>str</em>) – </p></li>
+<li><p><strong>name</strong> (<em>Literal</em><em>[</em><em>'precipitation_afno'</em><em>, </em><em>'climatenet'</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="earth2mip.model_registry.Package">
@@ -1234,17 +1436,30 @@ can be stabilized and packaged within fcn-mip for long-term archival.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A model package</p>
 <p>Simple file system operations and quick metadata access</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> (<em>str</em>) – </p></li>
+<li><p><strong>seperator</strong> (<em>str</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="earth2mip.model_registry.Package.get">
 <span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recursive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.model_registry.Package.get" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>recursive</strong> (<em>bool</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="earth2mip.model_registry.Package.metadata">
 <span class="sig-name descname"><span class="pre">metadata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.model_registry.Package.metadata" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></span></p>
+<dd class="field-odd"><p><em>Model</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1254,12 +1469,29 @@ can be stabilized and packaged within fcn-mip for long-term archival.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="earth2mip.model_registry.PanguPackage">
 <span class="sig-prename descclassname"><span class="pre">earth2mip.model_registry.</span></span><span class="sig-name descname"><span class="pre">PanguPackage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seperator</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.model_registry.PanguPackage" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> (<em>str</em>) – </p></li>
+<li><p><strong>seperator</strong> (<em>str</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="earth2mip.model_registry.download_ngc_package">
 <span class="sig-prename descclassname"><span class="pre">earth2mip.model_registry.</span></span><span class="sig-name descname"><span class="pre">download_ngc_package</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zip_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.model_registry.download_ngc_package" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> (<em>str</em>) – </p></li>
+<li><p><strong>url</strong> (<em>str</em>) – </p></li>
+<li><p><strong>zip_file</strong> (<em>str</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 <section id="module-earth2mip.netcdf">
@@ -1269,8 +1501,14 @@ can be stabilized and packaged within fcn-mip for long-term archival.</p>
 <dt class="sig sig-object py" id="earth2mip.netcdf.initialize_netcdf">
 <span class="sig-prename descclassname"><span class="pre">earth2mip.netcdf.</span></span><span class="sig-name descname"><span class="pre">initialize_netcdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domains</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_ensemble</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.netcdf.initialize_netcdf" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<a class="reference internal" href="#earth2mip.diagnostics.Diagnostics" title="earth2mip.diagnostics.Diagnostics"><code class="xref py py-class docutils literal notranslate"><span class="pre">Diagnostics</span></code></a>]]</span></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>domains</strong> (<em>Iterable</em><em>[</em><a class="reference internal" href="#earth2mip.weather_events.Window" title="earth2mip.weather_events.Window"><em>Window</em></a><em> | </em><a class="reference internal" href="#earth2mip.weather_events.CWBDomain" title="earth2mip.weather_events.CWBDomain"><em>CWBDomain</em></a><em> | </em><a class="reference internal" href="#earth2mip.weather_events.MultiPoint" title="earth2mip.weather_events.MultiPoint"><em>MultiPoint</em></a><em>]</em>) – </p></li>
+<li><p><strong>grid</strong> (<a class="reference internal" href="#earth2mip.grid.LatLonGrid" title="earth2mip.grid.LatLonGrid"><em>LatLonGrid</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>List</em>[<em>List</em>[<a class="reference internal" href="#earth2mip.diagnostics.Diagnostics" title="earth2mip.diagnostics.Diagnostics"><em>Diagnostics</em></a>]]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1278,7 +1516,18 @@ can be stabilized and packaged within fcn-mip for long-term archival.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="earth2mip.netcdf.update_netcdf">
 <span class="sig-prename descclassname"><span class="pre">earth2mip.netcdf.</span></span><span class="sig-name descname"><span class="pre">update_netcdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_diagnostics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domains</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_count</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_names_of_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.netcdf.update_netcdf" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>total_diagnostics</strong> (<em>List</em><em>[</em><em>List</em><em>[</em><a class="reference internal" href="#earth2mip.diagnostics.Diagnostics" title="earth2mip.diagnostics.Diagnostics"><em>Diagnostics</em></a><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>domains</strong> (<em>List</em><em>[</em><a class="reference internal" href="#earth2mip.weather_events.Window" title="earth2mip.weather_events.Window"><em>Window</em></a><em> | </em><a class="reference internal" href="#earth2mip.weather_events.CWBDomain" title="earth2mip.weather_events.CWBDomain"><em>CWBDomain</em></a><em> | </em><a class="reference internal" href="#earth2mip.weather_events.MultiPoint" title="earth2mip.weather_events.MultiPoint"><em>MultiPoint</em></a><em>]</em>) – </p></li>
+<li><p><strong>grid</strong> (<a class="reference internal" href="#earth2mip.grid.LatLonGrid" title="earth2mip.grid.LatLonGrid"><em>LatLonGrid</em></a>) – </p></li>
+<li><p><strong>channel_names_of_data</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 <section id="module-earth2mip.regrid">
@@ -1287,6 +1536,8 @@ can be stabilized and packaged within fcn-mip for long-term archival.</p>
 <dt class="sig sig-object py" id="earth2mip.regrid.Identity">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.regrid.</span></span><span class="sig-name descname"><span class="pre">Identity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.regrid.Identity" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="field-list simple">
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="earth2mip.regrid.Identity.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.regrid.Identity.forward" title="Link to this definition">#</a></dt>
@@ -1307,6 +1558,14 @@ registered hooks while the latter silently ignores them.</p>
 <dt class="sig sig-object py" id="earth2mip.regrid.RegridLatLon">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.regrid.</span></span><span class="sig-name descname"><span class="pre">RegridLatLon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src_grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest_grid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.regrid.RegridLatLon" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src_grid</strong> (<a class="reference internal" href="#earth2mip.grid.LatLonGrid" title="earth2mip.grid.LatLonGrid"><em>LatLonGrid</em></a>) – </p></li>
+<li><p><strong>dest_grid</strong> (<a class="reference internal" href="#earth2mip.grid.LatLonGrid" title="earth2mip.grid.LatLonGrid"><em>LatLonGrid</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="earth2mip.regrid.RegridLatLon.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.regrid.RegridLatLon.forward" title="Link to this definition">#</a></dt>
@@ -1448,8 +1707,14 @@ only argument)</p></li>
 <dt class="sig sig-object py" id="earth2mip.regrid.get_regridder">
 <span class="sig-prename descclassname"><span class="pre">earth2mip.regrid.</span></span><span class="sig-name descname"><span class="pre">get_regridder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.regrid.get_regridder" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></span></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src</strong> (<a class="reference internal" href="#earth2mip.grid.LatLonGrid" title="earth2mip.grid.LatLonGrid"><em>LatLonGrid</em></a>) – </p></li>
+<li><p><strong>dest</strong> (<a class="reference internal" href="#earth2mip.grid.LatLonGrid" title="earth2mip.grid.LatLonGrid"><em>LatLonGrid</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Module</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1464,43 +1729,51 @@ only argument)</p></li>
 <p>An enumeration.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.schema.InitialConditionSource.cds">
-<span class="sig-name descname"><span class="pre">cds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cds'</span></em><a class="headerlink" href="#earth2mip.schema.InitialConditionSource.cds" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">cds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cds'</span></em><a class="headerlink" href="#earth2mip.schema.InitialConditionSource.cds" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.schema.InitialConditionSource.era5">
-<span class="sig-name descname"><span class="pre">era5</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'era5'</span></em><a class="headerlink" href="#earth2mip.schema.InitialConditionSource.era5" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">era5</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'era5'</span></em><a class="headerlink" href="#earth2mip.schema.InitialConditionSource.era5" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.schema.InitialConditionSource.gfs">
-<span class="sig-name descname"><span class="pre">gfs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'gfs'</span></em><a class="headerlink" href="#earth2mip.schema.InitialConditionSource.gfs" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">gfs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'gfs'</span></em><a class="headerlink" href="#earth2mip.schema.InitialConditionSource.gfs" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.schema.InitialConditionSource.hrmip">
-<span class="sig-name descname"><span class="pre">hrmip</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'hrmip'</span></em><a class="headerlink" href="#earth2mip.schema.InitialConditionSource.hrmip" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">hrmip</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'hrmip'</span></em><a class="headerlink" href="#earth2mip.schema.InitialConditionSource.hrmip" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.schema.InitialConditionSource.ifs">
-<span class="sig-name descname"><span class="pre">ifs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ifs'</span></em><a class="headerlink" href="#earth2mip.schema.InitialConditionSource.ifs" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ifs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ifs'</span></em><a class="headerlink" href="#earth2mip.schema.InitialConditionSource.ifs" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="earth2mip.schema.WeatherEvent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.schema.</span></span><span class="sig-name descname"><span class="pre">WeatherEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.schema.WeatherEvent" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.schema.</span></span><span class="sig-name descname"><span class="pre">WeatherEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">properties</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domains</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.schema.WeatherEvent" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>properties</strong> (<a class="reference internal" href="#earth2mip.weather_events.WeatherEventProperties" title="earth2mip.weather_events.WeatherEventProperties"><em>WeatherEventProperties</em></a>) – </p></li>
+<li><p><strong>domains</strong> (<em>List</em><em>[</em><a class="reference internal" href="#earth2mip.weather_events.Window" title="earth2mip.weather_events.Window"><em>Window</em></a><em> | </em><a class="reference internal" href="#earth2mip.weather_events.CWBDomain" title="earth2mip.weather_events.CWBDomain"><em>CWBDomain</em></a><em> | </em><a class="reference internal" href="#earth2mip.weather_events.MultiPoint" title="earth2mip.weather_events.MultiPoint"><em>MultiPoint</em></a><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.schema.WeatherEvent.domains">
-<span class="sig-name descname"><span class="pre">domains</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code><span class="pre">[</span><a class="reference internal" href="#earth2mip.weather_events.Window" title="earth2mip.weather_events.Window"><code class="xref py py-class docutils literal notranslate"><span class="pre">Window</span></code></a><span class="pre">,</span> <a class="reference internal" href="#earth2mip.weather_events.CWBDomain" title="earth2mip.weather_events.CWBDomain"><code class="xref py py-class docutils literal notranslate"><span class="pre">CWBDomain</span></code></a><span class="pre">,</span> <a class="reference internal" href="#earth2mip.weather_events.MultiPoint" title="earth2mip.weather_events.MultiPoint"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultiPoint</span></code></a><span class="pre">]]</span></em><a class="headerlink" href="#earth2mip.schema.WeatherEvent.domains" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">domains</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#earth2mip.weather_events.Window" title="earth2mip.weather_events.Window"><span class="pre">Window</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#earth2mip.weather_events.CWBDomain" title="earth2mip.weather_events.CWBDomain"><span class="pre">CWBDomain</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#earth2mip.weather_events.MultiPoint" title="earth2mip.weather_events.MultiPoint"><span class="pre">MultiPoint</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#earth2mip.schema.WeatherEvent.domains" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.schema.WeatherEvent.properties">
-<span class="sig-name descname"><span class="pre">properties</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#earth2mip.weather_events.WeatherEventProperties" title="earth2mip.weather_events.WeatherEventProperties"><code class="xref py py-class docutils literal notranslate"><span class="pre">WeatherEventProperties</span></code></a></em><a class="headerlink" href="#earth2mip.schema.WeatherEvent.properties" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">properties</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#earth2mip.weather_events.WeatherEventProperties" title="earth2mip.weather_events.WeatherEventProperties"><span class="pre">WeatherEventProperties</span></a></em><a class="headerlink" href="#earth2mip.schema.WeatherEvent.properties" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1512,8 +1785,17 @@ only argument)</p></li>
 <dt class="sig sig-object py" id="earth2mip.score_ensemble_outputs.main">
 <span class="sig-prename descclassname"><span class="pre">earth2mip.score_ensemble_outputs.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_averaging_window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_ensemble</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.score_ensemble_outputs.main" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_path</strong> (<em>str</em>) – </p></li>
+<li><p><strong>output_path</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>time_averaging_window</strong> (<em>str</em>) – </p></li>
+<li><p><strong>score</strong> (<em>bool</em>) – </p></li>
+<li><p><strong>save_ensemble</strong> (<em>bool</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1546,7 +1828,7 @@ only argument)</p></li>
 <span class="sig-prename descclassname"><span class="pre">earth2mip.time.</span></span><span class="sig-name descname"><span class="pre">convert_to_datetime</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.time.convert_to_datetime" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></span></p>
+<dd class="field-odd"><p><em>datetime</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1555,8 +1837,11 @@ only argument)</p></li>
 <dt class="sig sig-object py" id="earth2mip.time.datetime_to_timestamp">
 <span class="sig-prename descclassname"><span class="pre">earth2mip.time.</span></span><span class="sig-name descname"><span class="pre">datetime_to_timestamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.time.datetime_to_timestamp" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>time</strong> (<em>datetime</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1575,9 +1860,9 @@ only argument)</p></li>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>root</strong> – the root directory of the output</p></li>
-<li><p><strong>shard</strong> – index of the shard</p></li>
-<li><p><strong>n_shards</strong> – split the input times into this many shards</p></li>
+<li><p><strong>root</strong> (<em>str</em>) – the root directory of the output</p></li>
+<li><p><strong>shard</strong> (<em>int</em>) – index of the shard</p></li>
+<li><p><strong>n_shards</strong> (<em>int</em>) – split the input times into this many shards</p></li>
 </ul>
 </dd>
 </dl>
@@ -1599,76 +1884,111 @@ true for all frameworks.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.time_loop.TimeLoop.in_channel_names">
 <span class="sig-name descname"><span class="pre">in_channel_names</span></span><a class="headerlink" href="#earth2mip.time_loop.TimeLoop.in_channel_names" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[str]</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.time_loop.TimeLoop.out_channel_names">
 <span class="sig-name descname"><span class="pre">out_channel_names</span></span><a class="headerlink" href="#earth2mip.time_loop.TimeLoop.out_channel_names" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[str]</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.time_loop.TimeLoop.grid">
 <span class="sig-name descname"><span class="pre">grid</span></span><a class="headerlink" href="#earth2mip.time_loop.TimeLoop.grid" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#earth2mip.grid.LatLonGrid" title="earth2mip.grid.LatLonGrid">earth2mip.grid.LatLonGrid</a></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.time_loop.TimeLoop.n_history_levels">
 <span class="sig-name descname"><span class="pre">n_history_levels</span></span><a class="headerlink" href="#earth2mip.time_loop.TimeLoop.n_history_levels" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.time_loop.TimeLoop.history_time_step">
 <span class="sig-name descname"><span class="pre">history_time_step</span></span><a class="headerlink" href="#earth2mip.time_loop.TimeLoop.history_time_step" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>datetime.timedelta</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.time_loop.TimeLoop.time_step">
 <span class="sig-name descname"><span class="pre">time_step</span></span><a class="headerlink" href="#earth2mip.time_loop.TimeLoop.time_step" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>datetime.timedelta</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.time_loop.TimeLoop.device">
 <span class="sig-name descname"><span class="pre">device</span></span><a class="headerlink" href="#earth2mip.time_loop.TimeLoop.device" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.device</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="id0">
-<span class="sig-name descname"><span class="pre">device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">device</span></code></em><a class="headerlink" href="#id0" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">device</span></em><a class="headerlink" href="#id0" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.time_loop.TimeLoop.dtype">
-<span class="sig-name descname"><span class="pre">dtype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">torch.float32</span></em><a class="headerlink" href="#earth2mip.time_loop.TimeLoop.dtype" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">dtype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dtype</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">torch.float32</span></em><a class="headerlink" href="#earth2mip.time_loop.TimeLoop.dtype" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="id1">
-<span class="sig-name descname"><span class="pre">grid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#earth2mip.grid.LatLonGrid" title="earth2mip.grid.LatLonGrid"><code class="xref py py-class docutils literal notranslate"><span class="pre">LatLonGrid</span></code></a></em><a class="headerlink" href="#id1" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">grid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#earth2mip.grid.LatLonGrid" title="earth2mip.grid.LatLonGrid"><span class="pre">LatLonGrid</span></a></em><a class="headerlink" href="#id1" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="id2">
-<span class="sig-name descname"><span class="pre">history_time_step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">datetime.timedelta(0)</span></em><a class="headerlink" href="#id2" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">history_time_step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">timedelta</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">datetime.timedelta(0)</span></em><a class="headerlink" href="#id2" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="id3">
-<span class="sig-name descname"><span class="pre">in_channel_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><a class="headerlink" href="#id3" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">in_channel_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#id3" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="id4">
-<span class="sig-name descname"><span class="pre">n_history_levels</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#id4" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">n_history_levels</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#id4" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="id5">
-<span class="sig-name descname"><span class="pre">out_channel_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><a class="headerlink" href="#id5" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">out_channel_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#id5" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="id6">
-<span class="sig-name descname"><span class="pre">time_step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code></em><a class="headerlink" href="#id6" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">time_step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">timedelta</span></em><a class="headerlink" href="#id6" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1678,52 +1998,72 @@ true for all frameworks.</p>
 <span id="earth2mip-weather-events-module"></span><h2>earth2mip.weather_events module<a class="headerlink" href="#module-earth2mip.weather_events" title="Link to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="earth2mip.weather_events.CWBDomain">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.weather_events.</span></span><span class="sig-name descname"><span class="pre">CWBDomain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.weather_events.CWBDomain" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.weather_events.</span></span><span class="sig-name descname"><span class="pre">CWBDomain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/lustre/fsw/sw_climate_fno/nbrenowitz/2023-01-24-cwb-4years.zarr'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagnostics</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.weather_events.CWBDomain" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>type</strong> (<em>Literal</em><em>[</em><em>'CWBDomain'</em><em>]</em>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>path</strong> (<em>str</em>) – </p></li>
+<li><p><strong>diagnostics</strong> (<em>List</em><em>[</em><a class="reference internal" href="#earth2mip.weather_events.Diagnostic" title="earth2mip.weather_events.Diagnostic"><em>Diagnostic</em></a><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.CWBDomain.diagnostics">
-<span class="sig-name descname"><span class="pre">diagnostics</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><a class="reference internal" href="#earth2mip.weather_events.Diagnostic" title="earth2mip.weather_events.Diagnostic"><code class="xref py py-class docutils literal notranslate"><span class="pre">Diagnostic</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#earth2mip.weather_events.CWBDomain.diagnostics" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">diagnostics</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#earth2mip.weather_events.Diagnostic" title="earth2mip.weather_events.Diagnostic"><span class="pre">Diagnostic</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#earth2mip.weather_events.CWBDomain.diagnostics" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.CWBDomain.name">
-<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#earth2mip.weather_events.CWBDomain.name" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#earth2mip.weather_events.CWBDomain.name" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.CWBDomain.path">
-<span class="sig-name descname"><span class="pre">path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#earth2mip.weather_events.CWBDomain.path" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#earth2mip.weather_events.CWBDomain.path" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.CWBDomain.type">
-<span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code><span class="pre">[</span><code class="docutils literal notranslate"><span class="pre">'CWBDomain'</span></code><span class="pre">]</span></em><a class="headerlink" href="#earth2mip.weather_events.CWBDomain.type" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'CWBDomain'</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#earth2mip.weather_events.CWBDomain.type" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="earth2mip.weather_events.Diagnostic">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.weather_events.</span></span><span class="sig-name descname"><span class="pre">Diagnostic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.weather_events.Diagnostic" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.weather_events.</span></span><span class="sig-name descname"><span class="pre">Diagnostic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.weather_events.Diagnostic" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>type</strong> (<em>str</em>) – </p></li>
+<li><p><strong>function</strong> (<em>str</em>) – </p></li>
+<li><p><strong>channels</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+<li><p><strong>nbins</strong> (<em>int</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.Diagnostic.channels">
-<span class="sig-name descname"><span class="pre">channels</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><a class="headerlink" href="#earth2mip.weather_events.Diagnostic.channels" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">channels</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#earth2mip.weather_events.Diagnostic.channels" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.Diagnostic.function">
-<span class="sig-name descname"><span class="pre">function</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#earth2mip.weather_events.Diagnostic.function" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">function</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#earth2mip.weather_events.Diagnostic.function" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.Diagnostic.nbins">
-<span class="sig-name descname"><span class="pre">nbins</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#earth2mip.weather_events.Diagnostic.nbins" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">nbins</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#earth2mip.weather_events.Diagnostic.nbins" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.Diagnostic.type">
-<span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#earth2mip.weather_events.Diagnostic.type" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#earth2mip.weather_events.Diagnostic.type" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1735,152 +2075,200 @@ true for all frameworks.</p>
 <p>An enumeration.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.InitialConditionSource.cds">
-<span class="sig-name descname"><span class="pre">cds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cds'</span></em><a class="headerlink" href="#earth2mip.weather_events.InitialConditionSource.cds" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">cds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cds'</span></em><a class="headerlink" href="#earth2mip.weather_events.InitialConditionSource.cds" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.InitialConditionSource.era5">
-<span class="sig-name descname"><span class="pre">era5</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'era5'</span></em><a class="headerlink" href="#earth2mip.weather_events.InitialConditionSource.era5" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">era5</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'era5'</span></em><a class="headerlink" href="#earth2mip.weather_events.InitialConditionSource.era5" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.InitialConditionSource.gfs">
-<span class="sig-name descname"><span class="pre">gfs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'gfs'</span></em><a class="headerlink" href="#earth2mip.weather_events.InitialConditionSource.gfs" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">gfs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'gfs'</span></em><a class="headerlink" href="#earth2mip.weather_events.InitialConditionSource.gfs" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.InitialConditionSource.hrmip">
-<span class="sig-name descname"><span class="pre">hrmip</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'hrmip'</span></em><a class="headerlink" href="#earth2mip.weather_events.InitialConditionSource.hrmip" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">hrmip</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'hrmip'</span></em><a class="headerlink" href="#earth2mip.weather_events.InitialConditionSource.hrmip" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.InitialConditionSource.ifs">
-<span class="sig-name descname"><span class="pre">ifs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ifs'</span></em><a class="headerlink" href="#earth2mip.weather_events.InitialConditionSource.ifs" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ifs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ifs'</span></em><a class="headerlink" href="#earth2mip.weather_events.InitialConditionSource.ifs" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="earth2mip.weather_events.MultiPoint">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.weather_events.</span></span><span class="sig-name descname"><span class="pre">MultiPoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.weather_events.MultiPoint" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.weather_events.</span></span><span class="sig-name descname"><span class="pre">MultiPoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagnostics</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.weather_events.MultiPoint" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>type</strong> (<em>Literal</em><em>[</em><em>'MultiPoint'</em><em>]</em>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>lat</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – </p></li>
+<li><p><strong>lon</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – </p></li>
+<li><p><strong>diagnostics</strong> (<em>List</em><em>[</em><a class="reference internal" href="#earth2mip.weather_events.Diagnostic" title="earth2mip.weather_events.Diagnostic"><em>Diagnostic</em></a><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.MultiPoint.diagnostics">
-<span class="sig-name descname"><span class="pre">diagnostics</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><a class="reference internal" href="#earth2mip.weather_events.Diagnostic" title="earth2mip.weather_events.Diagnostic"><code class="xref py py-class docutils literal notranslate"><span class="pre">Diagnostic</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#earth2mip.weather_events.MultiPoint.diagnostics" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">diagnostics</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#earth2mip.weather_events.Diagnostic" title="earth2mip.weather_events.Diagnostic"><span class="pre">Diagnostic</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#earth2mip.weather_events.MultiPoint.diagnostics" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.MultiPoint.lat">
-<span class="sig-name descname"><span class="pre">lat</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code><span class="pre">]</span></em><a class="headerlink" href="#earth2mip.weather_events.MultiPoint.lat" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">lat</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#earth2mip.weather_events.MultiPoint.lat" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.MultiPoint.lon">
-<span class="sig-name descname"><span class="pre">lon</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code><span class="pre">]</span></em><a class="headerlink" href="#earth2mip.weather_events.MultiPoint.lon" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">lon</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#earth2mip.weather_events.MultiPoint.lon" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.MultiPoint.name">
-<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#earth2mip.weather_events.MultiPoint.name" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#earth2mip.weather_events.MultiPoint.name" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.MultiPoint.type">
-<span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code><span class="pre">[</span><code class="docutils literal notranslate"><span class="pre">'MultiPoint'</span></code><span class="pre">]</span></em><a class="headerlink" href="#earth2mip.weather_events.MultiPoint.type" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'MultiPoint'</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#earth2mip.weather_events.MultiPoint.type" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="earth2mip.weather_events.WeatherEvent">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.weather_events.</span></span><span class="sig-name descname"><span class="pre">WeatherEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.weather_events.WeatherEvent" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.weather_events.</span></span><span class="sig-name descname"><span class="pre">WeatherEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">properties</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domains</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.weather_events.WeatherEvent" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>properties</strong> (<a class="reference internal" href="#earth2mip.weather_events.WeatherEventProperties" title="earth2mip.weather_events.WeatherEventProperties"><em>WeatherEventProperties</em></a>) – </p></li>
+<li><p><strong>domains</strong> (<em>List</em><em>[</em><a class="reference internal" href="#earth2mip.weather_events.Window" title="earth2mip.weather_events.Window"><em>Window</em></a><em> | </em><a class="reference internal" href="#earth2mip.weather_events.CWBDomain" title="earth2mip.weather_events.CWBDomain"><em>CWBDomain</em></a><em> | </em><a class="reference internal" href="#earth2mip.weather_events.MultiPoint" title="earth2mip.weather_events.MultiPoint"><em>MultiPoint</em></a><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.WeatherEvent.domains">
-<span class="sig-name descname"><span class="pre">domains</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code><span class="pre">[</span><a class="reference internal" href="#earth2mip.weather_events.Window" title="earth2mip.weather_events.Window"><code class="xref py py-class docutils literal notranslate"><span class="pre">Window</span></code></a><span class="pre">,</span> <a class="reference internal" href="#earth2mip.weather_events.CWBDomain" title="earth2mip.weather_events.CWBDomain"><code class="xref py py-class docutils literal notranslate"><span class="pre">CWBDomain</span></code></a><span class="pre">,</span> <a class="reference internal" href="#earth2mip.weather_events.MultiPoint" title="earth2mip.weather_events.MultiPoint"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultiPoint</span></code></a><span class="pre">]]</span></em><a class="headerlink" href="#earth2mip.weather_events.WeatherEvent.domains" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">domains</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#earth2mip.weather_events.Window" title="earth2mip.weather_events.Window"><span class="pre">Window</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#earth2mip.weather_events.CWBDomain" title="earth2mip.weather_events.CWBDomain"><span class="pre">CWBDomain</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#earth2mip.weather_events.MultiPoint" title="earth2mip.weather_events.MultiPoint"><span class="pre">MultiPoint</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#earth2mip.weather_events.WeatherEvent.domains" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.WeatherEvent.properties">
-<span class="sig-name descname"><span class="pre">properties</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#earth2mip.weather_events.WeatherEventProperties" title="earth2mip.weather_events.WeatherEventProperties"><code class="xref py py-class docutils literal notranslate"><span class="pre">WeatherEventProperties</span></code></a></em><a class="headerlink" href="#earth2mip.weather_events.WeatherEvent.properties" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">properties</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#earth2mip.weather_events.WeatherEventProperties" title="earth2mip.weather_events.WeatherEventProperties"><span class="pre">WeatherEventProperties</span></a></em><a class="headerlink" href="#earth2mip.weather_events.WeatherEvent.properties" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="earth2mip.weather_events.WeatherEventProperties">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.weather_events.</span></span><span class="sig-name descname"><span class="pre">WeatherEventProperties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.weather_events.WeatherEventProperties" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.weather_events.</span></span><span class="sig-name descname"><span class="pre">WeatherEventProperties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_condition_source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">InitialConditionSource.era5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">netcdf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restart</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.weather_events.WeatherEventProperties" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>start_time</strong> (<em>datetime</em><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>initial_condition_source</strong> (<a class="reference internal" href="#earth2mip.weather_events.InitialConditionSource" title="earth2mip.weather_events.InitialConditionSource"><em>InitialConditionSource</em></a>) – </p></li>
+<li><p><strong>netcdf</strong> (<em>str</em>) – </p></li>
+<li><p><strong>restart</strong> (<em>str</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.WeatherEventProperties.netcdf">
 <span class="sig-name descname"><span class="pre">netcdf</span></span><a class="headerlink" href="#earth2mip.weather_events.WeatherEventProperties.netcdf" title="Link to this definition">#</a></dt>
 <dd><p>load the initial conditions from this path if given</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.WeatherEventProperties.initial_condition_source">
-<span class="sig-name descname"><span class="pre">initial_condition_source</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#earth2mip.weather_events.InitialConditionSource" title="earth2mip.weather_events.InitialConditionSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">InitialConditionSource</span></code></a></em><a class="headerlink" href="#earth2mip.weather_events.WeatherEventProperties.initial_condition_source" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">initial_condition_source</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#earth2mip.weather_events.InitialConditionSource" title="earth2mip.weather_events.InitialConditionSource"><span class="pre">InitialConditionSource</span></a></em><a class="headerlink" href="#earth2mip.weather_events.WeatherEventProperties.initial_condition_source" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.WeatherEventProperties.name">
-<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#earth2mip.weather_events.WeatherEventProperties.name" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#earth2mip.weather_events.WeatherEventProperties.name" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="id7">
-<span class="sig-name descname"><span class="pre">netcdf</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#id7" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">netcdf</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#id7" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.WeatherEventProperties.restart">
-<span class="sig-name descname"><span class="pre">restart</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#earth2mip.weather_events.WeatherEventProperties.restart" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">restart</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#earth2mip.weather_events.WeatherEventProperties.restart" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.WeatherEventProperties.start_time">
-<span class="sig-name descname"><span class="pre">start_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code><span class="pre">]</span></em><a class="headerlink" href="#earth2mip.weather_events.WeatherEventProperties.start_time" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">start_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#earth2mip.weather_events.WeatherEventProperties.start_time" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="earth2mip.weather_events.Window">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.weather_events.</span></span><span class="sig-name descname"><span class="pre">Window</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.weather_events.Window" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.weather_events.</span></span><span class="sig-name descname"><span class="pre">Window</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Window'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">360</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagnostics</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.weather_events.Window" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>type</strong> (<em>Literal</em><em>[</em><em>'Window'</em><em>]</em>) – </p></li>
+<li><p><strong>name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>lat_min</strong> (<em>float</em>) – </p></li>
+<li><p><strong>lat_max</strong> (<em>float</em>) – </p></li>
+<li><p><strong>lon_min</strong> (<em>float</em>) – </p></li>
+<li><p><strong>lon_max</strong> (<em>float</em>) – </p></li>
+<li><p><strong>diagnostics</strong> (<em>List</em><em>[</em><a class="reference internal" href="#earth2mip.weather_events.Diagnostic" title="earth2mip.weather_events.Diagnostic"><em>Diagnostic</em></a><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.Window.diagnostics">
-<span class="sig-name descname"><span class="pre">diagnostics</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><a class="reference internal" href="#earth2mip.weather_events.Diagnostic" title="earth2mip.weather_events.Diagnostic"><code class="xref py py-class docutils literal notranslate"><span class="pre">Diagnostic</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#earth2mip.weather_events.Window.diagnostics" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">diagnostics</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#earth2mip.weather_events.Diagnostic" title="earth2mip.weather_events.Diagnostic"><span class="pre">Diagnostic</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#earth2mip.weather_events.Window.diagnostics" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.Window.lat_max">
-<span class="sig-name descname"><span class="pre">lat_max</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><a class="headerlink" href="#earth2mip.weather_events.Window.lat_max" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">lat_max</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#earth2mip.weather_events.Window.lat_max" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.Window.lat_min">
-<span class="sig-name descname"><span class="pre">lat_min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><a class="headerlink" href="#earth2mip.weather_events.Window.lat_min" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">lat_min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#earth2mip.weather_events.Window.lat_min" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.Window.lon_max">
-<span class="sig-name descname"><span class="pre">lon_max</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><a class="headerlink" href="#earth2mip.weather_events.Window.lon_max" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">lon_max</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#earth2mip.weather_events.Window.lon_max" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.Window.lon_min">
-<span class="sig-name descname"><span class="pre">lon_min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><a class="headerlink" href="#earth2mip.weather_events.Window.lon_min" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">lon_min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#earth2mip.weather_events.Window.lon_min" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.Window.name">
-<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#earth2mip.weather_events.Window.name" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#earth2mip.weather_events.Window.name" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.weather_events.Window.type">
-<span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code><span class="pre">[</span><code class="docutils literal notranslate"><span class="pre">'Window'</span></code><span class="pre">]</span></em><a class="headerlink" href="#earth2mip.weather_events.Window.type" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'Window'</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#earth2mip.weather_events.Window.type" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1894,8 +2282,11 @@ true for all frameworks.</p>
 <dt class="sig sig-object py" id="earth2mip.weather_events.read">
 <span class="sig-prename descclassname"><span class="pre">earth2mip.weather_events.</span></span><span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">forecast_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.weather_events.read" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#earth2mip.weather_events.WeatherEvent" title="earth2mip.weather_events.WeatherEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">WeatherEvent</span></code></a></span></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>forecast_name</strong> (<em>str</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#earth2mip.weather_events.WeatherEvent" title="earth2mip.weather_events.WeatherEvent"><em>WeatherEvent</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1923,11 +2314,11 @@ true for all frameworks.</p>
       </div>
     </a>
     <a class="right-next"
-       href="earth2mip.datasets.html"
+       href="earth2mip.data.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">earth2mip.datasets package</p>
+        <p class="prev-next-title">Data Sources</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

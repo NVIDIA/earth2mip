@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="../_static/favicon.ico" rel="icon" type="image/x-icon">
-    <title>earth2mip.xarray package &#8212; Earth-2 MIP 0.1.0 documentation</title>
+    <title>earth2mip.xarray package &#8212; Earth-2 MIP 0.2.0a0 documentation</title>
   
   
   
@@ -39,7 +39,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
   <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
 
-    <script src="../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../_static/documentation_options.js?v=312c242a"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'modules/earth2mip.xarray';</script>
@@ -391,6 +391,7 @@ document.write(`
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="earth2mip.data.html">Data Sources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="earth2mip.datasets.html">earth2mip.datasets package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="earth2mip.diagnostic.html">earth2mip.diagnostic package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="earth2mip.initial_conditions.html">earth2mip.initial_conditions package</a></li>
@@ -484,8 +485,16 @@ document.write(`
 - variance about ensemble mean
 - MSE of the first ensemble member</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mapping</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code>]</span></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ensemble</strong> (<em>ndarray</em>) – </p></li>
+<li><p><strong>obs</strong> (<em>ndarray</em>) – </p></li>
+<li><p><strong>lat</strong> (<em>ndarray</em>) – </p></li>
+<li><p><strong>ensemble_keys</strong> (<em>List</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Mapping</em>[str, <em>DataArray</em>]</p>
 </dd>
 </dl>
 </dd></dl>

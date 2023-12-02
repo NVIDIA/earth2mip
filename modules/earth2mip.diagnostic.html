@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="../_static/favicon.ico" rel="icon" type="image/x-icon">
-    <title>earth2mip.diagnostic package &#8212; Earth-2 MIP 0.1.0 documentation</title>
+    <title>earth2mip.diagnostic package &#8212; Earth-2 MIP 0.2.0a0 documentation</title>
   
   
   
@@ -39,7 +39,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
   <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
 
-    <script src="../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../_static/documentation_options.js?v=312c242a"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'modules/earth2mip.diagnostic';</script>
@@ -392,6 +392,7 @@ document.write(`
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="earth2mip.data.html">Data Sources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="earth2mip.datasets.html">earth2mip.datasets package</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">earth2mip.diagnostic package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="earth2mip.initial_conditions.html">earth2mip.initial_conditions package</a></li>
@@ -465,6 +466,8 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.diagnostic.base.</span></span><span class="sig-name descname"><span class="pre">DiagnosticBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.base.DiagnosticBase" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code>, <a class="reference internal" href="index.html#earth2mip.geo_operator.GeoOperator" title="earth2mip.geo_operator.GeoOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">GeoOperator</span></code></a></p>
 <p>Diagnostic model base class</p>
+<dl class="field-list simple">
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="earth2mip.diagnostic.base.DiagnosticBase.load_config_type">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_config_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.base.DiagnosticBase.load_config_type" title="Link to this definition">#</a></dt>
@@ -473,7 +476,7 @@ one has been implemented. Note this returns a class reference, not instantiated
 object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Type</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code>]</span></p>
+<dd class="field-odd"><p><em>Type</em>[<em>BaseModel</em>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -489,6 +492,11 @@ create an instance of the diagnostic for use.</p>
 function this may be irrelevant or could be None, but the requirement
 persists for consistent API and data flow.</p>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>package</strong> (<a class="reference internal" href="index.html#earth2mip.model_registry.Package" title="earth2mip.model_registry.Package"><em>Package</em></a><em> | </em><em>None</em>) – </p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -498,7 +506,7 @@ persists for consistent API and data flow.</p>
 This should be where any explicit download functions should be orcastrated</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="index.html#earth2mip.model_registry.Package" title="earth2mip.model_registry.Package"><code class="xref py py-class docutils literal notranslate"><span class="pre">Package</span></code></a></span></p>
+<dd class="field-odd"><p><a class="reference internal" href="index.html#earth2mip.model_registry.Package" title="earth2mip.model_registry.Package"><em>Package</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -612,6 +620,15 @@ background label, tropical cyclone and atmopheric river labels.</p>
 <span class="go">(1, 3, 721, 1440)</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>Module</em>) – </p></li>
+<li><p><strong>in_center</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>in_scale</strong> (<em>Tensor</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="earth2mip.diagnostic.climate_net.ClimateNet.in_channel_names">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">in_channel_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#earth2mip.diagnostic.climate_net.ClimateNet.in_channel_names" title="Link to this definition">#</a></dt>
@@ -633,6 +650,11 @@ create an instance of the diagnostic for use.</p>
 function this may be irrelevant or could be None, but the requirement
 persists for consistent API and data flow.</p>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>package</strong> (<a class="reference internal" href="index.html#earth2mip.model_registry.Package" title="earth2mip.model_registry.Package"><em>Package</em></a>) – </p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -641,8 +663,11 @@ persists for consistent API and data flow.</p>
 <dd><p>Class function used to create the diagnostic model package (if needed).
 This should be where any explicit download functions should be orcastrated</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="index.html#earth2mip.model_registry.Package" title="earth2mip.model_registry.Package"><code class="xref py py-class docutils literal notranslate"><span class="pre">Package</span></code></a></span></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>registry</strong> (<em>str</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="index.html#earth2mip.model_registry.Package" title="earth2mip.model_registry.Package"><em>Package</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -909,6 +934,15 @@ accumulated amount of liquid and frozen water (rain or snow) with units m.</p>
 <span class="go">(1, 1, 721, 1440)</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>Module</em>) – </p></li>
+<li><p><strong>in_center</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>in_scale</strong> (<em>Tensor</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO.in_channel_names">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">in_channel_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#earth2mip.diagnostic.precipitation_afno.PrecipitationAFNO.in_channel_names" title="Link to this definition">#</a></dt>
@@ -930,6 +964,11 @@ create an instance of the diagnostic for use.</p>
 function this may be irrelevant or could be None, but the requirement
 persists for consistent API and data flow.</p>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>package</strong> (<a class="reference internal" href="index.html#earth2mip.model_registry.Package" title="earth2mip.model_registry.Package"><em>Package</em></a>) – </p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -938,8 +977,11 @@ persists for consistent API and data flow.</p>
 <dd><p>Class function used to create the diagnostic model package (if needed).
 This should be where any explicit download functions should be orcastrated</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="index.html#earth2mip.model_registry.Package" title="earth2mip.model_registry.Package"><code class="xref py py-class docutils literal notranslate"><span class="pre">Package</span></code></a></span></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>registry</strong> (<em>str</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="index.html#earth2mip.model_registry.Package" title="earth2mip.model_registry.Package"><em>Package</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1010,11 +1052,6 @@ This should be where any explicit download functions should be orcastrated</p>
 <dt class="sig sig-object py" id="earth2mip.diagnostic.utils.filter_channels">
 <span class="sig-prename descclassname"><span class="pre">earth2mip.diagnostic.utils.</span></span><span class="sig-name descname"><span class="pre">filter_channels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.diagnostic.utils.filter_channels" title="Link to this definition">#</a></dt>
 <dd><p>Utility function used for selecting a sub set of channels</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></span></p>
-</dd>
-</dl>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Right now this assumes that the channels are in the thirds to last axis.</p>
@@ -1026,6 +1063,9 @@ This should be where any explicit download functions should be orcastrated</p>
 <li><p><strong>in_channels</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – Input channel list</p></li>
 <li><p><strong>out_channels</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – Output channel list</p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Tensor</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1047,6 +1087,14 @@ This is largely just an example of what a diagnostic calculation could look like
 <span class="go">(1, 1, 721, 1440)</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>level</strong> (<em>str</em>) – </p></li>
+<li><p><strong>grid</strong> (<a class="reference internal" href="index.html#earth2mip.grid.LatLonGrid" title="earth2mip.grid.LatLonGrid"><em>LatLonGrid</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="earth2mip.diagnostic.wind_speed.WindSpeed.in_channel_names">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">in_channel_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#earth2mip.diagnostic.wind_speed.WindSpeed.in_channel_names" title="Link to this definition">#</a></dt>
@@ -1068,6 +1116,15 @@ create an instance of the diagnostic for use.</p>
 function this may be irrelevant or could be None, but the requirement
 persists for consistent API and data flow.</p>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>package</strong> (<a class="reference internal" href="index.html#earth2mip.model_registry.Package" title="earth2mip.model_registry.Package"><em>Package</em></a><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>level</strong> (<em>str</em>) – </p></li>
+<li><p><strong>grid</strong> (<a class="reference internal" href="index.html#earth2mip.grid.LatLonGrid" title="earth2mip.grid.LatLonGrid"><em>LatLonGrid</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">

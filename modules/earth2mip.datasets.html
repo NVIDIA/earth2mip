@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="../_static/favicon.ico" rel="icon" type="image/x-icon">
-    <title>earth2mip.datasets package &#8212; Earth-2 MIP 0.1.0 documentation</title>
+    <title>earth2mip.datasets package &#8212; Earth-2 MIP 0.2.0a0 documentation</title>
   
   
   
@@ -39,7 +39,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
   <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
 
-    <script src="../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../_static/documentation_options.js?v=312c242a"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'modules/earth2mip.datasets';</script>
@@ -52,7 +52,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="earth2mip.diagnostic package" href="earth2mip.diagnostic.html" />
-    <link rel="prev" title="API" href="index.html" />
+    <link rel="prev" title="Data Sources" href="earth2mip.data.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -392,6 +392,7 @@ document.write(`
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="earth2mip.data.html">Data Sources</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">earth2mip.datasets package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="earth2mip.diagnostic.html">earth2mip.diagnostic package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="earth2mip.initial_conditions.html">earth2mip.initial_conditions package</a></li>
@@ -465,15 +466,15 @@ document.write(`
 <span class="sig-prename descclassname"><span class="pre">earth2mip.datasets.era5.</span></span><span class="sig-name descname"><span class="pre">open_34_vars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.datasets.era5.open_34_vars" title="Link to this definition">#</a></dt>
 <dd><p>Open 34Vars hdf5 file</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></span></p>
-</dd>
-<dt class="field-even">Parameters<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>path</strong> – local path to hdf5 file</p></li>
-<li><p><strong>f</strong> – an optional file-like object to load the data from. Useful for
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em>) – local path to hdf5 file</p></li>
+<li><p><strong>f</strong> (<em>Any</em><em> | </em><em>None</em>) – an optional file-like object to load the data from. Useful for
 remote data and fsspec.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>DataArray</em></p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -551,12 +552,12 @@ remote data and fsspec.</p></li>
                   <!-- Previous / next buttons -->
 <div class="prev-next-area">
     <a class="left-prev"
-       href="index.html"
+       href="earth2mip.data.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">API</p>
+        <p class="prev-next-title">Data Sources</p>
       </div>
     </a>
     <a class="right-next"

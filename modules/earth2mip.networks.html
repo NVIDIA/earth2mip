@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="../_static/favicon.ico" rel="icon" type="image/x-icon">
-    <title>earth2mip.networks package &#8212; Earth-2 MIP 0.1.0 documentation</title>
+    <title>earth2mip.networks package &#8212; Earth-2 MIP 0.2.0a0 documentation</title>
   
   
   
@@ -39,7 +39,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
   <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
 
-    <script src="../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../_static/documentation_options.js?v=312c242a"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'modules/earth2mip.networks';</script>
@@ -392,6 +392,7 @@ document.write(`
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="earth2mip.data.html">Data Sources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="earth2mip.datasets.html">earth2mip.datasets package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="earth2mip.diagnostic.html">earth2mip.diagnostic package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="earth2mip.initial_conditions.html">earth2mip.initial_conditions package</a></li>
@@ -463,7 +464,12 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="earth2mip.networks.dlwp.load">
 <span class="sig-prename descclassname"><span class="pre">earth2mip.networks.dlwp.</span></span><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">package</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cuda'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.networks.dlwp.load" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>package</strong> (<em>Package</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 <section id="module-earth2mip.networks.fcn">
@@ -517,6 +523,14 @@ document.write(`
 <dt class="sig sig-object py" id="earth2mip.networks.pangu.PanguInference">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.networks.pangu.</span></span><span class="sig-name descname"><span class="pre">PanguInference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_24</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.networks.pangu.PanguInference" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_6</strong> (<a class="reference internal" href="#earth2mip.networks.pangu.PanguStacked" title="earth2mip.networks.pangu.PanguStacked"><em>PanguStacked</em></a>) – </p></li>
+<li><p><strong>model_24</strong> (<a class="reference internal" href="#earth2mip.networks.pangu.PanguStacked" title="earth2mip.networks.pangu.PanguStacked"><em>PanguStacked</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="earth2mip.networks.pangu.PanguInference.cuda">
 <span class="sig-name descname"><span class="pre">cuda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.networks.pangu.PanguInference.cuda" title="Link to this definition">#</a></dt>
@@ -701,6 +715,11 @@ only argument)</p></li>
 <dt class="sig sig-object py" id="earth2mip.networks.pangu.PanguStacked">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.networks.pangu.</span></span><span class="sig-name descname"><span class="pre">PanguStacked</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.networks.pangu.PanguStacked" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>model</strong> (<a class="reference internal" href="#earth2mip.networks.pangu.PanguWeather" title="earth2mip.networks.pangu.PanguWeather"><em>PanguWeather</em></a>) – </p>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="earth2mip.networks.pangu.PanguStacked.channel_names">
 <span class="sig-name descname"><span class="pre">channel_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.networks.pangu.PanguStacked.channel_names" title="Link to this definition">#</a></dt>
@@ -781,6 +800,11 @@ only argument)</p></li>
 <dt class="sig sig-object py" id="earth2mip.networks.pangu.load_single_model">
 <span class="sig-prename descclassname"><span class="pre">earth2mip.networks.pangu.</span></span><span class="sig-name descname"><span class="pre">load_single_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">package</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_step_hours</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cuda:0'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.networks.pangu.load_single_model" title="Link to this definition">#</a></dt>
 <dd><p>Load a single time-step pangu weather</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>time_step_hours</strong> (<em>int</em>) – </p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -792,11 +816,8 @@ only argument)</p></li>
 <dd><p>Function to construct an inference model and load the appropriate
 checkpoints from the model registry</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="index.html#earth2mip.time_loop.TimeLoop" title="earth2mip.time_loop.TimeLoop"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeLoop</span></code></a></span></p>
-</dd>
-<dt class="field-even">Parameters<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> (The model name to open in the <code class="docutils literal notranslate"><span class="pre">registry</span></code>. If a url is passed (e.g.) – s3://bucket/model), then this location will be opened directly.
 Supported urls protocols include s3:// for PBSS access, and file:// for
 local files.</p></li>
@@ -806,8 +827,8 @@ model package.</p></li>
 <li><p><strong>device</strong> (<em>the device to load on</em><em>, </em><em>by default the 'cpu'</em>) – </p></li>
 </ul>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Inference model</p>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Inference model</p>
 </dd>
 </dl>
 </dd></dl>

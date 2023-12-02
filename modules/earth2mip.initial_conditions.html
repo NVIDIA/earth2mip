@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="../_static/favicon.ico" rel="icon" type="image/x-icon">
-    <title>earth2mip.initial_conditions package &#8212; Earth-2 MIP 0.1.0 documentation</title>
+    <title>earth2mip.initial_conditions package &#8212; Earth-2 MIP 0.2.0a0 documentation</title>
   
   
   
@@ -39,7 +39,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
   <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
 
-    <script src="../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../_static/documentation_options.js?v=312c242a"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'modules/earth2mip.initial_conditions';</script>
@@ -392,6 +392,7 @@ document.write(`
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="earth2mip.data.html">Data Sources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="earth2mip.datasets.html">earth2mip.datasets package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="earth2mip.diagnostic.html">earth2mip.diagnostic package</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">earth2mip.initial_conditions package</a></li>
@@ -474,7 +475,7 @@ document.write(`
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.base.DataSource.grid">
-<span class="sig-name descname"><span class="pre">grid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="index.html#earth2mip.grid.LatLonGrid" title="earth2mip.grid.LatLonGrid"><code class="xref py py-class docutils literal notranslate"><span class="pre">LatLonGrid</span></code></a></em><a class="headerlink" href="#earth2mip.initial_conditions.base.DataSource.grid" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">grid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="index.html#earth2mip.grid.LatLonGrid" title="earth2mip.grid.LatLonGrid"><span class="pre">LatLonGrid</span></a></em><a class="headerlink" href="#earth2mip.initial_conditions.base.DataSource.grid" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -484,8 +485,17 @@ document.write(`
 <span id="earth2mip-initial-conditions-cds-module"></span><h2>earth2mip.initial_conditions.cds module<a class="headerlink" href="#module-earth2mip.initial_conditions.cds" title="Link to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.cds.DataSource">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.initial_conditions.cds.</span></span><span class="sig-name descname"><span class="pre">DataSource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_cache=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.initial_conditions.cds.DataSource" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.initial_conditions.cds.</span></span><span class="sig-name descname"><span class="pre">DataSource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">channel_names:</span> <span class="pre">List[str],</span> <span class="pre">client:</span> <span class="pre">cdsapi.api.Client</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">_cache:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.initial_conditions.cds.DataSource" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>channel_names</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+<li><p><strong>client</strong> (<em>Client</em>) – </p></li>
+<li><p><strong>_cache</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.cds.DataSource.cache">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cache</span></span><a class="headerlink" href="#earth2mip.initial_conditions.cds.DataSource.cache" title="Link to this definition">#</a></dt>
@@ -493,12 +503,12 @@ document.write(`
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.cds.DataSource.channel_names">
-<span class="sig-name descname"><span class="pre">channel_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><a class="headerlink" href="#earth2mip.initial_conditions.cds.DataSource.channel_names" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">channel_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#earth2mip.initial_conditions.cds.DataSource.channel_names" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.cds.DataSource.client">
-<span class="sig-name descname"><span class="pre">client</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Client</span></code></em><a class="headerlink" href="#earth2mip.initial_conditions.cds.DataSource.client" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">client</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Client</span></em><a class="headerlink" href="#earth2mip.initial_conditions.cds.DataSource.client" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -515,27 +525,40 @@ document.write(`
 
 <dl class="py class">
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.cds.PressureLevelCode">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.initial_conditions.cds.</span></span><span class="sig-name descname"><span class="pre">PressureLevelCode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.initial_conditions.cds.PressureLevelCode" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.initial_conditions.cds.</span></span><span class="sig-name descname"><span class="pre">PressureLevelCode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.initial_conditions.cds.PressureLevelCode" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – </p></li>
+<li><p><strong>level</strong> (<em>int</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.cds.PressureLevelCode.id">
-<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#earth2mip.initial_conditions.cds.PressureLevelCode.id" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#earth2mip.initial_conditions.cds.PressureLevelCode.id" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.cds.PressureLevelCode.level">
-<span class="sig-name descname"><span class="pre">level</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#earth2mip.initial_conditions.cds.PressureLevelCode.level" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">level</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#earth2mip.initial_conditions.cds.PressureLevelCode.level" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.cds.SingleLevelCode">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.initial_conditions.cds.</span></span><span class="sig-name descname"><span class="pre">SingleLevelCode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.initial_conditions.cds.SingleLevelCode" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.initial_conditions.cds.</span></span><span class="sig-name descname"><span class="pre">SingleLevelCode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.initial_conditions.cds.SingleLevelCode" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>id</strong> (<em>int</em>) – </p>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.cds.SingleLevelCode.id">
-<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#earth2mip.initial_conditions.cds.SingleLevelCode.id" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#earth2mip.initial_conditions.cds.SingleLevelCode.id" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -549,8 +572,11 @@ document.write(`
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.cds.parse_channel">
 <span class="sig-prename descclassname"><span class="pre">earth2mip.initial_conditions.cds.</span></span><span class="sig-name descname"><span class="pre">parse_channel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.initial_conditions.cds.parse_channel" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<a class="reference internal" href="#earth2mip.initial_conditions.cds.PressureLevelCode" title="earth2mip.initial_conditions.cds.PressureLevelCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">PressureLevelCode</span></code></a>, <a class="reference internal" href="#earth2mip.initial_conditions.cds.SingleLevelCode" title="earth2mip.initial_conditions.cds.SingleLevelCode"><code class="xref py py-class docutils literal notranslate"><span class="pre">SingleLevelCode</span></code></a>]</span></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>channel</strong> (<em>str</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#earth2mip.initial_conditions.cds.PressureLevelCode" title="earth2mip.initial_conditions.cds.PressureLevelCode"><em>PressureLevelCode</em></a> | <a class="reference internal" href="#earth2mip.initial_conditions.cds.SingleLevelCode" title="earth2mip.initial_conditions.cds.SingleLevelCode"><em>SingleLevelCode</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -562,6 +588,11 @@ document.write(`
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.gfs.DataSource">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.initial_conditions.gfs.</span></span><span class="sig-name descname"><span class="pre">DataSource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channels</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.initial_conditions.gfs.DataSource" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#earth2mip.initial_conditions.base.DataSource" title="earth2mip.initial_conditions.base.DataSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataSource</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>channels</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – </p>
+</dd>
+</dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.gfs.DataSource.channel_names">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">channel_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#earth2mip.initial_conditions.gfs.DataSource.channel_names" title="Link to this definition">#</a></dt>
@@ -576,8 +607,18 @@ document.write(`
 
 <dl class="py class">
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.gfs.GFSChunk">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.initial_conditions.gfs.</span></span><span class="sig-name descname"><span class="pre">GFSChunk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variable_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'phoo'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_byte</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_byte</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.initial_conditions.gfs.GFSChunk" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.initial_conditions.gfs.</span></span><span class="sig-name descname"><span class="pre">GFSChunk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variable_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'phoo'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_byte</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_byte</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.initial_conditions.gfs.GFSChunk" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>variable_name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>meta_data</strong> (<em>str</em>) – </p></li>
+<li><p><strong>start_byte</strong> (<em>int</em>) – </p></li>
+<li><p><strong>end_byte</strong> (<em>int</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.gfs.GFSChunk.byte_range">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">byte_range</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#earth2mip.initial_conditions.gfs.GFSChunk.byte_range" title="Link to this definition">#</a></dt>
@@ -590,22 +631,22 @@ document.write(`
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.gfs.GFSChunk.end_byte">
-<span class="sig-name descname"><span class="pre">end_byte</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#earth2mip.initial_conditions.gfs.GFSChunk.end_byte" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">end_byte</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#earth2mip.initial_conditions.gfs.GFSChunk.end_byte" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.gfs.GFSChunk.meta_data">
-<span class="sig-name descname"><span class="pre">meta_data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#earth2mip.initial_conditions.gfs.GFSChunk.meta_data" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">meta_data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#earth2mip.initial_conditions.gfs.GFSChunk.meta_data" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.gfs.GFSChunk.start_byte">
-<span class="sig-name descname"><span class="pre">start_byte</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#earth2mip.initial_conditions.gfs.GFSChunk.start_byte" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">start_byte</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#earth2mip.initial_conditions.gfs.GFSChunk.start_byte" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.gfs.GFSChunk.variable_name">
-<span class="sig-name descname"><span class="pre">variable_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'phoo'</span></em><a class="headerlink" href="#earth2mip.initial_conditions.gfs.GFSChunk.variable_name" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">variable_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'phoo'</span></em><a class="headerlink" href="#earth2mip.initial_conditions.gfs.GFSChunk.variable_name" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -614,8 +655,14 @@ document.write(`
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.gfs.get">
 <span class="sig-prename descclassname"><span class="pre">earth2mip.initial_conditions.gfs.</span></span><span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gfs_channels</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.initial_conditions.gfs.get" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time</strong> (<em>datetime</em><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>gfs_channels</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>ndarray</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -623,19 +670,37 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.gfs.get_gfs_chunks">
 <span class="sig-prename descclassname"><span class="pre">earth2mip.initial_conditions.gfs.</span></span><span class="sig-name descname"><span class="pre">get_gfs_chunks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.initial_conditions.gfs.get_gfs_chunks" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>time</strong> (<em>datetime</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.gfs.get_gfs_grib_file">
 <span class="sig-prename descclassname"><span class="pre">earth2mip.initial_conditions.gfs.</span></span><span class="sig-name descname"><span class="pre">get_gfs_grib_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gfs_chunks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.initial_conditions.gfs.get_gfs_grib_file" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time</strong> (<em>datetime</em>) – </p></li>
+<li><p><strong>gfs_chunks</strong> (<em>List</em><em>[</em><a class="reference internal" href="#earth2mip.initial_conditions.gfs.GFSChunk" title="earth2mip.initial_conditions.gfs.GFSChunk"><em>GFSChunk</em></a><em>]</em>) – </p></li>
+<li><p><strong>channel_id</strong> (<em>str</em>) – </p></li>
+<li><p><strong>output_file</strong> (<em>str</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.gfs.gfs_available">
 <span class="sig-prename descclassname"><span class="pre">earth2mip.initial_conditions.gfs.</span></span><span class="sig-name descname"><span class="pre">gfs_available</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.initial_conditions.gfs.gfs_available" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>time</strong> (<em>datetime</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
 </dd>
 </dl>
 </dd></dl>
@@ -663,6 +728,15 @@ coords.lat - list of lats
 coords.lon - list of lons
 dhours - timestep in hours (default 6 hours)</p>
 </div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> (<em>str</em>) – </p></li>
+<li><p><strong>metadata</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>channel_names</strong> (<em>List</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.hdf5.DataSource.channel_names">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">channel_names</span></span><a class="headerlink" href="#earth2mip.initial_conditions.hdf5.DataSource.channel_names" title="Link to this definition">#</a></dt>
@@ -672,8 +746,14 @@ dhours - timestep in hours (default 6 hours)</p>
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.hdf5.DataSource.from_path">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.initial_conditions.hdf5.DataSource.from_path" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#earth2mip.initial_conditions.hdf5.DataSource" title="earth2mip.initial_conditions.hdf5.DataSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataSource</span></code></a></span></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> (<em>str</em>) – </p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#earth2mip.initial_conditions.hdf5.DataSource" title="earth2mip.initial_conditions.hdf5.DataSource"><em>DataSource</em></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -694,8 +774,11 @@ dhours - timestep in hours (default 6 hours)</p>
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.hdf5.open_xarray">
 <span class="sig-prename descclassname"><span class="pre">earth2mip.initial_conditions.hdf5.</span></span><span class="sig-name descname"><span class="pre">open_xarray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.initial_conditions.hdf5.open_xarray" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></span></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>time</strong> (<em>datetime</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>DataArray</em></p>
 </dd>
 </dl>
 </dd></dl>
@@ -707,6 +790,11 @@ dhours - timestep in hours (default 6 hours)</p>
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.hrmip.HDFPlSl">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.initial_conditions.hrmip.</span></span><span class="sig-name descname"><span class="pre">HDFPlSl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.initial_conditions.hrmip.HDFPlSl" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#earth2mip.initial_conditions.base.DataSource" title="earth2mip.initial_conditions.base.DataSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataSource</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – </p>
+</dd>
+</dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.hrmip.HDFPlSl.channel_names">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">channel_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#earth2mip.initial_conditions.hrmip.HDFPlSl.channel_names" title="Link to this definition">#</a></dt>
@@ -724,8 +812,13 @@ dhours - timestep in hours (default 6 hours)</p>
 <span id="earth2mip-initial-conditions-ifs-module"></span><h2>earth2mip.initial_conditions.ifs module<a class="headerlink" href="#module-earth2mip.initial_conditions.ifs" title="Link to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.ifs.DataSource">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.initial_conditions.ifs.</span></span><span class="sig-name descname"><span class="pre">DataSource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel_names</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.initial_conditions.ifs.DataSource" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.initial_conditions.ifs.</span></span><span class="sig-name descname"><span class="pre">DataSource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.initial_conditions.ifs.DataSource" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#earth2mip.initial_conditions.base.DataSource" title="earth2mip.initial_conditions.base.DataSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataSource</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>channel_names</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – </p>
+</dd>
+</dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.ifs.DataSource.channel_names">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">channel_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#earth2mip.initial_conditions.ifs.DataSource.channel_names" title="Link to this definition">#</a></dt>
@@ -741,7 +834,15 @@ dhours - timestep in hours (default 6 hours)</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.ifs.get">
 <span class="sig-prename descclassname"><span class="pre">earth2mip.initial_conditions.ifs.</span></span><span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.initial_conditions.ifs.get" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time</strong> (<em>datetime</em>) – </p></li>
+<li><p><strong>channels</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 <section id="module-earth2mip.initial_conditions">
@@ -750,8 +851,11 @@ dhours - timestep in hours (default 6 hours)</p>
 <dt class="sig sig-object py" id="earth2mip.initial_conditions.get_data_source">
 <span class="sig-prename descclassname"><span class="pre">earth2mip.initial_conditions.</span></span><span class="sig-name descname"><span class="pre">get_data_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">netcdf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_condition_source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">InitialConditionSource.era5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.initial_conditions.get_data_source" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#earth2mip.initial_conditions.base.DataSource" title="earth2mip.initial_conditions.base.DataSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataSource</span></code></a></span></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>channel_names</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#earth2mip.initial_conditions.base.DataSource" title="earth2mip.initial_conditions.base.DataSource"><em>DataSource</em></a></p>
 </dd>
 </dl>
 </dd></dl>
