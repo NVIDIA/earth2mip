@@ -1,3 +1,19 @@
+# SPDX-FileCopyrightText: Copyright (c) 2023 NVIDIA CORPORATION & AFFILIATES.
+# SPDX-FileCopyrightText: All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# TODO add graphcast license
 """
 # Inputs
 eval inputs:
@@ -117,6 +133,7 @@ Coordinates:
 import os
 import dataclasses
 import functools
+import pandas as pd
 
 import jax.dlpack
 from graphcast import autoregressive
@@ -131,7 +148,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import xarray
 import joblib
-from earth2mip.networks.graphcast.implementation import GraphcastStepper
+from earth2mip.networks.graphcast import GraphcastStepper
 
 
 def parse_file_parts(file_name):
@@ -325,10 +342,6 @@ def main():
         with_params(jax.jit(with_configs(run_forward.apply)))
     )
 
-    rng = jax.random.PRNGKey(0)
-
-    import pandas as pd
-
     # time is actually the penultimate time step
     time = example_batch.datetime[0, -(eval_steps + 1)].values
     dt = pd.Timedelta("6h")
@@ -341,16 +354,16 @@ def main():
     writer = tb.SummaryWriter("runs")
 
     # test get_inputs
-    shape = (1, 2, stepper.get_num_channels_x(), 721, 1440)
+    shape = (1, 2, stepper._get_num_channels_x(), 721, 1440)
     x = np.arange(np.prod(shape)).reshape(shape)
-    state = stepper.get_inputs(x, time, dt)
-    x_round_trip = stepper.pack(state)
+    state = stepper._get_inputs(x, time, dt)
+    x_round_trip = stepper._pack(state)
     np.testing.assert_array_equal(x, x_round_trip)
 
     # test on real inputs
-    shape = (1, 2, stepper.get_num_channels_x(), 721, 1440)
-    x = stepper.pack(eval_inputs)
-    state = stepper.get_inputs(x, time, dt)
+    shape = (1, 2, stepper._get_num_channels_x(), 721, 1440)
+    x = stepper._pack(eval_inputs)
+    state = stepper._get_inputs(x, time, dt)
     tisr_name = "toa_incident_solar_radiation"
     xarray.testing.assert_equal(state.drop(tisr_name), eval_inputs.drop(tisr_name))
     for t in range(2):
@@ -373,32 +386,23 @@ def main():
     # TODO test get_forcings
 
     # TEST channel_names
-    names = stepper.get_in_channel_names()
-    assert len(names) == stepper.get_num_channels_x()
+    names = stepper._get_in_channel_names()
+    assert len(names) == stepper._get_num_channels_x()
     print(names)
 
     # run simulation
-    x = stepper.pack(eval_inputs)
-    next = stepper.get_inputs(x, time, dt)
-    next = eval_inputs
+    state = (time, eval_inputs, jax.random.PRNGKey(0))
     states = []
     for t in range(5):
         print(time)
-        time, next, target, rng = stepper.step(time, next, rng)
-        assert not np.any(np.isnan(next)).to_array().any()
-        target.specific_humidity[0, -1].sel(level=925).plot.imshow(vmin=0, vmax=30e-3)
-        writer.add_figure("q925", plt.gcf(), t)
-        states.append(target.isel(time=-1))
+        state, output = stepper.step(state)
+        time, inputs, _ = state
 
-        # fig, (a, b) = plt.subplots(2, 1, figsize=(10, 10))
-        # next.toa_incident_solar_radiation[0, -1].plot.imshow(ax=a)
-        # the_time = (example_batch.datetime == time).squeeze()
-        # tisr_in_batch = example_batch.toa_incident_solar_radiation.isel(
-        #     time=the_time
-        # ).squeeze()
-        # tisr_in_batch.squeeze().plot.imshow(ax=b)
-        # writer.add_figure("tisr", fig, t)
-        assert not np.any(np.isnan(next)).to_array().any()
+        assert not np.any(np.isnan(inputs)).to_array().any()
+        plotme = output[0, stepper.output_info.channel_names.index("q925")]
+        plt.imshow(plotme.cpu())
+        writer.add_figure("q925", plt.gcf(), t)
+        states.append(inputs.isel(time=-1))
 
     predictions = xarray.concat(states, dim="time")
 
@@ -413,9 +417,6 @@ def main():
     field = "u_component_of_wind"
     time = 0
 
-    diff = predictions.geopotential.sel(level=500) - reference.geopotential.sel(
-        level=500
-    )
     fig, (a, b, c) = plt.subplots(3, 1, figsize=(10, 10), sharex=True, sharey=True)
     p = predictions[field].sel(level=level)[0, time]
     t = reference[field].sel(level=level)[time, 0]
@@ -442,10 +443,6 @@ def main():
     lims = nn < denom * 0.01
     fraction_close = lims.mean().to_array().mean()
     assert fraction_close > 0.8
-
-    from IPython import embed
-
-    embed()
 
 
 if __name__ == "__main__":

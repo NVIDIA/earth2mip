@@ -32,8 +32,7 @@ repos:
               earth2mip/networks/fcnv2/.*|
               earth2mip/networks/dlwp.py|
               earth2mip/networks/pangu.py|
-              earth2mip/networks/graphcast.py|
-              earth2mip/networks/graphcast/reference_inference.py
+              tests/graphcast/reference_inference.py
             )$
       args: [--config, setup.cfg]
     - id: flake8
