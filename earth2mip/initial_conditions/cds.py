@@ -92,6 +92,7 @@ class SingleLevelCode:
 
 def parse_channel(channel: str) -> Union[PressureLevelCode, SingleLevelCode]:
     if channel in CHANNEL_TO_CODE:
+
         return SingleLevelCode(CHANNEL_TO_CODE[channel])
     else:
         code = CHANNEL_TO_CODE[channel[0]]

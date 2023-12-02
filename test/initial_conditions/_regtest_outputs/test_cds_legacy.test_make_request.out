@@ -1,0 +1,2 @@
+('reanalysis-era5-pressure-levels', {'product_type': 'reanalysis', 'variable': [129, 131, 133], 'pressure_level': [1000], 'year': '2018', 'month': '01', 'day': '01', 'time': '00:00', 'area': (90, -180, -90, 180), 'grid': (0.25, 0.25), 'format': 'grib'})
+('reanalysis-era5-single-levels', {'product_type': 'reanalysis', 'variable': [167, 228247], 'year': '2018', 'month': '01', 'day': '01', 'time': '00:00', 'area': (90, -180, -90, 180), 'grid': (0.25, 0.25), 'format': 'grib'})
