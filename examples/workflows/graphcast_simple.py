@@ -45,7 +45,6 @@ logging.basicConfig(level=logging.INFO)
 # Can review the data in graphcast Google storage bucket here:
 # https://console.cloud.google.com/storage/browser/dm_graphcast/dataset?pageState=(%22StorageObjectListTable%22:(%22f%22:%22%255B%255D%22))&prefix=&forceOnObjectsSortingFiltering=false
 root = "gs://dm_graphcast"
-root = "/home/nbrenowitz/mnt/selene/fsw/sw_earth2_ml/graphcast/"
 package = Package(root, seperator="/")
 time_loop = earth2mip.networks.graphcast.load_time_loop_operational(package)
 stepper = time_loop.stepper
