@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from earth2mip.networks import graphcast
-from earth2mip.networks.graphcast.implementation import get_forcings, get_channel_names
+from earth2mip.networks.graphcast import get_forcings, get_channel_names
 import pytest
 from earth2mip.model_registry import Package
 import numpy as np
