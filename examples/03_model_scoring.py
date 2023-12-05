@@ -137,10 +137,13 @@ print(out.shape)
 # can then be pose process using some of the utility functions Earth-2 MIP provides.
 
 # %%
+import numpy as np
 from earth2mip.inference_medium_range import save_scores, time_average_metrics
 
+# Use 50 initializations, shift time by 6hrs every initialization.
 time = datetime.datetime(2017, 1, 1, 0)
-initial_times = [time + datetime.timedelta(days=30 * i) for i in range(12)]
+initial_times = [time + datetime.timedelta(days=7 * i) for i in range(52)]
+initial_times = [initial_time + datetime.timedelta(hours=6 * int(np.random.choice([0, 1, 2, 3]))) for initial_time in initial_times]  # shift by 6 hrs randomly
 
 # Output directoy
 output_dir = "outputs/03_model_scoring"
@@ -148,7 +151,7 @@ if not os.path.exists(output_dir):
     os.makedirs(output_dir, exist_ok=True)
     output = save_scores(
         model,
-        n=20,  # 12 hour timesteps
+        n=28,  # 12 hour timesteps (14-day forecast)
         initial_times=initial_times,
         data_source=datasource,
         time_mean=datasource.time_means,
@@ -172,14 +175,17 @@ series = read_metrics(output_dir)
 dataset = time_average_metrics(series)
 
 plt.close("all")
-fig, ax = plt.subplots(figsize=(10, 5))
+fig, axs = plt.subplots(1, 3, figsize=(15, 5))
+channels = ["z500", "t2m", "t850"]
 t = dataset.lead_time / pd.Timedelta("1 h")
-y = dataset.rmse.sel(channel="z500")
-ax.plot(t, y)
-ax.set_xlabel("Lead Time (hours)")
-ax.set_ylabel("RMSE")
-ax.set_title("DLWP z500 RMSE 2017")
-plt.savefig(f"{output_dir}/dwlp_z500_rmse.png")
+for i, channel in enumerate(channels):    
+    y = dataset.rmse.sel(channel=channel)
+    axs[i].plot(t, y)
+    axs[i].set_xlabel("Lead Time (hours)")
+    axs[i].set_ylabel("RMSE")
+    axs[i].set_title(f"DLWP {channel} RMSE 2017")
+
+plt.savefig(f"{output_dir}/dwlp_rmse.png")
 
 
 # %%
