@@ -15,7 +15,7 @@
 # limitations under the License.
 
 from collections import OrderedDict
-from collections.abc import Callable
+from typing import Callable
 
 import numpy as np
 import torch
