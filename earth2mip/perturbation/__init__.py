@@ -15,4 +15,7 @@
 # limitations under the License.
 
 from .brown import BrownNoise
+from .bv import BredVector
+from .gaussian import Gaussian
+from .spherical import SphericalGaussian
 from .zero import ZeroNoise

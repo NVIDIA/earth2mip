@@ -15,15 +15,22 @@
 # limitations under the License.
 
 from collections import OrderedDict
-from typing import Protocol, runtime_checkable
 
 import numpy as np
 import torch
 
 
-@runtime_checkable
-class PertubationMethod(Protocol):
-    """Perturbation interface."""
+class Gaussian:
+    """Standard Gaussian peturbation
+
+    Parameters
+    ----------
+    noise_amplitude : float, optional
+        Noise amplitude, by default 0.05
+    """
+
+    def __init__(self, noise_amplitude: float = 0.05):
+        self.noise_amplitude = noise_amplitude
 
     @torch.inference_mode()
     def __call__(
@@ -45,4 +52,4 @@ class PertubationMethod(Protocol):
         torch.Tensor
             Perturbation noise tensor
         """
-        pass
+        return self.noise_amplitude * torch.randn_like(x)

@@ -14,8 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections import OrderedDict
+
+import numpy as np
 import torch
-import zarray as xr
 
 
 class ZeroNoise:
@@ -28,20 +30,20 @@ class ZeroNoise:
     def __call__(
         self,
         x: torch.Tensor,
-        xrc: xr.Coordinates,
+        coords: OrderedDict[str, np.ndarray],
     ) -> torch.Tensor:
         """Apply perturbation method
 
         Parameters
         ----------
         x : torch.Tensor
-            Input tensor
-        xrc : xr.Coordinates
-            Xarray coordinate system that discribes the tensor
+            Input tensor intended to apply perturbation on
+        coords : OrderedDict[str, np.ndarray]
+            Ordered dict representing coordinate system that discribes the tensor
 
         Returns
         -------
         torch.Tensor
-            Input tensor
+            Perturbation noise tensor
         """
-        return x
+        return torch.zeros_like(x)
