@@ -140,7 +140,7 @@ print(out.shape)
 import numpy as np
 from earth2mip.inference_medium_range import save_scores, time_average_metrics
 
-# Use 50 initializations, shift time by 6hrs every initialization.
+# Use 52 initializations, shift time by 6hrs every initialization.
 time = datetime.datetime(2017, 1, 1, 0)
 initial_times = [time + datetime.timedelta(days=7 * i) for i in range(52)]
 initial_times = [initial_time + datetime.timedelta(hours=6 * int(np.random.choice([0, 1, 2, 3]))) for initial_time in initial_times]  # shift by 6 hrs randomly
