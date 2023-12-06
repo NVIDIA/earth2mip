@@ -154,7 +154,7 @@ if not os.path.exists(output_dir):
     os.makedirs(output_dir, exist_ok=True)
     output = save_scores(
         model,
-        n=56,  # 12 hour timesteps (14-day forecast)
+        n=56,  # 6 hour timesteps (14-day forecast)
         initial_times=initial_times,
         data_source=datasource,
         time_mean=datasource.time_means,
