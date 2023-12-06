@@ -140,9 +140,11 @@ print(out.shape)
 import numpy as np
 from earth2mip.inference_medium_range import save_scores, time_average_metrics
 
-# Use 52 initializations.
+# Use 12 initializations.
 time = datetime.datetime(2017, 1, 2, 0)
-initial_times = [time + datetime.timedelta(days=7 * i) for i in range(52)]
+initial_times = [
+    time + datetime.timedelta(days=30 * i) for i in range(12)
+]  # modify here to change the initializations
 initial_times = [
     initial_time + datetime.timedelta(hours=6 * int(np.random.choice([0, 1, 2, 3])))
     for initial_time in initial_times
@@ -154,7 +156,7 @@ if not os.path.exists(output_dir):
     os.makedirs(output_dir, exist_ok=True)
     output = save_scores(
         model,
-        n=56,  # 6 hour timesteps (14-day forecast)
+        n=28,  # 6 hour timesteps (28*6/24 = 7-day forecast)
         initial_times=initial_times,
         data_source=datasource,
         time_mean=datasource.time_means,
