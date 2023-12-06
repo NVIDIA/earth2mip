@@ -94,7 +94,6 @@ class DLWPInference(torch.nn.Module):
         # do not implement restart capability
         restart_data = None
 
-        # print(x.shape)
         with torch.no_grad():
             x0 = x[:, 1].clone()
             yield time, x0, restart_data
