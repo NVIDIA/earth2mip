@@ -14,11 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from earth2mip import netcdf
 import netCDF4 as nc
-import earth2mip.grid
-from earth2mip.weather_events import Window, Diagnostic
 import torch
+
+import earth2mip.grid
+from earth2mip import netcdf
+from earth2mip.weather_events import Diagnostic, Window
 
 
 def test_initialize_netcdf(tmp_path):

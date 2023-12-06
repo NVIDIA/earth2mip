@@ -14,31 +14,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List
-import os
+import argparse
 import asyncio
 import concurrent.futures
 import datetime
 import logging
+import os
 from functools import partial
-import argparse
-import pandas
+from typing import List
 
 import cupy
-import torch
-import xarray
-
-from earth2mip import forecasts, _cli_utils
-from earth2mip.initial_conditions import hdf5
-from earth2mip.datasets.hindcast import open_forecast
-from earth2mip.lagged_ensembles import core
-from earth2mip.xarray import metrics
-import earth2mip.forecast_metrics_io
-import earth2mip.grid
-from earth2mip import config
 
 # patch the proper scoring imports
 import numpy
+import pandas
+import torch
+import xarray
+
+import earth2mip.forecast_metrics_io
+import earth2mip.grid
+from earth2mip import _cli_utils, config, forecasts
+from earth2mip.datasets.hindcast import open_forecast
+from earth2mip.initial_conditions import hdf5
+from earth2mip.lagged_ensembles import core
+from earth2mip.xarray import metrics
 
 use_cupy = True
 if use_cupy:
@@ -61,14 +60,14 @@ async def lagged_average_simple(
     time_step: datetime.timedelta,
     filename: str,
 ):
-    async for (j, l), ensemble, obs in core.yield_lagged_ensembles(
+    async for (j, k), ensemble, obs in core.yield_lagged_ensembles(
         observations=observations,
         forecast=run_forecast,
         lags=lags,
         n=n,
     ):
-        initial_time = times[j] - l * time_step
-        lead_time = time_step * l
+        initial_time = times[j] - k * time_step
+        lead_time = time_step * k
 
         out = score(ensemble, obs)
 
@@ -82,7 +81,7 @@ async def lagged_average_simple(
                 value=len(ensemble),
             )
             for metric_name, darray in out.items():
-                assert darray.shape == (1, len(run_forecast.channel_names))
+                assert darray.shape == (1, len(run_forecast.channel_names))  # noqa
                 for i in range(len(run_forecast.channel_names)):
                     earth2mip.forecast_metrics_io.write_metric(
                         f,
@@ -106,7 +105,7 @@ class Observations:
     def _get_time(self, time):
         index = pandas.Index(self.data_source.channel_names)
         indexer = index.get_indexer(self.channel_names)
-        assert not numpy.any(indexer == -1)
+        assert not numpy.any(indexer == -1)  # noqa
         array = self.data_source[time][indexer]
         return torch.from_numpy(array).to(self.device)
 

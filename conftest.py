@@ -15,16 +15,10 @@
 # limitations under the License.
 
 # import this before torch to avoid GLIBC error
-import xarray
-import os
-
 import pytest
+import torch
+
 from earth2mip import config
-import torch
-import os
-
-
-import torch
 
 
 def get_gpu_count():

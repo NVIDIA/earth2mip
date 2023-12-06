@@ -14,9 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List
-from pydantic import BaseSettings, Field
 import os
+from typing import List
+
+from pydantic import BaseSettings, Field
 
 
 def _default_local_cache():
@@ -27,7 +28,7 @@ def _default_model_registry():
     path = os.path.join(_default_local_cache(), "models")
     try:
         os.makedirs(path, exist_ok=True)
-    except Exception:
+    except Exception:  # noqa
         pass
     return path
 
@@ -61,6 +62,9 @@ class Settings(BaseSettings):
 
     # where to store regridding files
     MAP_FILES: str = ""
+
+    # End point for s3 commands
+    S3_ENDPOINT: str = "https://pbss.s8k.io"
 
     class Config:
         env_file = ".env"

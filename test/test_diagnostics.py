@@ -14,13 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from earth2mip import netcdf
-import netCDF4 as nc
-from earth2mip import weather_events
-import earth2mip.grid
-import torch
-import pytest
 import pathlib
+
+import netCDF4 as nc
+import pytest
+import torch
+
+import earth2mip.grid
+from earth2mip import netcdf, weather_events
 
 
 @pytest.mark.parametrize("cls", ["raw"])

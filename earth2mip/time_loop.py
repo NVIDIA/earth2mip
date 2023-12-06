@@ -14,13 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Protocol, List, Iterator, Tuple, Any, Optional, TypeVar
-import datetime
-import torch
-import earth2mip.grid
 import dataclasses
-import pandas as pd
+import datetime
+from typing import Any, Iterator, List, Optional, Protocol, Tuple, TypeVar
 
+import pandas as pd
+import torch
+
+import earth2mip.grid
 
 ChannelNameT = str
 
@@ -129,15 +130,15 @@ class TimeStepper(Protocol[StateT]):
     def input_info(self) -> GeoTensorInfo:
         pass
 
-    @property
+    # @property
     def output_info(self, state: StateT) -> GeoTensorInfo:
         pass
 
-    @property
+    # @property
     def device(self, state: StateT) -> torch.device:
         pass
 
-    @property
+    # @property
     def dtype(self, state: StateT) -> torch.device:
         pass
 

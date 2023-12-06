@@ -15,23 +15,21 @@ __pycache__
 *.c
 *.pdf
 figs/
-_static/
 _templates/
-*.png
 *.mod
 baseline_afno_26.zarr/
 34Vars/long/
 .nfs*
-examples/outputs/
+outputs/
 examples/models/
 tmp/
 tests/Output.*
+*.png
 
 *.bak
 *.egg-info
 
 *.mp4
-*.png
 # Created by https://www.toptal.com/developers/gitignore/api/python
 .tmp*
 # Edit at https://www.toptal.com/developers/gitignore?templates=python
@@ -217,6 +215,19 @@ pages
 ecwmf/
 .env
 
+## Examples
+!examples/.env
+
 # Apptainer
 build-temp*/
 *.sif/
+
+# Coverage report
+e2mip.coverage.xml
+codecov
+
+# Docs
+docs/_build
+docs/examples
+!docs/.env
+!docs/_static

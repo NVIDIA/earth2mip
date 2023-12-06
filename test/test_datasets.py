@@ -14,12 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import xarray as xr
-from earth2mip.datasets import zarr_directory, hindcast
-import numpy as np
 import os
 
+import numpy as np
 import pytest
+import xarray as xr
+
+from earth2mip.datasets import hindcast, zarr_directory
 
 
 def test_zarr_directory():

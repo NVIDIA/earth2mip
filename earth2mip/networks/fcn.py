@@ -19,12 +19,11 @@ FCN adapter from Modulus
 """
 import datetime
 
-import numpy as np
 import modulus
+import numpy as np
 
-from earth2mip import networks
 import earth2mip.grid
-
+from earth2mip import networks
 
 CHANNELS = [
     "u10m",
@@ -57,7 +56,7 @@ CHANNELS = [
 
 
 def load(package, *, pretrained=True, device="cuda"):
-    assert pretrained
+    assert pretrained  # noqa
 
     local_center = np.load(package.get("global_means.npy"))
     local_std = np.load(package.get("global_stds.npy"))

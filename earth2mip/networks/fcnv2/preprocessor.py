@@ -14,13 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import copy
-from functools import partial
 
 import torch
 import torch.nn as nn
-
-from torch_harmonics import *
 
 
 class Preprocessor2D(nn.Module):
@@ -101,7 +97,7 @@ class Preprocessor2D(nn.Module):
         #     assert(hasattr(params, 'wind_channels'))
         #     wind_channels = torch.as_tensor(params.wind_channels)
         #     self.register_buffer("wind_channels", wind_channels)
-
+        # from torch_harmonics import *
         #     self.forward_transform = RealVectorSHT(*self.img_size, grid=self.input_grid).float()
         #     self.inverse_transform = InverseRealSHT(*self.img_size, grid=self.output_grid).float()
 

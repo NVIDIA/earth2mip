@@ -14,11 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from earth2mip.lagged_ensembles.core import yield_lagged_ensembles
-import torch
-import pytest
-
 import logging
+
+import pytest
+import torch
+
+from earth2mip.lagged_ensembles.core import yield_lagged_ensembles
 
 c, lat, lon = 1, 10, 13
 
@@ -78,17 +79,17 @@ async def test_yield_lagged_ensembles(dist_info, nt):
     device = "cpu"
     forecast = Forecast(device)
 
-    async for (j, l), ens, o in yield_lagged_ensembles(
+    async for (j, k), ens, o in yield_lagged_ensembles(
         observations=Observations(device, nt),
         forecast=forecast,
     ):
-        i = j - l
+        i = j - k
         # assert this process is responsible for this lagged ensemble
         assert i % world_size == rank
         assert o == j
         for m in ens:
             arr = ens[m]
             ll = arr[1]
-            assert ll == l - m
+            assert ll == k - m
             ii = arr[0]
             assert ii == i + m

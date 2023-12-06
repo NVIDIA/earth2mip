@@ -13,13 +13,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import pytest
 import datetime
+
+import pytest
 import torch
-from earth2mip.grid import equiangular_lat_lon_grid
-from earth2mip.networks import Inference
+
 from earth2mip.diagnostic import DiagnosticTimeLoop, WindSpeed
 from earth2mip.diagnostic.utils import filter_channels
+from earth2mip.grid import equiangular_lat_lon_grid
+from earth2mip.networks import Inference
 
 
 class Identity(torch.nn.Module):

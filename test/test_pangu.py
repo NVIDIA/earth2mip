@@ -14,9 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from earth2mip.networks import pangu
 import datetime
+
 import torch
+
+from earth2mip.networks import pangu
 
 
 class MockPangu(pangu.PanguWeather):

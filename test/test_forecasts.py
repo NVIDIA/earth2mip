@@ -14,14 +14,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from earth2mip import forecasts
-import earth2mip.grid
 import datetime
-import torch
-import pytest
-import tests.test_end_to_end
-import xarray
+import test.test_end_to_end
+
 import numpy as np
+import pytest
+import torch
+import xarray
+
+import earth2mip.grid
+from earth2mip import forecasts
 
 
 class MockTimeLoop:
@@ -50,7 +52,7 @@ async def test_TimeLoopForecast():
     forecast = forecasts.TimeLoopForecast(
         MockTimeLoop(),
         times,
-        data_source=tests.test_end_to_end.get_data_source(MockTimeLoop()),
+        data_source=test.test_end_to_end.get_data_source(MockTimeLoop()),
     )
 
     iter = forecast[0]

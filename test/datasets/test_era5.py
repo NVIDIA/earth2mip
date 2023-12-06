@@ -15,11 +15,11 @@
 # limitations under the License.
 
 import pathlib
+
 import h5py
+import pytest
 
 from earth2mip.datasets import era5
-
-import pytest
 
 
 @pytest.mark.slow

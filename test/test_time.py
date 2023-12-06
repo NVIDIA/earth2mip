@@ -14,9 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from earth2mip.time import convert_to_datetime
-import numpy as np
 import datetime
+
+import numpy as np
+
+from earth2mip.time import convert_to_datetime
 
 
 def test_convert_to_datetime():

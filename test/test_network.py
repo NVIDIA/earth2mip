@@ -14,12 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from earth2mip import networks
+import datetime
+
+import numpy as np
 import torch
 import torch.nn
-import numpy as np
-import datetime
+
 import earth2mip.grid
+from earth2mip import networks
 
 
 class Identity(torch.nn.Module):

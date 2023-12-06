@@ -81,15 +81,14 @@ active development. Once a reasonable skill is achieved the model's source code
 can be stabilized and packaged within fcn-mip for long-term archival.
 
 """
-import os
-import logging
-import zipfile
-import urllib
 import json
-
+import logging
+import os
+import urllib
+import zipfile
 from typing import Literal
-from earth2mip import schema
-from earth2mip import filesystem
+
+from earth2mip import filesystem, schema
 
 logger = logging.getLogger(__file__)
 

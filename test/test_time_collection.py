@@ -14,15 +14,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 import json
-import numpy as np
-import torch
+import os
 import subprocess
-import xarray
-from earth2mip.datasets.hindcast import open_forecast
 
+import numpy as np
 import pytest
+import torch
+import xarray
+
+from earth2mip.datasets.hindcast import open_forecast
 
 DIR = os.path.dirname(__file__)
 os.environ["PYTHONPATH"] = DIR + ":" + os.getenv("PYTHONPATH", ":")
@@ -65,9 +66,11 @@ def test_time_collection(tmp_path):
     model = f"file://{model_package.as_posix()}"
 
     root = str(tmp_path / "test")
-    subprocess.check_call(["python3", "-m", "earth2mip.make_job", model, config, root])
     subprocess.check_call(
-        [
+        ["python3", "-m", "earth2mip.make_job", model, config, root]  # noqa: S603 S607
+    )  # noqa: S603 S607
+    subprocess.check_call(  # noqa: S603 S607
+        [  # noqa: S603 S607
             "torchrun",
             "--nnodes",
             "1",
@@ -77,7 +80,7 @@ def test_time_collection(tmp_path):
             "earth2mip.time_collection",
             root,
         ]
-    )
+    )  # noqa: S603 S607
 
     ds = open_forecast(root, group="mean.zarr")
     assert isinstance(ds, xarray.Dataset)

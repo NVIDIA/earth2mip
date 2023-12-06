@@ -15,6 +15,7 @@
 # limitations under the License.
 
 import sys
+
 from earth2mip.networks import depends_on_time
 
 if sys.version_info < (3, 10):

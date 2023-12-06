@@ -14,10 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import torch
-import torch_harmonics as th
 from datetime import datetime
 from typing import Union
+
+import torch
+import torch_harmonics as th
+
 from earth2mip.time_loop import TimeLoop
 
 
@@ -67,7 +69,7 @@ class GaussianRandomFieldS2(torch.nn.Module):
 
         # Default value of sigma if None is given.
         if sigma is None:
-            assert alpha > 1.0, f"Alpha must be greater than one, got {alpha}."
+            assert alpha > 1.0, f"Alpha must be greater than one, got {alpha}."  # noqa
             sigma = tau ** (0.5 * (2 * alpha - 2.0))
 
         # Inverse SHT
@@ -147,8 +149,10 @@ def generate_noise_correlated(shape, *, reddening, device, noise_amplitude):
     return noise_amplitude * brown_noise(shape, reddening).to(device)
 
 
-def generate_noise_grf(shape, grid, alpha, sigma, tau):
-    sampler = GaussianRandomFieldS2(nlat=720, alpha=alpha, tau=tau, sigma=sigma)
+def generate_noise_grf(shape, grid, alpha, sigma, tau, device=None):
+    sampler = GaussianRandomFieldS2(nlat=720, alpha=alpha, tau=tau, sigma=sigma).to(
+        device
+    )
     sample_noise = sampler(shape[0] * shape[1] * shape[2]).reshape(
         shape[0], shape[1], shape[2], 720, 1440
     )
@@ -192,7 +196,7 @@ def generate_bred_vector(
     if isinstance(noise_amplitude, float):
         noise_amplitude = torch.tensor([noise_amplitude])
 
-    assert (noise_amplitude.shape[0] == x.shape[2]) or (
+    assert (noise_amplitude.shape[0] == x.shape[2]) or (  # noqa
         torch.numel(noise_amplitude) == 1
     )
 

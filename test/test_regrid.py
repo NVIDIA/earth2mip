@@ -14,9 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import torch
 import pytest
-from earth2mip import regrid, grid
+import torch
+
+from earth2mip import grid, regrid
 
 
 def test_get_regridder():

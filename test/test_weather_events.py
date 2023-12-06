@@ -14,8 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from earth2mip import weather_events
 import pytest
+
+from earth2mip import weather_events
 
 
 @pytest.mark.parametrize("event", weather_events.list_())

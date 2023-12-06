@@ -14,10 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from earth2mip.initial_conditions.ifs import _get_filename, DataSource
 import datetime
 
 import pytest
+
+from earth2mip.initial_conditions.ifs import DataSource, _get_filename
 
 
 def test__get_filename():

@@ -15,38 +15,40 @@
 # limitations under the License.
 
 import datetime
+import hashlib
+import pathlib
+import subprocess
+from test.initial_conditions.test_hdf5 import create_hdf5
+
+import numpy as np
+import pytest
 import torch
 import xarray
-import pathlib
-import hashlib
-import numpy as np
-from earth2mip.inference_ensemble import run_basic_inference
+
 import earth2mip.forecast_metrics_io
-from earth2mip.networks import persistence, get_model
-import earth2mip.networks.dlwp
 import earth2mip.grid
+import earth2mip.networks.dlwp
 from earth2mip import (
-    schema,
-    weather_events,
     inference_ensemble,
-    score_ensemble_outputs,
     inference_medium_range,
+    schema,
+    score_ensemble_outputs,
+    weather_events,
 )
-import subprocess
-from tests.initial_conditions.test_hdf5 import create_hdf5
-import pytest
 from earth2mip._channel_stds import channel_stds
+from earth2mip.inference_ensemble import run_basic_inference
+from earth2mip.networks import get_model, persistence
 
 
 def run(args):
-    return subprocess.check_call(["coverage", "run", *args])
+    return subprocess.check_call(["coverage", "run", *args])  # noqa: S603 S607
 
 
 def checksum_reduce_precision(arr, digits=3):
     most_significant = max(arr.max(), -arr.min())
     least = most_significant / 10**digits
     arr = (most_significant / least).astype(np.int32)
-    checksum = hashlib.md5(arr.data)
+    checksum = hashlib.md5(arr.data)  # noqa: S324
     return checksum.hexdigest()
 
 

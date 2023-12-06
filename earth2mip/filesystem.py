@@ -14,15 +14,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import builtins
+import hashlib
+import logging
+import os
+import urllib.request
 from typing import List
+
 import fsspec
 import fsspec.implementations.cached
 import s3fs
-import builtins
-import urllib.request
-import os
-import hashlib
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -69,7 +70,7 @@ def download_cached(path: str, recursive: bool = False) -> str:
             # TODO: Check if this supports directory fetches
             urllib.request.urlretrieve(path, cache_path)
         elif url.scheme == "file":
-            path = os.path.join(url.netloc, url.path)
+            path = os.path.join(url.netloc, url.path)  # noqa
             return path
         elif url.scheme:
             fs = fsspec.filesystem(url.scheme)

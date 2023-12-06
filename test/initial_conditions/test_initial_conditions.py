@@ -13,15 +13,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from earth2mip import initial_conditions, schema, grid
-from earth2mip.initial_conditions import cds, hdf5
-from earth2mip.initial_conditions.base import DataSource
-from earth2mip import config
 import datetime
+
 import numpy as np
 import pytest
-
 import test_hdf5
+
+from earth2mip import config, grid, initial_conditions, schema
+from earth2mip.initial_conditions import cds, hdf5
+from earth2mip.initial_conditions.base import DataSource
 
 
 @pytest.mark.parametrize("source", list(schema.InitialConditionSource))

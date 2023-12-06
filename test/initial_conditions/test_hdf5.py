@@ -13,14 +13,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import pathlib
 import datetime
 import json
-import numpy as np
-from earth2mip.initial_conditions import hdf5
-from earth2mip import grid
+import pathlib
+
 import h5py
+import numpy as np
 import pytest
+
+from earth2mip import grid
+from earth2mip.initial_conditions import hdf5
 
 
 def create_hdf5(tmp_path: pathlib.Path, year: int, num_time, grid, channels):

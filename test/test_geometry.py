@@ -14,12 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import numpy as np
+import pytest
+import torch
+
 from earth2mip import geometry
 from earth2mip.weather_events import Window
-import torch
-import numpy as np
-
-import pytest
 
 
 @pytest.mark.xfail

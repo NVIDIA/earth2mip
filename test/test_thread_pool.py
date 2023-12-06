@@ -14,9 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import random
 import time
 from concurrent.futures import ThreadPoolExecutor
-import random
 
 
 def test_thread_pool_always_returns_same_order():

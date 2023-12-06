@@ -14,11 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import netCDF4 as nc
 import einops
-import torch
+import netCDF4 as nc
 import numpy as np
 import pandas
+import torch
+
 from earth2mip import grid
 
 
@@ -63,10 +64,10 @@ class RegridLatLon(torch.nn.Module):
         self._src_grid = src_grid
         self._dest_grid = dest_grid
         self._lat_index = pandas.Index(src_grid.lat).get_indexer(dest_grid.lat)
-        assert not np.any(self._lat_index == -1)
+        assert not np.any(self._lat_index == -1)  # noqa
 
         self._lon_index = pandas.Index(src_grid.lon).get_indexer(dest_grid.lon)
-        assert not np.any(self._lon_index == -1)
+        assert not np.any(self._lon_index == -1)  # noqa
 
     def forward(self, x):
         if x.shape[-2:] != self._src_grid.shape:

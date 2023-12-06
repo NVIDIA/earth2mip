@@ -14,11 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import xarray
-import xskillscore
+import altair as alt
 import numpy as np
 import pandas as pd
-import altair as alt
+import xarray
+import xskillscore
 
 
 def score(terciles: xarray.Dataset, truth: xarray.Dataset) -> pd.DataFrame:
@@ -53,7 +53,7 @@ def score(terciles: xarray.Dataset, truth: xarray.Dataset) -> pd.DataFrame:
     obs = xarray.open_dataset(truth)
 
     sfno, obs = xarray.align(sfno, obs)
-    assert obs.sizes["forecast_time"] > 0
+    assert obs.sizes["forecast_time"] > 0  # noqa
 
     clim = xarray.ones_like(obs) / 3.0
 

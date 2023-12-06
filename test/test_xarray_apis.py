@@ -17,9 +17,9 @@
 """
 xarray is confusing so let's test it to gain understanding
 """
-import xarray
 import numpy as np
 import pytest
+import xarray
 
 
 def test_xarray_var_reference():

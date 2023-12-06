@@ -14,8 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from earth2mip import schema
 import json
+
+from earth2mip import schema
 
 
 def test_model():

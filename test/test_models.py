@@ -15,21 +15,20 @@
 # limitations under the License.
 
 import argparse
-import numpy as np
-
-import torch
-from earth2mip import schema, model_registry, networks, _cli_utils
-from earth2mip.model_registry import Package
-
 import hashlib
 
+import numpy as np
 import pytest
+import torch
+
+from earth2mip import _cli_utils, model_registry, networks, schema
+from earth2mip.model_registry import Package
 
 
 def md5_checksum(x, precision):
     x_rounded = np.round_(x, precision)
     x_string = x_rounded.tostring()
-    md5 = hashlib.md5(x_string)
+    md5 = hashlib.md5(x_string)  # noqa: S324
     checksum = md5.hexdigest()
     return checksum
 
@@ -61,7 +60,7 @@ def MockLoader(package, pretrained):
 def test_get_model_architecture_entrypoint(tmp_path):
     registry = model_registry.ModelRegistry(tmp_path.as_posix())
     metadata = schema.Model(
-        architecture_entrypoint="tests.test_models:MockLoader",
+        architecture_entrypoint="test.test_models:MockLoader",
         n_history=0,
         grid=schema.Grid.grid_720x1440,
         in_channels_names=["a", "b", "c"],
@@ -104,7 +103,7 @@ class MyTestInference:
 
 metadata_with_entrypoint = schema.Model(
     entrypoint=schema.InferenceEntrypoint(
-        name="tests.test_models:MyTestInference", kwargs=dict(param=1)
+        name="test.test_models:MyTestInference", kwargs=dict(param=1)
     )
 )
 

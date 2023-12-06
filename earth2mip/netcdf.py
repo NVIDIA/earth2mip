@@ -16,15 +16,16 @@
 
 """Routines to save domains to a netCDF file
 """
+from typing import Iterable, List
+
 import numpy as np
 import torch
-from typing import List, Iterable
 import xarray as xr
-from earth2mip import geometry
-from earth2mip.weather_events import Domain
-import earth2mip.grid
 
-from earth2mip.diagnostics import DiagnosticTypes, Diagnostics
+import earth2mip.grid
+from earth2mip import geometry
+from earth2mip.diagnostics import Diagnostics, DiagnosticTypes
+from earth2mip.weather_events import Domain
 
 __all__ = ["initialize_netcdf", "update_netcdf"]
 
@@ -86,7 +87,7 @@ def init_dimensions(domain: Domain, group, grid: earth2mip.grid.LatLonGrid):
         group["lon"][:] = lon[lon_sl]
 
     elif domain.type == "MultiPoint":
-        assert len(domain.lat) == len(
+        assert len(domain.lat) == len(  # noqa
             domain.lon
         ), "Lat and Lon arrays must be of same size!"
         group.createDimension("npoints", len(domain.lon))
@@ -138,7 +139,7 @@ def update_netcdf(
     grid: earth2mip.grid.LatLonGrid,
     channel_names_of_data: List[str],
 ):
-    assert len(total_diagnostics) == len(domains), (total_diagnostics, domains)
+    assert len(total_diagnostics) == len(domains), (total_diagnostics, domains)  # noqa
     lat = np.array(grid.lat)
     lon = np.array(grid.lon)
 

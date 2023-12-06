@@ -14,21 +14,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
+import sys
 import urllib
 import warnings
-from typing import Optional, Tuple, Any, Iterator, Callable
-import sys
-import datetime
+from typing import Any, Callable, Iterator, List, Optional, Protocol, Tuple, TypeVar
 
-import torch
 import numpy as np
-
-
+import torch
 from modulus.utils.zenith_angle import cos_zenith_angle
-from earth2mip.loaders import LoaderProtocol
-from earth2mip import registry, ModelRegistry, model_registry
-from earth2mip import loaders, time_loop, schema
+
 import earth2mip.grid
+from earth2mip import (
+    ModelRegistry,
+    loaders,
+    model_registry,
+    registry,
+    schema,
+    time_loop,
+)
+from earth2mip.loaders import LoaderProtocol
 
 if sys.version_info < (3, 10):
     from importlib_metadata import EntryPoint, entry_points
@@ -222,7 +227,7 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
             # remove channels
 
             _, n_time_levels, n_channels, _, _ = x.shape
-            assert n_time_levels == self.n_history + 1
+            assert n_time_levels == self.n_history + 1  # noqa
 
             if normalize:
                 x = (x - self.center) / self.scale
@@ -259,7 +264,7 @@ def _default_inference(package, metadata: schema.Model, device):
     center_path = package.get("global_means.npy")
     scale_path = package.get("global_stds.npy")
 
-    assert metadata.in_channels_names == metadata.out_channels_names
+    assert metadata.in_channels_names == metadata.out_channels_names  # noqa
 
     inference = Inference(
         model=model,
