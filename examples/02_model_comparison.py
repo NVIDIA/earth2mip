@@ -154,7 +154,7 @@ pangu_data_source = cds.DataSource(pangu_inference_model.in_channel_names)
 print("Running Pangu inference")
 pangu_ds = inference_ensemble.run_basic_inference(
     pangu_inference_model,
-    n=24,  # Note we run 24 steps here because Pangu is at 6 hour dt
+    n=24,  # Note we run 24 steps here because Pangu is at 6 hour dt (6 day forecast)
     data_source=pangu_data_source,
     time=time,
 )
@@ -165,7 +165,7 @@ print(pangu_ds)
 print("Running DLWP inference")
 dlwp_ds = inference_ensemble.run_basic_inference(
     dlwp_inference_model,
-    n=12,  # Note we run 12 steps here because DLWP is at 12 hour dt
+    n=24,  # Note we run 24 steps. DLWP steps at 12 hr dt, but yeilds output every 6 hrs (6 day forecast)
     data_source=dlwp_data_source,
     time=time,
 )
@@ -187,7 +187,7 @@ dlwp_ds = xarray.open_dataarray(f"{output_dir}/dlwp_inference_out.nc")
 
 # Get data-arrays at 12 hour steps
 pangu_arr = pangu_ds.sel(channel="z500").values[::2]
-dlwp_arr = dlwp_ds.sel(channel="z500").values
+dlwp_arr = dlwp_ds.sel(channel="z500").values[::2]
 # Plot
 plt.close("all")
 fig, axs = plt.subplots(2, 13, figsize=(13 * 4, 5))
