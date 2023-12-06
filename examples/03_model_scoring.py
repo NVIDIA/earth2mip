@@ -141,9 +141,12 @@ import numpy as np
 from earth2mip.inference_medium_range import save_scores, time_average_metrics
 
 # Use 52 initializations.
-time = datetime.datetime(2017, 1, 1, 0)
+time = datetime.datetime(2017, 1, 2, 0)
 initial_times = [time + datetime.timedelta(days=7 * i) for i in range(52)]
-initial_times = [initial_time + datetime.timedelta(hours=6 * int(np.random.choice([0, 1, 2, 3]))) for initial_time in initial_times]  # randomly select a time between 00, 06, 12 and 18 hrs. 
+initial_times = [
+    initial_time + datetime.timedelta(hours=6 * int(np.random.choice([0, 1, 2, 3])))
+    for initial_time in initial_times
+]  # randomly select a time between 00, 06, 12 and 18 hrs.
 
 # Output directoy
 output_dir = "outputs/03_model_scoring"
@@ -151,7 +154,7 @@ if not os.path.exists(output_dir):
     os.makedirs(output_dir, exist_ok=True)
     output = save_scores(
         model,
-        n=28,  # 12 hour timesteps (14-day forecast)
+        n=56,  # 12 hour timesteps (14-day forecast)
         initial_times=initial_times,
         data_source=datasource,
         time_mean=datasource.time_means,
@@ -178,9 +181,9 @@ plt.close("all")
 fig, axs = plt.subplots(1, 3, figsize=(15, 5))
 channels = ["z500", "t2m", "t850"]
 t = dataset.lead_time / pd.Timedelta("1 h")
-for i, channel in enumerate(channels):    
+for i, channel in enumerate(channels):
     y = dataset.rmse.sel(channel=channel)
-    axs[i].plot(t, y)
+    axs[i].plot(t[1:], y[1:])  # Ignore first output as that's just initial condition.
     axs[i].set_xlabel("Lead Time (hours)")
     axs[i].set_ylabel("RMSE")
     axs[i].set_title(f"DLWP {channel} RMSE 2017")
