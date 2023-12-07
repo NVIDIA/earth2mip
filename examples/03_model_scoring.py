@@ -137,13 +137,12 @@ print(out.shape)
 # can then be pose process using some of the utility functions Earth-2 MIP provides.
 
 # %%
-import numpy as np
 from earth2mip.inference_medium_range import save_scores, time_average_metrics
 
 # Use 12 initializations.
 time = datetime.datetime(2017, 1, 2, 0)
 initial_times = [
-    time + datetime.timedelta(days=30 * i, hours=6*i) for i in range(12)
+    time + datetime.timedelta(days=30 * i, hours=6 * i) for i in range(12)
 ]  # modify here to change the initializations
 
 # Output directoy
