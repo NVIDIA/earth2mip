@@ -14,7 +14,7 @@ requires-python = ">=3.10"
 license = {text = "Apache 2.0"}
 dependencies = [
     "altair>=4.2.2",
-    "boto3",
+    "boto3>=1.26.0",
     "cdsapi >= 0.6.1",
     "cfgrib >= 0.9.10.3",
     "cftime",

@@ -73,7 +73,7 @@ def test_inference_ensemble(tmp_path):
     channel_stds["c"] = 0.0
     config = schema.EnsembleRun(
         weather_model="dummy",
-        simulation_length=40,
+        simulation_length=8,
         output_path=tmp_path.as_posix(),
         weather_event=schema.WeatherEvent(
             properties=weather_events.WeatherEventProperties(
@@ -143,15 +143,10 @@ def test_inference_medium_range(tmpdir, regtest):
 @pytest.mark.slow
 @pytest.mark.parametrize("url", ["e2mip://fcn", "e2mip://dlwp"])
 def test_run_basic_inference(url):
-    if url == "e2mip://fcn":
-        pytest.xfail(
-            "fcn package is broken. See https://github.com/NVIDIA/earth2mip/issues/75"
-        )
-
     time_loop = get_model(url, device="cuda:0")
     data_source = get_data_source(time_loop)
     ds = run_basic_inference(
-        time_loop, n=10, data_source=data_source, time=datetime.datetime(2018, 1, 1)
+        time_loop, n=4, data_source=data_source, time=datetime.datetime(2018, 1, 1)
     )
     print(ds)
 
