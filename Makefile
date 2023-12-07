@@ -7,8 +7,8 @@
 install:
 	apt-get install -y libeccodes-dev
 	pip install --upgrade pip
-	pip install -r requirements.txt
 	pip install .[pangu,graphcast]
+	pip install -r requirements.txt
 
 .PHONY: setup-ci
 setup-ci:

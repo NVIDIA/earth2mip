@@ -14,7 +14,7 @@ requires-python = ">=3.10"
 license = {text = "Apache 2.0"}
 dependencies = [
     "altair>=4.2.2",
-    "boto3",
+    "boto3>=1.26.0",
     "cdsapi >= 0.6.1",
     "cfgrib >= 0.9.10.3",
     "cftime",
@@ -65,7 +65,7 @@ pangu = [
 graphcast = [
     "jax>=0.4.16",
     "graphcast @ https://github.com/deepmind/graphcast/archive/e622a15c1b9742d78f9b662f2af262604d58c204.tar.gz",
-    "gcsfs>=2023.6.0",
+    "gcsfs",
 ]
 dev = [
     "pre-commit>=3.0.0",

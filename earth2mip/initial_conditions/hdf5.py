@@ -117,7 +117,7 @@ class DataSource(base.DataSource):
 
 def _get_path(path: str, time) -> str:
     filename = time.strftime("%Y.h5")
-    h5_files = filesystem.glob(os.path.join(path, "**.h5"), maxdepth=2)
+    h5_files = filesystem.glob(os.path.join(path, "**/*.h5"), maxdepth=2)
     files = {os.path.basename(f): f for f in h5_files}
     return files[filename]
 
