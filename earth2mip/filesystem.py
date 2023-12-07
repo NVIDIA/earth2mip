@@ -27,7 +27,7 @@ import s3fs
 
 logger = logging.getLogger(__name__)
 
-LOCAL_CACHE = os.environ["HOME"] + "/.cache/fcn-mip"
+LOCAL_CACHE = os.path.expanduser("~") + "/.cache/earth2mip"
 
 
 def _cache_fs(fs):
@@ -73,7 +73,7 @@ def download_cached(path: str, recursive: bool = False) -> str:
             path = os.path.join(url.netloc, url.path)  # noqa
             return path
         elif url.scheme:
-            fs = fsspec.filesystem(url.scheme)
+            fs = fsspec.filesystem(url.scheme, recursive=recursive)
             fs.get(path, cache_path)
         else:
             return path

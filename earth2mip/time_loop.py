@@ -14,13 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Protocol, List, Iterator, Tuple, Any, Optional, TypeVar
-import datetime
-import torch
-import earth2mip.grid
 import dataclasses
-import pandas as pd
+import datetime
+from typing import Any, Iterator, List, Optional, Protocol, Tuple, TypeVar
 
+import pandas as pd
 import torch
 
 import earth2mip.grid
@@ -103,7 +101,7 @@ StateT = TypeVar("StateT")
 class TimeStepper(Protocol[StateT]):
     """An functional interface that can be used for time stepping
 
-        s -> (state, output)
+        state -> (state, output)
 
     This uses a generic state, but concrete Tensors as input and output.  This
     allows users to directly control the time-stepping logic and potentially
@@ -228,5 +226,5 @@ class TimeStepperLoop(TimeLoop):
         while True:
             state, output = self.stepper.step(state)
             time += self.time_step
-            assert output.ndim == 4
+            assert output.ndim == 4  # noqa
             yield time, output, state

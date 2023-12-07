@@ -14,39 +14,42 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # TODO add license text from graphcast
-import os
 import dataclasses
 import functools
+import os
+
 from earth2mip.time_loop import TimeStepperLoop
 
 __all__ = ["load_time_loop", "load_time_loop_operational", "load_time_loop_small"]
 
 
-import torch
-import pandas as pd
 import datetime
-import jax.dlpack
-from graphcast import autoregressive
-from graphcast import casting
-from graphcast import checkpoint
-from graphcast import data_utils
-from graphcast import graphcast
-from graphcast import normalization
-from graphcast import xarray_jax
-from graphcast.rollout import _get_next_inputs
-from graphcast.data_utils import add_derived_vars
-import haiku as hk
-import jax
-import numpy as np
-import xarray
-import joblib
 import warnings
 
+import haiku as hk
+import jax
+import jax.dlpack
+import joblib
+import numpy as np
+import pandas as pd
+import torch
+import xarray
+from graphcast import (
+    autoregressive,
+    casting,
+    checkpoint,
+    data_utils,
+    graphcast,
+    normalization,
+    xarray_jax,
+)
+from graphcast.data_utils import add_derived_vars
+from graphcast.rollout import _get_next_inputs
 from modulus.utils.zenith_angle import toa_incident_solar_radiation_accumulated
-from earth2mip.initial_conditions import cds
-from earth2mip import time_loop
-import earth2mip.grid
 
+import earth2mip.grid
+from earth2mip import time_loop
+from earth2mip.initial_conditions import cds
 
 # see ecwmf parameter table https://codes.ecmwf.int/grib/param-db/?&filter=grib1&table=128 # noqa
 CODE_TO_GRAPHCAST_NAME = {
@@ -360,7 +363,7 @@ class GraphcastStepper(time_loop.TimeStepper):
         array = self._pack(predictions_xr)
         tensor = jax_to_torch(array)
         new_state = (time, inputs, rng)
-        assert tensor.shape[1] == 1, "targets should only contain 1 time level"
+        assert tensor.shape[1] == 1, "targets should only contain 1 time level"  # noqa
         return new_state, tensor[:, 0]
 
     def _step(self, time, inputs, rng):
@@ -466,10 +469,10 @@ class GraphcastStepper(time_loop.TimeStepper):
         n2d = len(vars_surface)
         sl = x[:, :, n3d : n3d + n2d]
 
-        assert n2d + n3d == x.shape[2]
+        assert n2d + n3d == x.shape[2]  # noqa
         inputs = xarray.Dataset()
         time_offset = np.arange(-t + 1, 1, 1) * dt
-        assert time_offset.shape == (t,)
+        assert time_offset.shape == (t,)  # noqa
         inputs["time"] = (["time"], time_offset)
         inputs["level"] = (["level"], np.array(levels))
 
@@ -515,7 +518,8 @@ def load_stepper(
 
     # load dataset
     example_batch = xarray.open_dataset(dataset_filename)
-    assert example_batch.dims["time"] >= 3  # 2 for input, >=1 for targets
+    # 2 for input, >=1 for targets
+    assert example_batch.dims["time"] >= 3  # noqa
 
     # get eval data
     eval_steps = 1
@@ -535,10 +539,10 @@ def load_stepper(
     print("Eval Forcings: ", eval_forcings.dims.mapping)
 
     # run autoregression
-    assert model_config.resolution in (0, 360.0 / eval_inputs.sizes["lon"]), (
+    assert model_config.resolution in (0, 360.0 / eval_inputs.sizes["lon"]), (  # noqa
         "Model resolution doesn't match the data resolution. You likely want to "
         "re-filter the dataset list, and download the correct data."
-    )
+    )  # noqa
 
     print("Inputs:  ", eval_inputs.dims.mapping)
     print("Targets: ", eval_targets.dims.mapping)

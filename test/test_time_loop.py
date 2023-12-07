@@ -15,9 +15,11 @@
 # limitations under the License.
 # TODO add graphcast license
 import datetime
+
 import torch
-from earth2mip.time_loop import TimeStepperLoop, GeoTensorInfo
+
 import earth2mip.grid
+from earth2mip.time_loop import GeoTensorInfo, TimeStepperLoop
 
 
 def test_time_stepper_loop():

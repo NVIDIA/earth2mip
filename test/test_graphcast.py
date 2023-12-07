@@ -13,11 +13,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from earth2mip.networks import graphcast
-from earth2mip.networks.graphcast.implementation import get_forcings, get_channel_names
-import pytest
-from earth2mip.model_registry import Package
 import numpy as np
+import pytest
+
+from earth2mip.model_registry import Package
+from earth2mip.networks import graphcast
+from earth2mip.networks.graphcast import get_channel_names, get_forcings
+from earth2mip.time_loop import TimeStepperLoop
 
 
 def test_get_forcings():
@@ -58,4 +60,4 @@ def test_load_time_loop():
     root = "gs://dm_graphcast"
     package = Package(root, seperator="/")
     time_loop = graphcast.load_time_loop_operational(package)
-    assert isinstance(time_loop, graphcast.GraphcastTimeLoop)
+    assert isinstance(time_loop, TimeStepperLoop)
