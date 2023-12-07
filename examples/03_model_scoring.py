@@ -143,12 +143,8 @@ from earth2mip.inference_medium_range import save_scores, time_average_metrics
 # Use 12 initializations.
 time = datetime.datetime(2017, 1, 2, 0)
 initial_times = [
-    time + datetime.timedelta(days=30 * i) for i in range(12)
+    time + datetime.timedelta(days=30 * i, hours=6*i) for i in range(12)
 ]  # modify here to change the initializations
-initial_times = [
-    initial_time + datetime.timedelta(hours=6 * int(np.random.choice([0, 1, 2, 3])))
-    for initial_time in initial_times
-]  # randomly select a time between 00, 06, 12 and 18 hrs.
 
 # Output directoy
 output_dir = "outputs/03_model_scoring"
