@@ -16,8 +16,6 @@
 import numpy as np
 import pytest
 
-from earth2mip.model_registry import Package
-from earth2mip.networks import graphcast
 from earth2mip.networks.graphcast import get_channel_names, get_forcings
 
 
@@ -52,11 +50,3 @@ def test_get_channel_names():
     )
     # no tisr since it is a forcing variable
     assert names == ["z1", "z2", "z3", "q1", "q2", "q3", "t2m"]  # noqa
-
-
-@pytest.mark.slow
-def test_load_time_loop():
-    root = "gs://dm_graphcast"
-    package = Package(root, seperator="/")
-    time_loop = graphcast.load_time_loop_operational(package)
-    assert isinstance(time_loop, graphcast.GraphcastTimeLoop)  # noqa

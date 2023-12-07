@@ -27,9 +27,6 @@ This emample also demonstrates the use of the functional TimeStepper API
 
 """
 # %%
-import sys
-
-sys.path.insert(0, "..")
 import datetime
 import logging
 
