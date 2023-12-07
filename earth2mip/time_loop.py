@@ -130,15 +130,15 @@ class TimeStepper(Protocol[StateT]):
     def input_info(self) -> GeoTensorInfo:
         pass
 
-    # @property
+    @property
     def output_info(self, state: StateT) -> GeoTensorInfo:
         pass
 
-    # @property
+    @property
     def device(self, state: StateT) -> torch.device:
         pass
 
-    # @property
+    @property
     def dtype(self, state: StateT) -> torch.device:
         pass
 
@@ -226,5 +226,5 @@ class TimeStepperLoop(TimeLoop):
         while True:
             state, output = self.stepper.step(state)
             time += self.time_step
-            assert output.ndim == 4
+            assert output.ndim == 4  # noqa
             yield time, output, state

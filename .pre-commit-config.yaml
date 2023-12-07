@@ -75,5 +75,6 @@ repos:
                 earth2mip/weather_events.py |
                 earth2mip/schema.py |
                 earth2mip/_config.py |
+                earth2mip/time_loop.py |
                 conftest.py
               )
