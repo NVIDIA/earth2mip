@@ -25,11 +25,93 @@ from modulus.utils.filesystem import Package
 from modulus.utils.zenith_angle import cos_zenith_angle
 
 import earth2mip.grid
-from earth2mip import networks
 
 logger = logging.getLogger(__file__)
 
 CHANNELS = ["t850", "z1000", "z700", "z500", "z300", "tcwv", "t2m"]
+
+
+class DLWPInference(torch.nn.Module):
+    n_history_levels = 2
+    time_step = datetime.timedelta(hours=6)
+    history_time_step = datetime.timedelta(hours=6)
+
+    def __init__(self, dlwp, center: np.array, scale: np.array):
+        super().__init__()
+        self.model = dlwp.to(self.device)
+        self.source = None
+
+        self.register_buffer("center", torch.Tensor(center))
+        self.register_buffer("scale", torch.Tensor(scale))
+
+    def to(self, device):
+        return self
+
+    def cuda(self, device=None):
+        return self
+
+    @property
+    def in_channel_names(self):
+        return self.model.channel_names
+
+    @property
+    def out_channel_names(self):
+        return self.model.channel_names
+
+    @property
+    def channel_names(self):
+        return self.model.channel_names
+
+    @property
+    def grid(self) -> earth2mip.grid.LatLonGrid:
+        return earth2mip.grid.equiangular_lat_lon_grid(721, 1440)
+
+    @property
+    def n_history(self):
+        return 0
+
+    @property
+    def device(self) -> torch.device:
+        return torch.device("cuda")  # Only supports cuda
+
+    def normalize(self, x):
+        self.center = self.center.to(x.device)
+        self.scale = self.scale.to(x.device)
+        return (x - self.center) / self.scale
+
+    def unnormalize(self, x):
+        self.center = self.center.to(x.device)
+        self.scale = self.scale.to(x.device)
+        return self.scale * x + self.center
+
+    def __call__(self, time, x, normalize=False, restart=None):
+        """Yield (time, unnormalized data, restart) tuples
+
+        restart = (time, unnormalized data)
+        """
+        if restart:
+            raise NotImplementedError("Restart capability not implemented.")
+        # do not implement restart capability
+        restart_data = None
+
+        with torch.no_grad():
+            x0 = x[:, 1].clone()
+            yield time, x0, restart_data
+
+            while True:
+                # Forward pass DLWP
+                x0 = self.model(self.normalize(x), time)
+                x0 = self.unnormalize(x0)
+                time += datetime.timedelta(hours=6)
+                out = x0[:, 0]
+                yield time, out, restart_data
+
+                time += datetime.timedelta(hours=6)
+                out = x0[:, 1]
+                yield time, out, restart_data
+
+                x = x0
+
 
 # TODO: Added here explicitly for better access. This will be imported from:
 # modulus repo after this PR is merged: https://github.com/NVIDIA/modulus/pull/138
@@ -56,7 +138,7 @@ class _DLWPWrapper(torch.nn.Module):
         self.output_map_wts = xarray.open_dataset(cs_to_ll_mapfile_path)
 
     @property
-    def channel_names():
+    def channel_names(self):
         return CHANNELS
 
     def prepare_input(self, input, time):
@@ -78,7 +160,7 @@ class _DLWPWrapper(torch.nn.Module):
             tisr = np.maximum(
                 cos_zenith_angle(
                     time
-                    - datetime.timedelta(hours=6 * (input.shape[0] - 1))
+                    - datetime.timedelta(hours=6 * (t - 1))
                     + datetime.timedelta(hours=6 * i),
                     self.longrid,
                     self.latgrid,
@@ -164,19 +246,8 @@ def load(package: Package, *, pretrained=True, device="cuda"):
             cs_to_ll_mapfile_path,
         )
 
-        channel_names = ["t850", "z1000", "z700", "z500", "z300", "tcwv", "t2m"]
         center = np.load(package.get("global_means.npy"))
         scale = np.load(package.get("global_stds.npy"))
-        grid = earth2mip.grid.equiangular_lat_lon_grid(721, 1440)
-        dt = datetime.timedelta(hours=12)
-        inference = networks.Inference(
-            model,
-            center=center,
-            scale=scale,
-            grid=grid,
-            channel_names=channel_names,
-            time_step=dt,
-            n_history=1,
-        )
+        inference = DLWPInference(model, center=center, scale=scale)
         inference.to(device)
         return inference
