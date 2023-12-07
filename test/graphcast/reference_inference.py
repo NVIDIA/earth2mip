@@ -15,34 +15,37 @@
 # limitations under the License.
 # TODO add graphcast license
 # @title Imports
-import os
 import dataclasses
 import datetime
 import functools
 import math
+import os
 
 # import re
 from typing import Optional
 
-# import cartopy.crs as ccrs
-from graphcast import autoregressive
-from graphcast import casting
-from graphcast import checkpoint
-from graphcast import data_utils
-from graphcast import graphcast
-from graphcast import normalization
-from graphcast import rollout
-from graphcast import xarray_jax
-from graphcast import xarray_tree
-from IPython.display import HTML
 import haiku as hk
 import jax
+import joblib
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib import animation
 import numpy as np
 import xarray
-import joblib
+
+# import cartopy.crs as ccrs
+from graphcast import (
+    autoregressive,
+    casting,
+    checkpoint,
+    data_utils,
+    graphcast,
+    normalization,
+    rollout,
+    xarray_jax,
+    xarray_tree,
+)
+from IPython.display import HTML
+from matplotlib import animation
 
 
 def parse_file_parts(file_name):

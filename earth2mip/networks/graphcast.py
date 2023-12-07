@@ -363,7 +363,7 @@ class GraphcastStepper(time_loop.TimeStepper):
         array = self._pack(predictions_xr)
         tensor = jax_to_torch(array)
         new_state = (time, inputs, rng)
-        assert tensor.shape[1] == 1, "targets should only contain 1 time level"
+        assert tensor.shape[1] == 1, "targets should only contain 1 time level"  # noqa
         return new_state, tensor[:, 0]
 
     def _step(self, time, inputs, rng):
@@ -469,10 +469,10 @@ class GraphcastStepper(time_loop.TimeStepper):
         n2d = len(vars_surface)
         sl = x[:, :, n3d : n3d + n2d]
 
-        assert n2d + n3d == x.shape[2]
+        assert n2d + n3d == x.shape[2]  # noqa
         inputs = xarray.Dataset()
         time_offset = np.arange(-t + 1, 1, 1) * dt
-        assert time_offset.shape == (t,)
+        assert time_offset.shape == (t,)  # noqa
         inputs["time"] = (["time"], time_offset)
         inputs["level"] = (["level"], np.array(levels))
 
@@ -518,7 +518,7 @@ def load_stepper(
 
     # load dataset
     example_batch = xarray.open_dataset(dataset_filename)
-    assert example_batch.dims["time"] >= 3  # 2 for input, >=1 for targets
+    assert example_batch.dims["time"] >= 3  # noqa # 2 for input, >=1 for targets
 
     # get eval data
     eval_steps = 1
@@ -538,7 +538,7 @@ def load_stepper(
     print("Eval Forcings: ", eval_forcings.dims.mapping)
 
     # run autoregression
-    assert model_config.resolution in (0, 360.0 / eval_inputs.sizes["lon"]), (
+    assert model_config.resolution in (0, 360.0 / eval_inputs.sizes["lon"]), (  # noqa
         "Model resolution doesn't match the data resolution. You likely want to "
         "re-filter the dataset list, and download the correct data."
     )
