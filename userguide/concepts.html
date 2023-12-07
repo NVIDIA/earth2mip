@@ -520,6 +520,68 @@ metadata about the Model’s inputs/outputs (see. <code class="xref py py-class 
 an outside perspective, can be difficult to use if <code class="docutils literal notranslate"><span class="pre">x</span></code> has more semantic
 meaning or requirements.</p>
 </section>
+<section id="time-stepper">
+<h3>Time Stepper<a class="headerlink" href="#time-stepper" title="Link to this heading">#</a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="earth2mip.time_loop.TimeStepper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.time_loop.</span></span><span class="sig-name descname"><span class="pre">TimeStepper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.time_loop.TimeStepper" title="Link to this definition">#</a></dt>
+<dd><p>An functional interface that can be used for time stepping</p>
+<blockquote>
+<div><p>state -&gt; (state, output)</p>
+</div></blockquote>
+<p>This uses a generic state, but concrete Tensors as input and output.  This
+allows users to directly control the time-stepping logic and potentially
+modify the state in model-specific manner, but the basic initial conditions
+and running outputs are concrete torch Tensors.</p>
+<p>One example is the graphcast time stepper. Graphcast uses jax and xarray to
+handle the state.</p>
+<p>It should be used like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">stepper</span> <span class="o">=</span> <span class="n">MyStepper</span><span class="p">()</span>
+<span class="n">state</span> <span class="o">=</span> <span class="n">stepper</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
+
+<span class="n">outputs</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+    <span class="n">state</span><span class="p">,</span> <span class="n">output</span> <span class="o">=</span> <span class="n">stepper</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+    <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>One benefit is that the state can be saved and reloaded trivially to restart
+the simulation.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="earth2mip.time_loop.TimeStepper.initialize">
+<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.time_loop.TimeStepper.initialize" title="Link to this definition">#</a></dt>
+<dd><p>x is described by <code class="docutils literal notranslate"><span class="pre">self.input_info</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>time</strong> (<em>datetime</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>StateT</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="earth2mip.time_loop.TimeStepper.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.time_loop.TimeStepper.step" title="Link to this definition">#</a></dt>
+<dd><p>step the state and return the ml output as a tensor</p>
+<p>The output tensor is described by <code class="docutils literal notranslate"><span class="pre">self.output_info</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>state</strong> (<em>StateT</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[<em>StateT</em>, <em>Tensor</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
 <section id="time-loop">
 <h3>Time Loop<a class="headerlink" href="#time-loop" title="Link to this heading">#</a></h3>
 <p>A Time Loop is a higher level interface encapsulating the Module, but also
@@ -695,6 +757,14 @@ parameters, normalization constants, etc.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-wrappers">Model Wrappers</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#module">Module</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#time-stepper">Time Stepper</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.TimeStepper"><code class="docutils literal notranslate"><span class="pre">TimeStepper</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.TimeStepper.initialize"><code class="docutils literal notranslate"><span class="pre">TimeStepper.initialize()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.TimeStepper.step"><code class="docutils literal notranslate"><span class="pre">TimeStepper.step()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#time-loop">Time Loop</a></li>
 </ul>
 </li>

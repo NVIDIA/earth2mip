@@ -1872,6 +1872,44 @@ only argument)</p></li>
 <section id="module-earth2mip.time_loop">
 <span id="earth2mip-time-loop-module"></span><h2>earth2mip.time_loop module<a class="headerlink" href="#module-earth2mip.time_loop" title="Link to this heading">#</a></h2>
 <dl class="py class">
+<dt class="sig sig-object py" id="earth2mip.time_loop.GeoTensorInfo">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.time_loop.</span></span><span class="sig-name descname"><span class="pre">GeoTensorInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_history_levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">history_time_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">datetime.timedelta(0)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.time_loop.GeoTensorInfo" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Metadata explaining how tensor maps onto the Earth</p>
+<p>Describes a tensor <code class="docutils literal notranslate"><span class="pre">x</span></code> with shape <code class="docutils literal notranslate"><span class="pre">(batch,</span> <span class="pre">history,</span> <span class="pre">channel,</span> <span class="pre">lat,</span> <span class="pre">lon)</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>channel_names</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+<li><p><strong>grid</strong> (<a class="reference internal" href="#earth2mip.grid.LatLonGrid" title="earth2mip.grid.LatLonGrid"><em>LatLonGrid</em></a>) – </p></li>
+<li><p><strong>n_history_levels</strong> (<em>int</em>) – </p></li>
+<li><p><strong>history_time_step</strong> (<em>timedelta</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.time_loop.GeoTensorInfo.channel_names">
+<span class="sig-name descname"><span class="pre">channel_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#earth2mip.time_loop.GeoTensorInfo.channel_names" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.time_loop.GeoTensorInfo.grid">
+<span class="sig-name descname"><span class="pre">grid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#earth2mip.grid.LatLonGrid" title="earth2mip.grid.LatLonGrid"><span class="pre">LatLonGrid</span></a></em><a class="headerlink" href="#earth2mip.time_loop.GeoTensorInfo.grid" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.time_loop.GeoTensorInfo.history_time_step">
+<span class="sig-name descname"><span class="pre">history_time_step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">timedelta</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">datetime.timedelta(0)</span></em><a class="headerlink" href="#earth2mip.time_loop.GeoTensorInfo.history_time_step" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.time_loop.GeoTensorInfo.n_history_levels">
+<span class="sig-name descname"><span class="pre">n_history_levels</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#earth2mip.time_loop.GeoTensorInfo.n_history_levels" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="earth2mip.time_loop.TimeLoop">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.time_loop.</span></span><span class="sig-name descname"><span class="pre">TimeLoop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.time_loop.TimeLoop" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
@@ -1989,6 +2027,159 @@ true for all frameworks.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="id6">
 <span class="sig-name descname"><span class="pre">time_step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">timedelta</span></em><a class="headerlink" href="#id6" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="earth2mip.time_loop.TimeStepper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.time_loop.</span></span><span class="sig-name descname"><span class="pre">TimeStepper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.time_loop.TimeStepper" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">StateT</span></code>]</p>
+<p>An functional interface that can be used for time stepping</p>
+<blockquote>
+<div><p>state -&gt; (state, output)</p>
+</div></blockquote>
+<p>This uses a generic state, but concrete Tensors as input and output.  This
+allows users to directly control the time-stepping logic and potentially
+modify the state in model-specific manner, but the basic initial conditions
+and running outputs are concrete torch Tensors.</p>
+<p>One example is the graphcast time stepper. Graphcast uses jax and xarray to
+handle the state.</p>
+<p>It should be used like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">stepper</span> <span class="o">=</span> <span class="n">MyStepper</span><span class="p">()</span>
+<span class="n">state</span> <span class="o">=</span> <span class="n">stepper</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
+
+<span class="n">outputs</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+    <span class="n">state</span><span class="p">,</span> <span class="n">output</span> <span class="o">=</span> <span class="n">stepper</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+    <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>One benefit is that the state can be saved and reloaded trivially to restart
+the simulation.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="earth2mip.time_loop.TimeStepper.device">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">device</span></em><a class="headerlink" href="#earth2mip.time_loop.TimeStepper.device" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="earth2mip.time_loop.TimeStepper.dtype">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dtype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">device</span></em><a class="headerlink" href="#earth2mip.time_loop.TimeStepper.dtype" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="earth2mip.time_loop.TimeStepper.initialize">
+<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.time_loop.TimeStepper.initialize" title="Link to this definition">#</a></dt>
+<dd><p>x is described by <code class="docutils literal notranslate"><span class="pre">self.input_info</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>Tensor</em>) – </p></li>
+<li><p><strong>time</strong> (<em>datetime</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>StateT</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="earth2mip.time_loop.TimeStepper.input_info">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input_info</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#earth2mip.time_loop.GeoTensorInfo" title="earth2mip.time_loop.GeoTensorInfo"><span class="pre">GeoTensorInfo</span></a></em><a class="headerlink" href="#earth2mip.time_loop.TimeStepper.input_info" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="earth2mip.time_loop.TimeStepper.output_info">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output_info</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#earth2mip.time_loop.GeoTensorInfo" title="earth2mip.time_loop.GeoTensorInfo"><span class="pre">GeoTensorInfo</span></a></em><a class="headerlink" href="#earth2mip.time_loop.TimeStepper.output_info" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="earth2mip.time_loop.TimeStepper.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.time_loop.TimeStepper.step" title="Link to this definition">#</a></dt>
+<dd><p>step the state and return the ml output as a tensor</p>
+<p>The output tensor is described by <code class="docutils literal notranslate"><span class="pre">self.output_info</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>state</strong> (<em>StateT</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[<em>StateT</em>, <em>Tensor</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="earth2mip.time_loop.TimeStepper.time_step">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">time_step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">timedelta</span></em><a class="headerlink" href="#earth2mip.time_loop.TimeStepper.time_step" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="earth2mip.time_loop.TimeStepperLoop">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.time_loop.</span></span><span class="sig-name descname"><span class="pre">TimeStepperLoop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stepper</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.time_loop.TimeStepperLoop" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#earth2mip.time_loop.TimeLoop" title="earth2mip.time_loop.TimeLoop"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeLoop</span></code></a></p>
+<p>Turn a TimeStepper into a TimeLoop</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>stepper</strong> (<a class="reference internal" href="../userguide/concepts.html#earth2mip.time_loop.TimeStepper" title="earth2mip.time_loop.TimeStepper"><em>TimeStepper</em></a>) – </p>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="earth2mip.time_loop.TimeStepperLoop.device">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">device</span></em><a class="headerlink" href="#earth2mip.time_loop.TimeStepperLoop.device" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="earth2mip.time_loop.TimeStepperLoop.dtype">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dtype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dtype</span></em><a class="headerlink" href="#earth2mip.time_loop.TimeStepperLoop.dtype" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="earth2mip.time_loop.TimeStepperLoop.grid">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">grid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#earth2mip.grid.LatLonGrid" title="earth2mip.grid.LatLonGrid"><span class="pre">LatLonGrid</span></a></em><a class="headerlink" href="#earth2mip.time_loop.TimeStepperLoop.grid" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="earth2mip.time_loop.TimeStepperLoop.history_time_step">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">history_time_step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">timedelta</span></em><a class="headerlink" href="#earth2mip.time_loop.TimeStepperLoop.history_time_step" title="Link to this definition">#</a></dt>
+<dd><p>Difference between two datetime values.</p>
+<p>timedelta(days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0)</p>
+<p>All arguments are optional and default to 0.
+Arguments may be integers or floats, and may be positive or negative.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="earth2mip.time_loop.TimeStepperLoop.in_channel_names">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">in_channel_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#earth2mip.time_loop.TimeStepperLoop.in_channel_names" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="earth2mip.time_loop.TimeStepperLoop.n_history_levels">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_history_levels</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#earth2mip.time_loop.TimeStepperLoop.n_history_levels" title="Link to this definition">#</a></dt>
+<dd><p>int([x]) -&gt; integer
+int(x, base=10) -&gt; integer</p>
+<p>Convert a number or string to an integer, or return 0 if no arguments
+are given.  If x is a number, return x.__int__().  For floating point
+numbers, this truncates towards zero.</p>
+<p>If x is not a number or if base is given, then x must be a string,
+bytes, or bytearray instance representing an integer literal in the
+given base.  The literal can be preceded by ‘+’ or ‘-’ and be surrounded
+by whitespace.  The base defaults to 10.  Valid bases are 0 and 2-36.
+Base 0 means to interpret the base from the string as an integer literal.
+&gt;&gt;&gt; int(‘0b100’, base=0)
+4</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="earth2mip.time_loop.TimeStepperLoop.out_channel_names">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">out_channel_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#earth2mip.time_loop.TimeStepperLoop.out_channel_names" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="earth2mip.time_loop.TimeStepperLoop.time_step">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">time_step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">timedelta</span></em><a class="headerlink" href="#earth2mip.time_loop.TimeStepperLoop.time_step" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -2536,6 +2727,13 @@ true for all frameworks.</p>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-earth2mip.time_loop">earth2mip.time_loop module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.GeoTensorInfo"><code class="docutils literal notranslate"><span class="pre">GeoTensorInfo</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.GeoTensorInfo.channel_names"><code class="docutils literal notranslate"><span class="pre">GeoTensorInfo.channel_names</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.GeoTensorInfo.grid"><code class="docutils literal notranslate"><span class="pre">GeoTensorInfo.grid</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.GeoTensorInfo.history_time_step"><code class="docutils literal notranslate"><span class="pre">GeoTensorInfo.history_time_step</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.GeoTensorInfo.n_history_levels"><code class="docutils literal notranslate"><span class="pre">GeoTensorInfo.n_history_levels</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.TimeLoop"><code class="docutils literal notranslate"><span class="pre">TimeLoop</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.TimeLoop.in_channel_names"><code class="docutils literal notranslate"><span class="pre">TimeLoop.in_channel_names</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.TimeLoop.out_channel_names"><code class="docutils literal notranslate"><span class="pre">TimeLoop.out_channel_names</span></code></a></li>
@@ -2552,6 +2750,27 @@ true for all frameworks.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id4"><code class="docutils literal notranslate"><span class="pre">TimeLoop.n_history_levels</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id5"><code class="docutils literal notranslate"><span class="pre">TimeLoop.out_channel_names</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id6"><code class="docutils literal notranslate"><span class="pre">TimeLoop.time_step</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.TimeStepper"><code class="docutils literal notranslate"><span class="pre">TimeStepper</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.TimeStepper.device"><code class="docutils literal notranslate"><span class="pre">TimeStepper.device</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.TimeStepper.dtype"><code class="docutils literal notranslate"><span class="pre">TimeStepper.dtype</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.TimeStepper.initialize"><code class="docutils literal notranslate"><span class="pre">TimeStepper.initialize()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.TimeStepper.input_info"><code class="docutils literal notranslate"><span class="pre">TimeStepper.input_info</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.TimeStepper.output_info"><code class="docutils literal notranslate"><span class="pre">TimeStepper.output_info</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.TimeStepper.step"><code class="docutils literal notranslate"><span class="pre">TimeStepper.step()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.TimeStepper.time_step"><code class="docutils literal notranslate"><span class="pre">TimeStepper.time_step</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.TimeStepperLoop"><code class="docutils literal notranslate"><span class="pre">TimeStepperLoop</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.TimeStepperLoop.device"><code class="docutils literal notranslate"><span class="pre">TimeStepperLoop.device</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.TimeStepperLoop.dtype"><code class="docutils literal notranslate"><span class="pre">TimeStepperLoop.dtype</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.TimeStepperLoop.grid"><code class="docutils literal notranslate"><span class="pre">TimeStepperLoop.grid</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.TimeStepperLoop.history_time_step"><code class="docutils literal notranslate"><span class="pre">TimeStepperLoop.history_time_step</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.TimeStepperLoop.in_channel_names"><code class="docutils literal notranslate"><span class="pre">TimeStepperLoop.in_channel_names</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.TimeStepperLoop.n_history_levels"><code class="docutils literal notranslate"><span class="pre">TimeStepperLoop.n_history_levels</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.TimeStepperLoop.out_channel_names"><code class="docutils literal notranslate"><span class="pre">TimeStepperLoop.out_channel_names</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.TimeStepperLoop.time_step"><code class="docutils literal notranslate"><span class="pre">TimeStepperLoop.time_step</span></code></a></li>
 </ul>
 </li>
 </ul>
