@@ -74,7 +74,7 @@ def download_cached(path: str, recursive: bool = False) -> str:
             return path
         elif url.scheme:
             fs = fsspec.filesystem(url.scheme)
-            fs.get(path, cache_path)
+            fs.get(path, cache_path, recursive=recursive)
         else:
             return path
 
