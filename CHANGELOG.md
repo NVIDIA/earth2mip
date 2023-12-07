@@ -24,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed Graphcast implementation
+- Fixed default cache location of file system
+- Fixed fs.glob search for H5 files
+
 ### Security
 
 ### Dependencies
