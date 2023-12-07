@@ -32,12 +32,12 @@ def test_get_forcings():
     seconds_in_hour = 3600
     solar_constant = 1361 / 4
     approx = solar_constant * seconds_in_hour
-    assert ans == pytest.approx(approx, rel=0.05)
-    assert f["toa_incident_solar_radiation"].shape == (1, 1, 180, 360)
-    assert f["day_progress_cos"].dims == ("batch", "time", "lon")
-    assert f["day_progress_sin"].dims == ("batch", "time", "lon")
-    assert f["year_progress_cos"].dims == ("batch", "time")
-    assert f["year_progress_sin"].dims == ("batch", "time")
+    assert ans == pytest.approx(approx, rel=0.05)  # noqa
+    assert f["toa_incident_solar_radiation"].shape == (1, 1, 180, 360)  # noqa
+    assert f["day_progress_cos"].dims == ("batch", "time", "lon")  # noqa
+    assert f["day_progress_sin"].dims == ("batch", "time", "lon")  # noqa
+    assert f["year_progress_cos"].dims == ("batch", "time")  # noqa
+    assert f["year_progress_sin"].dims == ("batch", "time")  # noqa
 
 
 def test_get_channel_names():
@@ -51,7 +51,7 @@ def test_get_channel_names():
         pressure_levels=[1, 2, 3],
     )
     # no tisr since it is a forcing variable
-    assert names == ["z1", "z2", "z3", "q1", "q2", "q3", "t2m"]
+    assert names == ["z1", "z2", "z3", "q1", "q2", "q3", "t2m"]  # noqa
 
 
 @pytest.mark.slow
@@ -59,4 +59,4 @@ def test_load_time_loop():
     root = "gs://dm_graphcast"
     package = Package(root, seperator="/")
     time_loop = graphcast.load_time_loop_operational(package)
-    assert isinstance(time_loop, graphcast.GraphcastTimeLoop)
+    assert isinstance(time_loop, graphcast.GraphcastTimeLoop)  # noqa
