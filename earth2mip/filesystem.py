@@ -73,8 +73,8 @@ def download_cached(path: str, recursive: bool = False) -> str:
             path = os.path.join(url.netloc, url.path)  # noqa
             return path
         elif url.scheme:
-            fs = fsspec.filesystem(url.scheme, recursive=recursive)
-            fs.get(path, cache_path)
+            fs = fsspec.filesystem(url.scheme)
+            fs.get(path, cache_path, recursive=recursive)
         else:
             return path
 

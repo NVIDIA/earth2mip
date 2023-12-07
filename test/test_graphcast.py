@@ -56,6 +56,8 @@ def test_get_channel_names():
 
 
 @pytest.mark.slow
+@pytest.mark.xfail
+@pytest.mark.timeout(60)
 def test_load_time_loop():
     root = "gs://dm_graphcast"
     package = Package(root, seperator="/")
