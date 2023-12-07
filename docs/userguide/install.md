@@ -159,6 +159,7 @@ Install optional dependencies for Graphcast:
 
 ```bash
 pip install .[graphcast]
+pip install -r requirements.txt
 ```
 
 ## Development

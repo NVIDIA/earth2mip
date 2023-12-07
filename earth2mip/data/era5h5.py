@@ -125,7 +125,7 @@ class ERA5H5:
 
         fs = self._get_fs()
         # Search for H5 files in provided directory
-        h5_files = fs.glob(os.path.join(self.file_path, "**.h5"), maxdepth=2)
+        h5_files = fs.glob(os.path.join(self.file_path, "**/*.h5"), maxdepth=2)
         files = {int(pathlib.Path(f).stem): f for f in h5_files}
         logger.debug(f"Discoverd {len(files)} H5 files")
 

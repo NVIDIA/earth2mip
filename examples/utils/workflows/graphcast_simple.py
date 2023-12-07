@@ -23,6 +23,8 @@ Run like::
     pip install -e .[graphcast]
     python3 examples/workflows/graphcast_simple.py
 
+This emample also demonstrates the use of the functional TimeStepper API
+
 """
 # %%
 import sys
@@ -45,6 +47,7 @@ logging.basicConfig(level=logging.INFO)
 root = "gs://dm_graphcast"
 package = Package(root, seperator="/")
 time_loop = earth2mip.networks.graphcast.load_time_loop_operational(package)
+stepper = time_loop.stepper
 
 # Can also load like this for simplicity:
 # from earth2mip.networks import get_model
@@ -55,10 +58,17 @@ time = datetime.datetime(2018, 1, 1)
 data_source = cds.DataSource(time_loop.in_channel_names)
 x = get_initial_condition_for_model(time_loop, data_source, time)
 
-i = time_loop.out_channel_names.index("tp06")
-for k, (time, x, _) in enumerate(time_loop(time, x)):
+state = stepper.initialize(x, time)
+print("Graphcast's state is a tuple of (datetime, xarray.Dataset, rng)", state)
+
+# %%
+
+field = "tp06"
+i = time_loop.out_channel_names.index(field)
+for k in range(10):
     print(k)
-    plt.pcolormesh(x[0, i].cpu().numpy())
+    state, output = stepper.step(state)
+    plt.clf()
+    plt.pcolormesh(output[0, i].cpu().numpy())
+    plt.colorbar()
     plt.savefig(f"{k:03d}.png")
-    if k == 10:
-        break
