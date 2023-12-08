@@ -37,8 +37,8 @@ import dotenv
 dotenv.load_dotenv()
 
 # %%
-# Loading Dianostic Models
-# ------------------------
+# Loading Diagnostic Models
+# -------------------------
 # Loading diagnostic models is similar to prognostic models, but presently use a
 # slightly different API. In this example we will using the built in AFNO FourCast Net
 # to serve as the underlying prognostic model that will drive the time-ingration. The
