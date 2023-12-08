@@ -1,5 +1,5 @@
 Data Sources
-========================
+============
 
 .. warning ::
 
@@ -15,58 +15,58 @@ Used for fetching initial conditions for inference and validation data for scori
     familiarize themselves with each and the limitations it may impose on their use
     case.
 
-earth2mip.data.CDS
+earth2mip.beta.data.CDS
 ------------------------
 
-.. autoclass:: earth2mip.data.CDS
+.. autoclass:: earth2mip.beta.data.CDS
    :members: __call__, available
    :undoc-members:
    :show-inheritance:
 
-earth2mip.data.ERA5H5
+earth2mip.beta.data.ERA5H5
 ----------------------------------
 
-.. autoclass:: earth2mip.data.ERA5H5
+.. autoclass:: earth2mip.beta.data.ERA5H5
    :members: __call__, available
    :undoc-members:
    :show-inheritance:
 
-earth2mip.data.GFS
+earth2mip.beta.data.GFS
 -----------------------------------------
 
-.. autoclass:: earth2mip.data.GFS
+.. autoclass:: earth2mip.beta.data.GFS
    :members: __call__, available
    :undoc-members:
    :show-inheritance:
 
-earth2mip.data.IFS
+earth2mip.beta.data.IFS
 -----------------------------------------
 
-.. autoclass:: earth2mip.data.IFS
+.. autoclass:: earth2mip.beta.data.IFS
    :members: __call__, available
    :undoc-members:
    :show-inheritance:
 
-earth2mip.data.Random
+earth2mip.beta.data.Random
 -----------------------------------------
 
-.. autoclass:: earth2mip.data.Random
+.. autoclass:: earth2mip.beta.data.Random
    :members: __call__
    :undoc-members:
    :show-inheritance:
 
-earth2mip.data.DataArrayFile
+earth2mip.beta.data.DataArrayFile
 -----------------------------------------
 
-.. autoclass:: earth2mip.data.DataArrayFile
+.. autoclass:: earth2mip.beta.data.DataArrayFile
    :members: __call__
    :undoc-members:
    :show-inheritance:
 
-earth2mip.data.DataSetFile
+earth2mip.beta.data.DataSetFile
 -----------------------------------------
 
-.. autoclass:: earth2mip.data.DataSetFile
+.. autoclass:: earth2mip.beta.data.DataSetFile
    :members: __call__
    :undoc-members:
    :show-inheritance:

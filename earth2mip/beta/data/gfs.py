@@ -32,7 +32,7 @@ from modulus.distributed.manager import DistributedManager
 from tqdm import tqdm
 
 from earth2mip import config
-from earth2mip.lexicon import GFSLexicon
+from earth2mip.beta.lexicon import GFSLexicon
 
 logger.remove()
 logger.add(lambda msg: tqdm.write(msg, end=""), colorize=True)

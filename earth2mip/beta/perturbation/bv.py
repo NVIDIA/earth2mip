@@ -41,7 +41,7 @@ class BredVector:
     ----
     For additional information:
 
-    - https://doi.org/10.1175/1520-0477(1993)074<2317:EFANTG>2.0.CO;2
+    - https://journals.ametsoc.org/view/journals/bams/74/12/1520-0477_1993_074_2317_efantg_2_0_co_2.xml
     - https://en.wikipedia.org/wiki/Bred_vector
     """
 
