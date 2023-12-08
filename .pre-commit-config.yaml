@@ -61,6 +61,7 @@ repos:
                 earth2mip/inference_ensemble.py |
                 earth2mip/ensemble_utils.py |
                 earth2mip/time_collection.py |
+                earth2mip/time_loop.py |
                 earth2mip/diagnostics.py |
                 earth2mip/model_registry.py |
                 earth2mip/filesystem.py |

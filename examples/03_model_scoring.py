@@ -139,8 +139,11 @@ print(out.shape)
 # %%
 from earth2mip.inference_medium_range import save_scores, time_average_metrics
 
-time = datetime.datetime(2017, 1, 1, 0)
-initial_times = [time + datetime.timedelta(days=30 * i) for i in range(12)]
+# Use 12 initializations.
+time = datetime.datetime(2017, 1, 2, 0)
+initial_times = [
+    time + datetime.timedelta(days=30 * i, hours=6 * i) for i in range(12)
+]  # modify here to change the initializations
 
 # Output directoy
 output_dir = "outputs/03_model_scoring"
@@ -148,7 +151,7 @@ if not os.path.exists(output_dir):
     os.makedirs(output_dir, exist_ok=True)
     output = save_scores(
         model,
-        n=20,  # 12 hour timesteps
+        n=28,  # 6 hour timesteps (28*6/24 = 7-day forecast)
         initial_times=initial_times,
         data_source=datasource,
         time_mean=datasource.time_means,
@@ -172,14 +175,17 @@ series = read_metrics(output_dir)
 dataset = time_average_metrics(series)
 
 plt.close("all")
-fig, ax = plt.subplots(figsize=(10, 5))
+fig, axs = plt.subplots(1, 3, figsize=(15, 5))
+channels = ["z500", "t2m", "t850"]
 t = dataset.lead_time / pd.Timedelta("1 h")
-y = dataset.rmse.sel(channel="z500")
-ax.plot(t, y)
-ax.set_xlabel("Lead Time (hours)")
-ax.set_ylabel("RMSE")
-ax.set_title("DLWP z500 RMSE 2017")
-plt.savefig(f"{output_dir}/dwlp_z500_rmse.png")
+for i, channel in enumerate(channels):
+    y = dataset.rmse.sel(channel=channel)
+    axs[i].plot(t[1:], y[1:])  # Ignore first output as that's just initial condition.
+    axs[i].set_xlabel("Lead Time (hours)")
+    axs[i].set_ylabel("RMSE")
+    axs[i].set_title(f"DLWP {channel} RMSE 2017")
+
+plt.savefig(f"{output_dir}/dwlp_rmse.png")
 
 
 # %%

@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactored initial conditions / data source API
 - Updated GFS data source to pull from AWS
 - Updated IFS data source to use ECMWF's open data package
+- Change DLWP inferencer class to now work on 6 hr time-steps
 - Moving perturbation methods from inference ensemble into submodule
 
 ### Deprecated
@@ -24,6 +25,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Fixed
+
+- Fixed Graphcast implementation
+- Fixed default cache location of file system
+- Fixed fs.glob search for H5 files
+- Corrected DLWP intial condition fetch with history
 
 ### Security
 

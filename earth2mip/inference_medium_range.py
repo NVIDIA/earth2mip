@@ -153,7 +153,7 @@ def run_forecast(
                 time_loop=model, data_source=data_source, time=valid_time
             )
             # select first history level
-            verification_torch = verification_torch[:, 0]
+            verification_torch = verification_torch[:, -1]
             for metric in metrics:
                 outputs = metric.call(verification_torch, data)
                 for name, tensor in zip(metric.output_names, outputs):
