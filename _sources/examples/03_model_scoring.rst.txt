@@ -47,7 +47,7 @@ In summary this notebook will cover the following topics:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 40-69
+.. GENERATED FROM PYTHON SOURCE LINES 40-74
 
 Setting up HDF5 data
 ---------------------
@@ -62,24 +62,29 @@ The HDF5 data source assumes that the data to be loaded is stored in the general
   year.h5
       | - field (time, channels, grid)
 
-For AFNO which requires 34 channels with a time-step size of 6 hours, an H5 file will
-have the following form of data:
+For DLWP which requires 7 channels with a time-step size of 12 hours, an H5 file will
+have the following form of data for an entire year:
 ::
 
   2017.h5
-      | - field (1460, 34, 720, 1440)
+      | - field (730, 7, 720, 1440)
   2016.h5
-      | - field (1464, 34, 720, 1440)
+      | - field (730, 7, 720, 1440)
   2015.h5
-      | - field (1460, 34, 720, 1440)
+      | - field (730, 7, 720, 1440)
 
-(Note the later two dims have some flexibility with regridding)
+.. note::
+  There is some flexibility with the dimensions of the data in the H5 files. The time
+  dimension may be some factor of 12 (such as 6hr dt or 4hr dt) and the fields may
+  contain additional channels not needed by the model. The data source will select the
+  necessary data for the model. Additionally, the later two dims have some flexibility
+  with regridding.
+
 One option to build these H5 files from scratch is to use the ERA5 mirror scripts
 provided in `Modulus <https://github.com/NVIDIA/modulus/tree/main/examples/weather/dataset_download>`_.
 For the rest of this tutorial, it is assumed that 2017.h5 is present for the full year.
-%%
 
-.. GENERATED FROM PYTHON SOURCE LINES 69-75
+.. GENERATED FROM PYTHON SOURCE LINES 76-82
 
 .. code-block:: Python
 
@@ -96,7 +101,7 @@ For the rest of this tutorial, it is assumed that 2017.h5 is present for the ful
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 76-83
+.. GENERATED FROM PYTHON SOURCE LINES 83-90
 
 Loading Models
 --------------
@@ -106,7 +111,7 @@ Take note of the `e2mip://` which will direct Earth-2 MIP to load a known model 
 FourcastNet is selected here simply because its a 34 channel model which aligns with the
 H5 files described above.
 
-.. GENERATED FROM PYTHON SOURCE LINES 85-94
+.. GENERATED FROM PYTHON SOURCE LINES 92-101
 
 .. code-block:: Python
 
@@ -126,7 +131,7 @@ H5 files described above.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 95-104
+.. GENERATED FROM PYTHON SOURCE LINES 102-111
 
 HDF5 Datasource
 ---------------
@@ -138,7 +143,7 @@ Typically, this can be done by placing a `data.json` file next to the H5 files.
 See `this documentation <https://github.com/NVIDIA/earth2mip/blob/f44c580ccc3d98bf349fe97823bb1540e532c80d/earth2mip/initial_conditions/hdf5.py#L38>`_
 for more details on how to set up input data correctly.
 
-.. GENERATED FROM PYTHON SOURCE LINES 106-117
+.. GENERATED FROM PYTHON SOURCE LINES 113-124
 
 .. code-block:: Python
 
@@ -166,7 +171,7 @@ for more details on how to set up input data correctly.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 118-129
+.. GENERATED FROM PYTHON SOURCE LINES 125-138
 
 Running Scoring
 ---------------
@@ -179,15 +184,20 @@ to customize for you're use case.
 The `score_deterministic` API provides a simple way to calculate RMSE and ACC scores.
 ACC scores require climatology which is beyond the scope of this example, thus zero
 values will be provided and only the RMSE will be of concern.
+This function will save the results of every inference run into a CSV file which
+can then be pose process using some of the utility functions Earth-2 MIP provides.
 
-.. GENERATED FROM PYTHON SOURCE LINES 131-149
+.. GENERATED FROM PYTHON SOURCE LINES 140-161
 
 .. code-block:: Python
 
     from earth2mip.inference_medium_range import save_scores, time_average_metrics
 
-    time = datetime.datetime(2017, 1, 1, 0)
-    initial_times = [time + datetime.timedelta(days=30 * i) for i in range(12)]
+    # Use 12 initializations.
+    time = datetime.datetime(2017, 1, 2, 0)
+    initial_times = [
+        time + datetime.timedelta(days=30 * i, hours=6 * i) for i in range(12)
+    ]  # modify here to change the initializations
 
     # Output directoy
     output_dir = "outputs/03_model_scoring"
@@ -195,7 +205,7 @@ values will be provided and only the RMSE will be of concern.
         os.makedirs(output_dir, exist_ok=True)
         output = save_scores(
             model,
-            n=20,  # 12 hour timesteps
+            n=28,  # 6 hour timesteps (28*6/24 = 7-day forecast)
             initial_times=initial_times,
             data_source=datasource,
             time_mean=datasource.time_means,
@@ -206,27 +216,10 @@ values will be provided and only the RMSE will be of concern.
 
 
 
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    INFO:inference:Running 2017-01-01 00:00:00
-    INFO:inference:Running 2017-01-31 00:00:00
-    INFO:inference:Running 2017-03-02 00:00:00
-    INFO:inference:Running 2017-04-01 00:00:00
-    INFO:inference:Running 2017-05-01 00:00:00
-    INFO:inference:Running 2017-05-31 00:00:00
-    INFO:inference:Running 2017-06-30 00:00:00
-    INFO:inference:Running 2017-07-30 00:00:00
-    INFO:inference:Running 2017-08-29 00:00:00
-    INFO:inference:Running 2017-09-28 00:00:00
-    INFO:inference:Running 2017-10-28 00:00:00
-    INFO:inference:Running 2017-11-27 00:00:00
 
 
 
-
-.. GENERATED FROM PYTHON SOURCE LINES 150-155
+.. GENERATED FROM PYTHON SOURCE LINES 162-167
 
 Post Processing
 ---------------
@@ -234,7 +227,7 @@ The last step is any post processing / IO that is desired.
 Typically its recommended to save the output dataset to a netCDF file for further processing.
 Lets plot the RMSE of the z500 (geopotential at pressure level 500) field.
 
-.. GENERATED FROM PYTHON SOURCE LINES 157-176
+.. GENERATED FROM PYTHON SOURCE LINES 169-191
 
 .. code-block:: Python
 
@@ -247,21 +240,24 @@ Lets plot the RMSE of the z500 (geopotential at pressure level 500) field.
     dataset = time_average_metrics(series)
 
     plt.close("all")
-    fig, ax = plt.subplots(figsize=(10, 5))
+    fig, axs = plt.subplots(1, 3, figsize=(15, 5))
+    channels = ["z500", "t2m", "t850"]
     t = dataset.lead_time / pd.Timedelta("1 h")
-    y = dataset.rmse.sel(channel="z500")
-    ax.plot(t, y)
-    ax.set_xlabel("Lead Time (hours)")
-    ax.set_ylabel("RMSE")
-    ax.set_title("DLWP z500 RMSE 2017")
-    plt.savefig(f"{output_dir}/dwlp_z500_rmse.png")
+    for i, channel in enumerate(channels):
+        y = dataset.rmse.sel(channel=channel)
+        axs[i].plot(t[1:], y[1:])  # Ignore first output as that's just initial condition.
+        axs[i].set_xlabel("Lead Time (hours)")
+        axs[i].set_ylabel("RMSE")
+        axs[i].set_title(f"DLWP {channel} RMSE 2017")
+
+    plt.savefig(f"{output_dir}/dwlp_rmse.png")
 
 
 
 
 
 .. image-sg:: /examples/images/sphx_glr_03_model_scoring_001.png
-   :alt: DLWP z500 RMSE 2017
+   :alt: DLWP z500 RMSE 2017, DLWP t2m RMSE 2017, DLWP t850 RMSE 2017
    :srcset: /examples/images/sphx_glr_03_model_scoring_001.png, /examples/images/sphx_glr_03_model_scoring_001_2_00x.png 2.00x
    :class: sphx-glr-single-img
 
@@ -269,7 +265,7 @@ Lets plot the RMSE of the z500 (geopotential at pressure level 500) field.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 177-179
+.. GENERATED FROM PYTHON SOURCE LINES 192-194
 
 This completes this introductory notebook on basic scoring of models in Earth-2 MIP,
 which is founational for comparing the performance of different models.
@@ -277,7 +273,7 @@ which is founational for comparing the performance of different models.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (6 minutes 3.610 seconds)
+   **Total running time of the script:** (4 minutes 31.593 seconds)
 
 
 .. _sphx_glr_download_examples_03_model_scoring.py:

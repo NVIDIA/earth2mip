@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="../_static/favicon.ico" rel="icon" type="image/x-icon">
-    <title>Scoring Models &#8212; Earth-2 MIP 0.1.0 documentation</title>
+    <title>Scoring Models &#8212; Earth-2 MIP 0.2.0a0 documentation</title>
   
   
   
@@ -39,7 +39,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
   <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
 
-    <script src="../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../_static/documentation_options.js?v=312c242a"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'examples/03_model_scoring';</script>
@@ -51,7 +51,7 @@
         </script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="&lt;no title&gt;" href="utils/index.html" />
+    <link rel="next" title="Diagnostic Models for Precipitation" href="04_diagnostic_models.html" />
     <link rel="prev" title="Basic Inference with Multiple Models" href="02_model_comparison.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -395,6 +395,7 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="01_ensemble_inference.html">Running Ensemble Inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="02_model_comparison.html">Basic Inference with Multiple Models</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Scoring Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04_diagnostic_models.html">Diagnostic Models for Precipitation</a></li>
 </ul>
 </div>
 </nav></div>
@@ -486,21 +487,27 @@ The HDF5 data source assumes that the data to be loaded is stored in the general
     <span class="o">|</span> <span class="o">-</span> <span class="n">field</span> <span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>For AFNO which requires 34 channels with a time-step size of 6 hours, an H5 file will
-have the following form of data:</p>
+<p>For DLWP which requires 7 channels with a time-step size of 12 hours, an H5 file will
+have the following form of data for an entire year:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">2017.</span><span class="n">h5</span>
-    <span class="o">|</span> <span class="o">-</span> <span class="n">field</span> <span class="p">(</span><span class="mi">1460</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">720</span><span class="p">,</span> <span class="mi">1440</span><span class="p">)</span>
+    <span class="o">|</span> <span class="o">-</span> <span class="n">field</span> <span class="p">(</span><span class="mi">730</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">720</span><span class="p">,</span> <span class="mi">1440</span><span class="p">)</span>
 <span class="mf">2016.</span><span class="n">h5</span>
-    <span class="o">|</span> <span class="o">-</span> <span class="n">field</span> <span class="p">(</span><span class="mi">1464</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">720</span><span class="p">,</span> <span class="mi">1440</span><span class="p">)</span>
+    <span class="o">|</span> <span class="o">-</span> <span class="n">field</span> <span class="p">(</span><span class="mi">730</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">720</span><span class="p">,</span> <span class="mi">1440</span><span class="p">)</span>
 <span class="mf">2015.</span><span class="n">h5</span>
-    <span class="o">|</span> <span class="o">-</span> <span class="n">field</span> <span class="p">(</span><span class="mi">1460</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">720</span><span class="p">,</span> <span class="mi">1440</span><span class="p">)</span>
+    <span class="o">|</span> <span class="o">-</span> <span class="n">field</span> <span class="p">(</span><span class="mi">730</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">720</span><span class="p">,</span> <span class="mi">1440</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>(Note the later two dims have some flexibility with regridding)
-One option to build these H5 files from scratch is to use the ERA5 mirror scripts
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>There is some flexibility with the dimensions of the data in the H5 files. The time
+dimension may be some factor of 12 (such as 6hr dt or 4hr dt) and the fields may
+contain additional channels not needed by the model. The data source will select the
+necessary data for the model. Additionally, the later two dims have some flexibility
+with regridding.</p>
+</div>
+<p>One option to build these H5 files from scratch is to use the ERA5 mirror scripts
 provided in <a class="reference external" href="https://github.com/NVIDIA/modulus/tree/main/examples/weather/dataset_download">Modulus</a>.
-For the rest of this tutorial, it is assumed that 2017.h5 is present for the full year.
-%%</p>
+For the rest of this tutorial, it is assumed that 2017.h5 is present for the full year.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dotenv</span>
 
 <span class="n">dotenv</span><span class="o">.</span><span class="n">load_dotenv</span><span class="p">()</span>
@@ -561,11 +568,16 @@ For research, one would typically want this to be much more comprehensive so fee
 to customize for you’re use case.</p>
 <p>The <cite>score_deterministic</cite> API provides a simple way to calculate RMSE and ACC scores.
 ACC scores require climatology which is beyond the scope of this example, thus zero
-values will be provided and only the RMSE will be of concern.</p>
+values will be provided and only the RMSE will be of concern.
+This function will save the results of every inference run into a CSV file which
+can then be pose process using some of the utility functions Earth-2 MIP provides.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">earth2mip.inference_medium_range</span> <span class="kn">import</span> <span class="n">save_scores</span><span class="p">,</span> <span class="n">time_average_metrics</span>
 
-<span class="n">time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2017</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-<span class="n">initial_times</span> <span class="o">=</span> <span class="p">[</span><span class="n">time</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">30</span> <span class="o">*</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">12</span><span class="p">)]</span>
+<span class="c1"># Use 12 initializations.</span>
+<span class="n">time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2017</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">initial_times</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">time</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">30</span> <span class="o">*</span> <span class="n">i</span><span class="p">,</span> <span class="n">hours</span><span class="o">=</span><span class="mi">6</span> <span class="o">*</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+<span class="p">]</span>  <span class="c1"># modify here to change the initializations</span>
 
 <span class="c1"># Output directoy</span>
 <span class="n">output_dir</span> <span class="o">=</span> <span class="s2">&quot;outputs/03_model_scoring&quot;</span>
@@ -573,26 +585,12 @@ values will be provided and only the RMSE will be of concern.</p>
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">output</span> <span class="o">=</span> <span class="n">save_scores</span><span class="p">(</span>
         <span class="n">model</span><span class="p">,</span>
-        <span class="n">n</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>  <span class="c1"># 12 hour timesteps</span>
+        <span class="n">n</span><span class="o">=</span><span class="mi">28</span><span class="p">,</span>  <span class="c1"># 6 hour timesteps (28*6/24 = 7-day forecast)</span>
         <span class="n">initial_times</span><span class="o">=</span><span class="n">initial_times</span><span class="p">,</span>
         <span class="n">data_source</span><span class="o">=</span><span class="n">datasource</span><span class="p">,</span>
         <span class="n">time_mean</span><span class="o">=</span><span class="n">datasource</span><span class="o">.</span><span class="n">time_means</span><span class="p">,</span>
         <span class="n">output_directory</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span>
     <span class="p">)</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>INFO:inference:Running 2017-01-01 00:00:00
-INFO:inference:Running 2017-01-31 00:00:00
-INFO:inference:Running 2017-03-02 00:00:00
-INFO:inference:Running 2017-04-01 00:00:00
-INFO:inference:Running 2017-05-01 00:00:00
-INFO:inference:Running 2017-05-31 00:00:00
-INFO:inference:Running 2017-06-30 00:00:00
-INFO:inference:Running 2017-07-30 00:00:00
-INFO:inference:Running 2017-08-29 00:00:00
-INFO:inference:Running 2017-09-28 00:00:00
-INFO:inference:Running 2017-10-28 00:00:00
-INFO:inference:Running 2017-11-27 00:00:00
 </pre></div>
 </div>
 </section>
@@ -610,19 +608,22 @@ Lets plot the RMSE of the z500 (geopotential at pressure level 500) field.</p>
 <span class="n">dataset</span> <span class="o">=</span> <span class="n">time_average_metrics</span><span class="p">(</span><span class="n">series</span><span class="p">)</span>
 
 <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
-<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;z500&quot;</span><span class="p">,</span> <span class="s2">&quot;t2m&quot;</span><span class="p">,</span> <span class="s2">&quot;t850&quot;</span><span class="p">]</span>
 <span class="n">t</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">lead_time</span> <span class="o">/</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="s2">&quot;1 h&quot;</span><span class="p">)</span>
-<span class="n">y</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">rmse</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">channel</span><span class="o">=</span><span class="s2">&quot;z500&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Lead Time (hours)&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;RMSE&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;DLWP z500 RMSE 2017&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">/dwlp_z500_rmse.png&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">channel</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">channels</span><span class="p">):</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">rmse</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">channel</span><span class="o">=</span><span class="n">channel</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>  <span class="c1"># Ignore first output as that&#39;s just initial condition.</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Lead Time (hours)&quot;</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;RMSE&quot;</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;DLWP </span><span class="si">{</span><span class="n">channel</span><span class="si">}</span><span class="s2"> RMSE 2017&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">/dwlp_rmse.png&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_03_model_scoring_001.png" srcset="../_images/sphx_glr_03_model_scoring_001.png, ../_images/sphx_glr_03_model_scoring_001_2_00x.png 2.00x" alt="DLWP z500 RMSE 2017" class = "sphx-glr-single-img"/><p>This completes this introductory notebook on basic scoring of models in Earth-2 MIP,
+<img src="../_images/sphx_glr_03_model_scoring_001.png" srcset="../_images/sphx_glr_03_model_scoring_001.png, ../_images/sphx_glr_03_model_scoring_001_2_00x.png 2.00x" alt="DLWP z500 RMSE 2017, DLWP t2m RMSE 2017, DLWP t850 RMSE 2017" class = "sphx-glr-single-img"/><p>This completes this introductory notebook on basic scoring of models in Earth-2 MIP,
 which is founational for comparing the performance of different models.</p>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (6 minutes 3.610 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (4 minutes 31.593 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-03-model-scoring-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/eecc36fe4757f89c762af258b6ca201c/03_model_scoring.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">03_model_scoring.ipynb</span></code></a></p>
@@ -655,11 +656,11 @@ which is founational for comparing the performance of different models.</p>
       </div>
     </a>
     <a class="right-next"
-       href="utils/index.html"
+       href="04_diagnostic_models.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">&lt;no title&gt;</p>
+        <p class="prev-next-title">Diagnostic Models for Precipitation</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

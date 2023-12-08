@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="../_static/favicon.ico" rel="icon" type="image/x-icon">
-    <title>Basic Inference with Multiple Models &#8212; Earth-2 MIP 0.1.0 documentation</title>
+    <title>Basic Inference with Multiple Models &#8212; Earth-2 MIP 0.2.0a0 documentation</title>
   
   
   
@@ -39,7 +39,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
   <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
 
-    <script src="../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../_static/documentation_options.js?v=312c242a"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'examples/02_model_comparison';</script>
@@ -395,6 +395,7 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="01_ensemble_inference.html">Running Ensemble Inference</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Basic Inference with Multiple Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="03_model_scoring.html">Scoring Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04_diagnostic_models.html">Diagnostic Models for Precipitation</a></li>
 </ul>
 </div>
 </nav></div>
@@ -585,7 +586,7 @@ work with.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Running Pangu inference&quot;</span><span class="p">)</span>
 <span class="n">pangu_ds</span> <span class="o">=</span> <span class="n">inference_ensemble</span><span class="o">.</span><span class="n">run_basic_inference</span><span class="p">(</span>
     <span class="n">pangu_inference_model</span><span class="p">,</span>
-    <span class="n">n</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span>  <span class="c1"># Note we run 24 steps here because Pangu is at 6 hour dt</span>
+    <span class="n">n</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span>  <span class="c1"># Note we run 24 steps here because Pangu is at 6 hour dt (6 day forecast)</span>
     <span class="n">data_source</span><span class="o">=</span><span class="n">pangu_data_source</span><span class="p">,</span>
     <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span>
 <span class="p">)</span>
@@ -649,7 +650,7 @@ Dimensions without coordinates: history
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Running DLWP inference&quot;</span><span class="p">)</span>
 <span class="n">dlwp_ds</span> <span class="o">=</span> <span class="n">inference_ensemble</span><span class="o">.</span><span class="n">run_basic_inference</span><span class="p">(</span>
     <span class="n">dlwp_inference_model</span><span class="p">,</span>
-    <span class="n">n</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>  <span class="c1"># Note we run 12 steps here because DLWP is at 12 hour dt</span>
+    <span class="n">n</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span>  <span class="c1"># Note we run 24 steps. DLWP steps at 12 hr dt, but yeilds output every 6 hrs (6 day forecast)</span>
     <span class="n">data_source</span><span class="o">=</span><span class="n">dlwp_data_source</span><span class="p">,</span>
     <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span>
 <span class="p">)</span>
@@ -658,7 +659,7 @@ Dimensions without coordinates: history
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Running DLWP inference
-&lt;xarray.DataArray (time: 13, history: 1, channel: 7, lat: 721, lon: 1440)&gt;
+&lt;xarray.DataArray (time: 25, history: 1, channel: 7, lat: 721, lon: 1440)&gt;
 array([[[[[ 2.5029276e+02,  2.5029276e+02,  2.5029276e+02, ...,
             2.5029276e+02,  2.5029276e+02,  2.5029276e+02],
           [ 2.5040115e+02,  2.5040115e+02,  2.5040018e+02, ...,
@@ -680,31 +681,31 @@ array([[[[[ 2.5029276e+02,  2.5029276e+02,  2.5029276e+02, ...,
           [ 5.4048047e+02,  5.4048047e+02,  5.4035547e+02, ...,
             5.4073047e+02,  5.4073047e+02,  5.4060547e+02],
 ...
-            1.6946373e+00,  1.6946373e+00,  1.6946373e+00],
-          [ 1.6112556e+00,  1.6112556e+00,  1.6112556e+00, ...,
-            1.6946373e+00,  1.6946373e+00,  1.6946373e+00],
-          [ 1.6112556e+00,  1.6112556e+00,  1.6112556e+00, ...,
-            1.6946373e+00,  1.6946373e+00,  1.6946373e+00]],
+            1.8723011e+00,  1.8723011e+00,  1.8723011e+00],
+          [ 1.6709957e+00,  1.6709957e+00,  1.6709957e+00, ...,
+            1.8723011e+00,  1.8723011e+00,  1.8723011e+00],
+          [ 1.6709957e+00,  1.6709957e+00,  1.6709957e+00, ...,
+            1.8723011e+00,  1.8723011e+00,  1.8723011e+00]],
 
-         [[ 2.5115109e+02,  2.5115109e+02,  2.5115109e+02, ...,
-            2.4731943e+02,  2.4731943e+02,  2.4731943e+02],
-          [ 2.5115109e+02,  2.5115109e+02,  2.5115109e+02, ...,
-            2.4731943e+02,  2.4731943e+02,  2.4731943e+02],
-          [ 2.5115109e+02,  2.5115109e+02,  2.5115109e+02, ...,
-            2.4731943e+02,  2.4731943e+02,  2.4731943e+02],
+         [[ 2.4531807e+02,  2.4531807e+02,  2.4531807e+02, ...,
+            2.4370119e+02,  2.4370119e+02,  2.4370119e+02],
+          [ 2.4531807e+02,  2.4531807e+02,  2.4531807e+02, ...,
+            2.4370119e+02,  2.4370119e+02,  2.4370119e+02],
+          [ 2.4531807e+02,  2.4531807e+02,  2.4531807e+02, ...,
+            2.4370119e+02,  2.4370119e+02,  2.4370119e+02],
           ...,
-          [ 2.5071286e+02,  2.5071286e+02,  2.5071286e+02, ...,
-            2.5144870e+02,  2.5144870e+02,  2.5144870e+02],
-          [ 2.5071286e+02,  2.5071286e+02,  2.5071286e+02, ...,
-            2.5144870e+02,  2.5144870e+02,  2.5144870e+02],
-          [ 2.5071286e+02,  2.5071286e+02,  2.5071286e+02, ...,
-            2.5144870e+02,  2.5144870e+02,  2.5144870e+02]]]]],
+          [ 2.5014665e+02,  2.5014665e+02,  2.5014665e+02, ...,
+            2.5109041e+02,  2.5109041e+02,  2.5109041e+02],
+          [ 2.5014665e+02,  2.5014665e+02,  2.5014665e+02, ...,
+            2.5109041e+02,  2.5109041e+02,  2.5109041e+02],
+          [ 2.5014665e+02,  2.5014665e+02,  2.5014665e+02, ...,
+            2.5109041e+02,  2.5109041e+02,  2.5109041e+02]]]]],
       dtype=float32)
 Coordinates:
   * lat      (lat) float64 90.0 89.75 89.5 89.25 ... -89.25 -89.5 -89.75 -90.0
   * lon      (lon) float64 0.0 0.25 0.5 0.75 1.0 ... 359.0 359.2 359.5 359.8
   * channel  (channel) &lt;U5 &#39;t850&#39; &#39;z1000&#39; &#39;z700&#39; &#39;z500&#39; &#39;z300&#39; &#39;tcwv&#39; &#39;t2m&#39;
-  * time     (time) datetime64[ns] 2018-01-01 2018-01-01T12:00:00 ... 2018-01-07
+  * time     (time) datetime64[ns] 2018-01-01 2018-01-01T06:00:00 ... 2018-01-07
 Dimensions without coordinates: history
 </pre></div>
 </div>
@@ -721,7 +722,7 @@ Here we will just plot the z500 (geopotential at pressure level 500) contour tim
 
 <span class="c1"># Get data-arrays at 12 hour steps</span>
 <span class="n">pangu_arr</span> <span class="o">=</span> <span class="n">pangu_ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">channel</span><span class="o">=</span><span class="s2">&quot;z500&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">[::</span><span class="mi">2</span><span class="p">]</span>
-<span class="n">dlwp_arr</span> <span class="o">=</span> <span class="n">dlwp_ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">channel</span><span class="o">=</span><span class="s2">&quot;z500&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+<span class="n">dlwp_arr</span> <span class="o">=</span> <span class="n">dlwp_ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">channel</span><span class="o">=</span><span class="s2">&quot;z500&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">[::</span><span class="mi">2</span><span class="p">]</span>
 <span class="c1"># Plot</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
 <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">13</span> <span class="o">*</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
@@ -739,7 +740,7 @@ Here we will just plot the z500 (geopotential at pressure level 500) contour tim
 <img src="../_images/sphx_glr_02_model_comparison_001.png" srcset="../_images/sphx_glr_02_model_comparison_001.png, ../_images/sphx_glr_02_model_comparison_001_2_00x.png 2.00x" alt="z500 DLWP vs Pangu, 2018-01-01 00:00:00, 2018-01-01 12:00:00, 2018-01-02 00:00:00, 2018-01-02 12:00:00, 2018-01-03 00:00:00, 2018-01-03 12:00:00, 2018-01-04 00:00:00, 2018-01-04 12:00:00, 2018-01-05 00:00:00, 2018-01-05 12:00:00, 2018-01-06 00:00:00, 2018-01-06 12:00:00, 2018-01-07 00:00:00" class = "sphx-glr-single-img"/><p>And that completes the second notebook detailing how to run deterministic inference of
 two models using Earth-2 MIP. In the next notebook, we will look at how to score a
 model compared against ERA5 re-analysis data.</p>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (1 minutes 54.665 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (2 minutes 32.584 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-02-model-comparison-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/c1436aff1bb09a35926c7dc9bf763886/02_model_comparison.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">02_model_comparison.ipynb</span></code></a></p>

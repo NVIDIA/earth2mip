@@ -242,7 +242,7 @@ work with.
     print("Running Pangu inference")
     pangu_ds = inference_ensemble.run_basic_inference(
         pangu_inference_model,
-        n=24,  # Note we run 24 steps here because Pangu is at 6 hour dt
+        n=24,  # Note we run 24 steps here because Pangu is at 6 hour dt (6 day forecast)
         data_source=pangu_data_source,
         time=time,
     )
@@ -319,7 +319,7 @@ work with.
     print("Running DLWP inference")
     dlwp_ds = inference_ensemble.run_basic_inference(
         dlwp_inference_model,
-        n=12,  # Note we run 12 steps here because DLWP is at 12 hour dt
+        n=24,  # Note we run 24 steps. DLWP steps at 12 hr dt, but yeilds output every 6 hrs (6 day forecast)
         data_source=dlwp_data_source,
         time=time,
     )
@@ -335,7 +335,7 @@ work with.
  .. code-block:: none
 
     Running DLWP inference
-    <xarray.DataArray (time: 13, history: 1, channel: 7, lat: 721, lon: 1440)>
+    <xarray.DataArray (time: 25, history: 1, channel: 7, lat: 721, lon: 1440)>
     array([[[[[ 2.5029276e+02,  2.5029276e+02,  2.5029276e+02, ...,
                 2.5029276e+02,  2.5029276e+02,  2.5029276e+02],
               [ 2.5040115e+02,  2.5040115e+02,  2.5040018e+02, ...,
@@ -357,31 +357,31 @@ work with.
               [ 5.4048047e+02,  5.4048047e+02,  5.4035547e+02, ...,
                 5.4073047e+02,  5.4073047e+02,  5.4060547e+02],
     ...
-                1.6946373e+00,  1.6946373e+00,  1.6946373e+00],
-              [ 1.6112556e+00,  1.6112556e+00,  1.6112556e+00, ...,
-                1.6946373e+00,  1.6946373e+00,  1.6946373e+00],
-              [ 1.6112556e+00,  1.6112556e+00,  1.6112556e+00, ...,
-                1.6946373e+00,  1.6946373e+00,  1.6946373e+00]],
+                1.8723011e+00,  1.8723011e+00,  1.8723011e+00],
+              [ 1.6709957e+00,  1.6709957e+00,  1.6709957e+00, ...,
+                1.8723011e+00,  1.8723011e+00,  1.8723011e+00],
+              [ 1.6709957e+00,  1.6709957e+00,  1.6709957e+00, ...,
+                1.8723011e+00,  1.8723011e+00,  1.8723011e+00]],
 
-             [[ 2.5115109e+02,  2.5115109e+02,  2.5115109e+02, ...,
-                2.4731943e+02,  2.4731943e+02,  2.4731943e+02],
-              [ 2.5115109e+02,  2.5115109e+02,  2.5115109e+02, ...,
-                2.4731943e+02,  2.4731943e+02,  2.4731943e+02],
-              [ 2.5115109e+02,  2.5115109e+02,  2.5115109e+02, ...,
-                2.4731943e+02,  2.4731943e+02,  2.4731943e+02],
+             [[ 2.4531807e+02,  2.4531807e+02,  2.4531807e+02, ...,
+                2.4370119e+02,  2.4370119e+02,  2.4370119e+02],
+              [ 2.4531807e+02,  2.4531807e+02,  2.4531807e+02, ...,
+                2.4370119e+02,  2.4370119e+02,  2.4370119e+02],
+              [ 2.4531807e+02,  2.4531807e+02,  2.4531807e+02, ...,
+                2.4370119e+02,  2.4370119e+02,  2.4370119e+02],
               ...,
-              [ 2.5071286e+02,  2.5071286e+02,  2.5071286e+02, ...,
-                2.5144870e+02,  2.5144870e+02,  2.5144870e+02],
-              [ 2.5071286e+02,  2.5071286e+02,  2.5071286e+02, ...,
-                2.5144870e+02,  2.5144870e+02,  2.5144870e+02],
-              [ 2.5071286e+02,  2.5071286e+02,  2.5071286e+02, ...,
-                2.5144870e+02,  2.5144870e+02,  2.5144870e+02]]]]],
+              [ 2.5014665e+02,  2.5014665e+02,  2.5014665e+02, ...,
+                2.5109041e+02,  2.5109041e+02,  2.5109041e+02],
+              [ 2.5014665e+02,  2.5014665e+02,  2.5014665e+02, ...,
+                2.5109041e+02,  2.5109041e+02,  2.5109041e+02],
+              [ 2.5014665e+02,  2.5014665e+02,  2.5014665e+02, ...,
+                2.5109041e+02,  2.5109041e+02,  2.5109041e+02]]]]],
           dtype=float32)
     Coordinates:
       * lat      (lat) float64 90.0 89.75 89.5 89.25 ... -89.25 -89.5 -89.75 -90.0
       * lon      (lon) float64 0.0 0.25 0.5 0.75 1.0 ... 359.0 359.2 359.5 359.8
       * channel  (channel) <U5 't850' 'z1000' 'z700' 'z500' 'z300' 'tcwv' 't2m'
-      * time     (time) datetime64[ns] 2018-01-01 2018-01-01T12:00:00 ... 2018-01-07
+      * time     (time) datetime64[ns] 2018-01-01 2018-01-01T06:00:00 ... 2018-01-07
     Dimensions without coordinates: history
 
 
@@ -406,7 +406,7 @@ Here we will just plot the z500 (geopotential at pressure level 500) contour tim
 
     # Get data-arrays at 12 hour steps
     pangu_arr = pangu_ds.sel(channel="z500").values[::2]
-    dlwp_arr = dlwp_ds.sel(channel="z500").values
+    dlwp_arr = dlwp_ds.sel(channel="z500").values[::2]
     # Plot
     plt.close("all")
     fig, axs = plt.subplots(2, 13, figsize=(13 * 4, 5))
@@ -441,7 +441,7 @@ model compared against ERA5 re-analysis data.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (1 minutes 54.665 seconds)
+   **Total running time of the script:** (2 minutes 32.584 seconds)
 
 
 .. _sphx_glr_download_examples_02_model_comparison.py:

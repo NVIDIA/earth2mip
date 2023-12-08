@@ -4,6 +4,7 @@ API
 .. toctree::
    :maxdepth: 1
 
+   earth2mip.data
    earth2mip.datasets
    earth2mip.diagnostic
    earth2mip.initial_conditions
