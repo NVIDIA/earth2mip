@@ -28,7 +28,8 @@ class BredVector:
     Parameters
     ----------
     model : Callable[[torch.Tensor], torch.Tensor]
-        Dynamical model, typically this is the prognostic AI model
+        Dynamical model, typically this is the prognostic AI model.
+        TODO: Update to prognostic looper
     noise_amplitude : float, optional
         Noise amplitude, by default 0.05
     integration_steps : int, optional

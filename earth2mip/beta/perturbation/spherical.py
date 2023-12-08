@@ -23,7 +23,7 @@ from torch_harmonics import InverseRealSHT
 
 
 class SphericalGaussian:
-    """Gaussian random field on the sphere with Matern covariance petrubation method
+    """Gaussian random field on the sphere with Matern covariance peturbation method
     output to a lat lon grid
 
     Warning
@@ -38,7 +38,7 @@ class SphericalGaussian:
     alpha : float, optional
         Regularity parameter. Larger means smoother, by default 2.0
     tau : float, optional
-        Lenght-scale parameter. Larger means more scales, by default 3.0
+        Length-scale parameter. Larger means more scales, by default 3.0
     sigma : Union[float, None], optional
         Scale parameter. If None, sigma = tau**(0.5*(2*alpha - 2.0)), by default None
     """
@@ -83,7 +83,7 @@ class SphericalGaussian:
         if 2 * (shape[-2] // 2) != shape[-1] / 2:
             raise ValueError("Lat/lon aspect ration must be N:2N or N+1:2N")
 
-        nlat = 2 * (coords["lat"].shape[0] // 2)  # Noise only support even lat count
+        nlat = 2 * (shape[-2] // 2)  # Noise only support even lat count
         sampler = GaussianRandomFieldS2(
             nlat=nlat,
             alpha=self.alpha,
@@ -100,8 +100,8 @@ class SphericalGaussian:
         # Hack for odd lat coords
         if x.shape[-2] % 2 == 1:
             noise = torch.zeros_like(x)
-            noise[:, :, :, :-1, :] = sample_noise
-            noise[:, :, :, -1:, :] = noise[:, :, :, -2:-1, :]
+            noise[..., :-1, :] = sample_noise
+            noise[..., -1:, :] = noise[..., -2:-1, :]
         else:
             noise = sample_noise
 

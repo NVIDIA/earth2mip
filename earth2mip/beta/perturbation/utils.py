@@ -20,7 +20,7 @@ from typing import Optional
 import numpy as np
 import torch
 
-from earth2mip.perturbation.base import PertubationMethod
+from earth2mip.beta.perturbation.base import PertubationMethod
 
 
 class Perturbation:
@@ -57,14 +57,19 @@ class Perturbation:
         self.method = method
         self.channels = channels
 
-        if not center:
+        if center is None and scale is None:
             center = np.array([0])
-        if not scale:
             scale = np.array([1])
+        elif center is None:
+            center = np.zeros_like(scale)
+        elif scale is None:
+            scale = np.ones_like(center)
 
         self.center = torch.Tensor(center)
         self.scale = torch.Tensor(scale)
 
+        if self.center.ndim != 1 and self.scale.ndim != 1:
+            raise ValueError("Only 1D normalization vectors supported for fields")
         if self.center.shape != self.scale.shape:
             raise ValueError("Center and scale arrays must be the same dimensionality")
 
@@ -89,17 +94,21 @@ class Perturbation:
             Tensor with applied perturbation, coordinate system
         """
         dims = list(coords.keys())
+        # Move channels to first dimension
+        x = torch.transpose(x, dims.index("channels"), 0)
         # Filter channels
         if self.channels:
-            cindex = torch.IntTensor([dims.index(dim) for dim in self.channels])
-            x0 = torch.index_select(x, dim=dims.index("channels"), index=cindex)
+            cindex = torch.IntTensor(
+                [coords["channels"].index(i) for i in self.channels]
+            ).to(x.device)
+            x0 = x[cindex].contiguous()
         else:
             x0 = x
 
         # Normalize
         center = self.center.to(x.device)
         scale = self.scale.to(x.device)
-        for i in range(len(dims[dims.index("channels") + center.ndim :])):
+        for i in range(x.ndim - 1):
             # Padd tail end of tensor dims for broadcasting
             center = center.unsqueeze(-1)
             scale = scale.unsqueeze(-1)
@@ -113,9 +122,9 @@ class Perturbation:
 
         # Apply channel perturbation
         if self.channels:
-            for index in cindex:
-                torch.select(x, dims.index("channels"), x0)
+            x[cindex] = x0
         else:
             x = x0
+        x = torch.transpose(x, 0, dims.index("channels"))
 
         return x, coords

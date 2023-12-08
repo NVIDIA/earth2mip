@@ -17,7 +17,7 @@ def prep_data_array(
     da : xr.DataArray
         Input data array
     device : torch.device, optional
-        Torch devive to load data tensor to, by default "cuda:0"
+        Torch devive to load data tensor to, by default "cpu"
 
     Returns
     -------

@@ -23,7 +23,7 @@ import h5py
 import numpy as np
 import pytest
 
-from earth2mip.data import ERA5H5
+from earth2mip.beta.data import ERA5H5
 
 
 @pytest.fixture(scope="session")

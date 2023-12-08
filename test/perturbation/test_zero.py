@@ -17,33 +17,40 @@
 from collections import OrderedDict
 
 import numpy as np
+import pytest
 import torch
 
+from earth2mip.beta.perturbation import Zero
 
-class ZeroNoise:
-    """No perturbation scheme
 
-    Primarily used for deterministic runs in ensemble workflows
-    """
+@pytest.mark.parametrize(
+    "x",
+    [
+        torch.randn(4, 16, 16),
+        torch.randn(2, 4, 16, 16),
+        torch.randn(1, 2, 4, 16, 16),
+    ],
+)
+@pytest.mark.parametrize(
+    "device",
+    [
+        "cpu",
+        pytest.param(
+            "cuda:0",
+            marks=pytest.mark.skipif(
+                not torch.cuda.is_available(), reason="cuda missing"
+            ),
+        ),
+    ],
+)
+def test_zero(x, device):
 
-    @torch.inference_mode()
-    def __call__(
-        self,
-        x: torch.Tensor,
-        coords: OrderedDict[str, np.ndarray],
-    ) -> torch.Tensor:
-        """Apply perturbation method
+    x = x.to(device)
+    coords = OrderedDict([(f"{i}", np.arange(x.shape[i])) for i in range(x.ndim)])
 
-        Parameters
-        ----------
-        x : torch.Tensor
-            Input tensor intended to apply perturbation on
-        coords : OrderedDict[str, np.ndarray]
-            Ordered dict representing coordinate system that discribes the tensor
+    prtb = Zero()
+    dx = prtb(x, coords)
 
-        Returns
-        -------
-        torch.Tensor
-            Perturbation noise tensor
-        """
-        return torch.zeros_like(x)
+    assert dx.shape == x.shape
+    assert torch.sum(dx) == 0
+    assert dx.device == x.device

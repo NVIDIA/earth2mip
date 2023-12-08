@@ -14,30 +14,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import datetime
+from collections import OrderedDict
 
 import numpy as np
 import pytest
 import torch
-import xarray as xr
 
-from earth2mip.beta.data.utils import prep_data_array
-
-
-@pytest.fixture
-def foo_data_array():
-    time0 = datetime.datetime.now()
-    return xr.DataArray(
-        data=np.random.rand(8, 16, 32),
-        dims=["one", "two", "three"],
-        coords={
-            "one": [time0 + i * datetime.timedelta(hours=6) for i in range(8)],
-            "two": [f"{i}" for i in range(16)],
-            "three": np.linspace(0, 1, 32),
-        },
-    )
+from earth2mip.beta.perturbation import Gaussian
 
 
+@pytest.mark.parametrize(
+    "x",
+    [
+        torch.randn(2, 4, 16, 16),
+        torch.randn(2, 2, 4, 16, 16),
+    ],
+)
+@pytest.mark.parametrize(
+    "amplitude",
+    [
+        1.0,
+        0.05,
+    ],
+)
 @pytest.mark.parametrize(
     "device",
     [
@@ -50,14 +49,19 @@ def foo_data_array():
         ),
     ],
 )
-@pytest.mark.parametrize("dims", [["one", "two", "three"], ["three", "one", "two"]])
-def test_prep_dataarray(foo_data_array, dims, device):
+def test_gaussian(x, amplitude, device):
 
-    data_array = foo_data_array.transpose(*dims)
-    out, outc = prep_data_array(data_array, device)
+    x = x.to(device)
+    coords = OrderedDict([(f"{i}", np.arange(x.shape[i])) for i in range(x.ndim)])
 
-    assert str(out.device) == device
-    assert list(outc.keys()) == list(data_array.dims)
-    for key in outc.keys():
-        assert (outc[key] == np.array(data_array.coords[key])).all()
-    assert out.shape == data_array.data.shape
+    prtb = Gaussian(amplitude)
+    dx = prtb(x, coords)
+
+    assert dx.shape == x.shape
+    assert torch.allclose(
+        torch.mean(dx), torch.Tensor([0]).to(device), rtol=1e-2, atol=1e-1
+    )
+    assert torch.allclose(
+        torch.std(dx), torch.Tensor([amplitude]).to(device), rtol=1e-2, atol=1e-1
+    )
+    assert dx.device == x.device

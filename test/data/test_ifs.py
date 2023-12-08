@@ -21,7 +21,7 @@ import shutil
 import numpy as np
 import pytest
 
-from earth2mip.data import IFS
+from earth2mip.beta.data import IFS
 
 
 @pytest.mark.slow

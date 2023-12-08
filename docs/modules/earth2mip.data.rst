@@ -1,6 +1,10 @@
 Data Sources
 ========================
 
+.. warning ::
+
+    Experimental APIs, here be dragons.
+
 Data sources used for downloading, caching and reading different weather / climate data
 APIs into `Xarray data arrays <https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html>`_.
 Used for fetching initial conditions for inference and validation data for scoring.

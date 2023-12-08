@@ -21,7 +21,7 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from earth2mip.data import DataArrayFile, DataSetFile
+from earth2mip.beta.data import DataArrayFile, DataSetFile
 
 
 @pytest.fixture

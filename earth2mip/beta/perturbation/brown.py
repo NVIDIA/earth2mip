@@ -20,7 +20,7 @@ import numpy as np
 import torch
 
 
-class BrownNoise:
+class Brown:
     """Lat/Lon 2D brown noise
 
     Parameters
@@ -64,7 +64,6 @@ class BrownNoise:
 
         ilat = dims.index("lat")
         ilon = dims.index("lon")
-
         # Move lat, lon to last coordinates for noise generation
         shape0 = list(shape)
         for i in sorted([ilat, ilon], reverse=True):
@@ -94,29 +93,3 @@ class BrownNoise:
         x_shaped = x_white * S
         noise_shaped = torch.fft.irfft2(x_shaped, s=shape[-2:])
         return noise_shaped
-
-
-if __name__ == "__main__":
-
-    noise = BrownNoise()
-
-    import numpy as np
-
-    input_tensor = torch.randn(3, 16, 32)
-    # xrc = xr.Coordinates(coords={
-    #         "time": np.linspace(0, 1, input_tensor.shape[0]).tolist(),
-    #         "lat": np.linspace(-90, 90, input_tensor.shape[1]).tolist(),
-    #         "lon": np.linspace(0, 360, input_tensor.shape[1]).tolist()
-    #     }, indexes={})
-    import xarray as xr
-
-    xrc = xr.DataArray(
-        dims=["time", "lon", "lat"],
-        coords={
-            "time": np.linspace(0, 1, input_tensor.shape[0]).tolist(),
-            "lat": np.linspace(-90, 90, input_tensor.shape[1]).tolist(),
-            "lon": np.linspace(0, 360, input_tensor.shape[1]).tolist(),
-        },
-    ).coords
-
-    noise(input_tensor, xrc)
