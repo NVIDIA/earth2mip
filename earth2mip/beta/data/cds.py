@@ -30,7 +30,7 @@ from modulus.distributed.manager import DistributedManager
 from tqdm import tqdm
 
 from earth2mip import config
-from earth2mip.lexicon import CDSLexicon
+from earth2mip.beta.lexicon import CDSLexicon
 
 logger.remove()
 logger.add(lambda msg: tqdm.write(msg, end=""), colorize=True)
@@ -56,6 +56,7 @@ class CDS:
     Note
     ----
     Additional information on the data repository can be referenced here:
+
     - https://cds.climate.copernicus.eu/cdsapp#!/home
     """
 
@@ -74,25 +75,24 @@ class CDS:
     def __call__(
         self,
         time: Union[datetime.datetime, list[datetime.datetime]],
-        channel: Union[str, list[str]],
+        variable: Union[str, list[str]],
     ) -> xr.DataArray:
         """Function to get data.
 
         Parameters
         ----------
-        t : datetime.datetime or list[datetime.datetime]
+        time : Union[datetime.datetime, List[datetime.datetime]]
             Timestamps to return data for (UTC).
-        channel : str or list[str]
-            Strings or list of strings that refer to the
-            channel/variables to return.
+        variable : Union[str, List[str]]
+            Strings or list of strings that refer to variables to return.
 
         Returns
         -------
         xr.DataArray
             ERA5 weather data array from CDS
         """
-        if isinstance(channel, str):
-            channel = [channel]
+        if isinstance(variable, str):
+            variable = [variable]
 
         if isinstance(time, datetime.datetime):
             time = [time]
@@ -106,7 +106,7 @@ class CDS:
         # Fetch index file for requested time
         data_arrays = []
         for t0 in time:
-            data_array = self.fetch_cds_dataarray(t0, channel)
+            data_array = self.fetch_cds_dataarray(t0, variable)
             data_arrays.append(data_array)
 
         # Delete cache if needed
@@ -118,7 +118,7 @@ class CDS:
     def fetch_cds_dataarray(
         self,
         time: datetime.datetime,
-        channels: list[str],
+        variables: list[str],
     ) -> xr.DataArray:
         """Retrives CDS data array for given date time by fetching variable grib files
         using the cdsapi package and combining grib files into a single data array.
@@ -127,7 +127,7 @@ class CDS:
         ----------
         time : datetime.datetime
             Date time to fetch
-        channels : list[str]
+        variables : list[str]
             List of atmosphric variables to fetch. Must be supported in CDS lexicon
 
         Returns
@@ -136,11 +136,11 @@ class CDS:
             CDS data array for given date time
         """
         cdsda = xr.DataArray(
-            data=np.empty((1, len(channels), len(self.CDS_LAT), len(self.CDS_LON))),
-            dims=["time", "channel", "lat", "lon"],
+            data=np.empty((1, len(variables), len(self.CDS_LAT), len(self.CDS_LON))),
+            dims=["time", "variable", "lat", "lon"],
             coords={
                 "time": [time],
-                "channel": channels,
+                "variable": variables,
                 "lat": self.CDS_LAT,
                 "lon": self.CDS_LON,
             },
@@ -148,19 +148,19 @@ class CDS:
 
         # TODO: Add MP here, can further optimize by combining pressure levels
         # Not doing until tested.
-        for i, channel in enumerate(
-            tqdm(channels, desc="Loading CDS channels", disable=(not self._verbose))
+        for i, variable in enumerate(
+            tqdm(variables, desc="Loading CDS variables", disable=(not self._verbose))
         ):
-            # Convert from E2 MIP channel ID to GFS id and modifier
+            # Convert from E2 MIP variable ID to GFS id and modifier
             try:
-                cds_name, modifier = CDSLexicon[channel]
+                cds_name, modifier = CDSLexicon[variable]
             except KeyError as e:
-                logger.error(f"Channel id {channel} not found in CDS lexicon")
+                logger.error(f"variable id {variable} not found in CDS lexicon")
                 raise e
 
             dataset_name, variable, level = cds_name.split("::")
 
-            logger.debug(f"Fetching CDS grib file for channel: {channel} at {time}")
+            logger.debug(f"Fetching CDS grib file for variable: {variable} at {time}")
             grib_file = self._download_cds_grib_cached(
                 dataset_name, variable, level, time
             )

@@ -14,41 +14,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# import this before torch to avoid GLIBC error
-import random as rand
-
-import numpy
-import pytest
-import torch
-
-from earth2mip import config
-
-
-def get_gpu_count():
-    return torch.cuda.device_count()
-
-
-@pytest.fixture()
-def has_registry():
-    if not config.MODEL_REGISTRY:
-        pytest.skip("MODEL_REGISTRY not configured.")
-
-
-@pytest.fixture()
-def dist():
-    from modulus.distributed.manager import DistributedManager
-
-    DistributedManager.initialize()
-    return DistributedManager()
-
-
-@pytest.fixture()
-def ngpu():
-    return get_gpu_count()
-
-
-@pytest.fixture
-def random():
-    rand.seed(0)
-    numpy.random.seed(0)
-    torch.manual_seed(0)
+from .coords import handshake_dim

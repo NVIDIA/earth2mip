@@ -48,17 +48,16 @@ class Random:
     def __call__(
         self,
         time: Union[datetime.datetime, List[datetime.datetime]],
-        channel: Union[str, List[str]],
+        variable: Union[str, List[str]],
     ) -> xr.DataArray:
         """Retrieve random gaussian data.
 
         Parameters
         ----------
-        time : datetime.datetime
-            Optional time requested for data. If None, takes
-            most currently available data.
-        channel : str
-            Channel(s) requested. Must be a subset of era5 available channels.
+        time : Union[datetime.datetime, List[datetime.datetime]]
+            Timestamps to return data for.
+        variable : Union[str, List[str]]
+            Strings or list of strings that refer to variables to return.
 
         Returns
         -------
@@ -66,18 +65,20 @@ class Random:
             Random data array
         """
 
-        if isinstance(channel, str):
-            channel = [channel]
+        if isinstance(variable, str):
+            variable = [variable]
 
         if isinstance(time, datetime.datetime):
             time = [time]
 
         da = xr.DataArray(
-            data=np.random.randn(len(time), len(channel), len(self.lat), len(self.lon)),
-            dims=["time", "channel", "lat", "lon"],
+            data=np.random.randn(
+                len(time), len(variable), len(self.lat), len(self.lon)
+            ),
+            dims=["time", "variable", "lat", "lon"],
             coords={
                 "time": time,
-                "channel": channel,
+                "variable": variable,
                 "lat": self.lat,
                 "lon": self.lon,
             },

@@ -40,24 +40,23 @@ class DataArrayFile:
     def __call__(
         self,
         time: Union[datetime.datetime, List[datetime.datetime]],
-        channel: Union[str, List[str]],
+        variable: Union[str, List[str]],
     ) -> xr.DataArray:
         """Function to get data.
 
         Parameters
         ----------
-        t : datetime.datetime or List[datetime.datetime]
+        time : Union[datetime.datetime, List[datetime.datetime]]
             Timestamps to return data for.
-        channel : str or List[str]
-            Strings or list of strings that refer to the
-            channel/variables to return.
+        variable : Union[str, List[str]]
+            Strings or list of strings that refer to variables to return.
 
         Returns
         -------
         xr.DataArray
             Loaded data array
         """
-        return self.da.sel(time=time, channel=channel)
+        return self.da.sel(time=time, variable=variable)
 
 
 class DataSetFile:
@@ -68,36 +67,35 @@ class DataSetFile:
     ----------
     file_path : str
         Path to xarray dataset compatible file.
-    variable_name : str
+    array_name : str
         Data array name in xarray dataset
     """
 
-    def __init__(self, file_path: str, variable_name: str):
+    def __init__(self, file_path: str, array_name: str):
         self.file_path = file_path
-        self.variable_name = variable_name
+        self.array_name = array_name
 
     @property
     def da(self, xr_args: Dict[str, Any] = {}) -> xr.DataArray:
-        return xr.open_dataset(self.file_path, **xr_args)[self.variable_name]
+        return xr.open_dataset(self.file_path, **xr_args)[self.array_name]
 
     def __call__(
         self,
         time: Union[datetime.datetime, List[datetime.datetime]],
-        channel: Union[str, List[str]],
+        variable: Union[str, List[str]],
     ) -> xr.DataArray:
         """Function to get data.
 
         Parameters
         ----------
-        t : datetime.datetime or List[datetime.datetime]
+        time : Union[datetime.datetime, List[datetime.datetime]]
             Timestamps to return data for.
-        channel : str or List[str]
-            Strings or list of strings that refer to the
-            channel/variables to return.
+        variable : Union[str, List[str]]
+            Strings or list of strings that refer to variables to return.
 
         Returns
         -------
         xr.DataArray
             Loaded data array
         """
-        return self.da.sel(time=time, channel=channel)
+        return self.da.sel(time=time, variable=variable)
