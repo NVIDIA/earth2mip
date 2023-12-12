@@ -21,7 +21,7 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from earth2mip.data import DataArrayFile, DataSetFile
+from earth2mip.beta.data import DataArrayFile, DataSetFile
 
 
 @pytest.fixture
@@ -32,14 +32,14 @@ def foo_data_array():
         datetime.datetime(year=2018, month=2, day=1),
         datetime.datetime(year=2018, month=3, day=1),
     ]
-    channel = ["u10m", "v10m", "t2m"]
+    variable = ["u10m", "v10m", "t2m"]
 
     da = xr.DataArray(
-        data=np.random.randn(len(time), len(channel), 8, 16),
-        dims=["time", "channel", "lat", "lon"],
+        data=np.random.randn(len(time), len(variable), 8, 16),
+        dims=["time", "variable", "lat", "lon"],
         coords={
             "time": time,
-            "channel": channel,
+            "variable": variable,
         },
     )
     return da
@@ -53,21 +53,21 @@ def foo_data_set():
         datetime.datetime(year=2018, month=2, day=1),
         datetime.datetime(year=2018, month=3, day=1),
     ]
-    channel = ["u10m", "v10m", "t2m"]
+    variable = ["u10m", "v10m", "t2m"]
     ds = xr.Dataset(
         data_vars=dict(
             field1=(
-                ["time", "channel", "lat", "lon"],
-                np.random.randn(len(time), len(channel), 8, 16),
+                ["time", "variable", "lat", "lon"],
+                np.random.randn(len(time), len(variable), 8, 16),
             ),
             field2=(
-                ["time", "channel", "lat", "lon"],
-                np.random.randn(len(time), len(channel), 8, 16),
+                ["time", "variable", "lat", "lon"],
+                np.random.randn(len(time), len(variable), 8, 16),
             ),
         ),
         coords={
             "time": time,
-            "channel": channel,
+            "variable": variable,
         },
     )
     return ds
@@ -80,19 +80,21 @@ def foo_data_set():
         datetime.datetime(year=2018, month=2, day=1),
     ],
 )
-@pytest.mark.parametrize("channel", ["u10m", ["u10m", "v10m"]])
-def test_data_array_netcdf(foo_data_array, time, channel):
+@pytest.mark.parametrize("variable", ["u10m", ["u10m", "v10m"]])
+def test_data_array_netcdf(foo_data_array, time, variable):
     foo_data_array.to_netcdf("test.nc")
     # Load data source and request data array
     data_source = DataArrayFile("test.nc")
-    data = data_source(time, channel)
+    data = data_source(time, variable)
     # Delete nc file
     pathlib.Path("test.nc").unlink(missing_ok=True)
     # Check consisten
-    assert np.all(foo_data_array.sel(time=time, channel=channel).values == data.values)
+    assert np.all(
+        foo_data_array.sel(time=time, variable=variable).values == data.values
+    )
 
 
-@pytest.mark.parametrize("variable", ["field1", "field2"])
+@pytest.mark.parametrize("array", ["field1", "field2"])
 @pytest.mark.parametrize(
     "time",
     [
@@ -100,15 +102,15 @@ def test_data_array_netcdf(foo_data_array, time, channel):
         datetime.datetime(year=2018, month=2, day=1),
     ],
 )
-@pytest.mark.parametrize("channel", ["u10m", ["u10m", "v10m"]])
-def test_data_set_netcdf(foo_data_set, variable, time, channel):
+@pytest.mark.parametrize("variable", ["u10m", ["u10m", "v10m"]])
+def test_data_set_netcdf(foo_data_set, array, time, variable):
     foo_data_set.to_netcdf("test.nc")
     # Load data source and request data array
-    data_source = DataSetFile("test.nc", variable_name=variable)
-    data = data_source(time, channel)
+    data_source = DataSetFile("test.nc", array_name=array)
+    data = data_source(time, variable)
     # Delete nc file
     pathlib.Path("test.nc").unlink(missing_ok=True)
     # Check consisten
     assert np.all(
-        foo_data_set[variable].sel(time=time, channel=channel).values == data.values
+        foo_data_set[array].sel(time=time, variable=variable).values == data.values
     )

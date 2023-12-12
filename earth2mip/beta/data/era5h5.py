@@ -53,13 +53,13 @@ class ERA5H5:
 
     .. code-block:: text
 
-        fields: [time, channel, lat, lon]
+        fields: [time, variable, lat, lon]
 
     data.json should have fields
 
     .. code-block:: text
 
-        coords.channel - list of channels (default 73 fcn v2 channel set)
+        coords.variable - list of variables (default 73 fcn v2 variable set)
         coords.lat - list of latitude coords (default 0.25 degree)
         coords.lon - list of longitude coords (default 0.25 degree)
         dt_hours - timestep in hours (default 6 hours)
@@ -82,7 +82,7 @@ class ERA5H5:
     """
 
     dt_hours: float = 6.0
-    channel: list[str] = CHANNELS
+    variable: list[str] = CHANNELS
     ERA5_LAT: np.array = np.linspace(90, -90, 721)
     ERA5_LON: np.array = np.linspace(0, 359.75, 1440)
 
@@ -96,17 +96,17 @@ class ERA5H5:
     def __call__(
         self,
         time: Union[datetime.datetime, List[datetime.datetime]],
-        channel: Union[str, List[str]],
+        variable: Union[str, List[str]],
     ) -> xr.DataArray:
         """Retrieve data from ERA5 (either mounted on NGC or PBSS) from a particular
         date and including n_history periods into the past from that date.
 
         Parameters
         ----------
-        time : Union[datetime.datetime, list[datetime.datetime]]
+        time : Union[datetime.datetime, List[datetime.datetime]]
             Timestamps to return data for (UTC).
-        channel : str
-            Channel(s) requested. Must be a subset of era5 available channels.
+        variable : Union[str, List[str]]
+            Strings or list of strings that refer to variables to return.
 
         Returns
         -------
@@ -114,8 +114,8 @@ class ERA5H5:
             ERA5 weather data array from H5 files
         """
 
-        if isinstance(channel, str):
-            channel = [channel]
+        if isinstance(variable, str):
+            variable = [variable]
 
         if isinstance(time, datetime.datetime):
             time = [time]
@@ -133,7 +133,7 @@ class ERA5H5:
 
         # Open H5 files
         da = xr.concat(
-            [self._open_era5_hdf5(fs.open(files[t.year]), t, channel) for t in time],
+            [self._open_era5_hdf5(fs.open(files[t.year]), t, variable) for t in time],
             "time",
         )
 
@@ -156,8 +156,8 @@ class ERA5H5:
             self.dt_hours = float(meta_data["dt_hours"])
 
         if "coords" in meta_data:
-            if "channel" in meta_data["coords"]:
-                self.channel = meta_data["coords"]["channel"]
+            if "variable" in meta_data["coords"]:
+                self.variable = meta_data["coords"]["variable"]
             if "lat" in meta_data["coords"]:
                 self.ERA5_LAT = np.array(meta_data["coords"]["lat"])
             if "lon" in meta_data["coords"]:
@@ -208,7 +208,7 @@ class ERA5H5:
         self,
         file: io.IOBase,
         date: datetime.datetime,
-        channel: Union[str, List[str]],
+        variable: Union[str, List[str]],
     ) -> xr.DataArray:
         """Helper function to open ERA5 data stored in h5netcdf file."""
 
@@ -220,7 +220,7 @@ class ERA5H5:
         da = da.rename(
             {
                 da.dims[0]: "time",
-                da.dims[1]: "channel",
+                da.dims[1]: "variable",
                 da.dims[2]: "lat",
                 da.dims[3]: "lon",
             }
@@ -230,8 +230,8 @@ class ERA5H5:
                 datetime.datetime(date.year, 1, 1, 0, 0) + time_step * int(i)
                 for i in da.time
             ],
-            channel=self.channel,
+            variable=self.variable,
             lat=self.ERA5_LAT,
             lon=self.ERA5_LON,
         )
-        return da.sel(time=[date], channel=channel)
+        return da.sel(time=[date], variable=variable)

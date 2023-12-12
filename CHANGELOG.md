@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated GFS data source to pull from AWS
 - Updated IFS data source to use ECMWF's open data package
 - Change DLWP inferencer class to now work on 6 hr time-steps
+- Moving perturbation methods from inference ensemble into submodule
 
 ### Deprecated
 

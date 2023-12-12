@@ -21,12 +21,12 @@ import shutil
 import numpy as np
 import pytest
 
-from earth2mip.data import GFS
+from earth2mip.beta.data import GFS
 
 
 @pytest.mark.slow
 @pytest.mark.xfail
-@pytest.mark.timeout(60)
+@pytest.mark.timeout(15)
 @pytest.mark.parametrize(
     "time",
     [
@@ -60,7 +60,7 @@ def test_gfs_fetch(time, channel):
 
 @pytest.mark.slow
 @pytest.mark.xfail
-@pytest.mark.timeout(120)
+@pytest.mark.timeout(15)
 @pytest.mark.parametrize(
     "time",
     [
@@ -101,7 +101,7 @@ def test_gfs_cache(time, channel, cache):
         pass
 
 
-@pytest.mark.timeout(60)
+@pytest.mark.timeout(15)
 @pytest.mark.parametrize(
     "time",
     [

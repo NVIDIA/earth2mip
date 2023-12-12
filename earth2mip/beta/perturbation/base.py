@@ -14,36 +14,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import datetime
-from typing import List, Protocol, Union, runtime_checkable
+from collections import OrderedDict
+from typing import Protocol, runtime_checkable
 
-import xarray as xr
+import numpy as np
+import torch
 
 
 @runtime_checkable
-class DataSource(Protocol):
-    """Data source interface."""
+class PerturbationMethod(Protocol):
+    """Perturbation interface."""
 
+    @torch.inference_mode()
     def __call__(
         self,
-        t: Union[datetime.datetime, List[datetime.datetime]],
-        channel: Union[str, List[str]],
-    ) -> xr.DataArray:
-        """Function to get data.
+        x: torch.Tensor,
+        coords: OrderedDict[str, np.ndarray],
+    ) -> torch.Tensor:
+        """Apply perturbation method
 
         Parameters
         ----------
-        t : datetime.datetime or List[datetime.datetime]
-            Timestamps to return data for.
-        channel : str or List[str]
-            Strings or list of strings that refer to the
-            channel/variables to return.
+        x : torch.Tensor
+            Input tensor intended to apply perturbation on
+        coords : OrderedDict[str, np.ndarray]
+            Ordered dict representing coordinate system that discribes the tensor
 
         Returns
         -------
-        xr.DataArray
-            An xarray data-array with the dimensions [time, channel, ....]. The coords
-            should be provided. Time coordinate should be a datetime array and the
-            channel coordinate should be array of strings with E2-MIP channel ids.
+        torch.Tensor
+            Perturbation noise tensor
         """
         pass

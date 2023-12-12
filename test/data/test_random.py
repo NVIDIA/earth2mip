@@ -19,7 +19,7 @@ import datetime
 import numpy as np
 import pytest
 
-from earth2mip.data import Random
+from earth2mip.beta.data import Random
 
 
 @pytest.mark.parametrize(

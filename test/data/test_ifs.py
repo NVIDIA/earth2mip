@@ -21,12 +21,12 @@ import shutil
 import numpy as np
 import pytest
 
-from earth2mip.data import IFS
+from earth2mip.beta.data import IFS
 
 
 @pytest.mark.slow
 @pytest.mark.xfail
-@pytest.mark.timeout(60)
+@pytest.mark.timeout(15)
 @pytest.mark.parametrize(
     "time",
     [
@@ -60,7 +60,7 @@ def test_ifs_fetch(time, channel):
 
 @pytest.mark.slow
 @pytest.mark.xfail
-@pytest.mark.timeout(120)
+@pytest.mark.timeout(15)
 @pytest.mark.parametrize(
     "time",
     [
@@ -100,7 +100,7 @@ def test_ifs_cache(time, channel, cache):
 
 
 @pytest.mark.xfail
-@pytest.mark.timeout(60)
+@pytest.mark.timeout(15)
 @pytest.mark.parametrize(
     "time",
     [
