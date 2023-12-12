@@ -20,12 +20,13 @@ from typing import Optional
 import numpy as np
 import torch
 
-from earth2mip.beta.perturbation.base import PertubationMethod
+from earth2mip.beta.perturbation.base import PerturbationMethod
+from earth2mip.beta.utils import handshake_dim
 
 
 class Perturbation:
     """Applies a perturbation method to an input tensor. If supplied this will filter
-    the channel dimension of the input to a subset to apply the specified perturbation.
+    the variable dimension of the input to a subset to apply the specified perturbation.
     Additionally, normalization vectors can be supplied to normalize the data prior to
     applying perturbations.
 
@@ -34,28 +35,34 @@ class Perturbation:
     It is a core design pricinple of Earth-2 MIP to always move data with physical units
     between components. It is very likely users should provide normalization arrays.
 
+    Note
+    ----
+    Presently this class is strict, requiring the last three dimensions of the input
+    coordinate system to be ['variable', 'lat', 'lon']. Further generalization may be
+    considered in the future as the use case arises.
+
     Parameters
     ----------
-    method : PertubationMethod
-        _description_
-    channels : Optional[list[str]], optional
-        List of channel id's to apply petrubation on. If None, perturbation will be
-        applied to all channels, by default None
+    method : PerturbationMethod
+        Perturbation method
+    variables : Optional[list[str]], optional
+        List of variable id's to apply petrubation on. If None, perturbation will be
+        applied to all variables, by default None
     center : Optional[np.ndarray], optional
-        Channel center / mean array. If None, no center will be used, by default None
+        Variable center / mean array. If None, no center will be used, by default None
     scale : Optional[np.ndarray], optional
-        Channel scale / std array. If None, no scale will be used,, by default None
+        Variable scale / std array. If None, no scale will be used,, by default None
     """
 
     def __init__(
         self,
-        method: PertubationMethod,
-        channels: Optional[list[str]] = None,
+        method: PerturbationMethod,
+        variables: Optional[list[str]] = None,
         center: Optional[np.ndarray] = None,
         scale: Optional[np.ndarray] = None,
     ):
         self.method = method
-        self.channels = channels
+        self.variables = variables
 
         if center is None and scale is None:
             center = np.array([0])
@@ -93,26 +100,22 @@ class Perturbation:
         tuple[torch.Tensor, OrderedDict[str, np.ndarray]]
             Tensor with applied perturbation, coordinate system
         """
-        dims = list(coords.keys())
-        # Move channels to first dimension
-        x = torch.transpose(x, dims.index("channels"), 0)
-        # Filter channels
-        if self.channels:
-            cindex = torch.IntTensor(
-                [coords["channels"].index(i) for i in self.channels]
+        # Check the required dimensions are present
+        handshake_dim(coords, required_dim="variable", required_index=-3)
+        handshake_dim(coords, required_dim="lat", required_index=-2)
+        handshake_dim(coords, required_dim="lon", required_index=-1)
+        # Filter variables
+        if self.variables:
+            vindex = torch.IntTensor(
+                [coords["variable"].index(i) for i in self.variables]
             ).to(x.device)
-            x0 = x[cindex].contiguous()
+            x0 = x[..., vindex, :, :].contiguous()
         else:
             x0 = x
 
         # Normalize
-        center = self.center.to(x.device)
-        scale = self.scale.to(x.device)
-        for i in range(x.ndim - 1):
-            # Padd tail end of tensor dims for broadcasting
-            center = center.unsqueeze(-1)
-            scale = scale.unsqueeze(-1)
-
+        center = self.center.to(x.device).unsqueeze(-1).unsqueeze(-1)
+        scale = self.scale.to(x.device).unsqueeze(-1).unsqueeze(-1)
         x0 = (x0 - center) / scale
 
         # Compute noise
@@ -120,11 +123,10 @@ class Perturbation:
         # Apply noise and unnormalize
         x0 = scale * (x0 + noise) + center
 
-        # Apply channel perturbation
-        if self.channels:
-            x[cindex] = x0
+        # Apply variable perturbation
+        if self.variables:
+            x[..., vindex, :, :] = x0
         else:
             x = x0
-        x = torch.transpose(x, 0, dims.index("channels"))
 
         return x, coords

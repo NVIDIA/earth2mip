@@ -26,18 +26,17 @@ class DataSource(Protocol):
 
     def __call__(
         self,
-        t: Union[datetime.datetime, List[datetime.datetime]],
-        channel: Union[str, List[str]],
+        time: Union[datetime.datetime, List[datetime.datetime]],
+        variable: Union[str, List[str]],
     ) -> xr.DataArray:
         """Function to get data.
 
         Parameters
         ----------
-        t : datetime.datetime or List[datetime.datetime]
+        time : Union[datetime.datetime, List[datetime.datetime]]
             Timestamps to return data for.
-        channel : str or List[str]
-            Strings or list of strings that refer to the
-            channel/variables to return.
+        variable : Union[str, List[str]]
+            Strings or list of strings that refer to variables to return.
 
         Returns
         -------

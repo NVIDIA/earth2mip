@@ -19,6 +19,8 @@ from collections import OrderedDict
 import numpy as np
 import torch
 
+from earth2mip.beta.utils import handshake_dim
+
 
 class Brown:
     """Lat/Lon 2D brown noise
@@ -49,7 +51,7 @@ class Brown:
             Input tensor intended to apply perturbation on
         coords : OrderedDict[str, np.ndarray]
             Ordered dict representing coordinate system that discribes the tensor, must
-            contain "lat" and "lon" coordinates
+            contain "lat" and "lon" coordinates in last two dims
 
         Returns
         -------
@@ -57,21 +59,11 @@ class Brown:
             Perturbation noise tensor
         """
         shape = x.shape
-        dims = list(coords.keys())
-        # Can be generalized if needed to have coords a constructor parameter
-        if "lat" not in dims or "lon" not in dims:
-            raise ValueError("Input tensor coords needs to contian lat and lon dims")
+        # Check the required dimensions are present
+        handshake_dim(coords, required_dim="lat", required_index=-2)
+        handshake_dim(coords, required_dim="lon", required_index=-1)
 
-        ilat = dims.index("lat")
-        ilon = dims.index("lon")
-        # Move lat, lon to last coordinates for noise generation
-        shape0 = list(shape)
-        for i in sorted([ilat, ilon], reverse=True):
-            del shape0[i]
-        shape0 = shape0 + [shape[ilat], shape[ilon]]
-
-        noise = self._generate_noise_correlated(tuple(shape0), device=x.device)
-        noise = torch.moveaxis(noise, (-2, -1), (ilat, ilon))
+        noise = self._generate_noise_correlated(tuple(shape), device=x.device)
 
         return self.noise_amplitude * noise
 

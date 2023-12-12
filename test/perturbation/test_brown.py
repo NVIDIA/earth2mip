@@ -27,9 +27,12 @@ from earth2mip.beta.perturbation import Brown
     [
         [
             torch.randn(2, 16, 16, 16),
-            OrderedDict([("a", []), ("b", []), ("lat", []), ("lon", [])]),
+            OrderedDict([("a", []), ("variable", []), ("lat", []), ("lon", [])]),
         ],
-        [torch.randn(2, 32, 16), OrderedDict([("lat", []), ("b", []), ("lon", [])])],
+        [
+            torch.randn(2, 32, 16),
+            OrderedDict([("variable", []), ("lat", []), ("lon", [])]),
+        ],
     ],
 )
 @pytest.mark.parametrize(
@@ -64,19 +67,21 @@ def test_brown(x, coords, amplitude, reddening, device):
 
 
 @pytest.mark.parametrize(
-    "x, coords",
+    "x, coords, error",
     [
         [
-            torch.randn(2, 16, 16, 16),
+            torch.randn(2, 8, 8, 8),
             OrderedDict([("a", []), ("b", []), ("not_lat", []), ("lon", [])]),
+            KeyError,
         ],
         [
-            torch.randn(2, 16, 32, 16),
-            OrderedDict([("a", []), ("b", []), ("lat", []), ("not_lon", [])]),
+            torch.randn(2, 8, 8, 8),
+            OrderedDict([("a", []), ("lat", []), ("b", []), ("lon", [])]),
+            ValueError,
         ],
     ],
 )
-def test_brown_failure(x, coords):
-    with pytest.raises(ValueError):
+def test_brown_failure(x, coords, error):
+    with pytest.raises(error):
         prtb = Brown()
         prtb(x, coords)

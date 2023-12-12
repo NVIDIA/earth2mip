@@ -20,6 +20,9 @@ from typing import Callable
 import numpy as np
 import torch
 
+from earth2mip.beta.perturbation.base import PerturbationMethod
+from earth2mip.beta.perturbation.brown import Brown
+
 
 class BredVector:
     """Bred Vector perturbation method, a classical technique for pertubations in
@@ -36,6 +39,8 @@ class BredVector:
         Number of integration steps to use in forward call, by default 20
     ensemble_perturb : bool, optional
         Perturb the ensemble in an interacting fashion, by default False
+    seeding_perturbation_method : PerturbationMethod, optional
+        Method to seed the Bred Vector perturbation, by default Brown Noise
 
     Note
     ----
@@ -54,12 +59,13 @@ class BredVector:
         noise_amplitude: float = 0.05,
         integration_steps: int = 20,
         ensemble_perturb: bool = False,
+        seeding_perturbation_method: PerturbationMethod = Brown(),
     ):
         self.model = model
         self.noise_amplitude = noise_amplitude
         self.ensemble_perturb = ensemble_perturb
         self.integration_steps = integration_steps
-        self.reddening = 2.0
+        self.seeding_perturbation_method = seeding_perturbation_method
 
     @torch.inference_mode()
     def __call__(
@@ -81,8 +87,7 @@ class BredVector:
         torch.Tensor
             Perturbation noise tensor
         """
-        shape = x.shape
-        dx = self._generate_noise_correlated(shape, device=x.device)
+        dx = self.seeding_perturbation_method(x, coords)
 
         xd = torch.clone(x)
         xd, _ = self.model(xd, coords)
@@ -99,22 +104,3 @@ class BredVector:
         gamma = torch.norm(x) / torch.norm(x + dx)
 
         return dx * self.noise_amplitude * gamma
-
-    def _generate_noise_correlated(
-        self, shape: tuple[int, ...], device: torch.device
-    ) -> torch.Tensor:
-        """Utility class for producing correlated noise"""
-        noise = torch.randn(*shape, device=device)
-        x_white = torch.fft.rfft2(noise)
-        S = (
-            torch.abs(torch.fft.fftfreq(shape[-2], device=device).reshape(-1, 1))
-            ** self.reddening
-            + torch.fft.rfftfreq(shape[-1], device=device) ** self.reddening
-        )
-        S = 1 / S
-        S[..., 0, 0] = 0
-        S = S / torch.sqrt(torch.mean(S**2))
-        # Scale noise by 0.1 * amplitude
-        x_shaped = 0.1 * self.noise_amplitude * x_white * S
-        noise_shaped = torch.fft.irfft2(x_shaped, s=shape[-2:])
-        return noise_shaped

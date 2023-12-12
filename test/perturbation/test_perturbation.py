@@ -32,21 +32,17 @@ from earth2mip.beta.perturbation.utils import Perturbation
             OrderedDict(
                 [
                     ("a", []),
-                    ("channels", ["a", "b", "c", "d"]),
+                    ("variable", ["a", "b", "c", "d"]),
                     ("lat", []),
                     ("lon", []),
                 ]
             ),
-        ],
-        [
-            torch.randn(16, 4, 16),
-            OrderedDict([("lat", []), ("channels", ["a", "b", "c", "d"]), ("lon", [])]),
-        ],
+        ]
     ],
 )
 @pytest.mark.parametrize("method", [Gaussian(), Brown()])
 @pytest.mark.parametrize(
-    "channels,center,scale",
+    "variables,center,scale",
     [
         [None, None, None],
         [["a", "b"], None, None],
@@ -67,20 +63,20 @@ from earth2mip.beta.perturbation.utils import Perturbation
         ),
     ],
 )
-def test_perturbation(x, coords, method, channels, center, scale, device):
+def test_perturbation(x, coords, method, variables, center, scale, device):
     x = x.to(device)
     x0 = torch.clone(x)  # Pertubation is inplace
 
-    prtb = Perturbation(method, channels, center, scale)
+    prtb = Perturbation(method, variables, center, scale)
     y, ycoord = prtb(x, coords)
 
     assert y.shape == x0.shape
     assert y.device == x0.device
 
-    cdim = list(coords.keys()).index("channels")
-    channels = coords["channels"] if channels is None else channels
-    for i, channel in enumerate(coords["channels"]):
-        if channel in channels:
+    cdim = list(coords.keys()).index("variable")
+    variables = coords["variable"] if variables is None else variables
+    for i, variable in enumerate(coords["variable"]):
+        if variable in variables:
             assert not torch.allclose(
                 torch.select(x0, dim=cdim, index=i), torch.select(y, dim=cdim, index=i)
             )
@@ -98,6 +94,33 @@ def test_perturbation(x, coords, method, channels, center, scale, device):
         [np.random.randn(4, 2), np.random.randn(4)],
     ],
 )
-def test_perturbation_failure(center, scale):
+def test_perturbation_failure_norm(center, scale):
     with pytest.raises(ValueError):
         Perturbation(Gaussian(), center=center, scale=scale)
+
+
+@pytest.mark.parametrize(
+    "coords",
+    [
+        OrderedDict(
+            [
+                ("a", []),
+                ("lat", []),
+                ("variable", []),
+                ("lon", []),
+            ]
+        ),
+        OrderedDict(
+            [
+                ("variable", []),
+                ("a", []),
+                ("lat", []),
+                ("lon", []),
+            ]
+        ),
+    ],
+)
+def test_perturbation_failure_coord(coords):
+    with pytest.raises(ValueError):
+        prtb = Perturbation(Gaussian())
+        prtb(torch.zeros(1), coords)

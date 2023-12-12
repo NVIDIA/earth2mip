@@ -19,7 +19,7 @@ from collections import OrderedDict
 import pytest
 import torch
 
-from earth2mip.beta.perturbation import BredVector
+from earth2mip.beta.perturbation import BredVector, Brown, Gaussian
 
 
 @pytest.fixture
@@ -42,17 +42,21 @@ def model():
     [
         [
             torch.randn(2, 16, 16, 16),
-            OrderedDict([("a", []), ("b", []), ("lat", []), ("lon", [])]),
+            OrderedDict([("a", []), ("variable", []), ("lat", []), ("lon", [])]),
         ],
         [
-            torch.randn(2, 16, 32, 16),
-            OrderedDict([("a", []), ("lat", []), ("b", []), ("lon", [])]),
+            torch.randn(2, 8, 32, 16),
+            OrderedDict([("a", []), ("variable", []), ("lat", []), ("lon", [])]),
         ],
     ],
 )
 @pytest.mark.parametrize(
     "amplitude,steps,ensemble",
     [[1.0, 5, False], [1.0, 3, True]],
+)
+@pytest.mark.parametrize(
+    "seeding_perturbation_method",
+    [Brown(), Gaussian()],
 )
 @pytest.mark.parametrize(
     "device",
@@ -66,13 +70,15 @@ def model():
         ),
     ],
 )
-def test_bred_vec(model, x, coords, amplitude, steps, ensemble, device):
+def test_bred_vec(
+    model, x, coords, amplitude, steps, ensemble, seeding_perturbation_method, device
+):
 
     model = model.to(device)
     model.index = 0
     x = x.to(device)
 
-    prtb = BredVector(model, amplitude, steps, ensemble)
+    prtb = BredVector(model, amplitude, steps, ensemble, seeding_perturbation_method)
     dx = prtb(x, coords)
 
     # Don't have a good statistical test for this at the moment

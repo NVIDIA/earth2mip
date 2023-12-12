@@ -63,15 +63,15 @@ def test_spherical_gaussian(x, coords, amplitude, alpha, tau, sigma, device):
 
 
 @pytest.mark.parametrize(
-    "x, coords",
+    "x, coords, error",
     [
-        [torch.randn(2, 4), OrderedDict([("not_lat", []), ("lon", [])])],
-        [torch.randn(2, 4), OrderedDict([("lat", []), ("not_lon", [])])],
-        [torch.randn(4, 2), OrderedDict([("lon", []), ("lat", [])])],
-        [torch.randn(4, 4), OrderedDict([("lat", []), ("lon", [])])],
+        [torch.randn(2, 4), OrderedDict([("not_lat", []), ("lon", [])]), KeyError],
+        [torch.randn(2, 4), OrderedDict([("lat", []), ("not_lon", [])]), KeyError],
+        [torch.randn(4, 2), OrderedDict([("lon", []), ("lat", [])]), ValueError],
+        [torch.randn(4, 4), OrderedDict([("lat", []), ("lon", [])]), ValueError],
     ],
 )
-def test_spherical_gaussian_failure(x, coords):
-    with pytest.raises(ValueError):
+def test_spherical_gaussian_failure(x, coords, error):
+    with pytest.raises(error):
         prtb = SphericalGaussian()
         prtb(x, coords)

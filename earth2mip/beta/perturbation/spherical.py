@@ -21,6 +21,8 @@ import numpy as np
 import torch
 from torch_harmonics import InverseRealSHT
 
+from earth2mip.beta.utils import handshake_dim
+
 
 class SphericalGaussian:
     """Gaussian random field on the sphere with Matern covariance peturbation method
@@ -77,9 +79,10 @@ class SphericalGaussian:
             Perturbation noise tensor
         """
         shape = x.shape
-        dims = list(coords.keys())
-        if dims[-2] != "lat" or dims[-1] != "lon":
-            raise ValueError("Last two input coordinates must be lat and lon")
+        # Check the required dimensions are present
+        handshake_dim(coords, required_dim="lat", required_index=-2)
+        handshake_dim(coords, required_dim="lon", required_index=-1)
+        # Check the ratio
         if 2 * (shape[-2] // 2) != shape[-1] / 2:
             raise ValueError("Lat/lon aspect ration must be N:2N or N+1:2N")
 

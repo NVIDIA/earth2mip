@@ -26,7 +26,7 @@ from earth2mip.beta.data import CDS
 
 @pytest.mark.slow
 @pytest.mark.xfail
-@pytest.mark.timeout(60)
+@pytest.mark.timeout(15)
 @pytest.mark.parametrize(
     "time",
     [
@@ -60,7 +60,7 @@ def test_cds_fetch(time, channel):
 
 @pytest.mark.slow
 @pytest.mark.xfail
-@pytest.mark.timeout(120)
+@pytest.mark.timeout(15)
 @pytest.mark.parametrize(
     "time",
     [
@@ -100,7 +100,7 @@ def test_cds_cache(time, channel, cache):
 
 
 @pytest.mark.xfail
-@pytest.mark.timeout(60)
+@pytest.mark.timeout(15)
 @pytest.mark.parametrize(
     "time",
     [

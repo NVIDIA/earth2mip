@@ -82,25 +82,26 @@ class GFS:
     def __call__(
         self,
         time: Union[datetime.datetime, list[datetime.datetime]],
-        channel: Union[str, list[str]],
+        variable: Union[str, list[str]],
     ) -> xr.DataArray:
         """Retrieve GFS initial data to be used for initial conditions for the given
-        time, channel information, and optional history.
+        time, variable information, and optional history.
 
         Parameters
         ----------
-        time : Union[datetime.datetime, list[datetime.datetime]]
+        time : Union[datetime.datetime, List[datetime.datetime]]
             Timestamps to return data for (UTC).
-        channel : str
-            Channel(s) requested. Must be a subset of era5 available channels.
+        variable : Union[str, List[str]]
+            Strings or list of strings that refer to variables to return. Must be in the
+            GFS lexicon.
 
         Returns
         -------
         xr.DataArray
             GFS weather data array
         """
-        if isinstance(channel, str):
-            channel = [channel]
+        if isinstance(variable, str):
+            variable = [variable]
 
         if isinstance(time, datetime.datetime):
             time = [time]
@@ -114,7 +115,7 @@ class GFS:
         # Fetch index file for requested time
         data_arrays = []
         for t0 in time:
-            data_array = self.fetch_gfs_dataarray(t0, channel)
+            data_array = self.fetch_gfs_dataarray(t0, variable)
             data_arrays.append(data_array)
 
         # Delete cache if needed
@@ -126,7 +127,7 @@ class GFS:
     def fetch_gfs_dataarray(
         self,
         time: datetime.datetime,
-        channels: list[str],
+        variables: list[str],
     ) -> xr.DataArray:
         """Retrives GFS data array for given date time by fetching the index file,
         fetching variable grib files and lastly combining grib files into single data
@@ -136,7 +137,7 @@ class GFS:
         ----------
         time : datetime.datetime
             Date time to fetch
-        channels : list[str]
+        variables : list[str]
             List of atmosphric variables to fetch. Must be supported in GFS lexicon
 
         Returns
@@ -160,28 +161,28 @@ class GFS:
         grib_file_name = os.path.join(self.GFS_BUCKET_NAME, file_name)
 
         gfsda = xr.DataArray(
-            data=np.empty((1, len(channels), len(self.GFS_LAT), len(self.GFS_LON))),
-            dims=["time", "channel", "lat", "lon"],
+            data=np.empty((1, len(variables), len(self.GFS_LAT), len(self.GFS_LON))),
+            dims=["time", "variable", "lat", "lon"],
             coords={
                 "time": [time],
-                "channel": channels,
+                "variable": variables,
                 "lat": self.GFS_LAT,
                 "lon": self.GFS_LON,
             },
         )
 
         # TODO: Add MP here
-        for i, channel in enumerate(
-            tqdm(channels, desc="Loading GFS channels", disable=(not self._verbose))
+        for i, variable in enumerate(
+            tqdm(variables, desc="Loading GFS variables", disable=(not self._verbose))
         ):
-            # Convert from E2 MIP channel ID to GFS id and modifier
+            # Convert from E2 MIP variable ID to GFS id and modifier
             try:
-                gfs_name, modifier = GFSLexicon[channel]
+                gfs_name, modifier = GFSLexicon[variable]
             except KeyError:
                 logger.warning(
-                    f"Channel id {channel} not found in GFS lexicon, good luck"
+                    f"variable id {variable} not found in GFS lexicon, good luck"
                 )
-                gfs_name = channel
+                gfs_name = variable
 
                 def modifier(x: np.array) -> np.array:
                     return x
@@ -192,7 +193,7 @@ class GFS:
             byte_offset = index_file[gfs_name][0]
             byte_length = index_file[gfs_name][1]
             # Download the grib file to cache
-            logger.debug(f"Fetching GFS grib file for channel: {channel} at {time}")
+            logger.debug(f"Fetching GFS grib file for variable: {variable} at {time}")
             grib_file = self._download_s3_grib_cached(
                 grib_file_name, byte_offset=byte_offset, byte_length=byte_length
             )

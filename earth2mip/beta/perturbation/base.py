@@ -22,7 +22,7 @@ import torch
 
 
 @runtime_checkable
-class PertubationMethod(Protocol):
+class PerturbationMethod(Protocol):
     """Perturbation interface."""
 
     @torch.inference_mode()
