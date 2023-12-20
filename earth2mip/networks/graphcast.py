@@ -619,15 +619,11 @@ def load_stepper(
 def _load_time_loop_from_description(
     package,
     checkpoint_path: str,
-    resolution: float,
+    dataset_path: str,
     device="cuda:0",
 ) -> TimeStepperLoop:
     checkpoint = package.get(os.path.join("params", checkpoint_path))
-    dataset = {
-        0.25: "source-era5_date-2022-01-01_res-0.25_levels-13_steps-04.nc",
-        1.0: "source-era5_date-2022-01-01_res-1.0_levels-13_steps-04.nc",
-    }[resolution]
-    dataset_path = package.get(os.path.join("dataset", dataset))
+    dataset_path = package.get(os.path.join("dataset", dataset_path))
     stats_dir = package.get("stats", recursive=True)
     stepper = load_stepper(checkpoint, dataset_path, stats_dir, device=device)
     return TimeStepperLoop(stepper)
@@ -642,7 +638,7 @@ def load_time_loop(
     return _load_time_loop_from_description(
         package=package,
         checkpoint_path="GraphCast - ERA5 1979-2017 - resolution 0.25 - pressure levels 37 - mesh 2to6 - precipitation input and output.npz",  # noqa
-        resolution=0.25,
+        dataset_path="source-era5_date-2022-01-01_res-0.25_levels-37_steps-04.nc",
         device=device,
     )
 
@@ -655,7 +651,7 @@ def load_time_loop_small(
     return _load_time_loop_from_description(
         package=package,
         checkpoint_path="GraphCast_small - ERA5 1979-2015 - resolution 1.0 - pressure levels 13 - mesh 2to5 - precipitation input and output.npz",  # noqa
-        resolution=1.0,
+        dataset_path="source-era5_date-2022-01-01_res-1.0_levels-13_steps-04.nc",
         device=device,
     )
 
@@ -668,6 +664,6 @@ def load_time_loop_operational(
     return _load_time_loop_from_description(
         package=package,
         checkpoint_path="GraphCast_operational - ERA5-HRES 1979-2021 - resolution 0.25 - pressure levels 13 - mesh 2to6 - precipitation output only.npz",  # noqa
-        resolution=0.25,
+        dataset_path="source-era5_date-2022-01-01_res-0.25_levels-13_steps-04.nc",
         device=device,
     )
