@@ -135,7 +135,11 @@ def get_channel_names(variables, pressure_levels):
     return names
 
 
-def _get_array_type(x):
+def _get_array_module(x):
+    """
+    Used for device agnostic code, following this pattern:
+    https://docs.cupy.dev/en/stable/user_guide/basic.html#how-to-write-cpu-gpu-agnostic-code
+    """
     if isinstance(x, jax.Array):
         return jax.numpy
     elif isinstance(x, np.ndarray):
@@ -149,7 +153,7 @@ def _tisr(t, lat, lon):
 
     Should be upstreamed to modulus
     """
-    xp = _get_array_type(t)
+    xp = _get_array_module(t)
     try:
         old_np = zenith_angle.np
         zenith_angle.np = xp
