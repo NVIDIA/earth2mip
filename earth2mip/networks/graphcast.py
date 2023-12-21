@@ -45,7 +45,7 @@ from graphcast import (
 )
 from graphcast.data_utils import add_derived_vars
 from graphcast.rollout import _get_next_inputs
-from modulus.utils.zenith_angle import toa_incident_solar_radiation_accumulated
+from modulus.utils import zenith_angle
 
 import earth2mip.grid
 from earth2mip import time_loop
@@ -135,6 +135,47 @@ def get_channel_names(variables, pressure_levels):
     return names
 
 
+def _get_array_module(x):
+    """
+    Used for device agnostic code, following this pattern:
+    https://docs.cupy.dev/en/stable/user_guide/basic.html#how-to-write-cpu-gpu-agnostic-code
+    """
+    if isinstance(x, jax.Array):
+        return jax.numpy
+    elif isinstance(x, np.ndarray):
+        return np
+    else:
+        raise ValueError(f"Unknown array type {type(x)}")
+
+
+def _tisr(t, lat, lon):
+    """compute tisr with jax or numpy and without unnecessary warnings
+
+    Should be upstreamed to modulus
+    """
+    xp = _get_array_module(t)
+    try:
+        old_np = zenith_angle.np
+        zenith_angle.np = xp
+        # catch this warning
+        # /usr/local/lib/python3.10/dist-packages/modulus/utils/zenith_angle.py:276:
+        # RuntimeWarning: invalid value encountered in arccos
+        # hc = np.arccos(-A / B)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", RuntimeWarning)
+            return zenith_angle.toa_incident_solar_radiation_accumulated(t, lat, lon)
+    finally:
+        zenith_angle.np = old_np
+
+
+def _get_tisr(seconds_since_epoch, lat, lon):
+    t = seconds_since_epoch[..., None, None]
+    lat = lat[:, None]
+    lon = lon[None, :]
+    tisr = _tisr(t, lat, lon)
+    return xarray_jax.Variable(["batch", "time", "lat", "lon"], tisr)
+
+
 def get_forcings(time, lat, lon):
     """
     Args:
@@ -147,32 +188,36 @@ def get_forcings(time, lat, lon):
     """
 
     forcings = xarray.Dataset()
-    forcings["datetime"] = (["batch", "time"], time)
+    # need to cast to datetime64[ns] to avoid an xarray warning
+    forcings["datetime"] = (["batch", "time"], time.astype("datetime64[ns]"))
     forcings["lon"] = (["lon"], lon)
     forcings["lat"] = (["lat"], lat)
     forcings = forcings.set_coords(["datetime", "lon", "lat"])
     seconds_since_epoch = (
         forcings.coords["datetime"].data.astype("datetime64[s]").astype(np.int64)
     )
-    t = seconds_since_epoch[..., None, None]
-    lat = lat[:, None]
-    lon = lon[None, :]
 
-    # catch this warning
-    # /usr/local/lib/python3.10/dist-packages/modulus/utils/zenith_angle.py:276:
-    # RuntimeWarning: invalid value encountered in arccos
-    # hc = np.arccos(-A / B)
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", RuntimeWarning)
-        tisr = toa_incident_solar_radiation_accumulated(t, lat, lon)
-
-    forcings["toa_incident_solar_radiation"] = (
-        ["batch", "time", "lat", "lon"],
-        tisr,
-    )
+    # unfortunately, this needs to run on the CPU since it uses the datetime
+    # information
     add_derived_vars(forcings)
     forcings = forcings.drop_vars("datetime")
-    return forcings.transpose("batch", "time", "lat", "lon")
+    forcings = forcings.transpose("batch", "time", "lat", "lon")
+
+    # put data on same device as lat
+    if isinstance(lat, jax.Array):
+        forcings = jax.tree_map(
+            lambda x: jax.device_put(x, device=lat.device()), forcings
+        )
+        seconds_since_epoch = jax.device_put(seconds_since_epoch, device=lat.device())
+
+    forcings["toa_incident_solar_radiation"] = _get_tisr(seconds_since_epoch, lat, lon)
+
+    return forcings
+
+
+def torch_device_to_jax(device: torch.device) -> jax.Device:
+    x = torch.ones([], device=device)
+    return torch_to_jax(x).device()
 
 
 class GraphcastStepper(time_loop.TimeStepper):
@@ -309,14 +354,17 @@ class GraphcastStepper(time_loop.TimeStepper):
         self.eval_targets = eval_targets
         self.eval_forcings = eval_forcings
         self.task_config = task_config
-        self.lat = eval_inputs.lat.values
-        self.lon = eval_inputs.lon.values
-        self._grid = earth2mip.grid.LatLonGrid(self.lat.tolist(), self.lon.tolist())
+        lat = eval_inputs.lat.values
+        lon = eval_inputs.lon.values
+        self._grid = earth2mip.grid.LatLonGrid(lat.tolist(), lon.tolist())
         self._history_time_step = pd.Timedelta("6h")
         self._n_history_levels = (
             pd.Timedelta(task_config.input_duration) // self._history_time_step
         )
         self._device = device or torch.cuda.current_device()
+        self._jax_device = torch_device_to_jax(self._device)
+        self.lat = jax.device_put(lat, device=self._jax_device)
+        self.lon = jax.device_put(lon, device=self._jax_device)
 
     @property
     def input_info(self) -> time_loop.GeoTensorInfo:
@@ -348,11 +396,17 @@ class GraphcastStepper(time_loop.TimeStepper):
     def time_step(self) -> datetime.timedelta:
         return datetime.timedelta(hours=6)
 
+    def _assert_inputs_are_on_the_correct_device(self, inputs):
+        first_input = self.task_config.input_variables[0]
+        data = xarray_jax.unwrap_data(inputs[first_input])
+        assert data.device() == self._jax_device
+
     def initialize(self, x: torch.Tensor, time: datetime.datetime):
         x_jax = torch_to_jax(x)
         time = pd.Timestamp(time)
         dt = pd.Timedelta(self.time_step)
         inputs = self._get_inputs(x_jax, time, dt)
+        self._assert_inputs_are_on_the_correct_device(inputs)
         rng = jax.random.PRNGKey(0)
         state = (time, inputs, rng)
         return state
@@ -472,19 +526,29 @@ class GraphcastStepper(time_loop.TimeStepper):
         assert n2d + n3d == x.shape[2]  # noqa
         inputs = xarray.Dataset()
         time_offset = np.arange(-t + 1, 1, 1) * dt
+        time_offset = time_offset.astype("timedelta64[ns]")
         assert time_offset.shape == (t,)  # noqa
         inputs["time"] = (["time"], time_offset)
         inputs["level"] = (["level"], np.array(levels))
 
         pl = pl.reshape(b, t, len(vars_3d), len(levels), nx, ny)
         for i, var in enumerate(vars_3d):
-            inputs[var] = (["batch", "time", "level", "lat", "lon"], pl[:, :, i])
+            inputs[var] = xarray_jax.Variable(
+                ["batch", "time", "level", "lat", "lon"], pl[:, :, i]
+            )
 
         for i, var in enumerate(vars_surface):
-            inputs[var] = (["batch", "time", "lat", "lon"], sl[:, :, i])
+            inputs[var] = xarray_jax.Variable(
+                ["batch", "time", "lat", "lon"], sl[:, :, i]
+            )
 
         for var in vars_static:
-            inputs[var] = self.eval_inputs[var]
+            inputs[var] = xarray_jax.Variable(
+                dims=self.eval_inputs[var].dims,
+                data=jax.device_put(
+                    self.eval_inputs[var].data, device=self._jax_device
+                ),
+            )
 
         forcings = get_forcings(
             time + time_offset[None],
@@ -495,7 +559,6 @@ class GraphcastStepper(time_loop.TimeStepper):
         del forcings["day_progress"]
         inputs.update(forcings)
         inputs = inputs.set_coords(["time", "level", "lat", "lon"])
-
         return inputs
 
 

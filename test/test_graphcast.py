@@ -13,8 +13,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import jax
+import jax.numpy
 import numpy as np
 import pytest
+from graphcast import xarray_jax
 
 from earth2mip.model_registry import Package
 from earth2mip.networks import graphcast
@@ -39,6 +42,16 @@ def test_get_forcings():
     assert f["day_progress_sin"].dims == ("batch", "time", "lon")
     assert f["year_progress_cos"].dims == ("batch", "time")
     assert f["year_progress_sin"].dims == ("batch", "time")
+
+
+def test_get_forcings_jax():
+    time = np.array([[np.datetime64("2018-01-01T00:00:00")]])
+    lat = jax.numpy.arange(-90, 90)
+    lon = jax.numpy.arange(0, 360)
+    inputs = get_forcings(time, lat, lon)
+    for v in inputs:
+        v = xarray_jax.jax_data(inputs[v])
+        assert v.device() == lat.device()
 
 
 def test_get_channel_names():
