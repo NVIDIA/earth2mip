@@ -26,8 +26,6 @@ from typing import List
 import cupy
 
 # patch the proper scoring imports
-import numpy
-import pandas
 import torch
 import xarray
 
@@ -35,7 +33,7 @@ import earth2mip.forecast_metrics_io
 import earth2mip.grid
 from earth2mip import _cli_utils, config, forecasts
 from earth2mip.datasets.hindcast import open_forecast
-from earth2mip.initial_conditions import hdf5
+from earth2mip.initial_conditions import get_data_from_source, hdf5
 from earth2mip.lagged_ensembles import core
 from earth2mip.xarray import metrics
 
@@ -95,19 +93,31 @@ async def lagged_average_simple(
 
 
 class Observations:
-    def __init__(self, times, pool, data_source, channel_names, device=None):
+    def __init__(
+        self,
+        times,
+        pool,
+        data_source,
+        channel_names,
+        grid: earth2mip.grid.LatLonGrid,
+        device: torch.device = torch.device("cpu"),
+    ):
         self.pool = pool
         self.device = device
         self.times = times
         self.data_source = data_source
         self.channel_names = channel_names
+        self._grid = grid
 
     def _get_time(self, time):
-        index = pandas.Index(self.data_source.channel_names)
-        indexer = index.get_indexer(self.channel_names)
-        assert not numpy.any(indexer == -1)  # noqa
-        array = self.data_source[time][indexer]
-        return torch.from_numpy(array).to(self.device)
+        return get_data_from_source(
+            self.data_source,
+            time,
+            self.channel_names,
+            self._grid,
+            time_levels=1,
+            device=self.device,
+        )
 
     async def __getitem__(self, i):
         """
@@ -229,8 +239,12 @@ def main(args):
         pool=pool,
         data_source=data_source,
         device="cpu",
+        grid=run_forecast.grid,
         channel_names=run_forecast.channel_names,
     )
+
+    logging.basicConfig(level=logging.INFO)
+
     os.makedirs(args.output, exist_ok=True)
     output_path = os.path.join(args.output, f"{rank:03d}.csv")
     print(f"saving scores to {output_path}")

@@ -23,7 +23,15 @@ import torch
 from earth2mip import config, regrid, schema, time_loop
 from earth2mip.initial_conditions import base, cds, gfs, hdf5, hrmip, ifs
 
-__all__ = ["get_data_source", "cds", "ifs", "gfs", "hrmip", "hdf5"]
+__all__ = [
+    "get_data_source",
+    "cds",
+    "ifs",
+    "gfs",
+    "hrmip",
+    "hdf5",
+    "get_data_from_source",
+]
 
 
 def get_data_source(
@@ -47,13 +55,30 @@ def get_data_source(
         raise NotImplementedError(initial_condition_source)
 
 
-def get_initial_condition_for_model(
-    time_loop: time_loop.TimeLoop, data_source: base.DataSource, time: datetime
+def get_data_from_source(
+    data_source: base.DataSource,
+    time: datetime.datetime,
+    channel_names: List[str],
+    grid: schema.Grid,
+    time_levels: int,
+    time_step: datetime.timedelta = datetime.timedelta(hours=0),
+    device: torch.device = "cpu",
+    dtype: torch.dtype = torch.float,
 ) -> torch.Tensor:
+    """Get data from a data source
 
-    dt = time_loop.history_time_step
+    Select the ``channel_names`` and ``regrid`` it to the target ``grid``
+
+    Args:
+        time_levels: the number of time levels to return
+        time_step: the time step of the time levels
+
+    Returns:
+        (time_levels, c, lat, lon) shaped data
+    """
+    dt = time_step
     arrays = []
-    for i in range(time_loop.n_history_levels - 1, -1, -1):
+    for i in range(time_levels - 1, -1, -1):
         time_to_get = time - i * dt
         arr = data_source[time_to_get]
         expected_shape = (len(data_source.channel_names), *data_source.grid.shape)
@@ -64,16 +89,27 @@ def get_initial_condition_for_model(
     # stack the history
     array = np.stack(arrays, axis=0)
 
-    # make an empty batch dim
-    array = array[None]
-
-    index = [data_source.channel_names.index(c) for c in time_loop.in_channel_names]
-    values = array[:, :, index]
-    regridder = regrid.get_regridder(data_source.grid, time_loop.grid).to(
-        time_loop.device
-    )
-    # TODO make the dtype flexible
-    x = torch.from_numpy(values).to(time_loop.device).type(torch.float)
+    index = [data_source.channel_names.index(c) for c in channel_names]
+    values = np.take(array, index, axis=1)
+    regridder = regrid.get_regridder(data_source.grid, grid).to(device)
+    x = torch.from_numpy(values).to(device).type(dtype)
     # need a batch dimension of length 1
+    # make an empty batch dim
+    x = x[None]
     x = regridder(x)
     return x
+
+
+def get_initial_condition_for_model(
+    time_loop: time_loop.TimeLoop, data_source: base.DataSource, time: datetime
+) -> torch.Tensor:
+    return get_data_from_source(
+        data_source,
+        time,
+        time_loop.in_channel_names,
+        time_loop.grid,
+        time_loop.n_history_levels,
+        time_loop.history_time_step,
+        time_loop.device,
+        time_loop.dtype,
+    )
