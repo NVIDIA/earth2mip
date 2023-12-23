@@ -23,26 +23,15 @@ import os
 from functools import partial
 from typing import List
 
-import cupy
-
 # patch the proper scoring imports
 import torch
-import xarray
 
 import earth2mip.forecast_metrics_io
 import earth2mip.grid
 from earth2mip import _cli_utils, config, forecasts
 from earth2mip.datasets.hindcast import open_forecast
 from earth2mip.initial_conditions import get_data_from_source, hdf5
-from earth2mip.lagged_ensembles import core
-from earth2mip.xarray import metrics
-
-use_cupy = True
-if use_cupy:
-    import cupy as np
-else:
-    import numpy as np
-
+from earth2mip.lagged_ensembles import core, score
 
 logger = logging.getLogger(__name__)
 
@@ -132,44 +121,6 @@ class Observations:
         return len(self.times)
 
 
-def score(channel_names, grid: earth2mip.grid.LatLonGrid, ensemble, obs: np.ndarray):
-    """
-    Args:
-        ensemble: list of (c, ...)
-        obs: (c, ...)
-
-    Returns:gg
-        (c,)
-    """
-    import dask
-
-    dask.config.set(scheduler="single-threaded")
-    obs = xarray.DataArray(data=np.asarray(obs), dims=["channel", "lat", "lon"])
-    # need to run this after since pandas.Index doesn't support cupy
-    lat = xarray.DataArray(dims=["lat"], data=np.asarray(grid.lat))
-
-    out = {}
-    ens = torch.stack(list(ensemble.values()), dim=0)
-    ensemble_xr = xarray.DataArray(
-        data=np.asarray(ens), dims=["ensemble", "time", *obs.dims]
-    )
-    ensemble_xr = ensemble_xr.chunk(lat=32)
-    obs = obs.chunk(lat=32)
-    # need to chunk to avoid OOMs
-    with metrics.properscoring_with_cupy():
-        out = metrics.score_ensemble(
-            ensemble_xr, obs, lat=lat, ensemble_keys=list(ensemble)
-        )
-
-    mempool = cupy.get_default_memory_pool()
-    logger.debug(
-        "bytes used: %0.1f\ttotal: %0.1f",
-        mempool.used_bytes() / 2**30,
-        mempool.total_bytes() / 2**30,
-    )
-    return out
-
-
 def main(args):
     """Run a lagged ensemble scoring
 
@@ -251,7 +202,7 @@ def main(args):
     with torch.cuda.device(device), torch.no_grad():
         scores_future = lagged_average_simple(
             observations=obs,
-            score=partial(score, run_forecast.channel_names, run_forecast.grid),
+            score=partial(score, run_forecast.grid),
             run_forecast=run_forecast,
             lags=args.lags,
             n=args.leads,
