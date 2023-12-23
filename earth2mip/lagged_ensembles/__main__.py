@@ -54,7 +54,8 @@ async def lagged_average_simple(
         initial_time = times[j] - k * time_step
         lead_time = time_step * k
 
-        out = score.score(run_forecast.grid, ensemble, obs)
+        ensemble_cuda = {lag: x.cuda() for lag, x in ensemble.items()}
+        out = score.score(run_forecast.grid, ensemble_cuda, obs.cuda())
 
         with open(filename, "a") as f:
             earth2mip.forecast_metrics_io.write_metric(

@@ -1,6 +1,5 @@
 import logging
 
-import numpy as np
 import torch
 
 import earth2mip.grid
@@ -23,8 +22,7 @@ def score(
     grid: earth2mip.grid.LatLonGrid,
     ensemble: dict[int, torch.Tensor],
     obs: torch.Tensor,
-    device: torch.device = torch.device("cuda"),
-) -> dict[str, np.ndarray]:
+) -> dict[str, torch.Tensor]:
     """Set of standardized scores for lagged ensembles
 
     Includes:
@@ -36,11 +34,9 @@ def score(
     Args:
         ensemble: mapping of lag to (c, ...)
         obs: (c, ...)
-        device: device where the computation should be performed. defaults to
-            cuda.
 
     Returns:
-        dict of str to (channel,) shaped metrics numpy arrays.
+        dict of str to (channel,) shaped metrics tensors.
 
     """
     # need to run this after since pandas.Index doesn't support cupy
@@ -49,9 +45,8 @@ def score(
     ensemble_dim = 0
 
     # compute all the metrics
-    obs, ens = obs.to(device), ens.to(device)
-    crps = crps_from_empirical_cdf(obs, ens)
-    out["crps"] = area_average(grid, crps)
+    num = crps_from_empirical_cdf(obs, ens)
+    out["crps"] = area_average(grid, num)
 
     num = (ens.mean(ensemble_dim) - obs) ** 2
     out["MSE_mean"] = area_average(grid, num)
@@ -64,4 +59,4 @@ def score(
         num = (ens[i] - obs) ** 2
         out["MSE_det"] = area_average(grid, num)
 
-    return {k: v.cpu().numpy().ravel() for k, v in out.items()}
+    return {k: v.ravel() for k, v in out.items()}
