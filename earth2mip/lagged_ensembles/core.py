@@ -13,9 +13,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-from collections import deque
-
 import torch
 import torch.distributed
 
@@ -53,29 +50,18 @@ async def yield_lagged_ensembles(
     finished = set()
     ensemble = {}
 
-    obs_buffer = deque([])
-
-    for i in range(n + world_size):
-        obs_buffer.append(await observations[i])
-
     n_iter = int(nt // world_size)
     assert nt % world_size == 0  # noqa
 
     buffers = None
 
     for i0 in range(n_iter):
-        for k in range(world_size):
-            i = world_size * i0 + k
-            if i + n + 1 < nt:
-                obs_buffer.append(await observations[i + n + 1])
-
         i = world_size * i0 + rank
         nsteps = min(nt - world_size * i0 - 1, n)
 
         lead_time = -1
         async for y in forecast[i]:
             lead_time += 1
-            j = i + lead_time
             if lead_time > nsteps:
                 break
 
@@ -95,17 +81,14 @@ async def yield_lagged_ensembles(
             else:
                 cpu_buffers = [y]
 
-            lead_time = j - i
             # need to loop over ranks to ensure that number of iterations
             # per rank is the same
             for r in range(world_size):
+                ii = i0 * world_size + r
+                jj = ii + lead_time
+                if jj >= nt:
+                    break
                 for m in range(-lags, lags + 1):
-                    ii = i0 * world_size + r
-                    jj = ii + lead_time
-
-                    if jj >= nt:
-                        break
-
                     # Should this rank process the data or not?
                     i_owner = jj - lead_time - m
                     if i_owner % world_size != rank:
@@ -138,26 +121,32 @@ async def yield_lagged_ensembles(
                             torch.cuda.synchronize()
                         yield k, ensemble.pop(k), await observations[jj]
 
-        for _ in range(world_size):
-            obs_buffer.popleft()
-
     assert not ensemble, len(ensemble)  # noqa
 
 
 def num(n, ell, j, L):
+    """The number of ensemble members for a given lagged ensemble
+
+    This functions counts the lags ``m`` which satisfy the following constraints
+    from the algorithm above::
+
+        m is an integer
+
+        # true initial time of lagged member >=0
+        i = j - (ell - m) >= 0
+
+        # number of lead times
+        0 <= ell - m <= n
+
+        # lagged window
+        -L <= m <= L
+
+    Args:
+        n: length of simulation
+        ell: lead time of non-lagged member of the ensemble
+        j: valid time
+        L: lagged window is (-L, L)
+    """
     a = max(ell - j, ell - n, -L)
     b = min(ell, L)
     return b - a + 1
-
-
-def done(j, ell, i, lags, n):
-    """Unused helper function wich says if lag ell and valid_time j are written
-    to in a given iteration `i` of the loop in lagged_average_simple
-
-    This is one way to implement the done criteria which is less easily
-    parallelized. I am leaving it in the code for educational value only.
-    """
-    #
-    a = j - i - lags <= ell <= j - i + lags
-    b = n >= j - i >= 0
-    return a & b
