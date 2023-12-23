@@ -20,7 +20,6 @@ import concurrent.futures
 import datetime
 import logging
 import os
-from functools import partial
 from typing import List
 
 # patch the proper scoring imports
@@ -40,7 +39,6 @@ async def lagged_average_simple(
     *,
     observations,
     run_forecast,
-    score,
     lags=2,
     n=10,
     times: List[datetime.datetime],
@@ -56,7 +54,7 @@ async def lagged_average_simple(
         initial_time = times[j] - k * time_step
         lead_time = time_step * k
 
-        out = score(ensemble, obs)
+        out = score.score(run_forecast.grid, ensemble, obs)
 
         with open(filename, "a") as f:
             earth2mip.forecast_metrics_io.write_metric(
@@ -68,7 +66,7 @@ async def lagged_average_simple(
                 value=len(ensemble),
             )
             for metric_name, darray in out.items():
-                assert darray.shape == (1, len(run_forecast.channel_names))  # noqa
+                assert darray.shape == (len(run_forecast.channel_names),)  # noqa
                 for i in range(len(run_forecast.channel_names)):
                     earth2mip.forecast_metrics_io.write_metric(
                         f,
@@ -76,7 +74,7 @@ async def lagged_average_simple(
                         lead_time=lead_time,
                         channel=run_forecast.channel_names[i],
                         metric=metric_name,
-                        value=darray[0, i].item(),
+                        value=darray[i].item(),
                     )
         logger.info(f"finished with {initial_time} {lead_time}")
 
@@ -202,7 +200,6 @@ def main(args):
     with torch.cuda.device(device), torch.no_grad():
         scores_future = lagged_average_simple(
             observations=obs,
-            score=partial(score, run_forecast.grid),
             run_forecast=run_forecast,
             lags=args.lags,
             n=args.leads,

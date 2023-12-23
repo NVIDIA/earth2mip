@@ -1,55 +1,67 @@
 import logging
 
-import cupy
+import numpy as np
 import torch
-import xarray
 
 import earth2mip.grid
-from earth2mip.xarray import metrics
+from earth2mip.crps import crps_from_empirical_cdf
 
 logger = logging.getLogger(__name__)
 
-use_cupy = True
-if use_cupy:
-    import cupy as np
-else:
-    import numpy as np
+
+def weighted_average(x, w, dim):
+    return torch.mean(x * w, dim) / torch.mean(w, dim)
 
 
-def score(grid: earth2mip.grid.LatLonGrid, ensemble, obs: np.ndarray):
-    """
+def area_average(grid: earth2mip.grid.LatLonGrid, x: torch.Tensor):
+    lat = torch.tensor(grid.lat, device=x.device)[:, None]
+    cos_lat = torch.cos(torch.deg2rad(lat))
+    return weighted_average(x, cos_lat, dim=[-2, -1])
+
+
+def score(
+    grid: earth2mip.grid.LatLonGrid,
+    ensemble: dict[int, torch.Tensor],
+    obs: torch.Tensor,
+    device: torch.device = torch.device("cuda"),
+) -> dict[str, np.ndarray]:
+    """Set of standardized scores for lagged ensembles
+
+    Includes:
+    - crps
+    - mse of ensemble mean
+    - variance about ensemble mean
+    - MSE of the first ensemble member
+
     Args:
         ensemble: mapping of lag to (c, ...)
         obs: (c, ...)
+        device: device where the computation should be performed. defaults to
+            cuda.
 
-    Returns:gg
-        (c,)
+    Returns:
+        dict of str to (channel,) shaped metrics numpy arrays.
+
     """
-    import dask
-
-    dask.config.set(scheduler="single-threaded")
-    obs = xarray.DataArray(data=np.asarray(obs), dims=["channel", "lat", "lon"])
     # need to run this after since pandas.Index doesn't support cupy
-    lat = xarray.DataArray(dims=["lat"], data=np.asarray(grid.lat))
-
     out = {}
     ens = torch.stack(list(ensemble.values()), dim=0)
-    ensemble_xr = xarray.DataArray(
-        data=np.asarray(ens), dims=["ensemble", "time", *obs.dims]
-    )
-    ensemble_xr = ensemble_xr.chunk(lat=32)
-    obs = obs.chunk(lat=32)
-    # need to chunk to avoid OOMs
-    with metrics.properscoring_with_cupy():
-        out = metrics.score_ensemble(
-            ensemble_xr, obs, lat=lat, ensemble_keys=list(ensemble)
-        )
+    ensemble_dim = 0
 
-    mempool = cupy.get_default_memory_pool()
-    logger.debug(
-        "bytes used: %0.1f\ttotal: %0.1f",
-        mempool.used_bytes() / 2**30,
-        mempool.total_bytes() / 2**30,
-    )
-    out = {k: v.data for k, v in out.items()}
-    return out
+    # compute all the metrics
+    obs, ens = obs.to(device), ens.to(device)
+    crps = crps_from_empirical_cdf(obs, ens)
+    out["crps"] = area_average(grid, crps)
+
+    num = (ens.mean(ensemble_dim) - obs) ** 2
+    out["MSE_mean"] = area_average(grid, num)
+
+    num = ens.var(ensemble_dim, unbiased=True)
+    out["variance"] = area_average(grid, num)
+
+    if 0 in ensemble:
+        i = list(ensemble.keys()).index(0)
+        num = (ens[i] - obs) ** 2
+        out["MSE_det"] = area_average(grid, num)
+
+    return {k: v.cpu().numpy().ravel() for k, v in out.items()}
