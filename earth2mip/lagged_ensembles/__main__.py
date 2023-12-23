@@ -179,6 +179,9 @@ def main(args):
             "need to provide one of --persistence --ifs --forecast-dir or --model."
         )
 
+    # TODO add a command line option for this
+    run_forecast = forecasts.select_channels(run_forecast, ["t2m", "t850", "z500", "u10m", "v10m"])
+
     logger.info(
         f"number of timesteps: {len(times)}, "
         f"start time: {times[0]}, end_time: {times[-1]}"

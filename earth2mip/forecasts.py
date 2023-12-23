@@ -70,6 +70,25 @@ class Persistence:
             yield x
 
 
+class select_channels(Forecast):
+    def __init__(self, forecast: Forecast, channel_names: list[str]):
+        self.forecast = forecast
+        self._channel_names = channel_names
+        self._index = [self.forecast.channel_names.index(x) for x in self.channel_names]
+
+    @property
+    def channel_names(self):
+        return self._channel_names
+
+    @property
+    def grid(self):
+        return self.forecast.grid
+    
+    async def __getitem__(self, i: int):
+        async for x in self.forecast[i]:
+            yield x[:, self._index]
+
+
 class TimeLoopForecast(Forecast):
     """Wrap an fcn-mip TimeLoop object as a forecast"""
 
