@@ -74,7 +74,8 @@ def dist_info():
 
 
 @pytest.mark.parametrize("nt", [16, 20])
-async def test_yield_lagged_ensembles(dist_info, nt, regtest):
+@pytest.mark.parametrize("min_lag,max_lag", [(-2, 2), (-2, 0)])
+async def test_yield_lagged_ensembles(dist_info, nt, min_lag, max_lag, regtest):
     rank, world_size = dist_info
     device = "cpu"
     forecast = Forecast(device)
@@ -83,6 +84,8 @@ async def test_yield_lagged_ensembles(dist_info, nt, regtest):
     async for (j, k), ens, o in yield_lagged_ensembles(
         observations=Observations(device, nt),
         forecast=forecast,
+        min_lag=min_lag,
+        max_lag=max_lag,
     ):
         niter += 1
         i = j - k
@@ -90,6 +93,7 @@ async def test_yield_lagged_ensembles(dist_info, nt, regtest):
         assert i % world_size == rank
         assert o == j
         for m in ens:
+            assert min_lag <= m <= max_lag
             arr = ens[m]
             ll = arr[1]
             assert ll == k - m

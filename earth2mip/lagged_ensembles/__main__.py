@@ -48,7 +48,8 @@ async def lagged_average_simple(
     async for (j, k), ensemble, obs in core.yield_lagged_ensembles(
         observations=observations,
         forecast=run_forecast,
-        lags=lags,
+        min_lag=-lags,
+        max_lag=lags,
         n=n,
     ):
         initial_time = times[j] - k * time_step
@@ -180,7 +181,9 @@ def main(args):
         )
 
     # TODO add a command line option for this
-    run_forecast = forecasts.select_channels(run_forecast, ["t2m", "t850", "z500", "u10m", "v10m"])
+    run_forecast = forecasts.select_channels(
+        run_forecast, ["t2m", "t850", "z500", "u10m", "v10m"]
+    )
 
     logger.info(
         f"number of timesteps: {len(times)}, "

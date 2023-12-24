@@ -21,7 +21,8 @@ async def yield_lagged_ensembles(
     *,
     observations,
     forecast,
-    lags: int = 2,
+    max_lag: int = 2,
+    min_lag: int = -2,
     n: int = 10,
 ):
     """Yield centered lagged ensembles
@@ -63,7 +64,7 @@ async def yield_lagged_ensembles(
             if lead_time > nsteps:
                 break
 
-            cpu_buffers = scatter(rank, world_size, y, -lags, lags)
+            cpu_buffers = scatter(rank, world_size, y, min_lag, max_lag)
 
             # need to loop over ranks to ensure that number of iterations
             # per rank is the same
@@ -72,7 +73,7 @@ async def yield_lagged_ensembles(
                 jj = ii + lead_time
                 if jj >= nt:
                     break
-                for m in range(-lags, lags + 1):
+                for m in range(min_lag, max_lag + 1):
                     # Should this rank process the data or not?
                     i_owner = ii - m
                     if i_owner % world_size != rank:
@@ -91,7 +92,9 @@ async def yield_lagged_ensembles(
                     # 2. if the ensemble has the expected number of members
                     # 2 seems easier to parallelize and less subject to the
                     # looping we take, so is what we do here:
-                    expected = num(n=n, ell=lead_time + m, j=jj, L=lags)
+                    expected = num(
+                        n=n, ell=lead_time + m, j=jj, lower=min_lag, upper=max_lag
+                    )
                     if jj < nt and len(ensemble[k]) == expected:
                         # sanity check that a single ensemble is not
                         # processed multiple times
@@ -159,7 +162,7 @@ def scatter(rank, world_size, y, lower, upper):
     return cpu_buffers  # noqa
 
 
-def num(n, ell, j, L):
+def num(n, ell, j, upper: int, lower: int):
     """The number of ensemble members for a given lagged ensemble
 
     This functions counts the lags ``m`` which satisfy the following constraints
@@ -174,14 +177,15 @@ def num(n, ell, j, L):
         0 <= ell - m <= n
 
         # lagged window
-        -L <= m <= L
+        lower <= m <=upper
 
     Args:
         n: length of simulation
         ell: lead time of non-lagged member of the ensemble
         j: valid time
-        L: lagged window is (-L, L)
+        upper: upper bound on lagged window
+        lower: lower bound on lagged window
     """
-    a = max(ell - j, ell - n, -L)
-    b = min(ell, L)
+    a = max(ell - j, ell - n, lower)
+    b = min(ell, upper)
     return b - a + 1
