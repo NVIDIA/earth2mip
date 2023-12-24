@@ -74,15 +74,17 @@ def dist_info():
 
 
 @pytest.mark.parametrize("nt", [16, 20])
-async def test_yield_lagged_ensembles(dist_info, nt):
+async def test_yield_lagged_ensembles(dist_info, nt, regtest):
     rank, world_size = dist_info
     device = "cpu"
     forecast = Forecast(device)
 
+    niter = 0
     async for (j, k), ens, o in yield_lagged_ensembles(
         observations=Observations(device, nt),
         forecast=forecast,
     ):
+        niter += 1
         i = j - k
         # assert this process is responsible for this lagged ensemble
         assert i % world_size == rank
@@ -93,3 +95,9 @@ async def test_yield_lagged_ensembles(dist_info, nt):
             assert ll == k - m
             ii = arr[0]
             assert ii == i + m
+
+    n = torch.tensor(niter)
+    if torch.distributed.is_initialized():
+        torch.distributed.all_reduce(n)
+    print(n.item(), file=regtest)
+    assert niter > 0, niter

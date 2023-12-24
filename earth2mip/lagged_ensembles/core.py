@@ -53,8 +53,6 @@ async def yield_lagged_ensembles(
     n_iter = int(nt // world_size)
     assert nt % world_size == 0  # noqa
 
-    buffers = None
-
     for i0 in range(n_iter):
         i = world_size * i0 + rank
         nsteps = min(nt - world_size * i0 - 1, n)
@@ -65,40 +63,25 @@ async def yield_lagged_ensembles(
             if lead_time > nsteps:
                 break
 
-            if torch.distributed.is_initialized():
-                buffers = [torch.empty_like(y) for _ in range(world_size)]
-                # TODO only gather from needed ranks (i - m)
-                torch.distributed.all_gather(buffers, y)
-                if y.device != torch.device("cpu"):
-                    cpu_buffers = [
-                        torch.empty_like(b, device="cpu", pin_memory=True)
-                        for b in buffers
-                    ]
-                    for cpu, gpu in zip(cpu_buffers, buffers):
-                        cpu.copy_(gpu, non_blocking=True)
-                else:
-                    cpu_buffers = buffers
-            else:
-                cpu_buffers = [y]
+            cpu_buffers = scatter(rank, world_size, y, -lags, lags)
 
             # need to loop over ranks to ensure that number of iterations
             # per rank is the same
-            for r in range(world_size):
+            for r in cpu_buffers:
                 ii = i0 * world_size + r
                 jj = ii + lead_time
                 if jj >= nt:
                     break
                 for m in range(-lags, lags + 1):
                     # Should this rank process the data or not?
-                    i_owner = jj - lead_time - m
+                    i_owner = ii - m
                     if i_owner % world_size != rank:
                         continue
 
                     k = (jj, lead_time + m)
 
-                    store_me = cpu_buffers[r]
-                    # ensemble[k][m]
-                    ensemble.setdefault(k, {})[m] = store_me
+                    # ensemble[k][m] = data_from(rank=r)
+                    ensemble.setdefault(k, {})[m] = cpu_buffers[r]
                     # There are two options for this finishing criteria
                     # 1. if it work is not done in the next iteration, then we know
                     # we are done this would be implemented by
@@ -121,7 +104,59 @@ async def yield_lagged_ensembles(
                             torch.cuda.synchronize()
                         yield k, ensemble.pop(k), await observations[jj]
 
-    assert not ensemble, len(ensemble)  # noqa
+    assert not ensemble, len(ensemble)
+
+
+def scatter(rank, world_size, y, lower, upper):
+    """
+
+    constraints:
+        ii = i0 * world_size + src
+        jj = ii + lead_time
+
+        i = jj - lead_time - m
+        i % world_size = dst:
+        lower <= m <= upper
+
+        dst = i0 * world_size + src + lead_time - lead_time - m
+
+        dst = (src - m) % world_size
+        src = (dst + m) % world_size
+
+    """
+    if torch.distributed.is_initialized():
+        buffers = {}
+
+        # too avoid redundant comms when the # of lags > world_size
+        # upper - lower + 1  <= world_size
+        # upper <= world_size + lower - 1
+        upper = min(upper, world_size + lower - 1)
+        for src in range(world_size):
+            for m in range(lower, upper + 1):
+                dst = (src - m) % world_size
+                if rank == src == dst:
+                    buffers[rank] = y
+                elif rank == src:
+                    torch.distributed.send(y, dst=dst)
+                elif rank == dst:
+                    buffer = torch.empty_like(y)
+                    torch.distributed.recv(buffer, src=src)
+                    buffers[src] = buffer
+
+        if y.device != torch.device("cpu"):
+            cpu_buffers = {
+                r: torch.empty_like(b, device="cpu", pin_memory=True)
+                for r, b in buffers.items()
+            }
+            for r in range(world_size):
+                cpu = cpu_buffers[r]
+                gpu = buffers[r]
+                cpu.copy_(gpu, non_blocking=True)
+        else:
+            cpu_buffers = buffers
+    else:
+        cpu_buffers = {rank: y}
+    return cpu_buffers  # noqa
 
 
 def num(n, ell, j, L):
