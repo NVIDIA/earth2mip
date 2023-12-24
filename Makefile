@@ -35,8 +35,15 @@ doctest:
 	echo "TODO"
 	true
 
+.PHONY: pytest_parallel
+pytest_parallel: NPROC=4
+pytest_parallel:
+	rm -rf logs/
+	torchrun --log-dir logs -r 3 --nproc_per_node $(NPROC) -m pytest test/lagged_ensembles/test_lagged_averaged_forecast.py -s
+	cat logs/*/*/0/stdout.log ; cat logs/*/*/0/stderr.log
+
 .PHONY: pytest
-pytest:
+pytest: pytest_parallel
 	coverage run -m pytest test/
 
 .PHONY: coverage
