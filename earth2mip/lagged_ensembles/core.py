@@ -17,6 +17,11 @@ import torch
 import torch.distributed
 
 
+async def repeat(val):
+    while True:
+        yield val
+
+
 async def yield_lagged_ensembles(
     *,
     observations,
@@ -51,20 +56,32 @@ async def yield_lagged_ensembles(
     finished = set()
     ensemble = {}
 
-    n_iter = int(nt // world_size)
-    assert nt % world_size == 0  # noqa
+    n_iter = nt // world_size
+    if nt % world_size != 0:
+        n_iter += 1
+
+    recv_buffer = None
 
     for i0 in range(n_iter):
         i = world_size * i0 + rank
         nsteps = min(nt - world_size * i0 - 1, n)
 
         lead_time = -1
-        async for y in forecast[i]:
+
+        single_forecast = forecast[i] if i < nt else repeat(None)
+        async for y in single_forecast:
             lead_time += 1
             if lead_time > nsteps:
                 break
 
-            cpu_buffers = scatter(rank, world_size, y, min_lag, max_lag)
+            # initialize the buffer for receiving data
+            if recv_buffer is None:
+                recv_buffer = torch.empty_like(y)
+
+            buffers = scatter(
+                rank, world_size, i0, nt, y, recv_buffer, min_lag, max_lag
+            )
+            cpu_buffers = _convert_ensemble_to_cpu_async(buffers)
 
             # need to loop over ranks to ensure that number of iterations
             # per rank is the same
@@ -110,7 +127,37 @@ async def yield_lagged_ensembles(
     assert not ensemble, len(ensemble)
 
 
-def scatter(rank, world_size, y, lower, upper):
+def _convert_ensemble_to_cpu_async(
+    buffers: dict[int, torch.Tensor]
+) -> dict[int, torch.Tensor]:
+    """Maybe convert gpu ensemble to cpu ensemble asynchronously
+
+    Before using the output be sure to synchronize the cuda stream using either
+
+        torch.cuda.syncrhonize()
+
+    or cuda Events.
+
+    """
+    if not buffers:
+        return {}
+
+    first_buffer = next(iter(buffers.values()))
+    if first_buffer != torch.device("cpu"):
+        cpu_buffers = {
+            r: torch.empty_like(b, device="cpu", pin_memory=True)
+            for r, b in buffers.items()
+        }
+        for r in buffers:
+            cpu = cpu_buffers[r]
+            gpu = buffers[r]
+            cpu.copy_(gpu, non_blocking=True)
+    else:
+        cpu_buffers = buffers
+    return cpu_buffers
+
+
+def scatter(rank, world_size, i0, nt, y, recv_buffer, lower, upper):
     """
 
     constraints:
@@ -135,6 +182,10 @@ def scatter(rank, world_size, y, lower, upper):
         # upper <= world_size + lower - 1
         upper = min(upper, world_size + lower - 1)
         for src in range(world_size):
+            src_initial_time = i0 * world_size + src
+            if src_initial_time >= nt:
+                continue
+
             for m in range(lower, upper + 1):
                 dst = (src - m) % world_size
                 if rank == src == dst:
@@ -142,24 +193,12 @@ def scatter(rank, world_size, y, lower, upper):
                 elif rank == src:
                     torch.distributed.send(y, dst=dst)
                 elif rank == dst:
-                    buffer = torch.empty_like(y)
-                    torch.distributed.recv(buffer, src=src)
-                    buffers[src] = buffer
-
-        if y.device != torch.device("cpu"):
-            cpu_buffers = {
-                r: torch.empty_like(b, device="cpu", pin_memory=True)
-                for r, b in buffers.items()
-            }
-            for r in range(world_size):
-                cpu = cpu_buffers[r]
-                gpu = buffers[r]
-                cpu.copy_(gpu, non_blocking=True)
-        else:
-            cpu_buffers = buffers
+                    torch.distributed.recv(recv_buffer, src=src)
+                    buffers[src] = recv_buffer.clone()
     else:
-        cpu_buffers = {rank: y}
-    return cpu_buffers  # noqa
+        buffers = {rank: y}
+
+    return buffers  # noqa
 
 
 def num(n, ell, j, upper: int, lower: int):

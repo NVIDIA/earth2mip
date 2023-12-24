@@ -42,14 +42,18 @@ class Observations:
 
 
 class Forecast:
-    def __init__(self, device):
+    def __init__(self, device, nt):
         self.device = device
+        self.nt = nt
 
     async def __getitem__(self, i):
         """persistence forecast
 
         Yields (channel, lat, lon)
         """
+        if i >= self.nt:
+            raise KeyError(i)
+
         x = torch.zeros((2,), device=self.device)
         x[0] = i
 
@@ -78,7 +82,7 @@ def dist_info():
 async def test_yield_lagged_ensembles(dist_info, nt, min_lag, max_lag, regtest):
     rank, world_size = dist_info
     device = "cpu"
-    forecast = Forecast(device)
+    forecast = Forecast(device, nt)
 
     niter = 0
     async for (j, k), ens, o in yield_lagged_ensembles(
