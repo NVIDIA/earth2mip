@@ -120,7 +120,7 @@ def run_forecast(
 
     nlat = len(model.grid.lat)
     channels = [
-        data_source.channel_names.index(name) for name in model.out_channel_names
+        data_source.channel_names.index(name) for name in model.in_channel_names
     ]
     mean = mean[channels, :nlat]
     mean = torch.from_numpy(mean).to(device)
@@ -155,15 +155,17 @@ def run_forecast(
             # select first history level
             verification_torch = verification_torch[:, -1]
             for metric in metrics:
-                outputs = metric.call(verification_torch, data)
+                indexes = [i for i,name in enumerate(model.out_channel_names) if name in model.in_channel_names]
+                outputs = metric.call(verification_torch,data[:,indexes,:,:]
+                #outputs = metric.call(verification_torch, data)
                 for name, tensor in zip(metric.output_names, outputs):
                     v = tensor.cpu().numpy()
-                    for c_idx in range(len(model.out_channel_names)):
+                    for c_idx in range(len(model.in_channel_names)):
                         earth2mip.forecast_metrics_io.write_metric(
                             f,
                             initial_time,
                             lead_time,
-                            model.out_channel_names[c_idx],
+                            model.in_channel_names[c_idx],
                             name,
                             value=v[c_idx],
                         )
