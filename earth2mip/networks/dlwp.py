@@ -74,6 +74,13 @@ class DLWPInference(torch.nn.Module):
     def device(self) -> torch.device:
         return torch.device("cuda")  # Only supports cuda
 
+    @property
+    def dtype(self) -> torch.dtype:
+        # TODO the absence of this property was causing a failure in
+        # test/test_end_to_end.py::test_lagged_ensemble_cli, confirm that this
+        # test is being run in CI
+        return torch.float
+
     def normalize(self, x):
         self.center = self.center.to(x.device)
         self.scale = self.scale.to(x.device)
