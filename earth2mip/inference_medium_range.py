@@ -153,7 +153,7 @@ def run_forecast(
                 time=valid_time,
                 channel_names=model.out_channel_names,
                 grid=model.grid,
-                time_levels=1,
+                n_history_levels=1,
                 device=model.device,
             )
             # select first history level

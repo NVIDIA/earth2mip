@@ -30,7 +30,6 @@ __all__ = [
     "gfs",
     "hrmip",
     "hdf5",
-    "get_data_from_source",
 ]
 
 
@@ -60,7 +59,7 @@ def get_data_from_source(
     time: datetime.datetime,
     channel_names: List[str],
     grid: schema.Grid,
-    time_levels: int,
+    n_history_levels: int,
     time_step: datetime.timedelta = datetime.timedelta(hours=0),
     device: torch.device = "cpu",
     dtype: torch.dtype = torch.float,
@@ -69,16 +68,20 @@ def get_data_from_source(
 
     Select the ``channel_names`` and ``regrid`` it to the target ``grid``
 
+    Note:
+        Internal helper for scoring routines...not recommended for general use.
+
     Args:
-        time_levels: the number of time levels to return
         time_step: the time step of the time levels
+        n_history_levels: the number of history levels to get, see
+            :py:class:`earth2mip.time_loop.TimeLoop` for more info.
 
     Returns:
         (time_levels, c, lat, lon) shaped data
     """
     dt = time_step
     arrays = []
-    for i in range(time_levels - 1, -1, -1):
+    for i in range(n_history_levels - 1, -1, -1):
         time_to_get = time - i * dt
         arr = data_source[time_to_get]
         expected_shape = (len(data_source.channel_names), *data_source.grid.shape)

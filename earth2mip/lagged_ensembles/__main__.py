@@ -104,7 +104,7 @@ class Observations:
             time,
             self.channel_names,
             self._grid,
-            time_levels=1,
+            n_history_levels=1,
             device=self.device,
         )
 
