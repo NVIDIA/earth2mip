@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Diagnostic precipitation model example
 - `yield_lagged_ensembles` has max_lags, min_lags options. These allow for
   non-centered lagged windows.
+- `earth2mip.lagged_ensembles` now has `--channels` to subselect channels
 
 ### Changed
 

@@ -180,10 +180,10 @@ def main(args):
             "need to provide one of --persistence --ifs --forecast-dir or --model."
         )
 
-    # TODO add a command line option for this
-    run_forecast = forecasts.select_channels(
-        run_forecast, ["t2m", "t850", "z500", "u10m", "v10m"]
-    )
+    if args.channels:
+        run_forecast = forecasts.select_channels(
+            run_forecast, channel_names=args.channels.split(",")
+        )
 
     logger.info(
         f"number of timesteps: {len(times)}, "
@@ -231,6 +231,14 @@ def parse_args():
     parser.add_argument("--lags", type=int, default=4, help="Number of lags")
     parser.add_argument("--leads", type=int, default=54, help="Number of leads")
     parser.add_argument("--output", type=str, default=".", help="Output directory")
+    parser.add_argument(
+        "--channels",
+        type=str,
+        default="",
+        help="Channels to score, comma seperated list."
+        "Example: 't2m,t850,z500,u10m,v10m'."
+        "Defaults to all channels in the forecast.",
+    )
 
     return parser.parse_args()
 
