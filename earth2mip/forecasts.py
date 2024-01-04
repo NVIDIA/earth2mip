@@ -83,7 +83,7 @@ class select_channels(Forecast):
     @property
     def grid(self):
         return self.forecast.grid
-    
+
     async def __getitem__(self, i: int):
         async for x in self.forecast[i]:
             yield x[:, self._index]
