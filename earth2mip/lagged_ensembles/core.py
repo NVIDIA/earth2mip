@@ -16,6 +16,8 @@
 import torch
 import torch.distributed
 
+__all__ = ["yield_lagged_ensembles"]
+
 
 async def repeat(val):
     while True:
@@ -30,15 +32,15 @@ async def yield_lagged_ensembles(
     min_lag: int = -2,
     n: int = 10,
 ):
-    """Yield centered lagged ensembles
+    """Yield lagged ensembles
 
     The forecast array has shape (len(observations), n)
 
-    The ensemble consist of runs initialized with an offset of (-lags, ..., 0,
-    ...lags). The ensemble size is therefore ``2*lags + =`` for points within
+    The ensemble consist of runs initialized with an offset of (-min_lag, ...
+    ..., max_lag). The ensemble size is therefore ``2*lags + =`` for points within
     the interior of the array.
 
-    Supports running in parallel using the ``rank`` and ``world_size`` flags
+    Supports running in parallel using the ``rank`` and ``world_size`` flags.
     """
     if torch.distributed.is_initialized():
         rank = torch.distributed.get_rank()
