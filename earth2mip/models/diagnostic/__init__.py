@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from earth2mip.models.dx.climate_net import ClimateNet  # noqa
-from earth2mip.models.dx.precipitation_afno import PrecipitationAFNO  # noqa
-from earth2mip.models.dx.wind_speed import WindSpeed  # noqa
-from earth2mip.models.dx.time_loop import DiagnosticTimeLoop  # noqa
+from earth2mip.models.diagnostic.climate_net import ClimateNet  # noqa
+from earth2mip.models.diagnostic.precipitation_afno import PrecipitationAFNO  # noqa
+from earth2mip.models.diagnostic.wind_speed import WindSpeed  # noqa
+from earth2mip.models.diagnostic.time_loop import DiagnosticTimeLoop  # noqa

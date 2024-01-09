@@ -51,7 +51,7 @@ dotenv.load_dotenv()
 # %%
 from modulus.distributed.manager import DistributedManager
 from earth2mip.networks import get_model
-from earth2mip.models.dx import PrecipitationAFNO
+from earth2mip.models.diagnostic import PrecipitationAFNO
 
 device = DistributedManager().device
 
@@ -69,7 +69,7 @@ diagnostic = PrecipitationAFNO.load_diagnostic(package)
 # which can the be further processed.
 
 # %%
-from earth2mip.models.dx import DiagnosticTimeLoop
+from earth2mip.models.diagnostic import DiagnosticTimeLoop
 
 model_diagnostic = DiagnosticTimeLoop(diagnostics=[diagnostic], model=model)
 

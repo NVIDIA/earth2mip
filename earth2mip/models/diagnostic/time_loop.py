@@ -19,7 +19,7 @@ from typing import Any, Iterator, List, Optional, Tuple
 import torch
 
 from earth2mip import grid
-from earth2mip.models.dx.base import DiagnosticBase
+from earth2mip.models.diagnostic.base import DiagnosticBase
 from earth2mip.time_loop import TimeLoop
 
 

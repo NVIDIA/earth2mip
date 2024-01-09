@@ -17,7 +17,7 @@ import pytest
 import torch
 
 from earth2mip import grid
-from earth2mip.models.dx import WindSpeed
+from earth2mip.models.diagnostic import WindSpeed
 
 
 @pytest.mark.parametrize("device", ["cpu"])

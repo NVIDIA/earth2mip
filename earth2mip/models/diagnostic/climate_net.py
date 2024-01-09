@@ -24,7 +24,7 @@ import torch
 from earth2mip import config, grid
 from earth2mip.geo_operator import GeoOperator
 from earth2mip.model_registry import ModelRegistry, Package
-from earth2mip.models.dx.base import DiagnosticModel
+from earth2mip.models.diagnostic.base import DiagnosticModel
 from earth2mip.models.nn.cgnet import CGNetModule
 
 
