@@ -18,9 +18,9 @@ import datetime
 import pytest
 import torch
 
-from earth2mip.diagnostic import DiagnosticTimeLoop, WindSpeed
-from earth2mip.diagnostic.utils import filter_channels
 from earth2mip.grid import equiangular_lat_lon_grid
+from earth2mip.models.dx import DiagnosticTimeLoop, WindSpeed
+from earth2mip.models.dx.time_loop import filter_channels
 from earth2mip.networks import Inference
 
 

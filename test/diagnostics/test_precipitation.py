@@ -16,7 +16,7 @@
 import pytest
 import torch
 
-from earth2mip.diagnostic import PrecipitationAFNO
+from earth2mip.models.dx import PrecipitationAFNO
 
 
 @pytest.mark.slow

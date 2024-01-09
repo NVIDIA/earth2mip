@@ -52,6 +52,7 @@ repos:
                 earth2mip/initial_conditions |
                 earth2mip/lagged_ensembles |
                 earth2mip/networks |
+                earth2mip/models/nn |
                 earth2mip/s2s |
                 earth2mip/xarray |
                 earth2mip/forecasts.py |

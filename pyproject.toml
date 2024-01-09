@@ -38,7 +38,6 @@ dependencies = [
     "pydantic >= 1.10, <=1.10.11",
     "pytest-timeout >= 2.1.0",
     "pytest-asyncio >= 0.21.0",
-    "pytest-regtest",
     "pytest>=7.0.0",
     "python-dotenv>=1.0.0",
     "s3fs",
@@ -133,6 +132,7 @@ ignore = ["E501", "S311", "S310", "S101"]
 # Ignore `E741` (ambigious variable names)
 # Ignore `PERF401` (use list compression)
 "earth2mip/networks/fcnv2/*.py" = ["E741", "PERF401"]
+"earth2mip/models/nn/*.py" = ["E741", "PERF401"]
 
 [tool.pytest.ini_options]
 testpaths = ["test"]
@@ -165,6 +165,7 @@ exclude_also = [
 omit = [
     # omit anything in a .local directory anywhere
     "test/*",
+    "earth2mip/models/nn/fcnv2/*",
     # omit fcn arch
     "earth2mip/networks/fcnv2/*",
 ]

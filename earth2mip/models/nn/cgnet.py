@@ -1,46 +1,8 @@
-# SPDX-FileCopyrightText: Copyright (c) 2023 NVIDIA CORPORATION & AFFILIATES.
-# SPDX-FileCopyrightText: All rights reserved.
-# SPDX-License-Identifier: Apache-2.0
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-import os
-
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from earth2mip import config, grid
-from earth2mip.diagnostic.base import DiagnosticBase
-from earth2mip.model_registry import ModelRegistry, Package
 
-IN_CHANNELS = [
-    "tcwv",
-    "u850",
-    "v850",
-    "msl",
-]
-
-OUT_CHANNELS = [
-    "climnet_bg",  # Background
-    "climnet_tc",  # Tropical Cyclone
-    "climnet_ar",  # Atmospheric River
-]
-
-
-# =========================== TODO Move somehwere ============================
-# ============================================================================
 # Architecture: https://arxiv.org/pdf/1811.08201.pdf
 class Wrap(torch.nn.Module):
     """Climate net wrapper for padding."""
@@ -54,7 +16,7 @@ class Wrap(torch.nn.Module):
         return F.pad(x, (self.p,) * 4, mode="circular")
 
 
-class ConvBNPReLU(nn.Module):
+class ConvBNPReLU(torch.nn.Module):
     """Convolutional Net with Batch Norm and PreLU."""
 
     def __init__(self, nIn, nOut, kSize, stride=1):
@@ -85,7 +47,7 @@ class ConvBNPReLU(nn.Module):
         return output
 
 
-class BNPReLU(nn.Module):
+class BNPReLU(torch.nn.Module):
     """Batch Norm with PReLU layer."""
 
     def __init__(self, nOut):
@@ -108,7 +70,7 @@ class BNPReLU(nn.Module):
         return output
 
 
-class ConvBN(nn.Module):
+class ConvBN(torch.nn.Module):
     """Convolutional Layer with Batch Norm."""
 
     def __init__(self, nIn, nOut, kSize, stride=1):
@@ -137,7 +99,7 @@ class ConvBN(nn.Module):
         return output
 
 
-class Conv(nn.Module):
+class Conv(torch.nn.Module):
     """Ordinary Convolutional Layer."""
 
     def __init__(self, nIn, nOut, kSize, stride=1):
@@ -164,7 +126,7 @@ class Conv(nn.Module):
         return output
 
 
-class ChannelWiseConv(nn.Module):
+class ChannelWiseConv(torch.nn.Module):
     """Channel Wise convolutional layer."""
 
     def __init__(self, nIn, nOut, kSize, stride=1):
@@ -193,7 +155,7 @@ class ChannelWiseConv(nn.Module):
         return output
 
 
-class DilatedConv(nn.Module):
+class DilatedConv(torch.nn.Module):
     """Convolutional Layer with Dilation."""
 
     def __init__(self, nIn, nOut, kSize, stride=1, d=1):
@@ -223,7 +185,7 @@ class DilatedConv(nn.Module):
         return output
 
 
-class ChannelWiseDilatedConv(nn.Module):
+class ChannelWiseDilatedConv(torch.nn.Module):
     """Channel-wise Convolutional Layer with Dilation."""
 
     def __init__(self, nIn, nOut, kSize, stride=1, d=1):
@@ -253,7 +215,7 @@ class ChannelWiseDilatedConv(nn.Module):
         return output
 
 
-class FGlo(nn.Module):
+class FGlo(torch.nn.Module):
     """The FGlo class is employed to refine the joint feature of both local feature and
     surrounding context."""
 
@@ -274,7 +236,7 @@ class FGlo(nn.Module):
         return x * y
 
 
-class ContextGuidedBlock_Down(nn.Module):
+class ContextGuidedBlock_Down(torch.nn.Module):
     """The size of feature map divided 2, (H,W,C)---->(H/2, W/2, 2C)"""
 
     def __init__(self, nIn, nOut, dilation_rate=2, reduction=16):
@@ -310,7 +272,7 @@ class ContextGuidedBlock_Down(nn.Module):
         return output
 
 
-class ContextGuidedBlock(nn.Module):
+class ContextGuidedBlock(torch.nn.Module):
     """Context Guided Block."""
 
     def __init__(self, nIn, nOut, dilation_rate=2, reduction=16, add=True):
@@ -349,7 +311,7 @@ class ContextGuidedBlock(nn.Module):
         return output
 
 
-class InputInjection(nn.Module):
+class InputInjection(torch.nn.Module):
     """Inject Input with pooling."""
 
     def __init__(self, downsamplingRatio):
@@ -365,7 +327,7 @@ class InputInjection(nn.Module):
         return input
 
 
-class CGNetModule(nn.Module):
+class CGNetModule(torch.nn.Module):
     """
     CGNet (Wu et al, 2018: https://arxiv.org/pdf/1811.08201.pdf) implementation.
     This is taken from their implementation, we do not claim credit for this.
@@ -474,93 +436,3 @@ class CGNetModule(nn.Module):
             classifier, input.size()[2:], mode="bilinear", align_corners=False
         )  # Upsample score map, factor=8
         return out
-
-
-# ============================================================================
-# ============================================================================
-
-
-class ClimateNet(DiagnosticBase):
-    """Climate Net Diagnostic model, built into Earth-2 MIP. This model can be used to
-    create prediction labels for tropical cyclones and atmopheric rivers. Produces
-    non-standard output channels climnet_bg, climnet_tc and climnet_ar representing
-    background label, tropical cyclone and atmopheric river labels.
-
-    Note:
-        This model and checkpoint are from Prabhat et al. 2021
-        https://doi.org/10.5194/gmd-14-107-2021
-        https://github.com/andregraubner/ClimateNet
-
-    Example:
-        >>> package = ClimateNet.load_package()
-        >>> model = ClimateNet.load_diagnostic(package)
-        >>> x = torch.randn(1, 4, 721, 1440)
-        >>> out = model(x)
-        >>> out.shape
-        (1, 3, 721, 1440)
-    """
-
-    def __init__(
-        self,
-        model: torch.nn.Module,
-        in_center: torch.Tensor,
-        in_scale: torch.Tensor,
-    ):
-        super().__init__()
-        self.grid = grid.equiangular_lat_lon_grid(721, 1440)
-
-        self._in_channels = IN_CHANNELS
-        self._out_channels = OUT_CHANNELS
-
-        self.model = model
-        self.register_buffer("in_center", in_center)
-        self.register_buffer("in_scale", in_scale)
-
-    @property
-    def in_channel_names(self) -> list[str]:
-        return self._in_channels
-
-    @property
-    def out_channel_names(self) -> list[str]:
-        return self._out_channels
-
-    @property
-    def in_grid(self) -> grid.LatLonGrid:
-        return self.grid
-
-    @property
-    def out_grid(self) -> grid.LatLonGrid:
-        return self.grid
-
-    def __call__(self, x: torch.Tensor) -> torch.Tensor:
-        assert x.ndim == 4  # noqa
-        x = (x - self.in_center) / self.in_scale
-        out = self.model(x)
-        return torch.softmax(out, 1)  # Softmax channels
-
-    @classmethod
-    def load_package(
-        cls, registry: str = os.path.join(config.MODEL_REGISTRY, "diagnostics")
-    ) -> Package:
-        registry = ModelRegistry(registry)
-        return registry.get_model("e2mip://climatenet")
-
-    @classmethod
-    def load_diagnostic(cls, package: Package, device="cuda:0"):
-
-        model = CGNetModule(
-            channels=len(IN_CHANNELS),
-            classes=len(OUT_CHANNELS),
-        )
-        weights_path = package.get("weights.tar")
-        model.load_state_dict(torch.load(weights_path, map_location=device))
-        model.eval()
-
-        input_center = torch.Tensor(np.load(package.get("global_means.npy")))[
-            :, None, None
-        ]
-        input_scale = torch.Tensor(np.load(package.get("global_stds.npy")))[
-            :, None, None
-        ]
-
-        return cls(model, input_center, input_scale).to(device)

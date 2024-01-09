@@ -17,13 +17,13 @@ import pytest
 import torch
 
 from earth2mip import grid
-from earth2mip.diagnostic import WindSpeed
+from earth2mip.models.dx import WindSpeed
 
 
 @pytest.mark.parametrize("device", ["cpu"])
 @pytest.mark.parametrize("grid", [grid.equiangular_lat_lon_grid(32, 64)])
 def test_wind_speed(device, grid):
-    model = WindSpeed.load_diagnostic(None, level="10m", grid=grid)
+    model = WindSpeed(level="10m", grid=grid)
     x = torch.randn(2, len(model.in_channel_names), len(grid.lat), len(grid.lon)).to(
         device
     )

@@ -16,7 +16,7 @@
 import pytest
 import torch
 
-from earth2mip.diagnostic.utils import filter_channels
+from earth2mip.models.dx.time_loop import filter_channels
 
 
 @pytest.mark.parametrize("device", ["cpu"])

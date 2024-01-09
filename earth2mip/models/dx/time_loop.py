@@ -18,9 +18,34 @@ from typing import Any, Iterator, List, Optional, Tuple
 
 import torch
 
-from earth2mip.diagnostic.base import DiagnosticBase
-from earth2mip.diagnostic.utils import filter_channels
+from earth2mip import grid
+from earth2mip.models.dx.base import DiagnosticBase
 from earth2mip.time_loop import TimeLoop
+
+
+def filter_channels(
+    input: torch.Tensor, in_channels: list[str], out_channels: list[str]
+) -> torch.Tensor:
+    """Utility function used for selecting a sub set of channels
+
+    Note:
+        Right now this assumes that the channels are in the thirds to last axis.
+
+    Args:
+        input (torch.Tensor): Input tensor of shape [..., channels, lat, lon]
+        in_channels (list[str]): Input channel list
+        out_channels (list[str]): Output channel list
+    """
+    indexes_list = []
+    try:
+        indexes_list = [in_channels.index(channel) for channel in out_channels]
+    except ValueError as e:
+        raise ValueError(
+            "Looks like theres a mismatch between input and "
+            + f"requested channels. {e}"
+        )
+    indexes = torch.IntTensor(indexes_list).to(input.device)
+    return torch.index_select(input, -3, indexes)
 
 
 class DiagnosticTimeLoop(TimeLoop):
@@ -45,11 +70,11 @@ class DiagnosticTimeLoop(TimeLoop):
         self.concat = concat
 
     @property
-    def in_channel_names(self):
+    def in_channel_names(self) -> list[str]:
         return self.model.in_channel_names
 
     @property
-    def out_channel_names(self):
+    def out_channel_names(self) -> list[str]:
         out_names = []
         for function in self.diagnostics:
             out_names.extend(function.out_channel_names)
@@ -59,12 +84,12 @@ class DiagnosticTimeLoop(TimeLoop):
         return out_names
 
     @property
-    def grid(self):
+    def grid(self) -> grid.LatLonGrid:
         # TODO: Need to generalize
         return self.diagnostics[0].out_grid
 
     @property
-    def device(self):
+    def device(self) -> torch.device:
         return self.model.device
 
     def __call__(

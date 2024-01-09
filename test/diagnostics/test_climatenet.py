@@ -16,7 +16,7 @@
 import pytest
 import torch
 
-from earth2mip.diagnostic.climate_net import ClimateNet
+from earth2mip.models.dx import ClimateNet
 
 
 @pytest.mark.slow

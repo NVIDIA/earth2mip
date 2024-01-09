@@ -13,16 +13,41 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from typing import Optional
+from collections import OrderedDict
+from typing import Tuple
 
+import numpy as np
 import torch
 
 from earth2mip import grid
-from earth2mip.diagnostic.base import DiagnosticBase
-from earth2mip.model_registry import Package
+from earth2mip.geo_operator import GeoOperator
 
 
-class WindSpeed(DiagnosticBase):
+class WindSpeedBase(torch.nn.Module):
+    def __init__(self, level: int):
+        self.level = level
+
+    @property
+    def input_coords(self) -> OrderedDict[str, np.ndarray]:
+        return OrderedDict({"variable": np.array([f"u{self.level}", f"v{self.level}"])})
+
+    @property
+    def output_coords(self) -> OrderedDict[str, np.ndarray]:
+        return OrderedDict({"variable": np.array([f"ws{self.level}"])})
+
+    # TODO: Change to __call__
+    def forward_step(
+        self,
+        x: torch.Tensor,
+        coords: OrderedDict[str, np.ndarray],
+    ) -> Tuple[torch.Tensor, OrderedDict[str, np.ndarray]]:
+        # TODO: Add handshake checks
+        output_coords = coords.copy()
+        output_coords["variable"] = self.output_coords["variable"]
+        return torch.sqrt(x[:, 0:1, ...] ** 2 + x[:, 1:2, ...] ** 2), output_coords
+
+
+class WindSpeed(WindSpeedBase, GeoOperator):
     """Computes the wind speed at a given level.
     This is largely just an example of what a diagnostic calculation could look like.
 
@@ -34,20 +59,17 @@ class WindSpeed(DiagnosticBase):
         (1, 1, 721, 1440)
     """
 
-    def __init__(self, level: str, grid: grid.LatLonGrid):
-        super().__init__()
+    def __init__(self, level: int, grid: grid.LatLonGrid):
+        super().__init__(level)
         self.grid = grid
-
-        self._in_channels = [f"u{level}", f"v{level}"]
-        self._out_channels = [f"ws{level}"]
 
     @property
     def in_channel_names(self) -> list[str]:
-        return self._in_channels
+        return self.input_coords["variable"]
 
     @property
     def out_channel_names(self) -> list[str]:
-        return self._out_channels
+        return self.output_coords["variable"]
 
     @property
     def in_grid(self) -> grid.LatLonGrid:
@@ -58,10 +80,6 @@ class WindSpeed(DiagnosticBase):
         return self.grid
 
     def __call__(self, x: torch.Tensor) -> torch.Tensor:
-        return torch.sqrt(x[:, 0:1, ...] ** 2 + x[:, 1:2, ...] ** 2)
 
-    @classmethod
-    def load_diagnostic(
-        cls, package: Optional[Package], level: str, grid: grid.LatLonGrid
-    ):
-        return cls(level, grid)
+        out, _ = WindSpeedBase.forward_step(self, x, OrderedDict({}))
+        return out

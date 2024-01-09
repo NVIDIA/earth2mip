@@ -13,8 +13,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from typing import Optional, Type
+from collections import OrderedDict
+from typing import Optional, Protocol, Tuple, Type, runtime_checkable
 
+import numpy as np
 import torch
 from pydantic import BaseModel
 
@@ -26,14 +28,14 @@ class DiagnosticBase(torch.nn.Module, GeoOperator):
     """Diagnostic model base class"""
 
     @classmethod
-    def load_package(cls, *args, **kwargs) -> Package:
+    def load_package(cls, *args, **kwargs) -> Package:  # type: ignore
         """Class function used to create the diagnostic model package (if needed).
         This should be where any explicit download functions should be orcastrated
         """
         pass
 
     @classmethod
-    def load_diagnostic(cls, package: Optional[Package], *args, **kwargs):
+    def load_diagnostic(cls, package: Optional[Package], *args, **kwargs) -> GeoOperator:  # type: ignore
         """Class function used to load the diagnostic model onto device memory and
         create an instance of the diagnostic for use.
 
@@ -46,10 +48,57 @@ class DiagnosticBase(torch.nn.Module, GeoOperator):
         pass
 
     @classmethod
-    def load_config_type(cls, *args, **kwargs) -> Type[BaseModel]:
+    def load_config_type(cls, *args, **kwargs) -> Type[BaseModel]:  # type: ignore
         """Class function used access the Pydantic config class of the diagnostic if
         one has been implemented. Note this returns a class reference, not instantiated
         object.
         """
         raise NotImplementedError("This diagnostic does not have a config implemented")
+        pass
+
+
+@runtime_checkable
+class DiagnosticModel(Protocol):
+    def __call__(
+        self,
+        x: torch.Tensor,
+        coords: OrderedDict[str, np.ndarray],
+    ) -> Tuple[torch.Tensor, OrderedDict[str, np.ndarray]]:
+        """Creates a iterator that performs time-integration with the prognostic model
+
+        Parameters
+        ----------
+        x : torch.Tensor
+            Input tensor intended to apply perturbation on
+        coords : OrderedDict[str, np.ndarray]
+            Ordered dict representing coordinate system that discribes the tensor
+
+        Returns
+        -------
+        Tuple[torch.Tensor, OrderedDict[str, np.ndarray]]:
+            Iterator object (yeild some method), that generates timesteps with
+            coordinate system.
+        """
+        pass
+
+    @property
+    def input_coords(self) -> OrderedDict[str, np.ndarray]:
+        """Input coordinate system of prognostic model
+
+        Returns
+        -------
+        OrderedDict[str, np.ndarray]
+            Coordinate system dictionary
+        """
+        pass
+
+    @property
+    def output_coords(self) -> OrderedDict[str, np.ndarray]:
+        """Ouput coordinate system of prognostic model
+
+        Returns
+        -------
+        OrderedDict[str, np.ndarray]
+            Coordinate system dictionary
+        """
         pass
