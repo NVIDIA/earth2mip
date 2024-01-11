@@ -18,6 +18,7 @@ import datetime
 import numpy as np
 import pytest
 import test_hdf5
+import torch
 
 from earth2mip import config, grid, initial_conditions, schema
 from earth2mip.initial_conditions import cds, hdf5
@@ -57,6 +58,7 @@ def test_get_initial_conditions_for_model_hdf5(tmp_path, n):
         history_time_step = datetime.timedelta(hours=6)
         grid = grid.equiangular_lat_lon_grid(721, 1440)
         device = "cpu"
+        dtype = torch.float
 
     time = datetime.datetime(2018, 1, 2)
     test_hdf5.create_hdf5(tmp_path, time.year, 10, Model.grid, Model.in_channel_names)
@@ -79,6 +81,7 @@ def test_get_initial_conditions_for_model_history_correct_order(n):
         history_time_step = datetime.timedelta(hours=6)
         grid = grid.equiangular_lat_lon_grid(721, 1440)
         device = "cpu"
+        dtype = torch.float
 
     shape = (len(Model.in_channel_names), *Model.grid.shape)
     time = datetime.datetime(2018, 1, 1)
