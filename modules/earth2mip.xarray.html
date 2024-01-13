@@ -463,47 +463,11 @@ document.write(`
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 </section>
-<section id="module-earth2mip.xarray.metrics">
-<span id="earth2mip-xarray-metrics-module"></span><h2>earth2mip.xarray.metrics module<a class="headerlink" href="#module-earth2mip.xarray.metrics" title="Link to this heading">#</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="earth2mip.xarray.metrics.global_average">
-<span class="sig-prename descclassname"><span class="pre">earth2mip.xarray.metrics.</span></span><span class="sig-name descname"><span class="pre">global_average</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.xarray.metrics.global_average" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="earth2mip.xarray.metrics.properscoring_with_cupy">
-<span class="sig-prename descclassname"><span class="pre">earth2mip.xarray.metrics.</span></span><span class="sig-name descname"><span class="pre">properscoring_with_cupy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.xarray.metrics.properscoring_with_cupy" title="Link to this definition">#</a></dt>
-<dd><p>A context manager that makes proper-scoring compatible with cupy arrays</p>
-<p>Not thread safe.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="earth2mip.xarray.metrics.score_ensemble">
-<span class="sig-prename descclassname"><span class="pre">earth2mip.xarray.metrics.</span></span><span class="sig-name descname"><span class="pre">score_ensemble</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ensemble</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ensemble_keys</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.xarray.metrics.score_ensemble" title="Link to this definition">#</a></dt>
-<dd><p>Set of standardized scores for ensembles</p>
-<p>Includes:
-- crps
-- mse of ensemble mean
-- variance about ensemble mean
-- MSE of the first ensemble member</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ensemble</strong> (<em>ndarray</em>) – </p></li>
-<li><p><strong>obs</strong> (<em>ndarray</em>) – </p></li>
-<li><p><strong>lat</strong> (<em>ndarray</em>) – </p></li>
-<li><p><strong>ensemble_keys</strong> (<em>List</em><em>[</em><em>int</em><em>]</em>) – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Mapping</em>[str, <em>DataArray</em>]</p>
-</dd>
-</dl>
-</dd></dl>
-
+<section id="earth2mip-xarray-metrics-module">
+<h2>earth2mip.xarray.metrics module<a class="headerlink" href="#earth2mip-xarray-metrics-module" title="Link to this heading">#</a></h2>
 </section>
-<section id="module-earth2mip.xarray">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-earth2mip.xarray" title="Link to this heading">#</a></h2>
+<section id="module-contents">
+<h2>Module contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 </section>
 </section>
 
@@ -551,13 +515,8 @@ document.write(`
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-earth2mip.xarray.metrics">earth2mip.xarray.metrics module</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.xarray.metrics.global_average"><code class="docutils literal notranslate"><span class="pre">global_average()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.xarray.metrics.properscoring_with_cupy"><code class="docutils literal notranslate"><span class="pre">properscoring_with_cupy()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.xarray.metrics.score_ensemble"><code class="docutils literal notranslate"><span class="pre">score_ensemble()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-earth2mip.xarray">Module contents</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip-xarray-metrics-module">earth2mip.xarray.metrics module</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module contents</a></li>
 </ul>
   </nav></div>
 

@@ -510,6 +510,11 @@ copied to that device</p>
 <dd></dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="earth2mip.networks.dlwp.DLWPInference.dtype">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dtype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dtype</span></em><a class="headerlink" href="#earth2mip.networks.dlwp.DLWPInference.dtype" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="earth2mip.networks.dlwp.DLWPInference.grid">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">grid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="index.html#earth2mip.grid.LatLonGrid" title="earth2mip.grid.LatLonGrid"><span class="pre">LatLonGrid</span></a></em><a class="headerlink" href="#earth2mip.networks.dlwp.DLWPInference.grid" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
@@ -575,8 +580,8 @@ copied to that device</p>
 <dd></dd></dl>
 
 <p>Its signature is similar to <code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.Tensor.to()</span></code>, but only accepts
-floating point or complex <code class="xref py py-attr docutils literal notranslate"><span class="pre">dtype</span></code>s. In addition, this method will
-only cast the floating point or complex parameters and buffers to <code class="xref py py-attr docutils literal notranslate"><span class="pre">dtype</span></code>
+floating point or complex <a class="reference internal" href="#earth2mip.networks.dlwp.DLWPInference.dtype" title="earth2mip.networks.dlwp.DLWPInference.dtype"><code class="xref py py-attr docutils literal notranslate"><span class="pre">dtype</span></code></a>s. In addition, this method will
+only cast the floating point or complex parameters and buffers to <a class="reference internal" href="#earth2mip.networks.dlwp.DLWPInference.dtype" title="earth2mip.networks.dlwp.DLWPInference.dtype"><code class="xref py py-attr docutils literal notranslate"><span class="pre">dtype</span></code></a>
 (if given). The integral parameters and buffers will be moved
 <a class="reference internal" href="#earth2mip.networks.dlwp.DLWPInference.device" title="earth2mip.networks.dlwp.DLWPInference.device"><code class="xref py py-attr docutils literal notranslate"><span class="pre">device</span></code></a>, if that is given, but with dtypes unchanged. When
 <code class="xref py py-attr docutils literal notranslate"><span class="pre">non_blocking</span></code> is set, it tries to convert/move asynchronously
@@ -1095,6 +1100,7 @@ model package.</p></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.networks.dlwp.DLWPInference.channel_names"><code class="docutils literal notranslate"><span class="pre">DLWPInference.channel_names</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.networks.dlwp.DLWPInference.cuda"><code class="docutils literal notranslate"><span class="pre">DLWPInference.cuda()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.networks.dlwp.DLWPInference.device"><code class="docutils literal notranslate"><span class="pre">DLWPInference.device</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.networks.dlwp.DLWPInference.dtype"><code class="docutils literal notranslate"><span class="pre">DLWPInference.dtype</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.networks.dlwp.DLWPInference.grid"><code class="docutils literal notranslate"><span class="pre">DLWPInference.grid</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.networks.dlwp.DLWPInference.history_time_step"><code class="docutils literal notranslate"><span class="pre">DLWPInference.history_time_step</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.networks.dlwp.DLWPInference.in_channel_names"><code class="docutils literal notranslate"><span class="pre">DLWPInference.in_channel_names</span></code></a></li>

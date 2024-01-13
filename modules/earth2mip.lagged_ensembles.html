@@ -466,32 +466,19 @@ document.write(`
 <section id="module-earth2mip.lagged_ensembles.core">
 <span id="earth2mip-lagged-ensembles-core-module"></span><h2>earth2mip.lagged_ensembles.core module<a class="headerlink" href="#module-earth2mip.lagged_ensembles.core" title="Link to this heading">#</a></h2>
 <dl class="py function">
-<dt class="sig sig-object py" id="earth2mip.lagged_ensembles.core.done">
-<span class="sig-prename descclassname"><span class="pre">earth2mip.lagged_ensembles.core.</span></span><span class="sig-name descname"><span class="pre">done</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ell</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.lagged_ensembles.core.done" title="Link to this definition">#</a></dt>
-<dd><p>Unused helper function wich says if lag ell and valid_time j are written
-to in a given iteration <cite>i</cite> of the loop in lagged_average_simple</p>
-<p>This is one way to implement the done criteria which is less easily
-parallelized. I am leaving it in the code for educational value only.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="earth2mip.lagged_ensembles.core.num">
-<span class="sig-prename descclassname"><span class="pre">earth2mip.lagged_ensembles.core.</span></span><span class="sig-name descname"><span class="pre">num</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ell</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">L</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.lagged_ensembles.core.num" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="earth2mip.lagged_ensembles.core.yield_lagged_ensembles">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.lagged_ensembles.core.</span></span><span class="sig-name descname"><span class="pre">yield_lagged_ensembles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.lagged_ensembles.core.yield_lagged_ensembles" title="Link to this definition">#</a></dt>
-<dd><p>Yield centered lagged ensembles</p>
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.lagged_ensembles.core.</span></span><span class="sig-name descname"><span class="pre">yield_lagged_ensembles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_lag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_lag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.lagged_ensembles.core.yield_lagged_ensembles" title="Link to this definition">#</a></dt>
+<dd><p>Yield lagged ensembles</p>
 <p>The forecast array has shape (len(observations), n)</p>
-<p>The ensemble consist of runs initialized with an offset of (-lags, …, 0,
-…lags). The ensemble size is therefore <code class="docutils literal notranslate"><span class="pre">2*lags</span> <span class="pre">+</span> <span class="pre">=</span></code> for points within
+<p>The ensemble consist of runs initialized with an offset of (-min_lag, …
+…, max_lag). The ensemble size is therefore <code class="docutils literal notranslate"><span class="pre">2*lags</span> <span class="pre">+</span> <span class="pre">=</span></code> for points within
 the interior of the array.</p>
-<p>Supports running in parallel using the <code class="docutils literal notranslate"><span class="pre">rank</span></code> and <code class="docutils literal notranslate"><span class="pre">world_size</span></code> flags</p>
+<p>Supports running in parallel using the <code class="docutils literal notranslate"><span class="pre">rank</span></code> and <code class="docutils literal notranslate"><span class="pre">world_size</span></code> flags.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lags</strong> (<em>int</em>) – </p></li>
+<li><p><strong>max_lag</strong> (<em>int</em>) – </p></li>
+<li><p><strong>min_lag</strong> (<em>int</em>) – </p></li>
 <li><p><strong>n</strong> (<em>int</em>) – </p></li>
 </ul>
 </dd>
@@ -549,8 +536,6 @@ the interior of the array.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-earth2mip.lagged_ensembles.core">earth2mip.lagged_ensembles.core module</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.lagged_ensembles.core.done"><code class="docutils literal notranslate"><span class="pre">done()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.lagged_ensembles.core.num"><code class="docutils literal notranslate"><span class="pre">num()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.lagged_ensembles.core.yield_lagged_ensembles"><code class="docutils literal notranslate"><span class="pre">yield_lagged_ensembles()</span></code></a></li>
 </ul>
 </li>
