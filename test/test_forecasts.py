@@ -34,6 +34,7 @@ class MockTimeLoop:
     n_history_levels = 1
     grid = earth2mip.grid.equiangular_lat_lon_grid(2, 2)
     device = "cpu"
+    dtype = torch.float
 
     def __call__(self, time, x):
         while True:

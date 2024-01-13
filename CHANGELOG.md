@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Local Xarray data source
 - Diagnostic precipitation model example
+- `yield_lagged_ensembles` has max_lags, min_lags options. These allow for
+  non-centered lagged windows.
+- `earth2mip.lagged_ensembles` now has `--channels` to subselect channels
 
 ### Changed
 
@@ -25,9 +28,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- `earth2mip.xarray`
+
 ### Fixed
 
 - Fixed Graphcast implementation
+- Lagged ensembles now can run in parallel on arbitrary ranks
 - Fixed default cache location of file system
 - Fixed fs.glob search for H5 files
 - Corrected DLWP intial condition fetch with history
