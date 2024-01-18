@@ -62,6 +62,12 @@ This is a very simple, but has no metadata about the input or output, and from
 an outside perspective, can be difficult to use if ``x`` has more semantic
 meaning or requirements.
 
+Time Stepper
+^^^^^^^^^^^^
+
+.. autoclass:: earth2mip.time_loop.TimeStepper
+    :members:
+
 Time Loop
 ^^^^^^^^^
 

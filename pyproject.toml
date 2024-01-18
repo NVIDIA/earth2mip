@@ -14,6 +14,7 @@ requires-python = ">=3.10"
 license = {text = "Apache 2.0"}
 dependencies = [
     "altair>=4.2.2",
+    "boto3>=1.26.0",
     "cdsapi >= 0.6.1",
     "cfgrib >= 0.9.10.3",
     "cftime",
@@ -21,18 +22,21 @@ dependencies = [
     "distributed>=2023.1.0",
     "eccodes>=1.4.0",
     "ecmwflibs>=0.5.2",
+    "ecmwf-opendata>=0.2.0",
     "einops",
     "fsspec",
     "h5py>=3.2.0",
     "h5netcdf>=1.0.0",
     "importlib_metadata>=6.7.0",
     "joblib>=1.1.0",
+    "loguru>=0.6.0",
     "netCDF4>=1.6.4",
     "numpy",
-    "nvidia-modulus >= 0.3.0",
+    "nvidia-modulus >= 0.4.0",
     "pandas>=1.5.3",
     "properscoring>=0.1",
     "pydantic >= 1.10, <=1.10.11",
+    "pytest-timeout >= 2.1.0",
     "pytest-asyncio >= 0.21.0",
     "pytest-regtest",
     "pytest>=7.0.0",
@@ -61,7 +65,7 @@ pangu = [
 graphcast = [
     "jax>=0.4.16",
     "graphcast @ https://github.com/deepmind/graphcast/archive/e622a15c1b9742d78f9b662f2af262604d58c204.tar.gz",
-    "gcsfs>=2023.6.0",
+    "gcsfs",
 ]
 dev = [
     "pre-commit>=3.0.0",
@@ -72,6 +76,7 @@ dev = [
     "ruff==0.1.5",
 ]
 docs = [
+    "cartopy",
     "sphinx>=6.0.0",
     "jupytext>=1.15.0",
     "sphinx-autodoc-typehints>=1.24.0",
@@ -110,7 +115,8 @@ fixable = ["I"]
 # Never enforce `E402`, `E501` (line length violations),
 # and `S311` (random number generators)
 # `S310` (URL audit, TODO fix this)
-ignore = ["E501", "S311", "S310"]
+# `S101` assert not allowed
+ignore = ["E501", "S311", "S310", "S101"]
 
 [tool.ruff.per-file-ignores]
 # Ignore `F401` (import violations) in all `__init__.py` files, and in `docs/*.py`.

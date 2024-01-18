@@ -1,6 +1,3 @@
 -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
 jax[cuda12_local]==0.4.16
-https://github.com/deepmind/graphcast/archive/e622a15c1b9742d78f9b662f2af262604d58c204.tar.gz
-gcsfs
-# TODO point to modulus main once https://github.com/NVIDIA/modulus/pull/194 is merged
-nvidia-modulus@git+https://github.com/nvidia/modulus.git#egg=ea5d2c35998ad0c1c00407b0ecd2bf6049aef5e7
+pytest-regtest==1.5.1 # v2 of pytest currently has a bug https://gitlab.com/uweschmitt/pytest-regtest/-/issues/20

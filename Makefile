@@ -7,8 +7,8 @@
 install:
 	apt-get install -y libeccodes-dev
 	pip install --upgrade pip
-	pip install -r requirements.txt
 	pip install .[pangu,graphcast]
+	pip install -r requirements.txt
 
 .PHONY: setup-ci
 setup-ci:
@@ -34,6 +34,10 @@ license:
 doctest:
 	echo "TODO"
 	true
+
+.PHONY: pytest_parallel
+pytest_parallel:
+	torchrun -r 0:3,1:0,2:3 --nproc_per_node 3 -m  pytest test/lagged_ensembles/test_lagged_averaged_forecast.py
 
 .PHONY: pytest
 pytest:

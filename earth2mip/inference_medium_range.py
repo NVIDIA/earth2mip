@@ -148,12 +148,16 @@ def run_forecast(
 
             lead_time = valid_time - initial_time
             logger.debug(f"{valid_time}")
-            # TODO make this more performant grabs all history steps unnecessarily
-            verification_torch = initial_conditions.get_initial_condition_for_model(
-                time_loop=model, data_source=data_source, time=valid_time
+            verification_torch = initial_conditions.get_data_from_source(
+                data_source=data_source,
+                time=valid_time,
+                channel_names=model.out_channel_names,
+                grid=model.grid,
+                n_history_levels=1,
+                device=model.device,
             )
             # select first history level
-            verification_torch = verification_torch[:, 0]
+            verification_torch = verification_torch[:, -1]
             for metric in metrics:
                 outputs = metric.call(verification_torch, data)
                 for name, tensor in zip(metric.output_names, outputs):

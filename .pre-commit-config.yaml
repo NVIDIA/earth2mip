@@ -49,9 +49,9 @@ repos:
                 docs |
                 earth2mip/datasets |
                 earth2mip/diagnostic |
-                earth2mip/initial_conditions/* |
-                earth2mip/lagged_ensembles/* |
-                earth2mip/networks/* |
+                earth2mip/initial_conditions |
+                earth2mip/lagged_ensembles |
+                earth2mip/networks |
                 earth2mip/s2s |
                 earth2mip/xarray |
                 earth2mip/forecasts.py |
@@ -61,6 +61,7 @@ repos:
                 earth2mip/inference_ensemble.py |
                 earth2mip/ensemble_utils.py |
                 earth2mip/time_collection.py |
+                earth2mip/time_loop.py |
                 earth2mip/diagnostics.py |
                 earth2mip/model_registry.py |
                 earth2mip/filesystem.py |

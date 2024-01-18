@@ -1,4 +1,4 @@
-# Earth-2 MIP (Alpha)
+# Earth-2 MIP (Beta)
 
 <!-- markdownlint-disable -->
 [![Project Status: Active - The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
@@ -39,18 +39,10 @@ for more details and other options.
 
 ## Getting Started
 
-The [notebooks](./examples/notebooks/) folder contains reference Jupyter
-notebooks for a few common use cases.
-These are the best ways to start exploring Earth-2 MIP:
-
-1. [Ensemble Inference](./examples/notebooks/01_ensemble_inference.ipynb) - This
-notebook will demonstrate how to perturb the initial conditions to generate ensemble of
-inference outputs for a given pre-trained model and generate some standard metrics to
-evaluate the skill of the model.
-
-2. [Model Inter Comparison](./examples/notebooks/02_model_comparison.ipynb) - This
-notebook will showcase how to generate forecasts from multiple models with Earth-2 MIP
-and how to compare their predictions.
+Earth-2 MIP provides a set of examples which can be viewed on the [examples documentation](https://nvidia.github.io/earth2mip/examples/index.html)
+page which can be used to get started with various workflows.
+These examples can be downloaded both as Jupyer Notebooks and Python scripts.
+The source Python scripts can be found in the [examples](./examples/) folders.
 
 ### Basic Inference
 
@@ -129,9 +121,9 @@ table below.
 | pangu_6 | Pangu Weather 6hr Model  |  Vision Transformer | global weather |  [Nature](https://doi.org/10.1038/s41586-023-06185-3) | onnx | 1Gb |
 | pangu_24 | Pangu Weather 24hr Model |  Vision Transformer | global weather |  [Nature](https://doi.org/10.1038/s41586-023-06185-3) | onnx | 1Gb |
 | fcnv2_sm |  FourCastNet v2 | Spherical Harmonics Fourier Neural Operator | global weather |  [Arxiv](https://arxiv.org/abs/2306.03838)  | [modulus](https://catalog.ngc.nvidia.com/orgs/nvidia/teams/modulus/models/modulus_fcnv2_sm) | 3.5Gb |
-| graphcast |  Graphcast, 37 levels, 0.25 deg | Graph neural network | global weather |  [Arxiv](https://arxiv.org/abs/2212.12794)  | [github](https://github.com/google-deepmind/graphcast) | 145MB |
-| graphcast_small |  Graphcast, 13 levels, 1 deg | Graph neural network | global weather |  [Arxiv](https://arxiv.org/abs/2212.12794)  | [github](https://github.com/google-deepmind/graphcast) | 144MB |
-| graphcast_operational |  Graphcast, 13 levels, 0.25 deg| Graph neural network | global weather |  [Arxiv](https://arxiv.org/abs/2212.12794)  | [github](https://github.com/google-deepmind/graphcast) | 144MB |
+| graphcast |  Graphcast, 37 levels, 0.25 deg | Graph neural network | global weather |  [Science](https://www.science.org/doi/10.1126/science.adi2336)  | [github](https://github.com/google-deepmind/graphcast) | 145MB |
+| graphcast_small |  Graphcast, 13 levels, 1 deg | Graph neural network | global weather |  [Science](https://www.science.org/doi/10.1126/science.adi2336)  | [github](https://github.com/google-deepmind/graphcast) | 144MB |
+| graphcast_operational |  Graphcast, 13 levels, 0.25 deg| Graph neural network | global weather |  [Science](https://www.science.org/doi/10.1126/science.adi2336)  | [github](https://github.com/google-deepmind/graphcast) | 144MB |
 | precipitation_afno | FourCastNet Precipitation | Adaptive Fourier Neural Operator  | diagnostic | [Arxiv](https://arxiv.org/abs/2202.11214)   | [modulus](https://catalog.ngc.nvidia.com/orgs/nvidia/teams/modulus/models/modulus_diagnostics) | 300Mb |
 | climatenet | ClimateNet Segmentation Model | Convolutional Neural Network | diagnostic | [GMD](https://doi.org/10.5194/gmd-14-107-2021)   | [modulus](https://catalog.ngc.nvidia.com/orgs/nvidia/teams/modulus/models/modulus_diagnostics) | 2Mb |
 <!-- markdownlint-enable -->
@@ -139,11 +131,12 @@ table below.
 \* = coming soon
 
 Some models require additional dependencies not installed by default.
-To install all optional model dependencies use:
+Refer to the [installation instructions](https://nvidia.github.io/earth2mip/userguide/install.html)
+for details.
 
-```python
-pip install .[pangu,graphcast]
-```
+*Note* : Each model checkpoint may have its own unique license. We encourage users to
+familiarize themselves with each to understand implications for their particular use
+case.
 
 We want to integrate your model into the scoreboard to show the community!
 The best way to do this is via [NVIDIA Modulus](https://github.com/NVIDIA/modulus).
