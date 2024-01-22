@@ -101,7 +101,7 @@ def run_ensembles(
         batch_size = min(batch_size, n_ensemble - batch_id)
 
         x = x.repeat(batch_size, 1, 1, 1, 1)
-        x = perturb(x, rank, batch_id, model.device)
+        x_start = perturb(x, rank, batch_id, model.device)
         # restart_dir = weather_event.properties.restart
 
         # TODO: figure out if needed
@@ -117,7 +117,7 @@ def run_ensembles(
         #         time=time,
         #     )
 
-        iterator = model(initial_time, x)
+        iterator = model(initial_time, x_start)
 
         # Check if stdout is connected to a terminal
         if sys.stderr.isatty() and progress:
@@ -253,7 +253,7 @@ def get_initializer(
         scale = torch.tensor(scale, device=x.device)
 
         if config.perturbation_channels is None:
-            x += noise * scale[:, None, None]
+            return x + noise * scale[:, None, None]
         else:
             channel_list = model.in_channel_names
             indices = torch.tensor(
