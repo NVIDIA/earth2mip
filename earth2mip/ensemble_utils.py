@@ -16,9 +16,11 @@
 
 from datetime import datetime
 from typing import Union
+import xarray as xr
 
 import torch
 import torch_harmonics as th
+import numpy as np
 
 from earth2mip.time_loop import TimeLoop
 
@@ -188,14 +190,13 @@ def generate_bred_vector(
     model: TimeLoop,
     noise_amplitude: torch.Tensor,
     time: Union[datetime, None] = None,
-    integration_steps: int = 40,
+    integration_steps: int = 10,
     inflate=False,
 ) -> torch.Tensor:
     # Assume x has shape [ENSEMBLE, TIME, CHANNEL, LAT, LON]
 
     if isinstance(noise_amplitude, float):
-        noise_amplitude = torch.tensor([noise_amplitude])
-
+        noise_amplitude = torch.tensor([noise_amplitude]).to(x.device) * 10
     assert (noise_amplitude.shape[0] == x.shape[2]) or (  # noqa
         torch.numel(noise_amplitude) == 1
     )
@@ -203,22 +204,28 @@ def generate_bred_vector(
     x0 = x[:1]
 
     # Get control forecast
-    for _, data, _ in model(time, x0):
+    for k, (_, data, _) in enumerate(model(time, x0)):
         xd = data
-        break
+        if k == 5:
+            break
 
     # Unsqueeze if time has been collapsed.
     if xd.ndim != x0.ndim:
         xd = xd.unsqueeze(1)
-
+    noise_amplitude = torch.from_numpy(np.load("/pscratch/sd/p/pharring/73var-6hourly/staging/stats/time_diff_stds.npy")[ :, :73].squeeze()).to(x.device).to(torch.float)
     dx = noise_amplitude[:, None, None] * torch.randn(
         x.shape, device=x.device, dtype=x.dtype
-    )
+    ) #* model.scale
+    #dx = dx * torch.from_numpy(np.load("/pscratch/sd/j/jpathak/73var-6hourly/stats/time_means.npy").squeeze()).to(x.device) * 0.1
+    channel_idx = set(range(len(model.channel_names))) - set([model.channel_names.index('z500')])
+    #print(channel_idx)
+    dx[:, :, list(channel_idx), : 721, : 1440] = 0
     for _ in range(integration_steps):
         x1 = x + dx
-        for _, data, _ in model(time, x1):
+        for k, (_, data, _) in enumerate(model(time, x1)):
             x2 = data
-            break
+            if k == 5:
+                break
 
         # Unsqueeze if time has been collapsed.
         if x2.ndim != x1.ndim:
@@ -228,5 +235,20 @@ def generate_bred_vector(
         if inflate:
             dx += noise_amplitude * (dx - dx.mean(dim=0))
 
-    gamma = torch.norm(x) / torch.norm(x + dx)
-    return noise_amplitude * dx * gamma
+    gamma = torch.linalg.norm(x) / torch.linalg.norm(x + dx)
+    #return noise_amplitude * dx * gamma / model.scale
+    
+    optimization_target = _load_optimal_targets('sfno_linear_73chq_sc3_layers8_edim384_wstgl2', 24).to(x.device).squeeze().to(torch.float32)
+    #optimization_target = noise_amplitude
+    optimization_target = optimization_target[None, None]
+    exaggerate_factor = dx.std((-1,-2)) / optimization_target
+    dx = dx / exaggerate_factor[:, :, :, None, None]
+    return dx / model.scale
+
+
+def _load_optimal_targets(config_model_name, lead_time):
+    path = "/pscratch/sd/a/amahesh/hens/optimal_perturbation_targets/{}.nc".format("FULL_sfno_73ch_e620_depth8_scale2_droppath01seed4_fcn-dev")
+    ds = xr.open_dataset(path)
+    ds['lead_time'] = ds['lead_time'] / np.timedelta64(1, 'h')
+    return torch.from_numpy(ds['rmse'].sel(lead_time=lead_time).values[np.newaxis,])
+
