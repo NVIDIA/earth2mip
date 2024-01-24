@@ -157,6 +157,7 @@ def test_run_over_initial_times(tmp_path, regtest):
         initial_times=initial_times,
         config=config,
         output_path=output_path,
+        n_post_processing_workers=1,
     )
 
     # open the data and ensure its format is the same as the regression data

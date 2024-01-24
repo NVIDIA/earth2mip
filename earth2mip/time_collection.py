@@ -43,10 +43,10 @@ logger = logging.getLogger(__file__)
 WD = os.getcwd()
 
 
-def get_distributed_client(rank: int) -> Client:
+def get_distributed_client(rank: int, n_workers: int) -> Client:
     scheduler_file = "scheduler.json"
     if rank == 0:
-        client = Client(n_workers=32, threads_per_worker=1)
+        client = Client(n_workers=n_workers, threads_per_worker=1)
         client.write_scheduler_file(scheduler_file)
 
     if torch.distributed.is_initialized():
@@ -107,6 +107,7 @@ def run_over_initial_times(
     save_ensemble: bool = False,
     shard: int = 0,
     n_shards: int = 1,
+    n_post_processing_workers: int = 32,
 ) -> None:
     """Perform a set of forecasts across many initial conditions in parallel
     with post processing
@@ -130,6 +131,8 @@ def run_over_initial_times(
         save_ensemble: if true, then save all the ensemble members in addition to the mean
         shard: index of the shard. useful for SLURM array jobs
         n_shards: number of shards total.
+        n_post_processing_workers: The number of dask distributed workers to
+            devote to ensemble post processing.
 
     """
     assert shard < n_shards  # noqa
@@ -167,7 +170,7 @@ def run_over_initial_times(
         group_rank = 0
 
     # setup dask client for post processing
-    client = get_distributed_client(dist.rank)
+    client = get_distributed_client(dist.rank, n_workers=n_post_processing_workers)
     post_process_task = None
 
     # write time information to config.json:protocol.times as expected by
@@ -229,7 +232,6 @@ def run_over_initial_times(
                 post_process_task.result()
 
             post_process_task = client.submit(post_process, d)
-
             stop = time.now()
             elapsed = stop - start
             remaining = elapsed * (len(initial_times) - count)
@@ -240,6 +242,7 @@ def run_over_initial_times(
     # finish up final task
     if group_rank == 0 and post_process_task is not None:
         post_process_task.result()
+        client.close()
 
     # keep barrier at end so
     # dask distributed client is not cleaned up
