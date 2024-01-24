@@ -43,7 +43,7 @@ logger = logging.getLogger(__file__)
 WD = os.getcwd()
 
 
-def get_distributed_client(rank):
+def get_distributed_client(rank: int) -> Client:
     scheduler_file = "scheduler.json"
     if rank == 0:
         client = Client(n_workers=32, threads_per_worker=1)
@@ -62,7 +62,7 @@ def main(
     root: str,
     shard: int = 0,
     n_shards: int = 1,
-):
+) -> None:
     """
     Args:
         root: the root directory of the output
@@ -107,7 +107,7 @@ def run_over_initial_times(
     save_ensemble: bool = False,
     shard: int = 0,
     n_shards: int = 1,
-):
+) -> None:
     """Perform a set of forecasts across many initial conditions in parallel
     with post processing
 
@@ -133,6 +133,7 @@ def run_over_initial_times(
 
     """
     assert shard < n_shards  # noqa
+    assert config.weather_event
     dist = DistributedManager()
     root = output_path
     model = time_loop
@@ -143,8 +144,7 @@ def run_over_initial_times(
         f"Working on shard {shard+1}/{n_shards}. {len(initial_times)} initial times to run."
     )
 
-    run = config
-    n_ensemble_batches = run.ensemble_members // run.ensemble_batch_size
+    n_ensemble_batches = config.ensemble_members // config.ensemble_batch_size
     ranks_per_time = min(n_ensemble_batches, dist.world_size)
     ranks_per_time = ranks_per_time - dist.world_size % ranks_per_time
 
@@ -197,13 +197,13 @@ def run_over_initial_times(
 
         perturb = inference_ensemble.get_initializer(
             model,
-            run,
+            config,
         )
-        run.weather_event.properties.start_time = initial_time
-        run.output_path = d
+        config.weather_event.properties.start_time = initial_time
+        config.output_path = d
         inference_ensemble.run_inference(
             model,
-            run,
+            config,
             group=group,
             progress=False,
             perturb=perturb,
@@ -212,7 +212,7 @@ def run_over_initial_times(
 
         if group_rank == 0:
 
-            def post_process(d):
+            def post_process(d: str) -> None:
                 output_path = f"{d}/output/"
                 score_ensemble_outputs.main(
                     input_path=d,

@@ -60,7 +60,6 @@ repos:
                 earth2mip/inference_medium_range.py |
                 earth2mip/inference_ensemble.py |
                 earth2mip/ensemble_utils.py |
-                earth2mip/time_collection.py |
                 earth2mip/time_loop.py |
                 earth2mip/diagnostics.py |
                 earth2mip/model_registry.py |
@@ -74,7 +73,6 @@ repos:
                 earth2mip/loaders.py |
                 earth2mip/grid.py |
                 earth2mip/weather_events.py |
-                earth2mip/schema.py |
                 earth2mip/_config.py |
                 conftest.py
               )
