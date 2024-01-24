@@ -31,6 +31,8 @@ from earth2mip.initial_conditions.base import DataSource
 from earth2mip.schema import EnsembleRun
 from earth2mip.time_loop import TimeLoop
 
+__all__ = ["run_over_initial_times"]
+
 logging.basicConfig(
     format="%(asctime)s:%(levelname)-s:%(name)s:%(message)s",
     level=logging.INFO,
