@@ -1,0 +1,35 @@
+xarray.Dataset {
+dimensions:
+	initial_time = 2 ;
+	time = 11 ;
+	lat = 2 ;
+	lon = 2 ;
+
+variables:
+	float64 a(initial_time, time, lat, lon) ;
+	float64 b(initial_time, time, lat, lon) ;
+	float64 imax(initial_time) ;
+	float64 imin(initial_time) ;
+	datetime64[ns] initial_time(initial_time) ;
+	float64 jmax(initial_time) ;
+	float64 jmin(initial_time) ;
+	datetime64[ns] valid_time(initial_time, time) ;
+	float32 lat(lat) ;
+		lat:long_name = latitude ;
+		lat:standard_name = latitude ;
+		lat:units = degrees_north ;
+	float32 lon(lon) ;
+		lon:long_name = longitude ;
+		lon:standard_name = longitude ;
+		lon:units = degrees_east ;
+	timedelta64[ns] time(time) ;
+
+// global attributes:
+	:Conventions = CF-1.10 ;
+	:config = {"weather_model": "unused", "simulation_length": 10, "perturbation_strategy": "correlated", "perturbation_channels": null, "noise_reddening": 2.0, "noise_amplitude": 0.05, "output_frequency": 1, "output_grid": null, "ensemble_members": 4, "seed": 12345, "ensemble_batch_size": 1, "forecast_name": null, "weather_event": {"properties": {"name": "global", "start_time": "2018-01-01T00:00:00", "initial_condition_source": "era5", "netcdf": "", "restart": ""}, "domains": [{"type": "Window", "name": "global", "lat_min": -90, "lat_max": 90, "lon_min": 0, "lon_max": 360, "diagnostics": [{"type": "raw", "function": "", "channels": ["b", "a"], "nbins": 10}]}]}, "output_dir": null, "output_path": "<pytest_tempdir>/test_run_over_initial_times0/2018-01-01T00:00:00.tmp", "restart_frequency": null, "grf_noise_alpha": 2.0, "grf_noise_sigma": 5.0, "grf_noise_tau": 2.0} ;
+	:institution = NVIDIA ;
+	:model = unused ;
+	:time_averaging_window =  ;
+	:weather_event = {"properties": {"name": "global", "start_time": "2018-01-01T00:00:00", "initial_condition_source": "era5", "netcdf": "", "restart": ""}, "domains": [{"type": "Window", "name": "global", "lat_min": -90, "lat_max": 90, "lon_min": 0, "lon_max": 360, "diagnostics": [{"type": "raw", "function": "", "channels": ["b", "a"], "nbins": 10}]}]} ;
+	:_ARRAY_DIMENSIONS = ['initial_time'] ;
+}
