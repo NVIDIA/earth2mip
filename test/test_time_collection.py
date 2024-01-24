@@ -90,6 +90,7 @@ def test_time_collection(tmp_path):
     assert isinstance(ds, xarray.Dataset)
 
 
+@pytest.mark.slow
 def test_run_over_initial_times(tmp_path, regtest):
     class MockTimeLoop:
         in_channel_names = ["b", "a"]
@@ -99,6 +100,7 @@ def test_run_over_initial_times(tmp_path, regtest):
         n_history_levels = 1
         grid = earth2mip.grid.equiangular_lat_lon_grid(2, 2)
         device = "cpu"
+        dtype = torch.float
 
         def __call__(self, time, x):
             while True:
