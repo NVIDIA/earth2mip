@@ -37,6 +37,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed default cache location of file system
 - Fixed fs.glob search for H5 files
 - Corrected DLWP intial condition fetch with history
+- Corrected if statement for geopotential calculation in GFS initial conditions.
+- Fixed lexicon bug for u100m variable in GFS.
 
 ### Security
 

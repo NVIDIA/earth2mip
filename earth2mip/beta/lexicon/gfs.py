@@ -34,7 +34,7 @@ class GFSLexicon(metaclass=LexiconType):
     VOCAB = {
         "u10m": "UGRD::10 m above ground",
         "v10m": "VGRD::10 m above ground",
-        "u100m": "VGRD::100 m above ground",
+        "u100m": "UGRD::100 m above ground",
         "v100m": "VGRD::100 m above ground",
         "t2m": "TMP::2 m above ground",
         "sp": "PRES::surface",

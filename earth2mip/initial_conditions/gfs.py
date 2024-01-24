@@ -219,7 +219,7 @@ def get(
             break
 
         # If geopotential height multiply by gravity to get geopotential
-        if name.startswith("HGT") == "z":
+        if name.startswith("HGT"):
             field = field * 9.81
         data[i] = field
 
