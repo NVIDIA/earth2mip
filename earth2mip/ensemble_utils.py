@@ -190,13 +190,13 @@ def generate_bred_vector(
     model: TimeLoop,
     noise_amplitude: torch.Tensor,
     time: Union[datetime, None] = None,
-    integration_steps: int = 10,
+    integration_steps: int = 5,
     inflate=False,
 ) -> torch.Tensor:
     # Assume x has shape [ENSEMBLE, TIME, CHANNEL, LAT, LON]
 
     if isinstance(noise_amplitude, float):
-        noise_amplitude = torch.tensor([noise_amplitude]).to(x.device) * 10
+        noise_amplitude = torch.tensor([noise_amplitude]).to(x.device) 
     assert (noise_amplitude.shape[0] == x.shape[2]) or (  # noqa
         torch.numel(noise_amplitude) == 1
     )
@@ -206,7 +206,7 @@ def generate_bred_vector(
     # Get control forecast
     for k, (_, data, _) in enumerate(model(time, x0)):
         xd = data
-        if k == 5:
+        if k == 3:
             break
 
     # Unsqueeze if time has been collapsed.
@@ -216,7 +216,7 @@ def generate_bred_vector(
     dx = noise_amplitude[:, None, None] * torch.randn(
         x.shape, device=x.device, dtype=x.dtype
     ) #* model.scale
-    #dx = dx * torch.from_numpy(np.load("/pscratch/sd/j/jpathak/73var-6hourly/stats/time_means.npy").squeeze()).to(x.device) * 0.1
+    #dx = dx * torch.from_numpy(np.load("/pscratch/sd/j/jpathak/73var-6hourly/stats/time_means.npy").squeeze()).to(x.device)
     channel_idx = set(range(len(model.channel_names))) - set([model.channel_names.index('z500')])
     #print(channel_idx)
     dx[:, :, list(channel_idx), : 721, : 1440] = 0
@@ -224,7 +224,7 @@ def generate_bred_vector(
         x1 = x + dx
         for k, (_, data, _) in enumerate(model(time, x1)):
             x2 = data
-            if k == 5:
+            if k == 3:
                 break
 
         # Unsqueeze if time has been collapsed.
@@ -233,15 +233,17 @@ def generate_bred_vector(
         dx = x2 - xd
 
         if inflate:
-            dx += noise_amplitude * (dx - dx.mean(dim=0))
+            dx += noise_amplitude * (dx - dx.mean(dim=0)) * model.scale
 
     gamma = torch.linalg.norm(x) / torch.linalg.norm(x + dx)
     #return noise_amplitude * dx * gamma / model.scale
-    
-    optimization_target = _load_optimal_targets('sfno_linear_73chq_sc3_layers8_edim384_wstgl2', 24).to(x.device).squeeze().to(torch.float32)
+   
+    coslat = torch.Tensor(np.cos(np.deg2rad(np.linspace(90,-90,721)))[None, None, :, None]).to(x.device)
+    optimization_target = _load_optimal_targets('sfno_linear_73chq_sc3_layers8_edim384_wstgl2', 6).to(x.device).squeeze().to(torch.float32) * 1.5
     #optimization_target = noise_amplitude
     optimization_target = optimization_target[None, None]
-    exaggerate_factor = dx.std((-1,-2)) / optimization_target
+    #exaggerate_factor = dx.std((-1,-2)) / optimization_target
+    exaggerate_factor = torch.sqrt(torch.mean(dx**2*coslat,dim=(-1,-2))) / optimization_target
     dx = dx / exaggerate_factor[:, :, :, None, None]
     return dx / model.scale
 
