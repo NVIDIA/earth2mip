@@ -24,6 +24,7 @@ install
 
 concepts
 diagnostic
+inference-workflows
 ```
 
 ## Utilities

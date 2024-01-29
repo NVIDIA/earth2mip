@@ -23,7 +23,13 @@ import pydantic
 from earth2mip import weather_events
 from earth2mip.weather_events import InitialConditionSource, WeatherEvent
 
-__all__ = ["InitialConditionSource", "WeatherEvent"]
+__all__ = [
+    "InitialConditionSource",
+    "WeatherEvent",
+    "EnsembleRun",
+    "InferenceEntrypoint",
+    "PerturbationStrategy",
+]
 
 
 class Grid(Enum):

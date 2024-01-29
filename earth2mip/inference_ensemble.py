@@ -32,7 +32,7 @@ from netCDF4 import Dataset as DS
 
 import earth2mip.grid
 
-__all__ = ["run_inference"]
+__all__ = ["run_inference", "run_basic_inference"]
 
 # need to import initial conditions first to avoid unfortunate
 # GLIBC version conflict when importing xarray. There are some unfortunate
