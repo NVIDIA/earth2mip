@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="../_static/favicon.ico" rel="icon" type="image/x-icon">
-    <title>Installation &#8212; Earth-2 MIP 0.2.0a0 documentation</title>
+    <title>Inference Workflows &#8212; Earth-2 MIP 0.2.0a0 documentation</title>
   
   
   
@@ -42,7 +42,7 @@
     <script src="../_static/documentation_options.js?v=312c242a"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'userguide/install';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'userguide/inference-workflows';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.14.3';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/NVIDIA/earth2mip/gh-pages/_static/switcher.json';
@@ -51,8 +51,8 @@
         </script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Concepts" href="concepts.html" />
-    <link rel="prev" title="User Guide" href="index.html" />
+    <link rel="next" title="Command Line Utilities" href="clis.html" />
+    <link rel="prev" title="Diagnostics" href="diagnostic.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -391,15 +391,15 @@ document.write(`
         <div class="sidebar-primary-item"><nav class="bd-docs-nav bd-links"
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
-  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Installation</a></li>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 
 
 </ul>
-<ul class="nav bd-sidenav">
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="concepts.html">Concepts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="diagnostic.html">Diagnostics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="inference-workflows.html">Inference Workflows</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Inference Workflows</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="clis.html">Command Line Utilities</a></li>
@@ -450,7 +450,7 @@ document.write(`
     
     <li class="breadcrumb-item"><a href="index.html" class="nav-link">User Guide</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">Installation</li>
+    <li class="breadcrumb-item active" aria-current="page">Inference Workflows</li>
   </ul>
 </nav>
 </div>
@@ -467,161 +467,129 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h1>
-<p>Earth-2 MIP is a Python package and can be installed from source using pip.
-However, we suggest setting up a dedicated run environment for Earth-2 MIP.</p>
-<section id="install-from-source-recommended">
-<h2>Install from Source (Recommended)<a class="headerlink" href="#install-from-source-recommended" title="Link to this heading">#</a></h2>
-<p>To install Earth-2 MIP from source:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:NVIDIA/earth2mip.git
+  <section id="inference-workflows">
+<h1>Inference Workflows<a class="headerlink" href="#inference-workflows" title="Link to this heading">#</a></h1>
+<p>These python functions work on the <a class="reference internal" href="concepts.html#concepts"><span class="std std-ref">core objects</span></a> of earth2mip.
+Most are passed a <a class="reference internal" href="../modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.base.DataSource" title="earth2mip.initial_conditions.base.DataSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">earth2mip.initial_conditions.base.DataSource</span></code></a> and
+an py:class:<cite>earth2mip.time_loop.TimeLoop</cite> object. These can be used from within
+your own parallel scripts.</p>
+<section id="general-inference">
+<h2>General Inference<a class="headerlink" href="#general-inference" title="Link to this heading">#</a></h2>
+<p>These routines combine many of the features of earth2mip, including ensemble initialization,
+post processing,</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="earth2mip.inference_ensemble.run_inference">
+<span class="sig-prename descclassname"><span class="pre">earth2mip.inference_ensemble.</span></span><span class="sig-name descname"><span class="pre">run_inference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perturb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.inference_ensemble.run_inference" title="Link to this definition">#</a></dt>
+<dd><p>Run an ensemble inference for a given config and a perturb function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>group</strong> (<em>Any</em><em> | </em><em>None</em>) – the torch distributed group to use for the calculation</p></li>
+<li><p><strong>progress</strong> (<em>bool</em>) – if True use tqdm to show a progress bar</p></li>
+<li><p><strong>data_source</strong> (<em>Any</em><em> | </em><em>None</em>) – a Mapping object indexed by datetime and returning an
+xarray.Dataset object.</p></li>
+<li><p><strong>model</strong> (<a class="reference internal" href="../modules/index.html#earth2mip.time_loop.TimeLoop" title="earth2mip.time_loop.TimeLoop"><em>TimeLoop</em></a>) – </p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="../modules/index.html#earth2mip.schema.EnsembleRun" title="earth2mip.schema.EnsembleRun"><em>EnsembleRun</em></a>) – </p></li>
+<li><p><strong>perturb</strong> (<em>Any</em><em> | </em><em>None</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
-<span class="nb">cd</span><span class="w"> </span>earth2mip<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>.
-</pre></div>
-</div>
-</section>
-<section id="install-from-release-wheel">
-<h2>Install from Release Wheel<a class="headerlink" href="#install-from-release-wheel" title="Link to this heading">#</a></h2>
-<p>Built Python wheels can be accessed in Earth-2 MIPs releases on Github:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-L<span class="w"> </span>https://github.com/NVIDIA/earth2mip/releases/download/v0.1.0/earth2mip-0.1.0-py3-none-any.whl<span class="w"> </span>&gt;<span class="w"> </span>earth2mip-0.1.0-py3-none-any.whl
+<dl class="py function">
+<dt class="sig sig-object py" id="earth2mip.time_collection.run_over_initial_times">
+<span class="sig-prename descclassname"><span class="pre">earth2mip.time_collection.</span></span><span class="sig-name descname"><span class="pre">run_over_initial_times</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_loop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_times</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_averaging_window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_ensemble</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shard</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_shards</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_post_processing_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.time_collection.run_over_initial_times" title="Link to this definition">#</a></dt>
+<dd><p>Perform a set of forecasts across many initial conditions in parallel
+with post processing</p>
+<p>Once complete, the data at <code class="docutils literal notranslate"><span class="pre">output_path</span></code> can be opened as an xarray object using
+<a class="reference internal" href="../modules/earth2mip.datasets.html#earth2mip.datasets.hindcast.open_forecast" title="earth2mip.datasets.hindcast.open_forecast"><code class="xref py py-func docutils literal notranslate"><span class="pre">earth2mip.datasets.hindcast.open_forecast()</span></code></a>.</p>
+<p>Parallelizes across the available GPUs using MPI, and can be further
+parallelized across multiple MPI jobs using the <code class="docutils literal notranslate"><span class="pre">shard</span></code>/ <code class="docutils literal notranslate"><span class="pre">n_shards</span></code>
+flags. It can be resumed after interruption.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time_loop</strong> (<a class="reference internal" href="../modules/index.html#earth2mip.time_loop.TimeLoop" title="earth2mip.time_loop.TimeLoop"><em>TimeLoop</em></a>) – the earth2mip TimeLoop to be evaluated. Often returned by <cite>earth2mip.networks.get_model</cite></p></li>
+<li><p><strong>data_source</strong> (<a class="reference internal" href="../modules/earth2mip.initial_conditions.html#earth2mip.initial_conditions.base.DataSource" title="earth2mip.initial_conditions.base.DataSource"><em>DataSource</em></a><em> | </em><em>None</em>) – the data source used to initialize the time_loop, overrides
+any data source specified in <code class="docutils literal notranslate"><span class="pre">config</span></code></p></li>
+<li><p><strong>initial_times</strong> (<em>list</em><em>[</em><em>datetime</em><em>]</em>) – the initial times evaluated over</p></li>
+<li><p><strong>n_shards</strong> (<em>int</em>) – split the input times into this many shards</p></li>
+<li><p><strong>time_averaging_window</strong> (<em>str</em>) – if provided, average the output over this interval. Same
+syntax as pandas.Timedelta (e.g. “2w”). Default is no time averaging.</p></li>
+<li><p><strong>score</strong> (<em>bool</em>) – if true, score the times during the post processing</p></li>
+<li><p><strong>save_ensemble</strong> (<em>bool</em>) – if true, then save all the ensemble members in addition to the mean</p></li>
+<li><p><strong>shard</strong> (<em>int</em>) – index of the shard. useful for SLURM array jobs</p></li>
+<li><p><strong>n_shards</strong> – number of shards total.</p></li>
+<li><p><strong>n_post_processing_workers</strong> (<em>int</em>) – The number of dask distributed workers to
+devote to ensemble post processing.</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="../modules/index.html#earth2mip.schema.EnsembleRun" title="earth2mip.schema.EnsembleRun"><em>EnsembleRun</em></a>) – </p></li>
+<li><p><strong>output_path</strong> (<em>str</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
 
-pip<span class="w"> </span>install<span class="w"> </span>earth2mip-0.1.0-py3-none-any.whl
-</pre></div>
-</div>
 </section>
-<section id="installing-from-pypi">
-<h2>Installing from PyPi<a class="headerlink" href="#installing-from-pypi" title="Link to this heading">#</a></h2>
-<p>Presently Earth-2 MIP is not on PyPi. Install from source in the mean time.</p>
-</section>
-</section>
-<section id="earth-2-mip-environments">
-<h1>Earth-2 MIP Environments<a class="headerlink" href="#earth-2-mip-environments" title="Link to this heading">#</a></h1>
-<p>When running Earth-2 MIP, it is highly encouraged to do so in a dedicated environment to
-mitigate the chance of unforseen package conflicts.
-Docker is the preferred environment, but if you are not familiar with docker or cannnot
-run a docker container Conda is typically a suitable alternative.</p>
-<section id="conda-environment">
-<h2>Conda Environment<a class="headerlink" href="#conda-environment" title="Link to this heading">#</a></h2>
-<p>Start with installing <a class="reference external" href="https://docs.conda.io/projects/miniconda/en/latest/">Miniconda</a>
-/ <a class="reference external" href="https://docs.continuum.io/free/anaconda/">Anaconda</a>.
-Once installed we will create a new conda enviorment for Earth-2 MIP:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>earth2mip<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10
-conda<span class="w"> </span>activate<span class="w"> </span>earth2mip
-</pre></div>
-</div>
-<p>Next we can install Earth-2 MIP using one of the listed methods above. E.g.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:NVIDIA/earth2mip.git
+<section id="scoring">
+<h2>Scoring<a class="headerlink" href="#scoring" title="Link to this heading">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="earth2mip.inference_medium_range.score_deterministic">
+<span class="sig-prename descclassname"><span class="pre">earth2mip.inference_medium_range.</span></span><span class="sig-name descname"><span class="pre">score_deterministic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_times</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_mean</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.inference_medium_range.score_deterministic" title="Link to this definition">#</a></dt>
+<dd><p>Compute deterministic accs and rmses</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<a class="reference internal" href="../modules/index.html#earth2mip.time_loop.TimeLoop" title="earth2mip.time_loop.TimeLoop"><em>TimeLoop</em></a>) – the inference class</p></li>
+<li><p><strong>n</strong> (<em>int</em>) – the number of lead times</p></li>
+<li><p><strong>initial_times</strong> – the initial_times to compute over</p></li>
+<li><p><strong>data_source</strong> – a mapping from time to dataset, used for the initial
+condition and the scoring</p></li>
+<li><p><strong>time_mean</strong> – a (channel, lat, lon) numpy array containing the time_mean.
+Used for ACC.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl>
+<dt>an xarray dataset wtih this structure::</dt><dd><p>netcdf dlwp.baseline {
+dimensions:</p>
+<blockquote>
+<div><p>lead_time = 57 ;
+channel = 7 ;
+initial_time = 1 ;</p>
+</div></blockquote>
+<dl>
+<dt>variables:</dt><dd><dl class="simple">
+<dt>int64 lead_time(lead_time) ;</dt><dd><p>lead_time:units = “hours” ;</p>
+</dd>
+</dl>
+<p>string channel(channel) ;
+double acc(lead_time, channel) ;</p>
+<blockquote>
+<div><p>acc:_FillValue = NaN ;</p>
+</div></blockquote>
+<dl class="simple">
+<dt>double rmse(lead_time, channel) ;</dt><dd><p>rmse:_FillValue = NaN ;</p>
+</dd>
+<dt>int64 initial_times(initial_time) ;</dt><dd><p>initial_times:units = “days since 2018-11-30 12:00:00” ;
+initial_times:calendar = “proleptic_gregorian” ;</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>}</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>metrics</p>
+</dd>
+</dl>
+</dd></dl>
 
-<span class="nb">cd</span><span class="w"> </span>earth2mip<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>.
-</pre></div>
-</div>
-<p>If you are interested in running Jupyter Notebooks (such as the provided examples),
-create a iPython kernel using the environment to use in <a class="reference external" href="https://jupyterlab.readthedocs.io/en/stable/user/running.html">Jupyter lab</a>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>ipykernel
-python<span class="w"> </span>-m<span class="w"> </span>ipykernel<span class="w"> </span>install<span class="w"> </span>--user<span class="w"> </span>--name<span class="o">=</span>earth2mip-kernel
-</pre></div>
-</div>
-</section>
-<section id="docker-environment">
-<h2>Docker Environment<a class="headerlink" href="#docker-environment" title="Link to this heading">#</a></h2>
-<p>For the most consistent environment, we suggest using the Modulus docker container
-that is avaiable on the Nvidia container registry.
-Launch the Modulus docker container with port mapping as below:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>--shm-size<span class="o">=</span>1g<span class="w"> </span>--ulimit<span class="w"> </span><span class="nv">memlock</span><span class="o">=</span>-1<span class="w"> </span>--ulimit<span class="w"> </span><span class="nv">stack</span><span class="o">=</span><span class="m">67108864</span><span class="w"> </span>--runtime<span class="w"> </span>nvidia<span class="w"> </span>-p<span class="w"> </span><span class="m">8888</span>:8888<span class="w"> </span>-it<span class="w"> </span>nvcr.io/nvidia/modulus/modulus:23.11
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The above command maps the port <code class="docutils literal notranslate"><span class="pre">8888</span></code> inside the docker container to the port <code class="docutils literal notranslate"><span class="pre">8888</span></code> on
-local machine.
-This is a requirement needed when using Jupyter Lab to run the notebook examples.</p>
-</div>
-<p>Once inside the container install Earth-2 MIP, using your preferred method.
-Note you will have to pip install every time you run the container.
-Alternatively, you can not use <code class="docutils literal notranslate"><span class="pre">--rm</span></code> in the run command and keep the stopped
-container to then <a class="reference external" href="https://docs.docker.com/engine/reference/commandline/start/">start again</a>
-in the future.</p>
-</section>
-<section id="singularity-apptainer-environment">
-<h2>Singularity / Apptainer Environment<a class="headerlink" href="#singularity-apptainer-environment" title="Link to this heading">#</a></h2>
-<p>On many systems, singularity/apptainer is the containerize environment solution of choice,
-typically due to better security.
-The modulus docker container can be converted into a singularity container with the
-following definition file being placed in the root of the Earth-2 MIP
-repository:</p>
-<div class="highlight-dockerfile notranslate"><div class="highlight"><pre><span></span>Bootstrap:<span class="w"> </span>docker
-<span class="k">FROM</span><span class="s">:</span><span class="w"> </span>nvcr.io/nvidia/modulus/modulus:23.11
-
-%files
-<span class="w">    </span>earth2mip/*<span class="w"> </span>/workspace/earth2mip/earth2mip/
-<span class="w">    </span>MANIFEST.in<span class="w"> </span>/workspace/earth2mip/MANIFEST.in
-<span class="w">    </span>setup.cfg<span class="w"> </span>/workspace/earth2mip/setup.cfg
-<span class="w">    </span>setup.py<span class="w"> </span>/workspace/earth2mip/setup.py
-<span class="w">    </span>README.md<span class="w"> </span>/workspace/earth2mip/README.md
-<span class="w">    </span>LICENSE.txt<span class="w"> </span>/workspace/earth2mip/LICENSE.txt
-<span class="w">    </span>examples/README.md<span class="w"> </span>/workspace/earth2mip/examples/README.md
-
-%post
-<span class="w">    </span><span class="nb">cd</span><span class="w"> </span>/workspace/earth2mip<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pip3<span class="w"> </span>install<span class="w"> </span>.
-<span class="w">    </span>pip3<span class="w"> </span>install<span class="w"> </span>cartopy
-
-%environment
-<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">HOME</span><span class="o">=</span>/workspace/earth2mip/
-
-%runscript
-<span class="w">    </span><span class="nb">cd</span><span class="w"> </span>~
-
-%labels
-<span class="w">    </span>AUTHOR<span class="w"> </span>NVIDIA<span class="w"> </span>Earth-2<span class="w"> </span>and<span class="w"> </span>Modulus<span class="w"> </span>Team
-</pre></div>
-</div>
-<p>A Singularity Image Format (<code class="docutils literal notranslate"><span class="pre">sif</span></code>) file can get built with the following command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>singularity<span class="w"> </span>build<span class="w"> </span>--fakeroot<span class="w"> </span>--sandbox<span class="w"> </span>earth2mip.sif<span class="w"> </span>earth2mip.def
-</pre></div>
-</div>
-<p>This can then be ran using the following execute command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>singularity<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-B<span class="w"> </span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span>:/workspace/earth2mip<span class="w"> </span>--nv<span class="w"> </span>earth2mip.sif<span class="w"> </span>bash<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;cd ~&#39;</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The following translates easily to apptainer where the commands / definition file can be
-translated easily. See <a class="reference external" href="https://apptainer.org/docs/admin/main/singularity_migration.html">migration guide</a>
-for additional details.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Singularity / Apptainer containers are not recommended for running Jupyter lab.
-Instead consider a conda environment.</p>
-</div>
-</section>
-</section>
-<section id="optional-dependicies">
-<h1>Optional Dependicies<a class="headerlink" href="#optional-dependicies" title="Link to this heading">#</a></h1>
-<p>Earth-2 MIP has a number of optional dependencies that can be installed depending on the
-use case.</p>
-<section id="models">
-<h2>Models<a class="headerlink" href="#models" title="Link to this heading">#</a></h2>
-<p>Install optional dependencies for Pangu weather:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>.<span class="o">[</span>pangu<span class="o">]</span>
-</pre></div>
-</div>
-<p>Install optional dependencies for Graphcast:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>.<span class="o">[</span>graphcast<span class="o">]</span>
-pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
-</pre></div>
-</div>
-</section>
-<section id="development">
-<h2>Development<a class="headerlink" href="#development" title="Link to this heading">#</a></h2>
-<p>Install development packages for linting/formating/etc:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>.<span class="o">[</span>dev<span class="o">]</span>
-</pre></div>
-</div>
-<p>Install packages for building documentation:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>.<span class="o">[</span>docs<span class="o">]</span>
-</pre></div>
-</div>
 </section>
 </section>
 
@@ -636,20 +604,20 @@ pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </s
                   <!-- Previous / next buttons -->
 <div class="prev-next-area">
     <a class="left-prev"
-       href="index.html"
+       href="diagnostic.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">User Guide</p>
+        <p class="prev-next-title">Diagnostics</p>
       </div>
     </a>
     <a class="right-next"
-       href="concepts.html"
+       href="clis.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Concepts</p>
+        <p class="prev-next-title">Command Line Utilities</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -668,30 +636,21 @@ pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </s
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Installation</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-from-source-recommended">Install from Source (Recommended)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-from-release-wheel">Install from Release Wheel</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-from-pypi">Installing from PyPi</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#general-inference">General Inference</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.inference_ensemble.run_inference"><code class="docutils literal notranslate"><span class="pre">run_inference()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_collection.run_over_initial_times"><code class="docutils literal notranslate"><span class="pre">run_over_initial_times()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#earth-2-mip-environments">Earth-2 MIP Environments</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conda-environment">Conda Environment</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#docker-environment">Docker Environment</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#singularity-apptainer-environment">Singularity / Apptainer Environment</a></li>
-</ul>
-</li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-dependicies">Optional Dependicies</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#models">Models</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#development">Development</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scoring">Scoring</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.inference_medium_range.score_deterministic"><code class="docutils literal notranslate"><span class="pre">score_deterministic()</span></code></a></li>
 </ul>
 </li>
 </ul>
-
   </nav></div>
 
   <div class="sidebar-secondary-item">
   <div class="tocsection sourcelink">
-    <a href="../_sources/userguide/install.md.txt">
+    <a href="../_sources/userguide/inference-workflows.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>

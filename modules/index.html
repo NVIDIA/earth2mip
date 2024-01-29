@@ -1101,6 +1101,22 @@ Lon is ordered from 0 to 360. includes 0, but not 360.</p>
 <section id="module-earth2mip.inference_ensemble">
 <span id="earth2mip-inference-ensemble-module"></span><h2>earth2mip.inference_ensemble module<a class="headerlink" href="#module-earth2mip.inference_ensemble" title="Link to this heading">#</a></h2>
 <dl class="py function">
+<dt class="sig sig-object py" id="earth2mip.inference_ensemble.run_basic_inference">
+<span class="sig-prename descclassname"><span class="pre">earth2mip.inference_ensemble.</span></span><span class="sig-name descname"><span class="pre">run_basic_inference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.inference_ensemble.run_basic_inference" title="Link to this definition">#</a></dt>
+<dd><p>Run a basic inference</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<a class="reference internal" href="#earth2mip.time_loop.TimeLoop" title="earth2mip.time_loop.TimeLoop"><em>TimeLoop</em></a>) – </p></li>
+<li><p><strong>n</strong> (<em>int</em>) – </p></li>
+<li><p><strong>data_source</strong> (<em>Any</em>) – </p></li>
+<li><p><strong>time</strong> (<em>datetime</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="earth2mip.inference_ensemble.run_inference">
 <span class="sig-prename descclassname"><span class="pre">earth2mip.inference_ensemble.</span></span><span class="sig-name descname"><span class="pre">run_inference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perturb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.inference_ensemble.run_inference" title="Link to this definition">#</a></dt>
 <dd><p>Run an ensemble inference for a given config and a perturb function</p>
@@ -1112,7 +1128,7 @@ Lon is ordered from 0 to 360. includes 0, but not 360.</p>
 <li><p><strong>data_source</strong> (<em>Any</em><em> | </em><em>None</em>) – a Mapping object indexed by datetime and returning an
 xarray.Dataset object.</p></li>
 <li><p><strong>model</strong> (<a class="reference internal" href="#earth2mip.time_loop.TimeLoop" title="earth2mip.time_loop.TimeLoop"><em>TimeLoop</em></a>) – </p></li>
-<li><p><strong>config</strong> (<em>EnsembleRun</em>) – </p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="#earth2mip.schema.EnsembleRun" title="earth2mip.schema.EnsembleRun"><em>EnsembleRun</em></a>) – </p></li>
 <li><p><strong>perturb</strong> (<em>Any</em><em> | </em><em>None</em>) – </p></li>
 </ul>
 </dd>
@@ -1749,6 +1765,386 @@ only argument)</p></li>
 <section id="module-earth2mip.schema">
 <span id="earth2mip-schema-module"></span><h2>earth2mip.schema module<a class="headerlink" href="#module-earth2mip.schema" title="Link to this heading">#</a></h2>
 <dl class="py class">
+<dt class="sig sig-object py" id="earth2mip.schema.EnsembleRun">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.schema.</span></span><span class="sig-name descname"><span class="pre">EnsembleRun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weather_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simulation_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perturbation_strategy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">PerturbationStrategy.correlated</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perturbation_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_reddening</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_amplitude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ensemble_members</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ensemble_batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weather_event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restart_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grf_noise_alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grf_noise_sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grf_noise_tau</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.schema.EnsembleRun" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>A configuration for running an ensemble weather forecast</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>weather_model</strong> (<em>str</em>) – </p></li>
+<li><p><strong>simulation_length</strong> (<em>int</em>) – </p></li>
+<li><p><strong>perturbation_strategy</strong> (<a class="reference internal" href="#earth2mip.schema.PerturbationStrategy" title="earth2mip.schema.PerturbationStrategy"><em>PerturbationStrategy</em></a>) – </p></li>
+<li><p><strong>perturbation_channels</strong> (<em>List</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em>) – </p></li>
+<li><p><strong>noise_reddening</strong> (<em>float</em>) – </p></li>
+<li><p><strong>noise_amplitude</strong> (<em>float</em>) – </p></li>
+<li><p><strong>output_frequency</strong> (<em>int</em>) – </p></li>
+<li><p><strong>output_grid</strong> (<em>Grid</em><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>ensemble_members</strong> (<em>int</em>) – </p></li>
+<li><p><strong>seed</strong> (<em>int</em>) – </p></li>
+<li><p><strong>ensemble_batch_size</strong> (<em>int</em>) – </p></li>
+<li><p><strong>forecast_name</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>weather_event</strong> (<a class="reference internal" href="#earth2mip.weather_events.WeatherEvent" title="earth2mip.weather_events.WeatherEvent"><em>WeatherEvent</em></a><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>output_dir</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>output_path</strong> (<em>str</em><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>restart_frequency</strong> (<em>int</em><em> | </em><em>None</em>) – </p></li>
+<li><p><strong>grf_noise_alpha</strong> (<em>float</em>) – </p></li>
+<li><p><strong>grf_noise_sigma</strong> (<em>float</em>) – </p></li>
+<li><p><strong>grf_noise_tau</strong> (<em>float</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.schema.EnsembleRun.weather_model">
+<span class="sig-name descname"><span class="pre">weather_model</span></span><a class="headerlink" href="#earth2mip.schema.EnsembleRun.weather_model" title="Link to this definition">#</a></dt>
+<dd><p>The name of the fully convolutional neural network (FCN) model to use for the forecast.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.schema.EnsembleRun.ensemble_members">
+<span class="sig-name descname"><span class="pre">ensemble_members</span></span><a class="headerlink" href="#earth2mip.schema.EnsembleRun.ensemble_members" title="Link to this definition">#</a></dt>
+<dd><p>The number of ensemble members to use in the forecast.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.schema.EnsembleRun.noise_amplitude">
+<span class="sig-name descname"><span class="pre">noise_amplitude</span></span><a class="headerlink" href="#earth2mip.schema.EnsembleRun.noise_amplitude" title="Link to this definition">#</a></dt>
+<dd><p>The amplitude of the Gaussian noise to add to the initial conditions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.schema.EnsembleRun.noise_reddening">
+<span class="sig-name descname"><span class="pre">noise_reddening</span></span><a class="headerlink" href="#earth2mip.schema.EnsembleRun.noise_reddening" title="Link to this definition">#</a></dt>
+<dd><p>The noise reddening amplitude, 2.0 was the defualt set by A.G. work.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.schema.EnsembleRun.simulation_length">
+<span class="sig-name descname"><span class="pre">simulation_length</span></span><a class="headerlink" href="#earth2mip.schema.EnsembleRun.simulation_length" title="Link to this definition">#</a></dt>
+<dd><p>The length of the simulation in timesteps.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.schema.EnsembleRun.output_frequency">
+<span class="sig-name descname"><span class="pre">output_frequency</span></span><a class="headerlink" href="#earth2mip.schema.EnsembleRun.output_frequency" title="Link to this definition">#</a></dt>
+<dd><p>The frequency at which to write the output to file, in timesteps.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.schema.EnsembleRun.use_cuda_graphs">
+<span class="sig-name descname"><span class="pre">use_cuda_graphs</span></span><a class="headerlink" href="#earth2mip.schema.EnsembleRun.use_cuda_graphs" title="Link to this definition">#</a></dt>
+<dd><p>Whether to use CUDA graphs to optimize the computation.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.schema.EnsembleRun.seed">
+<span class="sig-name descname"><span class="pre">seed</span></span><a class="headerlink" href="#earth2mip.schema.EnsembleRun.seed" title="Link to this definition">#</a></dt>
+<dd><p>The random seed for the simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.schema.EnsembleRun.ensemble_batch_size">
+<span class="sig-name descname"><span class="pre">ensemble_batch_size</span></span><a class="headerlink" href="#earth2mip.schema.EnsembleRun.ensemble_batch_size" title="Link to this definition">#</a></dt>
+<dd><p>The batch size to use for the ensemble.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.schema.EnsembleRun.autocast_fp16">
+<span class="sig-name descname"><span class="pre">autocast_fp16</span></span><a class="headerlink" href="#earth2mip.schema.EnsembleRun.autocast_fp16" title="Link to this definition">#</a></dt>
+<dd><p>Whether to use automatic mixed precision (AMP) with FP16 data types.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.schema.EnsembleRun.perturbation_strategy">
+<span class="sig-name descname"><span class="pre">perturbation_strategy</span></span><a class="headerlink" href="#earth2mip.schema.EnsembleRun.perturbation_strategy" title="Link to this definition">#</a></dt>
+<dd><p>The strategy to use for perturbing the initial conditions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#earth2mip.schema.PerturbationStrategy" title="earth2mip.schema.PerturbationStrategy">earth2mip.schema.PerturbationStrategy</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.schema.EnsembleRun.perturbation_channels">
+<span class="sig-name descname"><span class="pre">perturbation_channels</span></span><a class="headerlink" href="#earth2mip.schema.EnsembleRun.perturbation_channels" title="Link to this definition">#</a></dt>
+<dd><p>channel(s) perturbed by the initial condition perturbation strategy, None = all channels</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[str] | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.schema.EnsembleRun.forecast_name">
+<span class="sig-name descname"><span class="pre">forecast_name</span></span><a class="headerlink" href="#earth2mip.schema.EnsembleRun.forecast_name" title="Link to this definition">#</a></dt>
+<dd><p>The name of the forecast to use (alternative to <cite>weather_event</cite>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>optional</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.schema.EnsembleRun.weather_event">
+<span class="sig-name descname"><span class="pre">weather_event</span></span><a class="headerlink" href="#earth2mip.schema.EnsembleRun.weather_event" title="Link to this definition">#</a></dt>
+<dd><p>The weather event to use for the forecast (alternative to <cite>forecast_name</cite>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>optional</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.schema.EnsembleRun.output_dir">
+<span class="sig-name descname"><span class="pre">output_dir</span></span><a class="headerlink" href="#earth2mip.schema.EnsembleRun.output_dir" title="Link to this definition">#</a></dt>
+<dd><p>The directory to save the output files in (alternative to <cite>output_path</cite>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>optional</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.schema.EnsembleRun.output_path">
+<span class="sig-name descname"><span class="pre">output_path</span></span><a class="headerlink" href="#earth2mip.schema.EnsembleRun.output_path" title="Link to this definition">#</a></dt>
+<dd><p>The path to the output file (alternative to <cite>output_dir</cite>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>optional</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.schema.EnsembleRun.restart_frequency">
+<span class="sig-name descname"><span class="pre">restart_frequency</span></span><a class="headerlink" href="#earth2mip.schema.EnsembleRun.restart_frequency" title="Link to this definition">#</a></dt>
+<dd><p>if provided save at end and at the specified frequency. 0 = only save at end.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.schema.EnsembleRun.grf_noise_alpha">
+<span class="sig-name descname"><span class="pre">grf_noise_alpha</span></span><a class="headerlink" href="#earth2mip.schema.EnsembleRun.grf_noise_alpha" title="Link to this definition">#</a></dt>
+<dd><p>tuning parameter of the Gaussian random field, see ensemble_utils.generate_noise_grf for details</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.schema.EnsembleRun.grf_noise_sigma">
+<span class="sig-name descname"><span class="pre">grf_noise_sigma</span></span><a class="headerlink" href="#earth2mip.schema.EnsembleRun.grf_noise_sigma" title="Link to this definition">#</a></dt>
+<dd><p>tuning parameter of the Gaussian random field, see ensemble_utils.generate_noise_grf for details</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.schema.EnsembleRun.grf_noise_tau">
+<span class="sig-name descname"><span class="pre">grf_noise_tau</span></span><a class="headerlink" href="#earth2mip.schema.EnsembleRun.grf_noise_tau" title="Link to this definition">#</a></dt>
+<dd><p>tuning parameter of the Gaussian random field, see ensemble_utils.generate_noise_grf for details</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">ensemble_batch_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#id0" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">ensemble_members</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#id1" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">forecast_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#id2" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="earth2mip.schema.EnsembleRun.get_weather_event">
+<span class="sig-name descname"><span class="pre">get_weather_event</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.schema.EnsembleRun.get_weather_event" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#earth2mip.weather_events.WeatherEvent" title="earth2mip.weather_events.WeatherEvent"><em>WeatherEvent</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id3">
+<span class="sig-name descname"><span class="pre">grf_noise_alpha</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id3" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id4">
+<span class="sig-name descname"><span class="pre">grf_noise_sigma</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id4" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id5">
+<span class="sig-name descname"><span class="pre">grf_noise_tau</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id5" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id6">
+<span class="sig-name descname"><span class="pre">noise_amplitude</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id6" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id7">
+<span class="sig-name descname"><span class="pre">noise_reddening</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id7" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id8">
+<span class="sig-name descname"><span class="pre">output_dir</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#id8" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id9">
+<span class="sig-name descname"><span class="pre">output_frequency</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#id9" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.schema.EnsembleRun.output_grid">
+<span class="sig-name descname"><span class="pre">output_grid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Grid</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#earth2mip.schema.EnsembleRun.output_grid" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id10">
+<span class="sig-name descname"><span class="pre">output_path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#id10" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id11">
+<span class="sig-name descname"><span class="pre">perturbation_channels</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#id11" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id12">
+<span class="sig-name descname"><span class="pre">perturbation_strategy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#earth2mip.schema.PerturbationStrategy" title="earth2mip.schema.PerturbationStrategy"><span class="pre">PerturbationStrategy</span></a></em><a class="headerlink" href="#id12" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id13">
+<span class="sig-name descname"><span class="pre">restart_frequency</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#id13" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id14">
+<span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#id14" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id15">
+<span class="sig-name descname"><span class="pre">simulation_length</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#id15" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id16">
+<span class="sig-name descname"><span class="pre">weather_event</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#earth2mip.weather_events.WeatherEvent" title="earth2mip.weather_events.WeatherEvent"><span class="pre">WeatherEvent</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#id16" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id17">
+<span class="sig-name descname"><span class="pre">weather_model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#id17" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="earth2mip.schema.InferenceEntrypoint">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.schema.</span></span><span class="sig-name descname"><span class="pre">InferenceEntrypoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.schema.InferenceEntrypoint" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<dl>
+<dt>Attrs:</dt><dd><dl class="simple">
+<dt>name: an entrypoint string like <code class="docutils literal notranslate"><span class="pre">my_package:model_entrypoint</span></code>.</dt><dd><p>this points to a function <code class="docutils literal notranslate"><span class="pre">model_entrypoint(package)</span></code> which returns an
+<code class="docutils literal notranslate"><span class="pre">Inference</span></code> object given a package</p>
+</dd>
+</dl>
+<p>kwargs: the arguments to pass to the constructor</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>kwargs</strong> (<em>Mapping</em><em>[</em><em>Any</em><em>, </em><em>Any</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.schema.InferenceEntrypoint.kwargs">
+<span class="sig-name descname"><span class="pre">kwargs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#earth2mip.schema.InferenceEntrypoint.kwargs" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.schema.InferenceEntrypoint.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#earth2mip.schema.InferenceEntrypoint.name" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="earth2mip.schema.InitialConditionSource">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.schema.</span></span><span class="sig-name descname"><span class="pre">InitialConditionSource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.schema.InitialConditionSource" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
@@ -1776,6 +2172,38 @@ only argument)</p></li>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="earth2mip.schema.InitialConditionSource.ifs">
 <span class="sig-name descname"><span class="pre">ifs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ifs'</span></em><a class="headerlink" href="#earth2mip.schema.InitialConditionSource.ifs" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="earth2mip.schema.PerturbationStrategy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">earth2mip.schema.</span></span><span class="sig-name descname"><span class="pre">PerturbationStrategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.schema.PerturbationStrategy" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.schema.PerturbationStrategy.bred_vector">
+<span class="sig-name descname"><span class="pre">bred_vector</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'bred_vector'</span></em><a class="headerlink" href="#earth2mip.schema.PerturbationStrategy.bred_vector" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.schema.PerturbationStrategy.correlated">
+<span class="sig-name descname"><span class="pre">correlated</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'correlated'</span></em><a class="headerlink" href="#earth2mip.schema.PerturbationStrategy.correlated" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.schema.PerturbationStrategy.gaussian">
+<span class="sig-name descname"><span class="pre">gaussian</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'gaussian'</span></em><a class="headerlink" href="#earth2mip.schema.PerturbationStrategy.gaussian" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.schema.PerturbationStrategy.none">
+<span class="sig-name descname"><span class="pre">none</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'none'</span></em><a class="headerlink" href="#earth2mip.schema.PerturbationStrategy.none" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="earth2mip.schema.PerturbationStrategy.spherical_grf">
+<span class="sig-name descname"><span class="pre">spherical_grf</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'spherical_grf'</span></em><a class="headerlink" href="#earth2mip.schema.PerturbationStrategy.spherical_grf" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1876,20 +2304,37 @@ only argument)</p></li>
 <section id="module-earth2mip.time_collection">
 <span id="earth2mip-time-collection-module"></span><h2>earth2mip.time_collection module<a class="headerlink" href="#module-earth2mip.time_collection" title="Link to this heading">#</a></h2>
 <dl class="py function">
-<dt class="sig sig-object py" id="earth2mip.time_collection.get_distributed_client">
-<span class="sig-prename descclassname"><span class="pre">earth2mip.time_collection.</span></span><span class="sig-name descname"><span class="pre">get_distributed_client</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rank</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.time_collection.get_distributed_client" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="earth2mip.time_collection.main">
-<span class="sig-prename descclassname"><span class="pre">earth2mip.time_collection.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shard</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_shards</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.time_collection.main" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
+<dt class="sig sig-object py" id="earth2mip.time_collection.run_over_initial_times">
+<span class="sig-prename descclassname"><span class="pre">earth2mip.time_collection.</span></span><span class="sig-name descname"><span class="pre">run_over_initial_times</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_loop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_times</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_averaging_window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_ensemble</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shard</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_shards</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_post_processing_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#earth2mip.time_collection.run_over_initial_times" title="Link to this definition">#</a></dt>
+<dd><p>Perform a set of forecasts across many initial conditions in parallel
+with post processing</p>
+<p>Once complete, the data at <code class="docutils literal notranslate"><span class="pre">output_path</span></code> can be opened as an xarray object using
+<a class="reference internal" href="earth2mip.datasets.html#earth2mip.datasets.hindcast.open_forecast" title="earth2mip.datasets.hindcast.open_forecast"><code class="xref py py-func docutils literal notranslate"><span class="pre">earth2mip.datasets.hindcast.open_forecast()</span></code></a>.</p>
+<p>Parallelizes across the available GPUs using MPI, and can be further
+parallelized across multiple MPI jobs using the <code class="docutils literal notranslate"><span class="pre">shard</span></code>/ <code class="docutils literal notranslate"><span class="pre">n_shards</span></code>
+flags. It can be resumed after interruption.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>root</strong> (<em>str</em>) – the root directory of the output</p></li>
-<li><p><strong>shard</strong> (<em>int</em>) – index of the shard</p></li>
+<li><p><strong>time_loop</strong> (<a class="reference internal" href="#earth2mip.time_loop.TimeLoop" title="earth2mip.time_loop.TimeLoop"><em>TimeLoop</em></a>) – the earth2mip TimeLoop to be evaluated. Often returned by <cite>earth2mip.networks.get_model</cite></p></li>
+<li><p><strong>data_source</strong> (<a class="reference internal" href="earth2mip.initial_conditions.html#earth2mip.initial_conditions.base.DataSource" title="earth2mip.initial_conditions.base.DataSource"><em>DataSource</em></a><em> | </em><em>None</em>) – the data source used to initialize the time_loop, overrides
+any data source specified in <code class="docutils literal notranslate"><span class="pre">config</span></code></p></li>
+<li><p><strong>initial_times</strong> (<em>list</em><em>[</em><em>datetime</em><em>]</em>) – the initial times evaluated over</p></li>
 <li><p><strong>n_shards</strong> (<em>int</em>) – split the input times into this many shards</p></li>
+<li><p><strong>time_averaging_window</strong> (<em>str</em>) – if provided, average the output over this interval. Same
+syntax as pandas.Timedelta (e.g. “2w”). Default is no time averaging.</p></li>
+<li><p><strong>score</strong> (<em>bool</em>) – if true, score the times during the post processing</p></li>
+<li><p><strong>save_ensemble</strong> (<em>bool</em>) – if true, then save all the ensemble members in addition to the mean</p></li>
+<li><p><strong>shard</strong> (<em>int</em>) – index of the shard. useful for SLURM array jobs</p></li>
+<li><p><strong>n_shards</strong> – number of shards total.</p></li>
+<li><p><strong>n_post_processing_workers</strong> (<em>int</em>) – The number of dask distributed workers to
+devote to ensemble post processing.</p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="#earth2mip.schema.EnsembleRun" title="earth2mip.schema.EnsembleRun"><em>EnsembleRun</em></a>) – </p></li>
+<li><p><strong>output_path</strong> (<em>str</em>) – </p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2016,8 +2461,8 @@ true for all frameworks.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id0">
-<span class="sig-name descname"><span class="pre">device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">device</span></em><a class="headerlink" href="#id0" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id18">
+<span class="sig-name descname"><span class="pre">device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">device</span></em><a class="headerlink" href="#id18" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -2026,33 +2471,33 @@ true for all frameworks.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id1">
-<span class="sig-name descname"><span class="pre">grid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#earth2mip.grid.LatLonGrid" title="earth2mip.grid.LatLonGrid"><span class="pre">LatLonGrid</span></a></em><a class="headerlink" href="#id1" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id19">
+<span class="sig-name descname"><span class="pre">grid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#earth2mip.grid.LatLonGrid" title="earth2mip.grid.LatLonGrid"><span class="pre">LatLonGrid</span></a></em><a class="headerlink" href="#id19" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id2">
-<span class="sig-name descname"><span class="pre">history_time_step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">timedelta</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">datetime.timedelta(0)</span></em><a class="headerlink" href="#id2" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id20">
+<span class="sig-name descname"><span class="pre">history_time_step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">timedelta</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">datetime.timedelta(0)</span></em><a class="headerlink" href="#id20" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id3">
-<span class="sig-name descname"><span class="pre">in_channel_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#id3" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id21">
+<span class="sig-name descname"><span class="pre">in_channel_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#id21" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id4">
-<span class="sig-name descname"><span class="pre">n_history_levels</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#id4" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id22">
+<span class="sig-name descname"><span class="pre">n_history_levels</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#id22" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id5">
-<span class="sig-name descname"><span class="pre">out_channel_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#id5" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id23">
+<span class="sig-name descname"><span class="pre">out_channel_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#id23" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id6">
-<span class="sig-name descname"><span class="pre">time_step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">timedelta</span></em><a class="headerlink" href="#id6" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id24">
+<span class="sig-name descname"><span class="pre">time_step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">timedelta</span></em><a class="headerlink" href="#id24" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -2420,8 +2865,8 @@ Base 0 means to interpret the base from the string as an integer literal.
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="id7">
-<span class="sig-name descname"><span class="pre">netcdf</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#id7" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id25">
+<span class="sig-name descname"><span class="pre">netcdf</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#id25" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -2652,6 +3097,7 @@ Base 0 means to interpret the base from the string as an integer literal.
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-earth2mip.inference_ensemble">earth2mip.inference_ensemble module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.inference_ensemble.run_basic_inference"><code class="docutils literal notranslate"><span class="pre">run_basic_inference()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.inference_ensemble.run_inference"><code class="docutils literal notranslate"><span class="pre">run_inference()</span></code></a></li>
 </ul>
 </li>
@@ -2724,12 +3170,68 @@ Base 0 means to interpret the base from the string as an integer literal.
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-earth2mip.schema">earth2mip.schema module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.EnsembleRun"><code class="docutils literal notranslate"><span class="pre">EnsembleRun</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.EnsembleRun.weather_model"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.weather_model</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.EnsembleRun.ensemble_members"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.ensemble_members</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.EnsembleRun.noise_amplitude"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.noise_amplitude</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.EnsembleRun.noise_reddening"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.noise_reddening</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.EnsembleRun.simulation_length"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.simulation_length</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.EnsembleRun.output_frequency"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.output_frequency</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.EnsembleRun.use_cuda_graphs"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.use_cuda_graphs</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.EnsembleRun.seed"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.seed</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.EnsembleRun.ensemble_batch_size"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.ensemble_batch_size</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.EnsembleRun.autocast_fp16"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.autocast_fp16</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.EnsembleRun.perturbation_strategy"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.perturbation_strategy</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.EnsembleRun.perturbation_channels"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.perturbation_channels</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.EnsembleRun.forecast_name"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.forecast_name</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.EnsembleRun.weather_event"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.weather_event</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.EnsembleRun.output_dir"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.output_dir</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.EnsembleRun.output_path"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.output_path</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.EnsembleRun.restart_frequency"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.restart_frequency</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.EnsembleRun.grf_noise_alpha"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.grf_noise_alpha</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.EnsembleRun.grf_noise_sigma"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.grf_noise_sigma</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.EnsembleRun.grf_noise_tau"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.grf_noise_tau</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id0"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.ensemble_batch_size</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id1"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.ensemble_members</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id2"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.forecast_name</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.EnsembleRun.get_weather_event"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.get_weather_event()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id3"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.grf_noise_alpha</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id4"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.grf_noise_sigma</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id5"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.grf_noise_tau</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id6"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.noise_amplitude</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id7"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.noise_reddening</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id8"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.output_dir</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id9"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.output_frequency</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.EnsembleRun.output_grid"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.output_grid</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id10"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.output_path</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id11"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.perturbation_channels</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id12"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.perturbation_strategy</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id13"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.restart_frequency</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id14"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.seed</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id15"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.simulation_length</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id16"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.weather_event</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id17"><code class="docutils literal notranslate"><span class="pre">EnsembleRun.weather_model</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.InferenceEntrypoint"><code class="docutils literal notranslate"><span class="pre">InferenceEntrypoint</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.InferenceEntrypoint.kwargs"><code class="docutils literal notranslate"><span class="pre">InferenceEntrypoint.kwargs</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.InferenceEntrypoint.name"><code class="docutils literal notranslate"><span class="pre">InferenceEntrypoint.name</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.InitialConditionSource"><code class="docutils literal notranslate"><span class="pre">InitialConditionSource</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.InitialConditionSource.cds"><code class="docutils literal notranslate"><span class="pre">InitialConditionSource.cds</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.InitialConditionSource.era5"><code class="docutils literal notranslate"><span class="pre">InitialConditionSource.era5</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.InitialConditionSource.gfs"><code class="docutils literal notranslate"><span class="pre">InitialConditionSource.gfs</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.InitialConditionSource.hrmip"><code class="docutils literal notranslate"><span class="pre">InitialConditionSource.hrmip</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.InitialConditionSource.ifs"><code class="docutils literal notranslate"><span class="pre">InitialConditionSource.ifs</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.PerturbationStrategy"><code class="docutils literal notranslate"><span class="pre">PerturbationStrategy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.PerturbationStrategy.bred_vector"><code class="docutils literal notranslate"><span class="pre">PerturbationStrategy.bred_vector</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.PerturbationStrategy.correlated"><code class="docutils literal notranslate"><span class="pre">PerturbationStrategy.correlated</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.PerturbationStrategy.gaussian"><code class="docutils literal notranslate"><span class="pre">PerturbationStrategy.gaussian</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.PerturbationStrategy.none"><code class="docutils literal notranslate"><span class="pre">PerturbationStrategy.none</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.PerturbationStrategy.spherical_grf"><code class="docutils literal notranslate"><span class="pre">PerturbationStrategy.spherical_grf</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.schema.WeatherEvent"><code class="docutils literal notranslate"><span class="pre">WeatherEvent</span></code></a><ul class="nav section-nav flex-column">
@@ -2753,8 +3255,7 @@ Base 0 means to interpret the base from the string as an integer literal.
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-earth2mip.time_collection">earth2mip.time_collection module</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_collection.get_distributed_client"><code class="docutils literal notranslate"><span class="pre">get_distributed_client()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_collection.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_collection.run_over_initial_times"><code class="docutils literal notranslate"><span class="pre">run_over_initial_times()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-earth2mip.time_loop">earth2mip.time_loop module</a><ul class="nav section-nav flex-column">
@@ -2773,14 +3274,14 @@ Base 0 means to interpret the base from the string as an integer literal.
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.TimeLoop.history_time_step"><code class="docutils literal notranslate"><span class="pre">TimeLoop.history_time_step</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.TimeLoop.time_step"><code class="docutils literal notranslate"><span class="pre">TimeLoop.time_step</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.TimeLoop.device"><code class="docutils literal notranslate"><span class="pre">TimeLoop.device</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id0"><code class="docutils literal notranslate"><span class="pre">TimeLoop.device</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id18"><code class="docutils literal notranslate"><span class="pre">TimeLoop.device</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.TimeLoop.dtype"><code class="docutils literal notranslate"><span class="pre">TimeLoop.dtype</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id1"><code class="docutils literal notranslate"><span class="pre">TimeLoop.grid</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id2"><code class="docutils literal notranslate"><span class="pre">TimeLoop.history_time_step</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id3"><code class="docutils literal notranslate"><span class="pre">TimeLoop.in_channel_names</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id4"><code class="docutils literal notranslate"><span class="pre">TimeLoop.n_history_levels</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id5"><code class="docutils literal notranslate"><span class="pre">TimeLoop.out_channel_names</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id6"><code class="docutils literal notranslate"><span class="pre">TimeLoop.time_step</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id19"><code class="docutils literal notranslate"><span class="pre">TimeLoop.grid</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id20"><code class="docutils literal notranslate"><span class="pre">TimeLoop.history_time_step</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id21"><code class="docutils literal notranslate"><span class="pre">TimeLoop.in_channel_names</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id22"><code class="docutils literal notranslate"><span class="pre">TimeLoop.n_history_levels</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id23"><code class="docutils literal notranslate"><span class="pre">TimeLoop.out_channel_names</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id24"><code class="docutils literal notranslate"><span class="pre">TimeLoop.time_step</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.time_loop.TimeStepper"><code class="docutils literal notranslate"><span class="pre">TimeStepper</span></code></a><ul class="nav section-nav flex-column">
@@ -2846,7 +3347,7 @@ Base 0 means to interpret the base from the string as an integer literal.
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.weather_events.WeatherEventProperties.netcdf"><code class="docutils literal notranslate"><span class="pre">WeatherEventProperties.netcdf</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.weather_events.WeatherEventProperties.initial_condition_source"><code class="docutils literal notranslate"><span class="pre">WeatherEventProperties.initial_condition_source</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.weather_events.WeatherEventProperties.name"><code class="docutils literal notranslate"><span class="pre">WeatherEventProperties.name</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id7"><code class="docutils literal notranslate"><span class="pre">WeatherEventProperties.netcdf</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id25"><code class="docutils literal notranslate"><span class="pre">WeatherEventProperties.netcdf</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.weather_events.WeatherEventProperties.restart"><code class="docutils literal notranslate"><span class="pre">WeatherEventProperties.restart</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#earth2mip.weather_events.WeatherEventProperties.start_time"><code class="docutils literal notranslate"><span class="pre">WeatherEventProperties.start_time</span></code></a></li>
 </ul>
