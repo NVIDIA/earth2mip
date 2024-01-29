@@ -11,8 +11,6 @@ Earth-2 MIP API Documentation
    earth2mip.networks
    earth2mip.s2s
    earth2mip.xarray
-   earth2mip.beta.data
-   earth2mip.beta.perturbation
 
 
 earth2mip.diagnostics module
