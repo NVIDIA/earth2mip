@@ -28,7 +28,7 @@ logging.basicConfig(level=logging.INFO)
 
 
 def run_for_a_year(time_loop, output_path):
-    dt = timedelta(hours=6)
+    dt = time_loop.time_step
     nt = timedelta(days=365) // dt
 
     config_dict = {
