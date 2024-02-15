@@ -143,6 +143,11 @@ if not os.path.exists(cds_api):
 #   Note: While in later notebooks we will demonstrate more Pythonic methods to interact
 #   with Earth-2 MIP's APIs, the built in inference workflows provide a high-degree of
 #   control with little to no programming.
+#
+# .. note::
+#   We can easily change the data source in the config under the `weather_event>properties`.
+#   For example, change the date to the last 10 days and `initial_condition_source` to `gfs`.
+
 
 # %%
 config = {
@@ -346,7 +351,7 @@ ax.coastlines(linewidth=1)
 ax.add_feature(countries, edgecolor="black", linewidth=0.25)
 plt.colorbar(img, ax=ax, shrink=0.40, norm=mcolors.CenteredNorm(vcenter=0))
 gl = ax.gridlines(draw_labels=True, linestyle="--")
-plt.savefig(f"{output_path}/gloabl_surface_temp_contour.png")
+plt.savefig(f"{output_path}/global_surface_temp_contour.png")
 
 # %%
 # We can also show a map of the ensemble mean of the 10 meter zonal winds (using some
@@ -383,7 +388,7 @@ ax.coastlines(linewidth=1)
 ax.add_feature(countries, edgecolor="black", linewidth=0.25)
 plt.colorbar(img, ax=ax, shrink=0.40, norm=mcolors.CenteredNorm(vcenter=0))
 gl = ax.gridlines(draw_labels=True, linestyle="--")
-plt.savefig(f"{output_path}/gloabl_mean_zonal_wind_contour.png")
+plt.savefig(f"{output_path}/global_mean_zonal_wind_contour.png")
 
 # %%
 # Finally lets compute the latitude-weighted global averages and plot time series of
@@ -403,7 +408,7 @@ plt.figure()
 plt.plot(lead_time, ds_ensemble_std.u10m)
 plt.xlabel("lead time [k]")
 plt.ylabel("u10m std [m/s]")
-plt.savefig(f"{output_path}/gloabl_std_zonal_surface_wind.png")
+plt.savefig(f"{output_path}/global_std_zonal_surface_wind.png")
 
 # %%
 # And that completes the introductory notebook into running ensemble weather predictions
