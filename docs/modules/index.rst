@@ -1,4 +1,4 @@
-Earth-2 MIP API Documentation
+API
 =============================
 
 .. toctree::
