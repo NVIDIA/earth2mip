@@ -204,27 +204,29 @@ def generate_bred_vector(
     x0 = x[:1]
 
     # Get control forecast
-    for k, (_, data, _) in enumerate(model(time, x0)):
+    for k, (_, data, _) in enumerate(model(time, x0, model_perturb=False)):
         xd = data
-        if k == 3:
+        if k == 1:
             break
 
     # Unsqueeze if time has been collapsed.
     if xd.ndim != x0.ndim:
         xd = xd.unsqueeze(1)
-    noise_amplitude = torch.from_numpy(np.load("/pscratch/sd/p/pharring/73var-6hourly/staging/stats/time_diff_stds.npy")[ :, :73].squeeze()).to(x.device).to(torch.float)
-    dx = noise_amplitude[:, None, None] * torch.randn(
-        x.shape, device=x.device, dtype=x.dtype
-    ) #* model.scale
-    #dx = dx * torch.from_numpy(np.load("/pscratch/sd/j/jpathak/73var-6hourly/stats/time_means.npy").squeeze()).to(x.device)
-    channel_idx = set(range(len(model.channel_names))) - set([model.channel_names.index('z500')])
-    #print(channel_idx)
-    dx[:, :, list(channel_idx), : 721, : 1440] = 0
+
+    optimization_target = _load_optimal_targets('sfno_linear_73chq_sc3_layers8_edim384_wstgl2', 6, model.channel_names).to(x.device).squeeze().to(torch.float32) * 1.5
+    sampler = CorrelatedSphericalField(720, 50. * 1000, 48.0, 1.0, N=74).to(
+        x.device
+    )
+    correlated_random_noise = sampler()
+    dx = optimization_target[:, None, None] * correlated_random_noise
+    #dx = (correlated_random_noise * 0.05) * x
+    channel_idx = set(range(len(model.channel_names))) - set([ model.channel_names.index('z500')])
+    #dx[:, :, list(channel_idx), : 721, : 1440] = 0
     for _ in range(integration_steps):
         x1 = x + dx
-        for k, (_, data, _) in enumerate(model(time, x1)):
+        for k, (_, data, _) in enumerate(model(time, x1, model_perturb=False)):
             x2 = data
-            if k == 3:
+            if k == 1:
                 break
 
         # Unsqueeze if time has been collapsed.
@@ -235,22 +237,281 @@ def generate_bred_vector(
         if inflate:
             dx += noise_amplitude * (dx - dx.mean(dim=0)) * model.scale
 
-    gamma = torch.linalg.norm(x) / torch.linalg.norm(x + dx)
-    #return noise_amplitude * dx * gamma / model.scale
-   
-    coslat = torch.Tensor(np.cos(np.deg2rad(np.linspace(90,-90,721)))[None, None, :, None]).to(x.device)
-    optimization_target = _load_optimal_targets('sfno_linear_73chq_sc3_layers8_edim384_wstgl2', 6).to(x.device).squeeze().to(torch.float32) * 1.5
-    #optimization_target = noise_amplitude
     optimization_target = optimization_target[None, None]
-    #exaggerate_factor = dx.std((-1,-2)) / optimization_target
-    exaggerate_factor = torch.sqrt(torch.mean(dx**2*coslat,dim=(-1,-2))) / optimization_target
+    exaggerate_factor = calculate_global_rms(dx) / optimization_target
     dx = dx / exaggerate_factor[:, :, :, None, None]
-    return dx / model.scale
+
+    #sampler = CorrelatedSphericalField(720, 500. * 1000, 48.0, 0.002, N=1).to(
+    #    x.device
+    #)
+    #correlated_random_noise = sampler()
+    #correlated_random_noise = torch.cat([correlated_random_noise] * 74, dim=1)
+    #channels_to_exclude = []
+    #for idx, channel in enumerate(model.channel_names):
+    #    if channel in ['2d'] or (channel[0] in ['q'] and channel[1:].isdigit() and int(channel[1:]) > 800):
+    #        #these channels will be perturbed
+    #        pass
+    #    else:
+    #        #these channels will not be perturbed
+    #        channels_to_exclude.append(idx)
+    #correlated_random_noise[:, torch.Tensor(np.asarray(channels_to_exclude)).to(torch.int), : 721, : 1440] = 0
+    #dx = dx + (x * correlated_random_noise)
+
+    return dx / model.scale 
+
+def calculate_global_rms(tensor):
+    jacobian = torch.sin(
+            torch.linspace(0, torch.pi,tensor.shape[-2])
+        ).unsqueeze(1).to(tensor.device)
+    dtheta = torch.pi / tensor.shape[-2]
+    dlambda = 2 * torch.pi / tensor.shape[-1]
+    dA = dlambda * dtheta
+    quad_weight = dA * jacobian
+
+    weights = quad_weight / quad_weight.mean()
+    return torch.sqrt(torch.mean(tensor**2 * weights, dim=(-1,-2)))
+
+def _load_optimal_targets(config_model_name, lead_time, channel_names):
+    from earth2mip import forecast_metrics_io
+    sfno = xr.open_dataset("/pscratch/sd/a/amahesh/hens/optimal_perturbation_targets/means/sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed16.nc")
+    targets = []
+    return torch.from_numpy(sfno['value'].sel(channel=channel_names).sel(lead_time=lead_time).values[np.newaxis])
+    #for name in channel_names:
+    #    if name[0] in ['u', 'v', 't', 'q', '2']:
+    #        lead_time = 12
+    #    else:
+    #        lead_time = 6
+    #    targets.append(sfno['value'].sel(channel=name, lead_time=lead_time).values)
+    #return torch.Tensor(np.asarray(targets))[None]
 
 
-def _load_optimal_targets(config_model_name, lead_time):
-    path = "/pscratch/sd/a/amahesh/hens/optimal_perturbation_targets/{}.nc".format("FULL_sfno_73ch_e620_depth8_scale2_droppath01seed4_fcn-dev")
-    ds = xr.open_dataset(path)
-    ds['lead_time'] = ds['lead_time'] / np.timedelta64(1, 'h')
-    return torch.from_numpy(ds['rmse'].sel(lead_time=lead_time).values[np.newaxis,])
+
+def generate_model_noise_correlated(
+    x,
+    time,
+    scale,
+    reddening,
+    noise_injection_amplitude,
+):
+    noise = noise_injection_amplitude * brown_noise(x.shape, reddening).to(x.device)
+    channels = list(set(range(73)) - set([41]))
+    noise[:, :, channels, : 721, : 1440] = 0
+    return noise * scale / 21600
+
+def generate_multiplicative_noise(x, time, length_scale, channel_names, sht, ivsht, weighing_method="zero", eps=50, std=0.18, center=1):
+    """                                                                 
+    Inputs                                                              
+                                                                        
+        length_scale (int): length scale in km of spherical random noise
+        weighing_method (str) : how to weigh the wavelengths outside of the weighing method
+                                "zero" to zero them out                 
+                                "gaussian" for gaussian weighting with mean 0 and sd 0.01
+                                "inverse" for weighing them by their inverse distance from length_scale
+        eps (int).        : the number of km plus or minus length scale to provide full weight to
+                                                                        
+    """                                                                 
+    shape = (x.shape[-2], x.shape[-1])
+    device = x.device
+    rand_noise = torch.randn(*shape, device=device)                     
+    nlat, nlon = rand_noise.shape                                       
+                                                                        
+    coeffs = sht(rand_noise)                                            
+    r_earth = 6.371e6                                                   
+                                                                        
+    l = torch.arange(nlat, device=device)
+    # convert spherical harmonic degree to wavelength [km]              
+    lam = 2*np.pi*r_earth/(l + 1) / 1e3                                 
+                                                                        
+    #How to weigh the wavelengths not in the range of length scale      
+    if weighing_method == "gaussian":                                   
+        weights = np.random.normal(0, 0.01, size=coeffs.shape)          
+    elif weighing_method == "zero":                                     
+        weights = torch.zeros(coeffs.shape, device=device) 
+    else:                                                               
+        assert NotImplemented                                           
+
+    #epsilon
+    weights[torch.logical_and(lam >= length_scale - eps, lam < length_scale + eps), : ] = 1
+    coeffs_weighted = coeffs * weights
+
+    correlated_noise = ivsht(coeffs_weighted)
+    correlated_noise = (correlated_noise - correlated_noise.mean())/(correlated_noise.std()) * std
+    #if grid != schema.Grid.grid_721x1440:
+    #    correlated_noise = correlated_noise[0:-1, :]  # 720 x 1440
+    
+    num_channels = len(channel_names)
+    channels_to_exclude = []
+    stacked_noise = torch.stack([correlated_noise]*num_channels, dim=0)[None].to(torch.float32)
+    for idx, channel in enumerate(channel_names):
+        if channel[0] in ['u', 'v', 't', 'q'] and channel[1:].isdigit():
+            pass
+        else:
+            channels_to_exclude.append(idx)
+    
+    print('model tendency perturbed')
+    stacked_noise[:, channels_to_exclude, : 721, : 1440] = 0
+    stacked_noise = torch.where(stacked_noise > 1, 1, stacked_noise)
+    stacked_noise = torch.where(stacked_noise < -1, -1, stacked_noise)
+    return stacked_noise + center
+
+class CorrelatedSphericalField(torch.nn.Module):
+    def __init__(
+        self,
+        nlat,
+        length_scale,
+        time_scale,
+        sigma,
+        N=1,
+        channel_names=None,
+        grid="equiangular",
+        dtype=torch.float32,
+    ):
+        super().__init__()
+        """
+        This class can be used to create noise on the sphere
+        with a given length scale (in km) and time scale (in hours).
+
+        It mimics the implementation of the SPPT: Stochastic Perturbed
+        Parameterized Tendency in this paper:
+
+        https://www.ecmwf.int/sites/default/files/elibrary/2009/11577-stochastic-parametrization-and-model-uncertainty.pdf
+
+        Parameters
+        ----------
+        length_scale : int
+            Length scale in km
+
+        time_scale : int
+            Time scale for the AR(1) process, that governs
+            the evolution of the coefficients
+
+        sigma: desired standard deviation of the field in
+                grid point space
+
+        nlat : int
+            Number of latitudinal modes;
+            longitudinal modes are 2*nlat.
+        grid : string, default is "equiangular"
+            Grid type. Currently supports "equiangular" and
+            "legendre-gauss".
+        dtype : torch.dtype, default is torch.float32
+            Numerical type for the calculations.
+        """
+        self.sigma = sigma
+        self.channel_names = channel_names
+        dt = 6.0
+        self.phi = np.exp(-dt/time_scale)
+
+        # Number of latitudinal modes.
+        self.nlat = nlat
+
+        # Inverse SHT
+        self.isht = th.InverseRealSHT(
+            self.nlat, 2 * self.nlat, grid=grid, norm="backward"
+        ).to(dtype=dtype)
+
+        r_earth = 6.371e6
+        #kT is defined on slide 7
+        self.kT = (length_scale/r_earth)**2 / 2
+        F0 = self.calculateF0(self.sigma, self.phi, self.nlat, self.kT)
+
+        prods = (
+            torch.tensor([j * (j + 1) for j in range(0,self.nlat)])
+            .view(self.nlat, 1)
+            .repeat(1, self.nlat + 1)
+        )
+
+
+        sigma_n = torch.tril(torch.exp(-self.kT * prods / 2) * F0)
+        self.register_buffer("sigma_n", sigma_n)
+
+        # Save mean and var of the standard Gaussian.
+        # Need these to re-initialize distribution on a new device.
+        mean = torch.tensor([0.0]).to(dtype=dtype)
+        var = torch.tensor([1.0]).to(dtype=dtype)
+        self.register_buffer("mean", mean)
+        self.register_buffer("var", var)
+        self.N = N
+
+        # Standard normal noise sampler.
+        self.gaussian_noise = torch.distributions.normal.Normal(self.mean, self.var)
+        xi = self.gaussian_noise.sample(
+                torch.Size((self.N, self.nlat, self.nlat + 1, 2))
+            ).squeeze()
+        xi = torch.view_as_complex(xi)
+
+        #Set specrtral cofficients to this value at initial time
+        #for stability in teh AR(1) process.  See link in description
+        coeff = ((1-self.phi**2)**(-0.5)) * self.sigma_n * xi
+        coeff = coeff.unsqueeze(0)
+        self.register_buffer("coeff", coeff)
+
+    def calculateF0(self, sigma, phi, nlat, kT):
+        """
+            This function scales the coefficients such that their
+            grid-point standard deviation is sigma.
+            sigma is the desired variance
+            phi is a np.exp(-dt/time_scale)
+        """
+        numerator = sigma**2 * (1-(phi**2))
+        wavenumbers = torch.arange(1,nlat)
+        denominator = (2 * wavenumbers + 1) * torch.exp(-kT * wavenumbers * (wavenumbers+1))
+        denominator = 2 * denominator.sum()
+        return (numerator / denominator)**0.5
+
+    def forward(self, x=None, time=None):
+        """
+        Generate and return a field with a correlated length scale.
+
+        Update the coefficients using an AR(1) process.
+        """
+        u = self.isht(self.coeff) * 4 * np.pi
+        u = u.reshape(1, self.N, self.nlat, self.nlat * 2)
+        
+        noise = torch.zeros((1, self.N, self.nlat+1, self.nlat * 2), device=u.device)
+        noise[ :, :, :-1, :] = u
+        noise[ :, :, -1:, :] = noise[ :, :, -2:-1, :]
+
+        # Sample Gaussian noise.
+        xi = self.gaussian_noise.sample(
+            torch.Size((self.N, self.nlat, self.nlat + 1, 2))
+        ).squeeze()
+        xi = torch.view_as_complex(xi)
+
+        self.coeff = (self.phi * self.coeff) + (self.sigma_n * xi)
+        if x is not None:
+            num_channels = len(self.channel_names)
+            channels_to_exclude = []
+            noise = torch.cat([noise]*num_channels,dim=1)
+            for idx, channel in enumerate(self.channel_names):
+                #if channel[0] in ['u', 'v', 't', 'q'] and channel[1:].isdigit():
+                if channel in ['2d'] or (channel[0] in ['q'] and channel[1:].isdigit() and int(channel[1:]) > 800):
+                    #these channels will be perturbed
+                    pass
+                else:
+                    #these channels will not be perturbed
+                    channels_to_exclude.append(idx)
+            
+            print('model tendency perturbed: all channels except: {}'.format(np.asarray(self.channel_names)[channels_to_exclude]))
+            noise[:, torch.Tensor(np.asarray(channels_to_exclude)).to(torch.int), : 721, : 1440] = 0
+            #noise= torch.where(noise > 1, 1, noise)
+            #noise = torch.where(noise < -1, -1, noise)
+            noise = noise + 1
+            #stacked_noise = stacked_noise + 1
+            #noise = stacked_noise
+        return noise
+
+    # Override cuda and to methods so sampler gets initialized with mean
+    # and variance on the correct device.
+    def cuda(self, *args, **kwargs):
+        super().cuda(*args, **kwargs)
+        self.gaussian_noise = torch.distributions.normal.Normal(self.mean, self.var)
+
+        return self
+
+    def to(self, *args, **kwargs):
+        super().to(*args, **kwargs)
+        self.gaussian_noise = torch.distributions.normal.Normal(self.mean, self.var)
+
+        return self
 
