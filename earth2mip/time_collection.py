@@ -24,9 +24,12 @@ import torch.distributed
 import typer
 from distributed import Client
 from modulus.distributed.manager import DistributedManager
+from functools import partial
+from earth2mip.ensemble_utils import CorrelatedSphericalField
 
 from earth2mip import inference_ensemble, networks, score_ensemble_outputs
 from earth2mip.schema import EnsembleRun
+import torch_harmonics as th
 
 logging.basicConfig(
     format="%(asctime)s:%(levelname)-s:%(name)s:%(message)s",
@@ -38,8 +41,8 @@ logger = logging.getLogger(__file__)
 WD = os.getcwd()
 
 
-def get_distributed_client(rank):
-    scheduler_file = "scheduler.json"
+def get_distributed_client(rank, shard):
+    scheduler_file = "/pscratch/sd/a/amahesh/scheduler_{:04d}_1.json".format(shard)
     if rank == 0:
         client = Client(n_workers=32, threads_per_worker=1)
         client.write_scheduler_file(scheduler_file)
@@ -74,7 +77,7 @@ def main(
 
     DistributedManager.initialize()
     dist = DistributedManager()
-    model = networks.get_model(config["model"], device=dist.device)
+    #model = networks.get_model(config["model"], device=dist.device)
 
     protocol = config["protocol"]
     lines = protocol["times"][shard::n_shards]
@@ -103,7 +106,7 @@ def main(
         lines = lines[time_rank::n_time_groups]
 
     # setup dask client for post processing
-    client = get_distributed_client(dist.rank)
+    client = get_distributed_client(dist.rank, shard)
     post_process_task = None
 
     count = 0
@@ -119,16 +122,59 @@ def main(
 
         if torch.distributed.is_initialized():
             torch.distributed.barrier(group)
-
-        perturb = inference_ensemble.get_initializer(
-            model,
-            run,
-        )
-        run.weather_event.properties.start_time = initial_time
-        run.output_path = d
-        inference_ensemble.run_inference(
-            model, run, group=group, progress=False, perturb=perturb
-        )
+        
+        if config["model"] == 'multicheckpoint':                       
+            model_names = [
+                #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch65_seed16",
+                #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch65_seed17",
+                #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch68_seed16",
+                #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch68_seed17",
+                #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed18",
+                #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed17",
+                #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed12",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed26",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed27",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed28",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed29",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed30",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed31",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed70",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed71",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed72",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed74",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed76",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed12",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed16",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed17",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed18",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed77",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed78",
+            ]
+            for model_idx, model_name in enumerate(model_names):            
+                model = networks.get_model(model_name, device=dist.device)                
+                #sampler = CorrelatedSphericalField(720, 500 * 1000, 6.0, 0.001, channel_names=model.channel_names).to(model.device)
+                #if dist.rank != 0:
+                #    model.source = sampler 
+                logging.info("Constructing initializer data source")        
+                perturb = inference_ensemble.get_initializer(                                  
+                    model,                                                  
+                    run,                                                 
+                )                                                           
+                logging.info("Running inference")                           
+                run.weather_event.properties.start_time = initial_time
+                run.output_path = d
+                inference_ensemble.run_inference(model, run, perturb=perturb, group=group, model_idx=model_idx)
+        else:
+            #model = networks.get_model(config["model"], device=dist.device)
+            perturb = inference_ensemble.get_initializer(
+                model,
+                run,
+            )
+            run.weather_event.properties.start_time = initial_time
+            run.output_path = d
+            inference_ensemble.run_inference(
+                model, run, group=group, progress=False, perturb=perturb
+            )
 
         if group_rank == 0:
 

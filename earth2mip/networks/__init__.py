@@ -161,8 +161,12 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         )
 
         self.model = model
+        self.model.train()
         self.channel_names = channel_names
-        self.grid = grid
+        try:
+            self.grid = earth2mip.grid.from_enum(grid)
+        except:
+            self.grid = grid #earth2mip.grid.from_enum(grid)
         self.time_step = time_step
         self.n_history = n_history
         self.source = source
@@ -193,6 +197,7 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         x: torch.Tensor,
         restart: Optional[Any] = None,
         normalize=True,
+        model_perturb=True,
     ) -> Iterator[Tuple[datetime.datetime, torch.Tensor, Any]]:
         """
         Args:
@@ -212,9 +217,9 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         if restart:
             yield from self._iterate(**restart)
         else:
-            yield from self._iterate(x=x, time=time)
+            yield from self._iterate(x=x, time=time, model_perturb=model_perturb)
 
-    def _iterate(self, x, normalize=True, time=None):
+    def _iterate(self, x, model_perturb, normalize=True, time=None):
         """Yield (time, unnormalized data, restart) tuples
 
         restart = (time, unnormalized data)
@@ -235,12 +240,24 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
             # yield initial time for convenience
             restart = dict(x=x, normalize=False, time=time)
             yield time, self.scale * x[:, -1] + self.center, restart
-
+            
+            old = x.clone().detach()
             while True:
-                if self.source:
+                if self.source and model_perturb: 
                     x_with_units = x * self.scale + self.center
+                    old_with_units = old * self.scale + self.center
                     dt = torch.tensor(self.time_step.total_seconds())
-                    x += self.source(x_with_units, time) / self.scale * dt
+                    #x += self.source(x_with_units, time) / self.scale * dt
+
+                    #Multiplicative perturbation
+                    x = x_with_units * self.source(x_with_units, time)
+
+                    #Multiplicative Tendency perturbation
+                    #tendency = x_with_units - old_with_units
+                    #tendency = tendency * self.source(x_with_units, time)
+                    #x = old_with_units + tendency
+                    x = (x - self.center) / self.scale
+                old = x.clone().detach()
                 x = self.model(x, time)
                 time = time + self.time_step
 
