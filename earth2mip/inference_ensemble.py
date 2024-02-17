@@ -13,7 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+from functools import partial
 import argparse
 import json
 import logging
@@ -29,6 +29,7 @@ import tqdm
 import xarray
 from modulus.distributed.manager import DistributedManager
 from netCDF4 import Dataset as DS
+import torch_harmonics as th
 
 import earth2mip.grid
 
@@ -41,8 +42,10 @@ from earth2mip import initial_conditions, regrid, time_loop
 from earth2mip._channel_stds import channel_stds
 from earth2mip.ensemble_utils import (
     generate_bred_vector,
+    CorrelatedSphericalField,
     generate_noise_correlated,
     generate_noise_grf,
+
 )
 from earth2mip.netcdf import initialize_netcdf, update_netcdf
 from earth2mip.networks import get_model
@@ -101,7 +104,7 @@ def run_ensembles(
         batch_size = min(batch_size, n_ensemble - batch_id)
 
         x = x.repeat(batch_size, 1, 1, 1, 1)
-        x = perturb(x, rank, batch_id, model.device)
+        x_start = perturb(x, rank, batch_id, model.device)
         # restart_dir = weather_event.properties.restart
 
         # TODO: figure out if needed
@@ -117,7 +120,7 @@ def run_ensembles(
         #         time=time,
         #     )
 
-        iterator = model(initial_time, x)
+        iterator = model(initial_time, x_start)
 
         # Check if stdout is connected to a terminal
         if sys.stderr.isatty() and progress:
@@ -195,14 +198,53 @@ def main(config=None):
 
     logging.info(f"Earth-2 MIP config loaded {config}")
     logging.info(f"Loading model onto device {device}")
-    model = get_model(config.weather_model, device=device)
-    logging.info("Constructing initializer data source")
-    perturb = get_initializer(
-        model,
-        config,
-    )
-    logging.info("Running inference")
-    run_inference(model, config, perturb, group)
+    if config.weather_model == 'multicheckpoint':
+        model_names = [
+            #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch65_seed16",
+            #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch65_seed17",
+            #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch68_seed16",
+            #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch68_seed17",
+            #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed18",
+            #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed17",
+            #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed12",
+            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed26",
+            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed27",   
+            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed28",   
+            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed29",   
+            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed30",   
+            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed31",
+            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed70",   
+            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed71",
+            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed72",
+            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed74",
+            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed76",
+            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed12",
+            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed16",
+            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed17",
+            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed18",
+
+        ]
+        dist = DistributedManager()
+        for model_idx, model_name in enumerate(model_names):
+            model = get_model(model_name, device=device)
+            #sampler = CorrelatedSphericalField(720, 500 * 1000, 6.0, 0.006, channel_names=model.channel_names).to(model.device)
+            #model.source = sampler
+            logging.info("Constructing initializer data source")
+            perturb = get_initializer(
+                model,
+                config,
+            )
+            logging.info("Running inference")
+            run_inference(model, config, perturb, group, model_idx=model_idx)
+    else:
+        model = get_model(config.weather_model, device=device)
+        logging.info("Constructing initializer data source")
+        perturb = get_initializer(
+            model,
+            config,
+        )
+        logging.info("Running inference")
+        run_inference(model, config, perturb, group)
 
 
 def get_initializer(
@@ -238,6 +280,8 @@ def get_initializer(
                 config.noise_amplitude,
                 time=config.weather_event.properties.start_time,
             )
+            if rank % 2 == 1:
+                noise *= -1
         elif config.perturbation_strategy == PerturbationStrategy.none:
             return x
         if rank == 0 and batch_id == 0:  # first ens-member is deterministic
@@ -253,7 +297,8 @@ def get_initializer(
         scale = torch.tensor(scale, device=x.device)
 
         if config.perturbation_channels is None:
-            x += noise * scale[:, None, None]
+            #x += noise * scale[:, None, None]
+            return x + noise * scale[:, None, None]
         else:
             channel_list = model.in_channel_names
             indices = torch.tensor(
@@ -306,6 +351,7 @@ def run_inference(
     progress: bool = True,
     # TODO add type hints
     data_source: Any = None,
+    model_idx: int = 0
 ):
     """Run an ensemble inference for a given config and a perturb function
 
@@ -342,8 +388,8 @@ def run_inference(
 
     # Set random seed
     seed = config.seed
-    torch.manual_seed(seed + dist.rank)
-    np.random.seed(seed + dist.rank)
+    torch.manual_seed(seed + (dist.rank//2))
+    np.random.seed(seed + (dist.rank//2))
 
     if config.output_dir:
         date_str = "{:%Y_%m_%d_%H_%M_%S}".format(date_obj)
@@ -367,7 +413,8 @@ def run_inference(
             f.write(config.json())
 
     group_rank = torch.distributed.get_group_rank(group, dist.rank)
-    output_file_path = os.path.join(output_path, f"ensemble_out_{group_rank}.nc")
+    group_size = len(torch.distributed.get_process_group_ranks(group))
+    output_file_path = os.path.join(output_path, f"ensemble_out_{group_rank + model_idx * group_size}.nc")
 
     with DS(output_file_path, "w", format="NETCDF4") as nc:
         # assign global attributes
@@ -405,7 +452,6 @@ def run_inference(
         torch.distributed.barrier(group)
 
     logger.info(f"Ensemble forecast finished, saved to: {output_file_path}")
-
 
 if __name__ == "__main__":
     main()

@@ -213,7 +213,7 @@ def generate_bred_vector(
     if xd.ndim != x0.ndim:
         xd = xd.unsqueeze(1)
 
-    optimization_target = _load_optimal_targets('sfno_linear_73chq_sc3_layers8_edim384_wstgl2', 6, model.channel_names).to(x.device).squeeze().to(torch.float32) * 1.5
+    optimization_target = _load_optimal_targets('sfno_linear_73chq_sc3_layers8_edim384_wstgl2', 6, model.channel_names).to(x.device).squeeze().to(torch.float32) * 1.2
     sampler = CorrelatedSphericalField(720, 50. * 1000, 48.0, 1.0, N=74).to(
         x.device
     )
