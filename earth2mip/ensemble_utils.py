@@ -157,7 +157,7 @@ def generate_noise_grf(shape, grid, alpha, sigma, tau, device=None):
         shape[0], shape[1], shape[2], 720, 1440
     )
     if grid.shape == (721, 1440):
-        noise = torch.zeros(shape)
+        noise = torch.zeros(shape).to(device)
         noise[:, :, :, :-1, :] = sample_noise
         noise[:, :, :, -1:, :] = noise[:, :, :, -2:-1, :]
     else:
