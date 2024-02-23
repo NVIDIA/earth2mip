@@ -169,6 +169,7 @@ class PanguInference(torch.nn.Module):
     n_history_levels = 1
     time_step = datetime.timedelta(hours=6)
     history_time_step = datetime.timedelta(hours=0)
+    dtype: torch.dtype = torch.float32
 
     def __init__(self, model_6: PanguStacked, model_24: PanguStacked):
         super().__init__()
