@@ -87,6 +87,7 @@ def run_ensembles(
     output_path: str,
     restart_initial_directory: str = "",
     progress: bool = True,
+    model_idx = 0
 ):
     if not output_grid:
         output_grid = model.grid
@@ -104,7 +105,7 @@ def run_ensembles(
         batch_size = min(batch_size, n_ensemble - batch_id)
 
         x = x.repeat(batch_size, 1, 1, 1, 1)
-        x_start = perturb(x, rank, batch_id, model.device)
+        x_start = perturb(x, rank, batch_id, model.device, model_idx)
         # restart_dir = weather_event.properties.restart
 
         # TODO: figure out if needed
@@ -199,31 +200,37 @@ def main(config=None):
     logging.info(f"Earth-2 MIP config loaded {config}")
     logging.info(f"Loading model onto device {device}")
     if config.weather_model == 'multicheckpoint':
-        model_names = [
-            #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch65_seed16",
-            #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch65_seed17",
-            #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch68_seed16",
-            #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch68_seed17",
-            #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed18",
-            #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed17",
-            #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed12",
-            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed26",
-            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed27",   
-            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed28",   
-            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed29",   
-            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed30",   
-            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed31",
-            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed70",   
-            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed71",
-            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed72",
-            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed74",
-            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed76",
-            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed12",
-            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed16",
-            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed17",
-            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed18",
-
-        ]
+        model_names = [                                                
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed26",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed27",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed28",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed29",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed30",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed31",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed70",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed71",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed72",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed74",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed76",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed12",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed16",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed17",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed18",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed77",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed78",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed80",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed81",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed84",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed86",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed87",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed90",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed91",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed92",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed93",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed94",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed96",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed98",
+            ] 
         dist = DistributedManager()
         for model_idx, model_name in enumerate(model_names):
             model = get_model(model_name, device=device)
@@ -251,7 +258,7 @@ def get_initializer(
     model,
     config,
 ):
-    def perturb(x, rank, batch_id, device):
+    def perturb(x, rank, batch_id, device, model_idx):
         shape = x.shape
         if config.perturbation_strategy == PerturbationStrategy.gaussian:
             noise = config.noise_amplitude * torch.normal(
@@ -284,7 +291,7 @@ def get_initializer(
                 noise *= -1
         elif config.perturbation_strategy == PerturbationStrategy.none:
             return x
-        if rank == 0 and batch_id == 0:  # first ens-member is deterministic
+        if rank == 0 and batch_id == 0 and model_idx == 0:  # first ens-member is deterministic
             noise[0, :, :, :, :] = 0
 
         # When field is not in known normalization dictionary set scale to 0
@@ -447,6 +454,7 @@ def run_inference(
                 else None
             ),
             progress=progress,
+            model_idx=model_idx
         )
     if torch.distributed.is_initialized():
         torch.distributed.barrier(group)
