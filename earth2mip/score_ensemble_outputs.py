@@ -110,7 +110,7 @@ def main(
 
             if time_averaging_window:
                 verification = verification.resample(time=time_averaging_window).mean(
-                    dim="time", keep_attrs=True, skipna=False, keepdims=True
+                    dim="time", keep_attrs=True, skipna=False
                 )
 
             ensemble_mse = (verification - ensemble_mean) ** 2.0
