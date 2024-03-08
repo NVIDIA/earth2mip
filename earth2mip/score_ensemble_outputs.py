@@ -85,7 +85,7 @@ def main(
         ds.attrs["time_averaging_window"] = time_averaging_window
         if time_averaging_window:
             ds = ds.resample(time=time_averaging_window).mean(
-                dim="time", keep_attrs=True, skipna=False, keepdims=True
+                dim="time", keep_attrs=True, skipna=False
             )
 
         logger.info("Computing mean")
