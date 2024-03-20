@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Union
 import xarray as xr
 
@@ -23,6 +23,7 @@ import torch_harmonics as th
 import numpy as np
 
 from earth2mip.time_loop import TimeLoop
+from earth2mip import initial_conditions
 
 
 class GaussianRandomFieldS2(torch.nn.Module):
@@ -159,7 +160,7 @@ def generate_noise_grf(shape, grid, alpha, sigma, tau, device=None):
         shape[0], shape[1], shape[2], 720, 1440
     )
     if grid.shape == (721, 1440):
-        noise = torch.zeros(shape)
+        noise = torch.zeros(shape).to(device)
         noise[:, :, :, :-1, :] = sample_noise
         noise[:, :, :, -1:, :] = noise[:, :, :, -2:-1, :]
     else:
@@ -184,13 +185,147 @@ def brown_noise(shape, reddening=2):
 
     return noise_shaped
 
+def generate_bred_vector_timeevolve(
+    x: torch.Tensor,
+    model: TimeLoop,
+    noise_amplitude: torch.Tensor,
+    weather_event, 
+    time: Union[datetime, None] = None,
+    integration_steps: int = 3,
+    inflate=False,
+) -> torch.Tensor:
+    # Assume x has shape [ENSEMBLE, TIME, CHANNEL, LAT, LON]
+
+    if isinstance(noise_amplitude, float):
+        noise_amplitude = torch.tensor([noise_amplitude]).to(x.device) 
+    assert (noise_amplitude.shape[0] == x.shape[2]) or (  # noqa
+        torch.numel(noise_amplitude) == 1
+    )
+
+    optimization_target = _load_optimal_targets('sfno_linear_73chq_sc3_layers8_edim384_wstgl2', 6, model.channel_names).to(x.device).squeeze().to(torch.float32) 
+    #optimization_target = 0.2 * torch.from_numpy(np.load("/pscratch/sd/p/pharring/74var-6hourly/staging/stats_fcndev/time_diff_stds.npy")).to(x.device).squeeze().to(torch.float32)
+    #optimization_target = graphcast_weights(model.channel_names, model.scale, "deterministic rmse").to(x.device).squeeze().to(torch.float32)
+    #time_means = torch.from_numpy(np.load("/pscratch/sd/p/pharring/74var-6hourly/staging/stats_fcndev/time_means.npy")).to(x.device).to(torch.float32)
+    #optimization_target = calculate_global_geometric_mean(time_means.squeeze()) * 0.05
+    sampler = CorrelatedSphericalField(720, 500. * 1000, 48.0, 1.0, N=74).to(
+        x.device
+    )
+    correlated_random_noise = sampler()
+    #correlated_random_noise = torch.cat([correlated_random_noise] * 74, dim=1)
+    original_pert = correlated_random_noise.clone().detach()
+    dx = optimization_target[:, None, None] * correlated_random_noise * 2
+    #dx = model.scale * correlated_random_noise * 0.05
+    #dx = (correlated_random_noise * 0.05) * x[0]
+    channel_idx = set(range(len(model.channel_names))) - set([model.channel_names.index('z500')])
+    #channel_idx = []
+    #for idx, channel in enumerate(model.channel_names):
+    #    #if channel in ['q1000','q850']:
+    #    if channel in ["z50", "z100", "z150", "z200", "z250", "z300", "z400", "z500"]: 
+    #        #these channels will be perturbed
+    #        pass
+    #    else:
+    #        #these channels will not be perturbed
+    #        channel_idx.append(idx)
+    dx[ :, list(channel_idx), : 721, : 1440] = 0
+
+    data_source = initial_conditions.get_data_source(
+        model.in_channel_names,
+        initial_condition_source=weather_event.properties.initial_condition_source,
+        netcdf=weather_event.properties.netcdf,
+    )
+
+    date_obj = weather_event.properties.start_time
+    #lag = np.random.choice(np.arange(0,49,6)).astype(float)
+    #lagged_time = date_obj - timedelta(hours=lag)
+    #lagged_ic = initial_conditions.get_initial_condition_for_model(model, data_source, lagged_time)
+    #exaggerate_factor = calculate_global_rms(lagged_ic - x) / optimization_target[None, None]
+    #dx = dx / exaggerate_factor[:, :, :, None, None]
+    #return (lagged_ic - x) / model.scale / 50
+
+    for step in list(range(integration_steps))[::-1]:
+        x0 = initial_conditions.get_initial_condition_for_model(model, data_source, date_obj - (timedelta(hours=6*step)))
+
+        # Get control forecast
+        for k, (_, data, _) in enumerate(model(time, x0, model_perturb=False)):
+            xd = data
+            if k == 1:
+                break
+
+        # Unsqueeze if time has been collapsed.
+        if xd.ndim != x0.ndim:
+            xd = xd.unsqueeze(1)
+
+        x1 = x0 + dx
+        for k, (_, data, _) in enumerate(model(time, x1, model_perturb=False)):
+            x2 = data
+            if k == 1:
+                break
+
+        # Unsqueeze if time has been collapsed.
+        if x2.ndim != x1.ndim:
+            x2 = x2.unsqueeze(1)
+        dx = x2 - xd
+
+        if inflate:
+            dx += noise_amplitude * (dx - dx.mean(dim=0)) * model.scale
+
+        #exaggerate_factor = calculate_global_rms(dx) / optimization_target[None, None]
+        #dx = dx / exaggerate_factor[:, :, :, None, None]
+
+        #exaggerate_factor = calculate_global_geometric_mean(dx) / optimization_target[None, None]
+        #dx = dx / exaggerate_factor[:, :, :, None, None]
+
+        exaggerate_factor = hemispheric_rms(dx) / optimization_target[None, None, :, None]
+        dx = dx / exaggerate_factor[:, :, :, : , None]
+
+        dx = set_50hPa_to_0(dx, model.channel_names)
+        
+        #sampler = CorrelatedSphericalField(720, 2000. * 1000, 48.0, 0.005, N=1).to(
+        #    x.device
+        #)
+        #correlated_random_noise = sampler()
+        #correlated_random_noise = torch.cat([correlated_random_noise] * 74, dim=1)
+        #channels_to_exclude = []
+        #for idx, channel in enumerate(model.channel_names):
+        #    #if channel in ['z500']: 
+        #    if channel in ["z50", "z100", "z150", "z200", "z250", "z300", "z400", "z500"]: 
+        #        #these channels will be perturbed
+        #        pass
+        #    else:
+        #        #these channels will not be perturbed
+        #        channels_to_exclude.append(idx)
+        #correlated_random_noise[:, torch.Tensor(np.asarray(channels_to_exclude)).to(torch.int), : 721, : 1440] = 0
+        #dx = dx + (x2 * correlated_random_noise)
+        #dx = dx + (optimization_target[:, None, None] * correlated_random_noise)
+    
+    #dx = dx + original_pert
+    #optimization_target = optimization_target[None, None]
+    #exaggerate_factor = calculate_global_rms(dx) / optimization_target
+    #dx = dx / exaggerate_factor[:, :, :, None, None]
+
+    #optimization_target = optimization_target[None, None, :, None]
+    #exaggerate_factor = hemispheric_rms(dx) / optimization_target
+    #dx = dx / exaggerate_factor[:, :, :, : , None]
+
+    return dx / model.scale
+
+def set_50hPa_to_0(dx, channel_names):
+    t50_idx = channel_names.index('t50')
+    u50_idx = channel_names.index('u50')
+    v50_idx = channel_names.index('v50')
+    z50_idx = channel_names.index('z50')
+    q50_idx = channel_names.index('q50')
+    assert dx.shape[2] == 74, "{}".format(dx.shape)
+
+    dx[:, :, [t50_idx, u50_idx, v50_idx, z50_idx, q50_idx]] = 0
+    return dx
 
 def generate_bred_vector(
     x: torch.Tensor,
     model: TimeLoop,
     noise_amplitude: torch.Tensor,
     time: Union[datetime, None] = None,
-    integration_steps: int = 3,
+    integration_steps: int = 5,
     inflate=False,
 ) -> torch.Tensor:
     # Assume x has shape [ENSEMBLE, TIME, CHANNEL, LAT, LON]
@@ -213,7 +348,7 @@ def generate_bred_vector(
     if xd.ndim != x0.ndim:
         xd = xd.unsqueeze(1)
 
-    optimization_target = _load_optimal_targets('sfno_linear_73chq_sc3_layers8_edim384_wstgl2', 6, model.channel_names).to(x.device).squeeze().to(torch.float32)
+    optimization_target = _load_optimal_targets('sfno_linear_73chq_sc3_layers8_edim384_wstgl2', 6, model.channel_names).to(x.device).squeeze().to(torch.float32) 
     sampler = CorrelatedSphericalField(720, 50. * 1000, 48.0, 1.0, N=74).to(
         x.device
     )
@@ -221,7 +356,7 @@ def generate_bred_vector(
     dx = optimization_target[:, None, None] * correlated_random_noise
     #dx = (correlated_random_noise * 0.05) * x
     channel_idx = set(range(len(model.channel_names))) - set([ model.channel_names.index('z500')])
-    #dx[:, :, list(channel_idx), : 721, : 1440] = 0
+    dx[:, :, list(channel_idx), : 721, : 1440] = 0
     for _ in range(integration_steps):
         x1 = x + dx
         for k, (_, data, _) in enumerate(model(time, x1, model_perturb=False)):
@@ -237,7 +372,7 @@ def generate_bred_vector(
         if inflate:
             dx += noise_amplitude * (dx - dx.mean(dim=0)) * model.scale
 
-    optimization_target = optimization_target[None, None]
+    optimization_target = optimization_target[None, None] 
     exaggerate_factor = calculate_global_rms(dx) / optimization_target
     dx = dx / exaggerate_factor[:, :, :, None, None]
 
@@ -259,6 +394,18 @@ def generate_bred_vector(
 
     return dx / model.scale 
 
+def calculate_global_geometric_mean(tensor):
+    jacobian = torch.sin(
+            torch.linspace(0, torch.pi,tensor.shape[-2])
+        ).unsqueeze(1).to(tensor.device)
+    dtheta = torch.pi / tensor.shape[-2]
+    dlambda = 2 * torch.pi / tensor.shape[-1]
+    dA = dlambda * dtheta
+    quad_weight = dA * jacobian
+
+    weights = quad_weight / quad_weight.mean()
+    return (tensor.abs() * weights).log().mean(dim=(-1,-2)).exp()
+
 def calculate_global_rms(tensor):
     jacobian = torch.sin(
             torch.linspace(0, torch.pi,tensor.shape[-2])
@@ -271,18 +418,116 @@ def calculate_global_rms(tensor):
     weights = quad_weight / quad_weight.mean()
     return torch.sqrt(torch.mean(tensor**2 * weights, dim=(-1,-2)))
 
+
+def calculate_nh_rms(tensor):
+    jacobian = torch.sin(
+            torch.linspace(0, torch.pi,tensor.shape[-2])
+        ).unsqueeze(1).to(tensor.device)
+    dtheta = torch.pi / tensor.shape[-2]
+    dlambda = 2 * torch.pi / tensor.shape[-1]
+    dA = dlambda * dtheta
+    quad_weight = dA * jacobian
+
+    weights = quad_weight / quad_weight.mean()
+    return torch.sqrt(torch.mean(tensor[:, :, :,:240]**2 * weights[:240], dim=(-1,-2)))
+
+
+def calculate_sh_rms(tensor):
+    jacobian = torch.sin(
+            torch.linspace(0, torch.pi,tensor.shape[-2])
+        ).unsqueeze(1).to(tensor.device)
+    dtheta = torch.pi / tensor.shape[-2]
+    dlambda = 2 * torch.pi / tensor.shape[-1]
+    dA = dlambda * dtheta
+    quad_weight = dA * jacobian
+
+    weights = quad_weight / quad_weight.mean()
+    return torch.sqrt(torch.mean(tensor[:, :, :, -240:]**2 * weights[-240:], dim=(-1,-2)))
+
+def calculate_tropics_rms(tensor):
+    jacobian = torch.sin(
+            torch.linspace(0, torch.pi,tensor.shape[-2])
+        ).unsqueeze(1).to(tensor.device)
+    dtheta = torch.pi / tensor.shape[-2]
+    dlambda = 2 * torch.pi / tensor.shape[-1]
+    dA = dlambda * dtheta
+    quad_weight = dA * jacobian
+
+    weights = quad_weight / quad_weight.mean()
+    return torch.sqrt(torch.mean(tensor[:, :, :, 320:-320]**2 * weights[320:-320], dim=(-1,-2)))
+
+def hemispheric_rms(tensor):
+    nh = calculate_nh_rms(tensor).squeeze() 
+    sh = calculate_sh_rms(tensor).squeeze()
+    t = calculate_tropics_rms(tensor).squeeze()
+    hemispheric_rmse = torch.zeros(74, 721, device=sh.device)
+    for i in range(74):
+        nh_arr = torch.full([240], nh[i])
+        sh_arr = torch.full([240], sh[i])
+        #tropics = torch.full([161], (nh[i] + sh[i])/2)
+        tropics = torch.linspace(nh[i], sh[i], 721 - nh_arr.shape[0]*2) 
+        #nh_arr = torch.linspace(nh[i], tropics[0], 240)
+        #sh_arr = torch.linspace(tropics[-1], sh[i], 240)
+        #tropics = torch.full([161], t[i])
+        hemispheric_rmse[i] = torch.cat([nh_arr, tropics, sh_arr])
+
+    return hemispheric_rmse[None, None] 
+
+def graphcast_weights(channel_names, global_stds, loss_type='squared temp-std'):
+    channel_weights = torch.ones(len(channel_names), dtype=torch.float32, device=global_stds.device)
+    for c, chn in enumerate(channel_names):
+        if chn in ["u10m", "v10m", "u100m", "v100m", "tp", "sp", "msl"]:
+            channel_weights[c] = 0.1
+        elif chn in ["tcwv"]:
+            channel_weights[c] = 0.3
+        elif chn in ["t2m", "2d"]:
+            channel_weights[c] = 1.0
+        elif chn[0] in ["z", "u", "v", "t", "r", "q"]:
+            pressure_level = float(chn[1:])
+            channel_weights[c] = 0.001 * pressure_level
+        else:
+            channel_weights[c] = 0.01
+
+    # renormalize the weights to one
+    channel_weights = channel_weights.reshape(1, -1, 1, 1)
+    #channel_weights = channel_weights / torch.sum(channel_weights)
+
+    if "squared" in loss_type:
+        squared = True
+    else:
+        squared = False
+
+    target =  _load_optimal_targets("", 24, channel_names).squeeze().to(channel_weights.device) 
+    if "temp-std" in loss_type:
+        eps = 1e-6
+        global_stds = global_stds.reshape(1, -1, 1, 1)
+        dt = 1
+        time_diff_stds = np.sqrt(dt) * torch.from_numpy(np.load("/pscratch/sd/p/pharring/74var-6hourly/staging/stats_fcndev/time_diff_stds.npy")).reshape(1, -1, 1, 1).to(global_stds.device)
+        time_var_weights = global_stds / (time_diff_stds + eps)
+        # time_var_weights = 1 / (time_diff_stds+eps)
+        if squared:
+            time_var_weights = time_var_weights**2
+            #target = target**2
+        channel_weights = channel_weights * time_var_weights
+    if "deterministic rmse" in loss_type:
+        channel_weights = channel_weights.squeeze() * target
+    return channel_weights
+
 def _load_optimal_targets(config_model_name, lead_time, channel_names):
     from earth2mip import forecast_metrics_io
     sfno = xr.open_dataset("/pscratch/sd/a/amahesh/hens/optimal_perturbation_targets/means/sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed16.nc")
     targets = []
-    return torch.from_numpy(sfno['value'].sel(channel=channel_names).sel(lead_time=lead_time).values[np.newaxis])
-    #for name in channel_names:
-    #    if name[0] in ['u', 'v', 't', 'q', '2']:
-    #        lead_time = 12
-    #    else:
-    #        lead_time = 6
-    #    targets.append(sfno['value'].sel(channel=name, lead_time=lead_time).values)
-    #return torch.Tensor(np.asarray(targets))[None]
+    #return torch.from_numpy(sfno['value'].sel(channel=channel_names).sel(lead_time=lead_time).values[np.newaxis])
+    for name in channel_names:
+        if name[0] in ['u', 'v', 't', 'q', '2']:
+            lead_time = lead_time
+        else:
+            lead_time = lead_time
+        if name == 'z50':
+            targets.append(sfno['value'].sel(channel='z100', lead_time=lead_time).values)
+        else:
+            targets.append(sfno['value'].sel(channel=name, lead_time=lead_time).values)
+    return torch.Tensor(np.asarray(targets))[None]
 
 
 
@@ -493,7 +738,7 @@ class CorrelatedSphericalField(torch.nn.Module):
                     channels_to_exclude.append(idx)
             
             print('model tendency perturbed: all channels except: {}'.format(np.asarray(self.channel_names)[channels_to_exclude]))
-            noise[:, torch.Tensor(np.asarray(channels_to_exclude)).to(torch.int), : 721, : 1440] = 0
+            #noise[:, torch.Tensor(np.asarray(channels_to_exclude)).to(torch.int), : 721, : 1440] = 0
             #noise= torch.where(noise > 1, 1, noise)
             #noise = torch.where(noise < -1, -1, noise)
             noise = noise + 1
