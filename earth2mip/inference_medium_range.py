@@ -335,7 +335,7 @@ def main():
     model = _cli_utils.model_from_args(args, dist.device)
 
     data_source = hdf5.DataSource.from_path(
-        args.data or config.ERA5_HDF5_73, channel_names=model.in_channel_names
+        args.data or config.ERA5_HDF5, channel_names=model.in_channel_names
     )
     # time mean
     save_scores(
