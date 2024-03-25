@@ -68,6 +68,7 @@ class PerturbationStrategy(Enum):
     correlated = "correlated"
     gaussian = "gaussian"
     bred_vector = "bred_vector"
+    bred_vector_timeevolve = "bred_vector_timeevolve"
     spherical_grf = "spherical_grf"
     none = "none"
 
@@ -109,7 +110,7 @@ class EnsembleRun(pydantic.BaseModel):
     output_frequency: int = 1
     output_grid: Optional[Grid] = None
     ensemble_members: int = 1
-    seed: int = 1
+    seed: Optional[int] = None
     ensemble_batch_size: int = 1
     # alternatives for specifiying forecast
     forecast_name: Optional[str] = None
@@ -121,6 +122,7 @@ class EnsembleRun(pydantic.BaseModel):
     grf_noise_alpha: float = 2.0
     grf_noise_sigma: float = 5.0
     grf_noise_tau: float = 2.0
+    subtract_perturbation: Optional[bool] = None
 
     def get_weather_event(self) -> weather_events.WeatherEvent:
         if self.forecast_name:
