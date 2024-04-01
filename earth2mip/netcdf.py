@@ -113,6 +113,8 @@ def initialize_netcdf(
     nc.createDimension("time", None)
     nc.createDimension("ensemble", n_ensemble)
     nc.createVariable("time", np.float32, ("time"))
+    nc.createVariable("seed", np.int32, ("ensemble"))
+    nc.createVariable("subtract_perturbation", 'B', ("ensemble"))
     total_diagnostics = []
     for domain in domains:
         group = nc.createGroup(domain.name)

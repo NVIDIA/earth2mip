@@ -42,7 +42,7 @@ WD = os.getcwd()
 
 
 def get_distributed_client(rank, shard):
-    scheduler_file = "/pscratch/sd/a/amahesh/scheduler_{:04d}_1.json".format(shard)
+    scheduler_file = "/pscratch/sd/a/amahesh/scheduler_{:04d}_2.json".format(shard)
     if rank == 0:
         client = Client(n_workers=32, threads_per_worker=1)
         client.write_scheduler_file(scheduler_file)
@@ -125,13 +125,6 @@ def main(
         
         if config["model"] == 'multicheckpoint':                       
             model_names = [
-                #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch65_seed16",
-                #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch65_seed17",
-                #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch68_seed16",
-                #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch68_seed17",
-                #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed18",
-                #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed17",
-                #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed12",
                 "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed26",
                 "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed27",
                 "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed28",
@@ -149,10 +142,22 @@ def main(
                 "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed18",
                 "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed77",
                 "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed78",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed80",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed81",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed84",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed86",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed87",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed90",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed91",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed92",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed93",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed94",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed96",
+                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed98",
             ]
             for model_idx, model_name in enumerate(model_names):            
                 model = networks.get_model(model_name, device=dist.device)                
-                #sampler = CorrelatedSphericalField(720, 500 * 1000, 6.0, 0.001, channel_names=model.channel_names).to(model.device)
+                #sampler = CorrelatedSphericalField(720, 750 * 1000, 6.0, 0.2, channel_names=model.channel_names).to(model.device)
                 #if dist.rank != 0:
                 #    model.source = sampler 
                 logging.info("Constructing initializer data source")        
@@ -163,7 +168,7 @@ def main(
                 logging.info("Running inference")                           
                 run.weather_event.properties.start_time = initial_time
                 run.output_path = d
-                inference_ensemble.run_inference(model, run, perturb=perturb, group=group, model_idx=model_idx)
+                inference_ensemble.run_inference(model, run, perturb=perturb, group=group, model_idx=model_idx, num_models=len(model_names))
         else:
             #model = networks.get_model(config["model"], device=dist.device)
             perturb = inference_ensemble.get_initializer(

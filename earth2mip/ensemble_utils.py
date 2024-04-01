@@ -202,7 +202,7 @@ def generate_bred_vector_timeevolve(
         torch.numel(noise_amplitude) == 1
     )
 
-    optimization_target = _load_optimal_targets('sfno_linear_73chq_sc3_layers8_edim384_wstgl2', 6, model.channel_names).to(x.device).squeeze().to(torch.float32) 
+    optimization_target = _load_optimal_targets('sfno_linear_73chq_sc3_layers8_edim384_wstgl2', 48, model.channel_names).to(x.device).squeeze().to(torch.float32) * 0.33
     #optimization_target = 0.2 * torch.from_numpy(np.load("/pscratch/sd/p/pharring/74var-6hourly/staging/stats_fcndev/time_diff_stds.npy")).to(x.device).squeeze().to(torch.float32)
     #optimization_target = graphcast_weights(model.channel_names, model.scale, "deterministic rmse").to(x.device).squeeze().to(torch.float32)
     #time_means = torch.from_numpy(np.load("/pscratch/sd/p/pharring/74var-6hourly/staging/stats_fcndev/time_means.npy")).to(x.device).to(torch.float32)
@@ -213,7 +213,7 @@ def generate_bred_vector_timeevolve(
     correlated_random_noise = sampler()
     #correlated_random_noise = torch.cat([correlated_random_noise] * 74, dim=1)
     original_pert = correlated_random_noise.clone().detach()
-    dx = optimization_target[:, None, None] * correlated_random_noise * 2
+    dx = optimization_target[:, None, None] * correlated_random_noise
     #dx = model.scale * correlated_random_noise * 0.05
     #dx = (correlated_random_noise * 0.05) * x[0]
     channel_idx = set(range(len(model.channel_names))) - set([model.channel_names.index('z500')])
@@ -278,7 +278,7 @@ def generate_bred_vector_timeevolve(
         exaggerate_factor = hemispheric_rms(dx) / optimization_target[None, None, :, None]
         dx = dx / exaggerate_factor[:, :, :, : , None]
 
-        dx = set_50hPa_to_0(dx, model.channel_names)
+        #dx = set_50hPa_to_0(dx, model.channel_names)
         
         #sampler = CorrelatedSphericalField(720, 2000. * 1000, 48.0, 0.005, N=1).to(
         #    x.device
@@ -429,7 +429,7 @@ def calculate_nh_rms(tensor):
     quad_weight = dA * jacobian
 
     weights = quad_weight / quad_weight.mean()
-    return torch.sqrt(torch.mean(tensor[:, :, :,:240]**2 * weights[:240], dim=(-1,-2)))
+    return torch.sqrt(torch.mean(tensor[:, :, :,:280]**2 * weights[:280], dim=(-1,-2)))
 
 
 def calculate_sh_rms(tensor):
@@ -442,7 +442,7 @@ def calculate_sh_rms(tensor):
     quad_weight = dA * jacobian
 
     weights = quad_weight / quad_weight.mean()
-    return torch.sqrt(torch.mean(tensor[:, :, :, -240:]**2 * weights[-240:], dim=(-1,-2)))
+    return torch.sqrt(torch.mean(tensor[:, :, :, -280:]**2 * weights[-280:], dim=(-1,-2)))
 
 def calculate_tropics_rms(tensor):
     jacobian = torch.sin(
@@ -462,8 +462,8 @@ def hemispheric_rms(tensor):
     t = calculate_tropics_rms(tensor).squeeze()
     hemispheric_rmse = torch.zeros(74, 721, device=sh.device)
     for i in range(74):
-        nh_arr = torch.full([240], nh[i])
-        sh_arr = torch.full([240], sh[i])
+        nh_arr = torch.full([280], nh[i])
+        sh_arr = torch.full([280], sh[i])
         #tropics = torch.full([161], (nh[i] + sh[i])/2)
         tropics = torch.linspace(nh[i], sh[i], 721 - nh_arr.shape[0]*2) 
         #nh_arr = torch.linspace(nh[i], tropics[0], 240)

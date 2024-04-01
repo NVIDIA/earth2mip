@@ -42,6 +42,7 @@ from earth2mip import initial_conditions, regrid, time_loop
 from earth2mip._channel_stds import channel_stds
 from earth2mip.ensemble_utils import (
     generate_bred_vector,
+    generate_bred_vector_timeevolve,
     CorrelatedSphericalField,
     generate_noise_correlated,
     generate_noise_grf,
@@ -85,9 +86,12 @@ def run_ensembles(
     date_obj: datetime,
     restart_frequency: Optional[int],
     output_path: str,
+    config_seed: int,
+    config_subtract_perturbation: bool,
+    num_models: int,  
     restart_initial_directory: str = "",
     progress: bool = True,
-    model_idx = 0
+    model_idx = 0,
 ):
     if not output_grid:
         output_grid = model.grid
@@ -105,7 +109,20 @@ def run_ensembles(
         batch_size = min(batch_size, n_ensemble - batch_id)
 
         x = x.repeat(batch_size, 1, 1, 1, 1)
-        x_start = perturb(x, rank, batch_id, model.device, model_idx)
+        if config_seed:
+            assert config_subtract_perturbation is not None, "in the config, subtract_perturbation must be set if seed is set"
+            torch.manual_seed(config_seed)
+            np.random.seed(config_seed)
+            subtract_perturbation = config_subtract_perturbation
+            nc["seed"][batch_id] = config_seed
+        else:
+            seed = (rank // 2) * num_models * n_ensemble + model_idx * n_ensemble + batch_id
+            torch.manual_seed(seed)
+            np.random.seed(seed)
+            subtract_perturbation = rank % 2 == 1
+            nc["seed"][batch_id] = seed
+        nc["subtract_perturbation"][batch_id] = subtract_perturbation
+        x_start = perturb(x, rank, batch_id, model.device, model_idx, subtract_perturbation=subtract_perturbation)
         # restart_dir = weather_event.properties.restart
 
         # TODO: figure out if needed
@@ -242,7 +259,8 @@ def main(config=None):
                 config,
             )
             logging.info("Running inference")
-            run_inference(model, config, perturb, group, model_idx=model_idx)
+            run_inference(model, config, perturb, group, model_idx=model_idx, num_models=len(model_names), 
+                          model_str=model_names[model_idx])
     else:
         model = get_model(config.weather_model, device=device)
         logging.info("Constructing initializer data source")
@@ -251,14 +269,14 @@ def main(config=None):
             config,
         )
         logging.info("Running inference")
-        run_inference(model, config, perturb, group)
+        run_inference(model, config, perturb, group, num_models=1)
 
 
 def get_initializer(
     model,
     config,
 ):
-    def perturb(x, rank, batch_id, device, model_idx):
+    def perturb(x, rank, batch_id, device, model_idx, subtract_perturbation):
         shape = x.shape
         if config.perturbation_strategy == PerturbationStrategy.gaussian:
             noise = config.noise_amplitude * torch.normal(
@@ -289,9 +307,23 @@ def get_initializer(
             )
             if rank % 2 == 1:
                 noise *= -1
+        elif config.perturbation_strategy == PerturbationStrategy.bred_vector_timeevolve:
+            noise = generate_bred_vector_timeevolve(
+                x,
+                model,
+                config.noise_amplitude,
+                time=config.weather_event.properties.start_time,
+                weather_event=config.get_weather_event()
+            )
+            #if rank % 2 == 1:
+            if subtract_perturbation:
+                noise *= -1
         elif config.perturbation_strategy == PerturbationStrategy.none:
             return x
-        if rank == 0 and batch_id == 0 and model_idx == 0:  # first ens-member is deterministic
+        if rank == 0 and batch_id == 0 and model_idx == 0 and config.seed is None:  # first ens-member is deterministic
+            #if config.seed is None, then we assume that the user is generating a whole ensemble, not regenerating a specific ensemble member
+            #if config.seed is not None, then we assume that the user is trying to regenerate a specific ensemble member
+            logger.info("Setting noise to zero for first ensemble member")
             noise[0, :, :, :, :] = 0
 
         # When field is not in known normalization dictionary set scale to 0
@@ -358,7 +390,9 @@ def run_inference(
     progress: bool = True,
     # TODO add type hints
     data_source: Any = None,
-    model_idx: int = 0
+    model_idx: int = 0, 
+    num_models: int = 1,
+    model_str: str = None,
 ):
     """Run an ensemble inference for a given config and a perturb function
 
@@ -367,6 +401,8 @@ def run_inference(
         progress: if True use tqdm to show a progress bar
         data_source: a Mapping object indexed by datetime and returning an
             xarray.Dataset object.
+        model_str: when the config specifies multicheckpoint, this specifies the 
+            name of the model that is currently run for this file
     """
     if not perturb:
         perturb = get_initializer(model, config)
@@ -394,9 +430,9 @@ def run_inference(
         n_ensemble = n_ensemble_global
 
     # Set random seed
-    seed = config.seed
-    torch.manual_seed(seed + (dist.rank//2))
-    np.random.seed(seed + (dist.rank//2))
+    #seed = config.seed + model_idx
+    #torch.manual_seed(seed + (dist.rank//2))
+    #np.random.seed(seed + (dist.rank//2))
 
     if config.output_dir:
         date_str = "{:%Y_%m_%d_%H_%M_%S}".format(date_obj)
@@ -420,8 +456,12 @@ def run_inference(
             f.write(config.json())
 
     group_rank = torch.distributed.get_group_rank(group, dist.rank)
-    group_size = len(torch.distributed.get_process_group_ranks(group))
-    output_file_path = os.path.join(output_path, f"ensemble_out_{group_rank + model_idx * group_size}.nc")
+    try:
+        group_size = len(torch.distributed.get_process_group_ranks(group))
+    except KeyError:
+        logger.warning("Assuming group size is 1")
+        group_size = 1
+    output_file_path = os.path.join(output_path, f"ensemble_out_{group_rank + model_idx * group_size:05d}.nc")
 
     with DS(output_file_path, "w", format="NETCDF4") as nc:
         # assign global attributes
@@ -432,6 +472,7 @@ def run_inference(
         nc.history = " ".join(sys.argv)
         nc.institution = "NVIDIA"
         nc.Conventions = "CF-1.10"
+        nc.model_str = str(model_str)
 
         run_ensembles(
             weather_event=weather_event,
@@ -446,6 +487,9 @@ def run_inference(
             batch_size=config.ensemble_batch_size,
             rank=dist.rank,
             date_obj=date_obj,
+            config_seed=config.seed,
+            config_subtract_perturbation=config.subtract_perturbation,
+            num_models=num_models,
             restart_frequency=config.restart_frequency,
             output_path=output_path,
             output_grid=(
@@ -454,7 +498,7 @@ def run_inference(
                 else None
             ),
             progress=progress,
-            model_idx=model_idx
+            model_idx=model_idx,
         )
     if torch.distributed.is_initialized():
         torch.distributed.barrier(group)
