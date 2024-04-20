@@ -24,6 +24,7 @@ import numpy as np
 
 from earth2mip.time_loop import TimeLoop
 from earth2mip import initial_conditions
+import os
 
 
 class GaussianRandomFieldS2(torch.nn.Module):
@@ -188,21 +189,13 @@ def brown_noise(shape, reddening=2):
 def generate_bred_vector_timeevolve(
     x: torch.Tensor,
     model: TimeLoop,
-    noise_amplitude: torch.Tensor,
     weather_event, 
     time: Union[datetime, None] = None,
     integration_steps: int = 3,
-    inflate=False,
 ) -> torch.Tensor:
     # Assume x has shape [ENSEMBLE, TIME, CHANNEL, LAT, LON]
 
-    if isinstance(noise_amplitude, float):
-        noise_amplitude = torch.tensor([noise_amplitude]).to(x.device) 
-    assert (noise_amplitude.shape[0] == x.shape[2]) or (  # noqa
-        torch.numel(noise_amplitude) == 1
-    )
-
-    optimization_target = _load_optimal_targets('sfno_linear_73chq_sc3_layers8_edim384_wstgl2', 48, model.channel_names).to(x.device).squeeze().to(torch.float32) * 0.35
+    optimization_target = _load_optimal_targets(48, model.channel_names).to(x.device).squeeze().to(torch.float32) * 0.35
     sampler = CorrelatedSphericalField(720, 500. * 1000, 48.0, 1.0, N=74).to(
         x.device
     )
@@ -243,9 +236,6 @@ def generate_bred_vector_timeevolve(
         if x2.ndim != x1.ndim:
             x2 = x2.unsqueeze(1)
         dx = x2 - xd
-
-        if inflate:
-            dx += noise_amplitude * (dx - dx.mean(dim=0)) * model.scale
 
         exaggerate_factor = hemispheric_rms(dx) / optimization_target[None, None, :, None]
         dx = dx / exaggerate_factor[:, :, :, : , None]
@@ -293,7 +283,7 @@ def generate_bred_vector(
     if xd.ndim != x0.ndim:
         xd = xd.unsqueeze(1)
 
-    optimization_target = _load_optimal_targets('sfno_linear_73chq_sc3_layers8_edim384_wstgl2', 6, model.channel_names).to(x.device).squeeze().to(torch.float32) 
+    optimization_target = _load_optimal_targets(6, model.channel_names).to(x.device).squeeze().to(torch.float32) 
     sampler = CorrelatedSphericalField(720, 50. * 1000, 48.0, 1.0, N=74).to(
         x.device
     )
@@ -389,9 +379,9 @@ def hemispheric_rms(tensor):
 
     return hemispheric_rmse[None, None] 
 
-def _load_optimal_targets(config_model_name, lead_time, channel_names):
-    from earth2mip import forecast_metrics_io
-    sfno = xr.open_dataset("/pscratch/sd/a/amahesh/hens/optimal_perturbation_targets/means/d2m_sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed16.nc")
+def _load_optimal_targets(lead_time, channel_names):
+    sfno = xr.open_dataset(os.environ['DETERMINISTIC_RMSE'])
+    #sfno = xr.open_dataset("/pscratch/sd/a/amahesh/hens/optimal_perturbation_targets/means/d2m_sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed16.nc")
     targets = []
     #return torch.from_numpy(sfno['value'].sel(channel=channel_names).sel(lead_time=lead_time).values[np.newaxis])
     for name in channel_names:
