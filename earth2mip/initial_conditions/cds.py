@@ -23,11 +23,11 @@ import shutil
 from concurrent.futures import ThreadPoolExecutor
 from typing import List, Optional, Union
 
-import eccodes
+#import eccodes
 import numpy as np
 import urllib3
 import xarray
-from cdsapi import Client
+#from cdsapi import Client
 
 import earth2mip.grid
 from earth2mip import config
@@ -103,9 +103,9 @@ def parse_channel(channel: str) -> Union[PressureLevelCode, SingleLevelCode]:
 @dataclasses.dataclass
 class DataSource:
     channel_names: List[str]
-    client: Client = dataclasses.field(
-        default_factory=lambda: Client(progress=False, quiet=False)
-    )
+    #client: Client = dataclasses.field(
+    #    default_factory=lambda: Client(progress=False, quiet=False)
+    #)
     _cache: Optional[str] = None
 
     @property

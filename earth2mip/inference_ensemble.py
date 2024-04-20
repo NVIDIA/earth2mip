@@ -98,7 +98,7 @@ def run_ensembles(
 
     regridder = regrid.get_regridder(model.grid, output_grid).to(model.device)
 
-    diagnostics = initialize_netcdf(nc, domains, output_grid, n_ensemble, model.device)
+    diagnostics = initialize_netcdf(nc, domains, output_grid, n_ensemble, model.device, n_steps)
     initial_time = date_obj
     time_units = initial_time.strftime("hours since %Y-%m-%d %H:%M:%S")
     nc["time"].units = time_units
@@ -247,6 +247,11 @@ def main(config=None):
                 "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed94",
                 "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed96",
                 "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed98",
+                #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed102",
+                #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed103",
+                #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed105",
+                #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed106",
+                #"sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed108",
             ] 
         dist = DistributedManager()
         for model_idx, model_name in enumerate(model_names):
@@ -327,17 +332,16 @@ def get_initializer(
             noise[0, :, :, :, :] = 0
 
         # When field is not in known normalization dictionary set scale to 0
-        scale = []
-        for i, channel in enumerate(model.in_channel_names):
-            if channel in channel_stds:
-                scale.append(channel_stds[channel])
-            else:
-                scale.append(0)
-        scale = torch.tensor(scale, device=x.device)
+        #scale = []
+        #for i, channel in enumerate(model.in_channel_names):
+        #    if channel in channel_stds:
+        #        scale.append(channel_stds[channel])
+        #    else:
+        #        scale.append(0)
+        #scale = torch.tensor(scale, device=x.device)
 
         if config.perturbation_channels is None:
-            #x += noise * scale[:, None, None]
-            return x + noise * scale[:, None, None]
+            return x + noise * model.scale
         else:
             channel_list = model.in_channel_names
             indices = torch.tensor(
@@ -461,7 +465,8 @@ def run_inference(
     except KeyError:
         logger.warning("Assuming group size is 1")
         group_size = 1
-    output_file_path = os.path.join(output_path, f"ensemble_out_{group_rank + model_idx * group_size:05d}.nc")
+    date_str = "{:%Y-%m-%d-%H-%M-%S}".format(date_obj)
+    output_file_path = os.path.join(output_path, f"ensemble_out_{group_rank + model_idx * group_size:05d}_{date_str}.nc")
 
     with DS(output_file_path, "w", format="NETCDF4") as nc:
         # assign global attributes

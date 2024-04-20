@@ -202,7 +202,7 @@ def generate_bred_vector_timeevolve(
         torch.numel(noise_amplitude) == 1
     )
 
-    optimization_target = _load_optimal_targets('sfno_linear_73chq_sc3_layers8_edim384_wstgl2', 48, model.channel_names).to(x.device).squeeze().to(torch.float32) * 0.33
+    optimization_target = _load_optimal_targets('sfno_linear_73chq_sc3_layers8_edim384_wstgl2', 48, model.channel_names).to(x.device).squeeze().to(torch.float32) * 0.35
     #optimization_target = 0.2 * torch.from_numpy(np.load("/pscratch/sd/p/pharring/74var-6hourly/staging/stats_fcndev/time_diff_stds.npy")).to(x.device).squeeze().to(torch.float32)
     #optimization_target = graphcast_weights(model.channel_names, model.scale, "deterministic rmse").to(x.device).squeeze().to(torch.float32)
     #time_means = torch.from_numpy(np.load("/pscratch/sd/p/pharring/74var-6hourly/staging/stats_fcndev/time_means.npy")).to(x.device).to(torch.float32)
@@ -216,7 +216,9 @@ def generate_bred_vector_timeevolve(
     dx = optimization_target[:, None, None] * correlated_random_noise
     #dx = model.scale * correlated_random_noise * 0.05
     #dx = (correlated_random_noise * 0.05) * x[0]
-    channel_idx = set(range(len(model.channel_names))) - set([model.channel_names.index('z500')])
+    #channel_idx = set(range(len(model.channel_names))) - set([model.channel_names.index('z500')])
+    channel_idx = list(range(len(model.channel_names)))
+    channel_idx.remove(model.channel_names.index('z500'))
     #channel_idx = []
     #for idx, channel in enumerate(model.channel_names):
     #    #if channel in ['q1000','q850']:
@@ -480,7 +482,7 @@ def graphcast_weights(channel_names, global_stds, loss_type='squared temp-std'):
             channel_weights[c] = 0.1
         elif chn in ["tcwv"]:
             channel_weights[c] = 0.3
-        elif chn in ["t2m", "2d"]:
+        elif chn in ["t2m", "2d", "d2m"]:
             channel_weights[c] = 1.0
         elif chn[0] in ["z", "u", "v", "t", "r", "q"]:
             pressure_level = float(chn[1:])
@@ -515,18 +517,19 @@ def graphcast_weights(channel_names, global_stds, loss_type='squared temp-std'):
 
 def _load_optimal_targets(config_model_name, lead_time, channel_names):
     from earth2mip import forecast_metrics_io
-    sfno = xr.open_dataset("/pscratch/sd/a/amahesh/hens/optimal_perturbation_targets/means/sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed16.nc")
+    sfno = xr.open_dataset("/pscratch/sd/a/amahesh/hens/optimal_perturbation_targets/means/d2m_sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed16.nc")
     targets = []
     #return torch.from_numpy(sfno['value'].sel(channel=channel_names).sel(lead_time=lead_time).values[np.newaxis])
     for name in channel_names:
-        if name[0] in ['u', 'v', 't', 'q', '2']:
+        if name[0] in ['u', 'v', 't', 'q', 'd', '2']:
             lead_time = lead_time
         else:
             lead_time = lead_time
-        if name == 'z50':
-            targets.append(sfno['value'].sel(channel='z100', lead_time=lead_time).values)
-        else:
-            targets.append(sfno['value'].sel(channel=name, lead_time=lead_time).values)
+        targets.append(sfno['value'].sel(channel=name, lead_time=lead_time).values)
+        #if name == 'z50':
+        #    targets.append(sfno['value'].sel(channel='z100', lead_time=lead_time).values)
+        #else:
+        #    targets.append(sfno['value'].sel(channel=name, lead_time=lead_time).values)
     return torch.Tensor(np.asarray(targets))[None]
 
 
@@ -730,7 +733,7 @@ class CorrelatedSphericalField(torch.nn.Module):
             noise = torch.cat([noise]*num_channels,dim=1)
             for idx, channel in enumerate(self.channel_names):
                 #if channel[0] in ['u', 'v', 't', 'q'] and channel[1:].isdigit():
-                if channel in ['2d'] or (channel[0] in ['q'] and channel[1:].isdigit() and int(channel[1:]) > 800):
+                if channel in ['2d', 'd2m'] or (channel[0] in ['q'] and channel[1:].isdigit() and int(channel[1:]) > 800):
                     #these channels will be perturbed
                     pass
                 else:

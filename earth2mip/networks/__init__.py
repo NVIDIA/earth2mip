@@ -161,8 +161,10 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         )
 
         self.model = model
-        self.model.train()
+        #self.model.train()
         self.channel_names = channel_names
+        if "2d" in self.channel_names:
+            self.channel_names[channel_names.index("2d")] = "d2m"
         try:
             self.grid = earth2mip.grid.from_enum(grid)
         except:
@@ -181,6 +183,9 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         self.channels = list(range(len(channel_names)))
         self.register_buffer("scale", scale[:, None, None])
         self.register_buffer("center", center[:, None, None])
+        self.all_models = []
+
+
 
     @property
     def n_history_levels(self) -> int:
@@ -242,20 +247,52 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
             yield time, self.scale * x[:, -1] + self.center, restart
             
             old = x.clone().detach()
+            idx = -1
             while True:
-                if self.source and model_perturb: 
+                idx += 1
+                if False and model_perturb and idx >= 4:
+                    raise NotImplementedError("STTP model perturbation is still under development")
+                    if len(self.all_models) == 0:
+                        model_names = [
+                                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed26",
+                                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed27",
+                                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed28",
+                                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed29",
+                                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed30",
+                                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed31",
+                                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed70",
+                                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed71",
+                                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed72",
+                                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed74",
+                                "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed76",
+                            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed12",
+                            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed16",
+                            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed17",
+                            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed18",
+                            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed77",
+                            "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed78",
+                        ]
+                        model_indices = np.random.choice(len(model_names),4,replace=False)
+                        for model_name in np.asarray(model_names)[model_indices]:
+                            self.all_models.append(get_model(model_name, device=x.device).model)
+                    rand_idx = np.random.choice(len(self.all_models))
+                    self.model = self.all_models[rand_idx]
+                    self.model = self.model.train()
+                if False and self.source and model_perturb: 
+                    raise NotImplementedError("Noise injection model perturbation is still under development")
+                    print('injecting noise injection')
                     x_with_units = x * self.scale + self.center
                     old_with_units = old * self.scale + self.center
                     dt = torch.tensor(self.time_step.total_seconds())
                     #x += self.source(x_with_units, time) / self.scale * dt
 
                     #Multiplicative perturbation
-                    x = x_with_units * self.source(x_with_units, time)
+                    #x = x_with_units * self.source(x_with_units, time)
 
                     #Multiplicative Tendency perturbation
-                    #tendency = x_with_units - old_with_units
-                    #tendency = tendency * self.source(x_with_units, time)
-                    #x = old_with_units + tendency
+                    tendency = x_with_units - old_with_units
+                    tendency = tendency * self.source(x_with_units, time)
+                    x = old_with_units + tendency
                     x = (x - self.center) / self.scale
                 old = x.clone().detach()
                 x = self.model(x, time)

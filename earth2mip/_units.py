@@ -72,5 +72,8 @@ units = {
       "q700" : 'kg kg**-1',
       "q850" : 'kg kg**-1',
       "q925" : "kg kg**-1",
-      "q1000" : "kg kg**-1"
+      "q1000" : "kg kg**-1",
+      "ivt" : "kg m**-1 s**-1",
+      "heat_index" : "K",
+      "wind_speed10m" : "m s**-1"
 }

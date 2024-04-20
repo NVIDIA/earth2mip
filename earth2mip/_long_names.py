@@ -72,5 +72,8 @@ long_names = {
       "q700" : 'specific humidity at 700 hPa',
       "q850" : 'specific humidity at 850 hPa',
       "q925" : "specific humidity at 925 hPa",
-      "q1000" : "specific humidity at 1000 hPa"
+      "q1000" : "specific humidity at 1000 hPa",
+      "ivt" : "integrated vapor transport",
+      "wind_speed10m" : "10m wind speed",
+      "heat_index" : "Heat Index combining surface relative humidity and temperature"
 }

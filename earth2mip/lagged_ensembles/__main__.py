@@ -143,8 +143,8 @@ def score(channel_names, grid: earth2mip.grid.LatLonGrid, ensemble, obs: np.ndar
     ensemble_xr = xarray.DataArray(
         data=np.asarray(ens), dims=["ensemble", "time", *obs.dims]
     )
-    ensemble_xr = ensemble_xr.chunk(lat=32)
-    obs = obs.chunk(lat=32)
+    ensemble_xr = ensemble_xr.chunk(lat=16)
+    obs = obs.chunk(lat=16)
     # need to chunk to avoid OOMs
     with metrics.properscoring_with_cupy():
         out = metrics.score_ensemble(
@@ -267,5 +267,8 @@ def parse_args():
 
 
 if __name__ == "__main__":
+    from timeit import default_timer
+    start = default_timer()
     args = parse_args()
     main(args)
+    print("Total Time: {}".format(default_timer() - start))
