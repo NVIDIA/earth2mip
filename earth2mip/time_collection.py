@@ -42,7 +42,7 @@ WD = os.getcwd()
 
 
 def get_distributed_client(rank, shard):
-    scheduler_file = "/pscratch/sd/a/amahesh/scheduler_{:04d}_2.json".format(shard)
+    scheduler_file = "/pscratch/sd/a/amahesh/scheduler_{:04d}.json".format(shard)
     if rank == 0:
         client = Client(n_workers=32, threads_per_worker=1)
         client.write_scheduler_file(scheduler_file)
@@ -163,9 +163,6 @@ def main(
                 model_names = random.sample(model_names, 6)
             for model_idx, model_name in enumerate(model_names):            
                 model = networks.get_model(model_name, device=dist.device)                
-                #sampler = CorrelatedSphericalField(720, 750 * 1000, 6.0, 0.2, channel_names=model.channel_names).to(model.device)
-                #if dist.rank != 0:
-                #    model.source = sampler 
                 logging.info("Constructing initializer data source")        
                 perturb = inference_ensemble.get_initializer(                                  
                     model,                                                  
