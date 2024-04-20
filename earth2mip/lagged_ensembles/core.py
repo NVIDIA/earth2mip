@@ -59,7 +59,7 @@ async def yield_lagged_ensembles(
         obs_buffer.append(await observations[i])
 
     n_iter = int(nt // world_size)
-    assert nt % world_size == 0  # noqa
+    assert nt % world_size == 0, "{}".format(nt)  # noqa
 
     buffers = None
 

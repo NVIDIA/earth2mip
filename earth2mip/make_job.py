@@ -47,11 +47,24 @@ def get_time_s2s_calibration():
             time = datetime.datetime.fromisoformat(line)
             yield time
 
+def get_times_mclimate():
+    start_date = datetime.datetime(1999, 1, 1)
+    end_date = datetime.datetime(2023, 1, 1)
+
+    dates = []
+    current_date = start_date
+    while current_date < end_date:
+        if current_date.weekday() == 0 or current_date.weekday() == 3:  # Monday or Thursday
+            dates.append(current_date)
+        current_date += datetime.timedelta(days=1)
+
+    return dates
 
 get_times = {
     "2018": get_times_2018,
     "s2s_test": get_times_s2s_test,
     "s2s_calibration": get_time_s2s_calibration,
+    "mclimate" : get_times_mclimate,
 }
 
 

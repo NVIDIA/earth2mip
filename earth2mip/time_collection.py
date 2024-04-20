@@ -60,6 +60,7 @@ def main(
     root: str,
     shard: int = 0,
     n_shards: int = 1,
+    select_six_random_checkpoints: bool = False,
 ):
     """
     Args:
@@ -67,6 +68,8 @@ def main(
         shard: index of the shard
         n_shards: split the input times into this many shards
     """
+    import random
+    random.seed(shard)
     assert shard < n_shards  # noqa
 
     time = datetime.datetime(1, 1, 1)
@@ -155,6 +158,9 @@ def main(
                 "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed96",
                 "sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed98",
             ]
+            if select_six_random_checkpoints:
+                logger.info("Selecting 6 random models")
+                model_names = random.sample(model_names, 6)
             for model_idx, model_name in enumerate(model_names):            
                 model = networks.get_model(model_name, device=dist.device)                
                 #sampler = CorrelatedSphericalField(720, 750 * 1000, 6.0, 0.2, channel_names=model.channel_names).to(model.device)

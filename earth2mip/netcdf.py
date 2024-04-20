@@ -107,10 +107,10 @@ def init_dimensions(domain: Domain, group, grid: earth2mip.grid.LatLonGrid):
 
 
 def initialize_netcdf(
-    nc, domains: Iterable[Domain], grid: earth2mip.grid.LatLonGrid, n_ensemble, device
+    nc, domains: Iterable[Domain], grid: earth2mip.grid.LatLonGrid, n_ensemble, device, n_steps
 ) -> List[List[Diagnostics]]:
     nc.createVLType(str, "vls")
-    nc.createDimension("time", None)
+    nc.createDimension("time", n_steps+1)
     nc.createDimension("ensemble", n_ensemble)
     nc.createVariable("time", np.float32, ("time"))
     nc.createVariable("seed", np.int32, ("ensemble"))

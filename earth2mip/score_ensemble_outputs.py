@@ -55,8 +55,8 @@ def open_verification(time):
 
 
 def read_weather_event(dir):
-    ncfile = os.path.join(dir, "ensemble_out_00000.nc")
-    ds = xarray.open_dataset(ncfile)
+    ncfile = os.path.join(dir, "ensemble_out_00000_*.nc")
+    ds = xarray.open_mfdataset(ncfile)
     weather_event = weather_events.WeatherEvent.parse_raw(ds.weather_event)
     return weather_event
 
@@ -131,10 +131,17 @@ def main(
             )
             save_dataset(crps, os.path.join(output_path, "crps"))
 
+            rhist = xskillscore.rank_histogram(
+                    verification.sel(lat=slice(70,-70)),
+                    ds.chunk(dict(ensemble=-1)).sel(lat=slice(70,-70)),
+                    member_dim='ensemble',
+                    dim=('lat', 'lon')
+            )
+            save_dataset(rhist, os.path.join(output_path, "rank_histogram"))
+
         if save_ensemble:
             logger.info("Saving ensemble")
             save_dataset(ds, os.path.join(output_path, "ensemble"))
-
     return
 
 
