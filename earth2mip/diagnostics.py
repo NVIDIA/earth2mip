@@ -27,6 +27,7 @@ from earth2mip.weather_events import CWBDomain, MultiPoint, Window
 from earth2mip._units import units
 from earth2mip._long_names import long_names
 import xarray
+import os
 
 
 class Diagnostics:
@@ -282,7 +283,8 @@ class HeatIndex(Diagnostics):
     ):
         super().__init__(group, domain, grid, diagnostic, lat, lon, device)
         self.diagnostic.channels = ["t2m", "d2m"]
-        lookup_table = xarray.open_zarr("/pscratch/sd/a/amahesh/hens/heat_index_lookup.zarr")
+        #lookup_table = xarray.open_zarr("/pscratch/sd/a/amahesh/hens/highres_heat_index_lookup.zarr")
+        lookup_table = xarray.open_zarr(os.environ["HEAT_INDEX_LOOKUP_TABLE"])
         self.lookup_table = torch.tensor(lookup_table['heat_index'].values, device=device)
         self.t2m_keys = torch.tensor(lookup_table['Ta'].values, device=device)
         self.rh2m_keys = torch.tensor(lookup_table['Rh'].values, device=device)
