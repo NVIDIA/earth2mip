@@ -224,7 +224,7 @@ def generate_bred_vector_timeevolve(
         x0 = initial_conditions.get_initial_condition_for_model(model, data_source, date_obj - (timedelta(hours=6*step)))
 
         # Get control forecast
-        for k, (_, data, _) in enumerate(model(time, x0, model_perturb=False)):
+        for k, (_, data, _) in enumerate(model(time, x0)):
             xd = data
             if k == 1:
                 break
@@ -234,7 +234,7 @@ def generate_bred_vector_timeevolve(
             xd = xd.unsqueeze(1)
 
         x1 = x0 + dx
-        for k, (_, data, _) in enumerate(model(time, x1, model_perturb=False)):
+        for k, (_, data, _) in enumerate(model(time, x1)):
             x2 = data
             if k == 1:
                 break
@@ -284,7 +284,7 @@ def generate_bred_vector(
     x0 = x[:1]
 
     # Get control forecast
-    for k, (_, data, _) in enumerate(model(time, x0, model_perturb=False)):
+    for k, (_, data, _) in enumerate(model(time, x0)):
         xd = data
         if k == 1:
             break
@@ -304,7 +304,7 @@ def generate_bred_vector(
     dx[:, :, list(channel_idx), : 721, : 1440] = 0
     for _ in range(integration_steps):
         x1 = x + dx
-        for k, (_, data, _) in enumerate(model(time, x1, model_perturb=False)):
+        for k, (_, data, _) in enumerate(model(time, x1)):
             x2 = data
             if k == 1:
                 break
