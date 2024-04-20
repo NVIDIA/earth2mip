@@ -313,7 +313,6 @@ def get_initializer(
             noise = generate_bred_vector_timeevolve(
                 x,
                 model,
-                config.noise_amplitude,
                 time=config.weather_event.properties.start_time,
                 weather_event=config.get_weather_event()
             )
