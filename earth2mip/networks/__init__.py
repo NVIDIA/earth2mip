@@ -161,8 +161,10 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
         )
 
         self.model = model
-        #self.model.train()
         self.channel_names = channel_names
+
+        #The models were trained with 2d as the name for 2m dewpoint
+        #This name has been changed with d2m to align with netcdf conventions
         if "2d" in self.channel_names:
             self.channel_names[channel_names.index("2d")] = "d2m"
         try:
