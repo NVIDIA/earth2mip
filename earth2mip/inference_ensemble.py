@@ -39,7 +39,6 @@ __all__ = ["run_inference"]
 # GLIBC version conflict when importing xarray. There are some unfortunate
 # issues with the environment.
 from earth2mip import initial_conditions, regrid, time_loop
-from earth2mip._channel_stds import channel_stds
 from earth2mip.ensemble_utils import (
     generate_bred_vector,
     generate_bred_vector_timeevolve,
@@ -256,8 +255,6 @@ def main(config=None):
         dist = DistributedManager()
         for model_idx, model_name in enumerate(model_names):
             model = get_model(model_name, device=device)
-            #sampler = CorrelatedSphericalField(720, 500 * 1000, 6.0, 0.006, channel_names=model.channel_names).to(model.device)
-            #model.source = sampler
             logging.info("Constructing initializer data source")
             perturb = get_initializer(
                 model,
@@ -320,7 +317,6 @@ def get_initializer(
                 time=config.weather_event.properties.start_time,
                 weather_event=config.get_weather_event()
             )
-            #if rank % 2 == 1:
             if subtract_perturbation:
                 noise *= -1
         elif config.perturbation_strategy == PerturbationStrategy.none:
@@ -331,18 +327,10 @@ def get_initializer(
             logger.info("Setting noise to zero for first ensemble member")
             noise[0, :, :, :, :] = 0
 
-        # When field is not in known normalization dictionary set scale to 0
-        #scale = []
-        #for i, channel in enumerate(model.in_channel_names):
-        #    if channel in channel_stds:
-        #        scale.append(channel_stds[channel])
-        #    else:
-        #        scale.append(0)
-        #scale = torch.tensor(scale, device=x.device)
-
         if config.perturbation_channels is None:
             return x + noise * model.scale
         else:
+            raise NotImplementedError("Perturbation channels not implemented")
             channel_list = model.in_channel_names
             indices = torch.tensor(
                 [
@@ -352,7 +340,7 @@ def get_initializer(
                 ]
             )
             x[:, :, indices, :, :] += (
-                noise[:, :, indices, :, :] * scale[indices, None, None]
+                noise[:, :, indices, :, :] * model.scale.squeeze()[indices, None, None]
             )
         return x
 
@@ -432,11 +420,6 @@ def run_inference(
     if n_ensemble == 0:
         logger.warning("World size is larger than global number of ensembles.")
         n_ensemble = n_ensemble_global
-
-    # Set random seed
-    #seed = config.seed + model_idx
-    #torch.manual_seed(seed + (dist.rank//2))
-    #np.random.seed(seed + (dist.rank//2))
 
     if config.output_dir:
         date_str = "{:%Y_%m_%d_%H_%M_%S}".format(date_obj)
