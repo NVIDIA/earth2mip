@@ -8,7 +8,7 @@
 #SBATCH -t 01:30:00
 #SBATCH -A m4416
 #SBATCH -o summer23_logs/hens-%j_%A_%a.out
-#SBATCH --array=0-1%2
+#SBATCH --array=0-91%2
 #SBATCH --mail-type=ARRAY_TASKS 
 
 # Define the start and end dates for summer 2023
