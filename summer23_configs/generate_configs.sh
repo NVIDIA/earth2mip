@@ -5,7 +5,7 @@ sample_config=$(<sample_config)
 
 # Define the start and end dates for summer 2023
 start_date="2023-06-01T00:00:00"
-end_date="2023-08-31T00:00:00"
+end_date="2023-09-01T00:00:00"
 
 # Define the output directory
 output_dir="./configs"
