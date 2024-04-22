@@ -185,7 +185,7 @@ def main(
             ds = ds[variables]
             verification = verification[variables]
 
-            for percentile in [0.95]: #, 0.99]:
+            for percentile in [0.99]: #, 0.99]:
                 output_path_percentile = os.path.join(
                     output_path, f"percentile_{percentile}/"
                 )

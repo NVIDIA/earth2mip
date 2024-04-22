@@ -4,6 +4,10 @@ from xhistogram.xarray import histogram
 import earth2mip.time
 
 
+import logging
+logger = logging.getLogger(__file__)
+
+
 def set_threshold(variables, times, percentile, extreme_scoring, align_ds, window=""):
     """
     loads the appropriate threshold (at a given percentile value and
@@ -26,6 +30,7 @@ def set_threshold(variables, times, percentile, extreme_scoring, align_ds, windo
         ["t2m"] #, "tcwv", "wind_speed10m")
     ), "Extreme event validation is only implemented for t2m. These variables are included: {}".format(variables)
     if window == 'D':
+        print("Loading the {}th percentile of the daily mean temperatures".format(percentile_str))
         #Load the Xth percentile of daily mean temperatures
         initial_condition = times[0]
         ds = xarray.open_dataset(
@@ -40,6 +45,7 @@ def set_threshold(variables, times, percentile, extreme_scoring, align_ds, windo
         return ds[variables].load()
     else:
         #Load the Xth percentile of each month of each day
+        print("Loading the {}th percentile of each month+hour".format(percentile_str))
         thresholds = []
         for curr_time in times:
             curr_time_dt = earth2mip.time.convert_to_datetime(curr_time)

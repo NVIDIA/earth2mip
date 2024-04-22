@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the base command template
-command_template="shifter --image=amahesh19/modulus-makani:0.1.0-torch_patch-23.11-multicheckpoint --module=gpu,nccl-2.18 bash -c \"source set_74ch_vars.sh; python -u -m earth2mip.score_extreme_diagnostics --output_path /pscratch/sd/a/amahesh/hens/time_collection/bred_29multicheckpoint_pert0p35_k1i3_500km_oppositepert_detfix_nodpr_timeevolve_hemisphererescale_target48_20minus20_newseed_repeat_qperturbfix_rankhist/%s/extreme_stats/ --input_path /pscratch/sd/a/amahesh/hens/time_collection/bred_29multicheckpoint_pert0p35_k1i3_500km_oppositepert_detfix_nodpr_timeevolve_hemisphererescale_target48_20minus20_newseed_repeat_qperturbfix_rankhist/%s/ --extreme_scoring /pscratch/sd/a/amahesh/hens/thresholds/\""
+command_template="shifter --image=amahesh19/modulus-makani:0.1.0-torch_patch-23.11-multicheckpoint --module=gpu,nccl-2.18 bash -c \"source set_74ch_vars.sh; python -u -m earth2mip.score_extreme_diagnostics --output_path /pscratch/sd/a/amahesh/hens/time_collection/bred_29multicheckpoint_pert0p35_k1i3_500km_oppositepert_detfix_nodpr_timeevolve_hemisphererescale_target48_20minus20_newseed_repeat_qperturbfix_rankhist_qmin0/%s/extreme_stats/ --input_path /pscratch/sd/a/amahesh/hens/time_collection/bred_29multicheckpoint_pert0p35_k1i3_500km_oppositepert_detfix_nodpr_timeevolve_hemisphererescale_target48_20minus20_newseed_repeat_qperturbfix_rankhist_qmin0/%s/ --extreme_scoring /pscratch/sd/a/amahesh/hens/thresholds/\""
 
 dates=(
 "2018-01-02T00:00:00" "2018-02-20T00:00:00" "2018-04-10T00:00:00" "2018-05-29T00:00:00"
