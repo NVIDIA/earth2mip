@@ -1,0 +1,41 @@
+{
+    "inference_template": {
+        "ensemble_members": 2,
+        "simulation_length": 60,
+        "weather_event": {
+            "properties": {
+                "name": "global",
+                "start_time": "2018-01-01T00:00:00"
+            },
+            "domains": [
+                {
+                    "name": "global",
+                    "type": "Window",
+                    "diagnostics": [
+                        {
+                            "type": "raw",
+                            "channels": [
+                                "t2m"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        "output_path": "dummy/output",
+        "output_frequency": 1,
+        "weather_model": "dummy_model",
+        "use_cuda_graphs": false,
+        "ensemble_batch_size": 1,
+        "autocast_fp16": false,
+        "perturbation_strategy": "bred_vector_timeevolve",
+        "noise_amplitude": 0.01,
+        "noise_reddening": 2,
+        "grf_noise_alpha": 2.0,
+        "grf_noise_sigma": 5.0,
+        "grf_noise_tau": 2.0
+    },
+    "score": false,
+    "save_ensemble" : true, 
+    "times": "mclimate"
+}
