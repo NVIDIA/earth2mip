@@ -238,8 +238,15 @@ def generate_bred_vector_timeevolve(
         exaggerate_factor = hemispheric_rms(dx) / optimization_target[None, None, :, None]
         dx = dx / exaggerate_factor[:, :, :, : , None]
 
+        #Experimental TODO: does setting 50hPa perturbations to 0 improve performance?
         #dx = set_50hPa_to_0(dx, model.channel_names)
-        
+    
+    # Set dx such that q and tcwv variables in x (the initial condition) are always positive
+    for i, name in enumerate(model.channel_names):
+        if name[0] == 'q' or name == 'tcwv':
+            min_dx = -x[:, i]
+            dx[:, i] = torch.where(dx[:, i] < min_dx, min_dx, dx[:, i])
+
     return dx / model.scale
 
 def set_50hPa_to_0(dx, channel_names):
@@ -379,15 +386,13 @@ def hemispheric_rms(tensor):
 
 def _load_optimal_targets(lead_time, channel_names):
     sfno = xr.open_dataset(os.environ['DETERMINISTIC_RMSE'])
-    #sfno = xr.open_dataset("/pscratch/sd/a/amahesh/hens/optimal_perturbation_targets/means/d2m_sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed16.nc")
+    #the environment variable above should point to a path such as
+    #"/pscratch/sd/a/amahesh/hens/optimal_perturbation_targets/means/d2m_sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed16.nc")
+    #this data includes the deterministic RMSE of the model for each channel
     targets = []
     #return torch.from_numpy(sfno['value'].sel(channel=channel_names).sel(lead_time=lead_time).values[np.newaxis])
     for name in channel_names:
         targets.append(sfno['value'].sel(channel=name, lead_time=lead_time).values)
-        #if name == 'z50':
-        #    targets.append(sfno['value'].sel(channel='z100', lead_time=lead_time).values)
-        #else:
-        #    targets.append(sfno['value'].sel(channel=name, lead_time=lead_time).values)
     return torch.Tensor(np.asarray(targets))[None]
 
 class CorrelatedSphericalField(torch.nn.Module):
