@@ -1,0 +1,46 @@
+{
+    "ensemble_members": 256,
+    "noise_amplitude": 0.01,
+    "simulation_length": 60,
+    "weather_event": {
+        "properties": {
+            "name": "Globe",
+            "start_time": "2023-08-29 00:00:00",
+            "initial_condition_source": "era5"
+        },
+        "domains": [
+            {
+                "name": "global",
+                "type": "Window",
+                "diagnostics": [{"type": "raw", "channels": ["t2m", "d2m", "tcwv", "t850", "z500", "z300", "msl", "t500", "sp"]},
+                {
+                    "type": "ivt",
+                    "channels": [
+                        "ivt"
+                    ]
+                },
+                {
+                    "type": "heat_index",
+                    "channels": [
+                        "t2m", "d2m"
+                    ]
+                },
+                {
+                    "type": "wind_speed10m",
+                    "channels": [
+                        "u10m", "v10m"
+                    ]
+                }]
+            }
+        ]
+    },
+    "output_path": "/pscratch/sd/a/amahesh/hens/HENS_summer23_20230829T000000//",
+    "output_frequency": 1,
+    "weather_model": "multicheckpoint",
+    "use_cuda_graphs": false,
+    "ensemble_batch_size": 1,
+    "autocast_fp16": false,
+    "perturbation_strategy": "bred_vector_timeevolve",
+    "grf_noise_sigma" : 10, 
+    "noise_reddening": 2.0
+}
