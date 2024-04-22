@@ -241,12 +241,6 @@ def generate_bred_vector_timeevolve(
         #Experimental TODO: does setting 50hPa perturbations to 0 improve performance?
         #dx = set_50hPa_to_0(dx, model.channel_names)
     
-    # Set dx such that q and tcwv variables in x (the initial condition) are always positive
-    for i, name in enumerate(model.channel_names):
-        if name[0] == 'q' or name == 'tcwv':
-            min_dx = -x[:, i]
-            dx[:, i] = torch.where(dx[:, i] < min_dx, min_dx, dx[:, i])
-
     return dx / model.scale
 
 def set_50hPa_to_0(dx, channel_names):

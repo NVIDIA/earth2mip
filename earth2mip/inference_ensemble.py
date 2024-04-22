@@ -327,7 +327,14 @@ def get_initializer(
             noise[0, :, :, :, :] = 0
 
         if config.perturbation_channels is None:
-            return x + noise * model.scale
+            perturbed = x + noise * model.scale
+            # Ensure that the perturbed values are non-negative for q and tcwv
+            # Note that this fix cannot be in the ensemble_utils.py file as that code
+            #is agnostic to whether or not the perturbation is subtracted or added
+            for i, name in enumerate(model.channel_names):
+                if name[0] == 'q' or name == 'tcwv':
+                    perturbed[:, :, i] = torch.where(perturbed[:, :, i] < 0, 0, perturbed[:, :, i])
+            return perturbed
         else:
             raise NotImplementedError("Perturbation channels not implemented")
             channel_list = model.in_channel_names
