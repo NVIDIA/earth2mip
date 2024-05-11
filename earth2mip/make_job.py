@@ -30,6 +30,21 @@ def get_times_2018():
     ]
     return times
 
+def get_times_summer2023():
+    nsteps = 92
+    times = [
+        datetime.datetime(2023, 6, 1) + k * datetime.timedelta(hours=24)
+        for k in range(nsteps)
+    ]
+    return times
+
+def get_times_2020():
+    nsteps = 366
+    times = [
+        datetime.datetime(2020, 1, 1) + k * datetime.timedelta(hours=24)
+        for k in range(nsteps)
+    ]
+    return times
 
 def get_times_s2s_test():
     time = datetime.datetime(2020, 1, 2)
@@ -61,10 +76,12 @@ def get_times_mclimate():
     return dates
 
 get_times = {
+    "2020" : get_times_2020,
     "2018": get_times_2018,
     "s2s_test": get_times_s2s_test,
     "s2s_calibration": get_time_s2s_calibration,
     "mclimate" : get_times_mclimate,
+    "summer2023" : get_times_summer2023
 }
 
 

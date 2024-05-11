@@ -46,30 +46,57 @@ def open_ensemble_OLD(path, group):
     return ds.chunk({"ensemble": min(ens_size, 52)})
 
 
+def nearest_number(num, number_set):
+    filtered_set = [x for x in number_set if x <= num]
+    if not filtered_set:
+        return None
+    return min(filtered_set, key=lambda x: abs(x - num))
+
 def open_ifs(time):
-    ds = xarray.open_zarr('gs://weatherbench2/datasets/ifs_ens/2018-2022-1440x721.zarr')
-    subset = ds[['2m_temperature']].sel(time=time)
-    subset = subset.rename({'latitude' : 'lat',
-                    'longitude' : 'lon',
-                    'time' : 'initial_time',
-                    'number' : 'ensemble'})
-    subset['prediction_timedelta'] = subset['prediction_timedelta'] + subset['initial_time']
-    subset = subset.rename({'prediction_timedelta' : 'time',
-                            '2m_temperature' : 't2m'})
-    return subset.chunk({"time": 1,
-                         "lat": 721,
-                         "lon": 1440})
+    if time[:4] == '2023':
+        start_days = np.array([1, 4, 7, 10, 13, 16, 19, 22, 25, 28])
+        from datetime import datetime
+        time_obj = datetime.fromisoformat(time)
+        nearest = nearest_number(time_obj.day, start_days)
+        ds = xarray.open_dataset("/pscratch/sd/a/amahesh/tigge/d2m_t2m_summer23/sfc/sfcvars__ens_2023_{:02d}_{:02d}_raw.grib".format(time_obj.month, nearest))
+        subset = ds.sel(time=time)
+        subset['step'] = subset['time'] + subset['step']
+        subset = subset.rename({'time' : 'initial_time'}).rename({
+                                'step' : 'time',
+                                'latitude' : 'lat',
+                                'longitude' : 'lon',
+                                'number' : 'ensemble'})
+        return subset[['t2m']]
+    else:
+        ds = xarray.open_zarr('gs://weatherbench2/datasets/ifs_ens/2018-2022-1440x721.zarr')
+        subset = ds[['2m_temperature']].sel(time=time)
+        subset = subset.rename({'latitude' : 'lat',
+                        'longitude' : 'lon',
+                        'time' : 'initial_time',
+                        'number' : 'ensemble'})
+        subset['prediction_timedelta'] = subset['prediction_timedelta'] + subset['initial_time']
+        subset = subset.rename({'prediction_timedelta' : 'time',
+                                '2m_temperature' : 't2m'})
+        return subset.chunk({"time": 1,
+                             "lat": 721,
+                             "lon": 1440})
 
 
-def open_operational_analysis():
-    ds = xarray.open_zarr('gs://weatherbench2/datasets/hres_t0/2016-2022-6h-1440x721.zarr')
-    subset = ds[['2m_temperature']]
-    subset = subset.rename({'latitude' : 'lat',
-                    'longitude' : 'lon'})
-    subset = subset.rename({'2m_temperature' : 't2m'})
-    return subset.chunk({"time": 1,
-                         "lat": 721,
-                         "lon": 1440})
+def open_operational_analysis(time):
+    if time.year == 2023:
+        ds = xarray.open_dataset("/pscratch/sd/a/amahesh/tigge/analysis/ifs_analysis-2023-{:02d}.grib".format(time.month))
+        ds = ds.rename({'latitude' : 'lat',
+                        'longitude' : 'lon'})
+        return ds[['t2m']]
+    else:
+        ds = xarray.open_zarr('gs://weatherbench2/datasets/hres_t0/2016-2022-6h-1440x721.zarr')
+        subset = ds[['2m_temperature']]
+        subset = subset.rename({'latitude' : 'lat',
+                        'longitude' : 'lon'})
+        subset = subset.rename({'2m_temperature' : 't2m'})
+        return subset.chunk({"time": 1,
+                             "lat": 721,
+                             "lon": 1440})
 
 def open_verification(time):
     v = hdf5.open_xarray(time)
@@ -141,7 +168,7 @@ def main(
             logger.info("Scoring")
             date_obj = earth2mip.time.convert_to_datetime(ds.time[0])
             if ifs:
-                v = open_operational_analysis()
+                v = open_operational_analysis(date_obj)
             else:
                 v = open_verification(date_obj)
             shared = set(v) & set(ds)
@@ -347,44 +374,45 @@ def main(
                 if efi_path is None:
                     continue
                 # EFI
-                efi = compute_efi(ds, date_obj, efi_path)
-                efi.attrs = ds.attrs
-                save_dataset(efi, os.path.join(output_path_percentile, "efi"))
+                for mode in ['mean']: #, 'max']:
+                    efi = compute_efi(ds, date_obj, efi_path, mode, ifs)
+                    efi.attrs = ds.attrs
+                    save_dataset(efi, os.path.join(output_path_percentile, "efi"))
 
-                # EFI ROC
-                # ECMWF calculates EFI over daily extremes always
-                daily_threshold = set_threshold(
-                    list(ds.keys()),
-                    date_obj,
-                    percentile,
-                    extreme_scoring,
-                    ds['lat'],
-                    window='D',
-                )
-                daily_thresholded_verification = xarray.where(
-                    verification > daily_threshold, 1, 0
-                ).sel(time=efi["time"])
-                save_dataset(
-                    daily_thresholded_verification,
-                    os.path.join(
-                        output_path_percentile, "daily_thresholded_verification"
-                    ),
-                )
-                logger.info("Scoring efi roc")
-                efi = efi.load()
-                for var in list(ds.keys()):
-                    efi_roc = xskillscore.roc(
-                        daily_thresholded_verification[var],
-                        xarray.where(efi[var] < 0, 0, efi[var]),
-                        bin_edges=np.linspace(0, 1, 11),
-                        dim=("lat", "lon"),
-                        return_results="all_as_metric_dim",
+                    # EFI ROC
+                    # ECMWF calculates EFI over daily extremes always
+                    daily_threshold = set_threshold(
+                        list(ds.keys()),
+                        efi['time'],
+                        percentile,
+                        extreme_scoring,
+                        efi,
+                        window='D',
                     )
-                    efi_roc.attrs = ds.attrs
+                    daily_thresholded_verification = xarray.where(
+                        verification.resample(time='D').mean() > daily_threshold, 1, 0
+                    ).sel(time=efi["time"])
                     save_dataset(
-                        efi_roc.to_dataset(),
-                        os.path.join(output_path_percentile, f"{var}_efi_roc"),
+                        daily_thresholded_verification,
+                        os.path.join(
+                            output_path_percentile, "daily_thresholded_verification"
+                        ),
                     )
+                    logger.info("Scoring efi roc")
+                    efi = efi.load()
+                    for var in list(ds.keys()):
+                        efi_roc = xskillscore.roc(
+                            daily_thresholded_verification[var],
+                            xarray.where(efi[var] < 0, 0, efi[var]),
+                            bin_edges=np.linspace(0, 1, 11),
+                            dim=("lat", "lon"),
+                            return_results="all_as_metric_dim",
+                        )
+                        efi_roc.attrs = ds.attrs
+                        save_dataset(
+                            efi_roc.to_dataset(),
+                            os.path.join(output_path_percentile, f"{var}_efi_roc"),
+                        )
 
         if save_ensemble:
             logger.info("Saving ensemble")

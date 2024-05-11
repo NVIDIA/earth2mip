@@ -41,8 +41,8 @@ logger = logging.getLogger(__file__)
 WD = os.getcwd()
 
 
-def get_distributed_client(rank, shard):
-    scheduler_file = "/pscratch/sd/a/amahesh/scheduler_{:04d}.json".format(shard)
+def get_distributed_client(rank, shard, root):
+    scheduler_file = "{}/scheduler_{:04d}.json".format(root, shard)
     if rank == 0:
         client = Client(n_workers=32, threads_per_worker=1)
         client.write_scheduler_file(scheduler_file)
@@ -109,7 +109,7 @@ def main(
         lines = lines[time_rank::n_time_groups]
 
     # setup dask client for post processing
-    client = get_distributed_client(dist.rank, shard)
+    client = get_distributed_client(dist.rank, shard, root)
     post_process_task = None
 
     count = 0
@@ -173,11 +173,12 @@ def main(
                 run.output_path = d
                 inference_ensemble.run_inference(model, run, perturb=perturb, group=group, model_idx=model_idx, num_models=len(model_names))
         else:
-            #model = networks.get_model(config["model"], device=dist.device)
+            model = networks.get_model(config["model"], device=dist.device)
             perturb = inference_ensemble.get_initializer(
                 model,
                 run,
             )
+            logging.info("Running inference")                           
             run.weather_event.properties.start_time = initial_time
             run.output_path = d
             inference_ensemble.run_inference(

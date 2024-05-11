@@ -32,17 +32,38 @@ def set_threshold(variables, times, percentile, extreme_scoring, align_ds, windo
     if window == 'D':
         print("Loading the {}th percentile of the daily mean temperatures".format(percentile_str))
         #Load the Xth percentile of daily mean temperatures
-        initial_condition = times[0]
-        ds = xarray.open_dataset(
-            "{}/percentile_{}/{}/{:02d}/wind_tcwv_t2m_percentile_{}.zarr".format(
-                extreme_scoring,
-                percentile_str,
-                window,
-                initial_condition.month,
-                percentile_str,
+        #initial_condition = earth2mip.time.convert_to_datetime(times[0])
+        #ds = xarray.open_dataset(
+        #    "{}/percentile_{}/{}/{:02d}/wind_tcwv_t2m_percentile_{}.zarr".format(
+        #        "/global/cfs/cdirs/m4416/",
+        #        percentile_str,
+        #        window,
+        #        initial_condition.month,
+        #        percentile_str,
+        #    )
+        #)
+        #print(initial_condition.month)
+        #return ds[variables].load()
+        thresholds = []
+        for curr_time in times:
+            curr_time_dt = earth2mip.time.convert_to_datetime(curr_time)
+            ds = xarray.open_zarr(
+                "{}/t2m_percentile{}_{:02d}_dailymean.zarr".format(
+                    extreme_scoring.replace('thresholds', 'thresholds_daily'),
+                    percentile_str,
+                    curr_time_dt.month,
+                )
             )
-        )
-        return ds[variables].load()
+            print(curr_time_dt.month)
+            thresholds.append(ds)
+        
+        retval = xarray.concat(thresholds, dim=times).rename({'latitude' : 'lat', 'longitude' : 'lon',
+                                                            'VAR_2T' : 't2m'})[['t2m']]
+        _, retval = xarray.align(align_ds, retval)
+        return retval.chunk({'time': 1,
+               'lat': 721,
+               'lon': 1440})
+
     else:
         #Load the Xth percentile of each month of each day
         print("Loading the {}th percentile of each month+hour".format(percentile_str))
@@ -172,7 +193,7 @@ def compute_log_score(truth, preds, percentile_threshold):
     #return weighted_log_score
 
 
-def compute_efi(preds, initial_condition, efi_path):
+def compute_efi(preds, initial_condition, efi_path, mode, ifs=False):
     """
     Compute the extreme forecast index: the distance between
     the ensemble distribution at the current lead time and
@@ -187,14 +208,28 @@ def compute_efi(preds, initial_condition, efi_path):
         initial condition  : the datetime of the initial condition
         path               : the path to the location of the precomputed
                              model climate percentiles
+        mode               : mean or max
 
 
     """
+    if ifs:
+        print("Loading in IFS EFI")
+        ifs_efi = xarray.open_dataset("/pscratch/sd/a/amahesh/ifs_efi/grid_025/efi_{:04d}_{:02d}_01.grib".format(initial_condition.year, initial_condition.month),
+                         filter_by_keys={'paramId': 132167})
+        ifs_efi = ifs_efi.sel(time=initial_condition)
+        ifs_efi['step'] = ifs_efi['time'] + ifs_efi['step'] - np.timedelta64(1, 'D')
+        ifs_efi = ifs_efi.rename({'time' : 'initial_time',
+                'step': 'time',
+                't2i' : 't2m',
+                'latitude' : 'lat',
+                'longitude' : 'lon'})
+        return ifs_efi
+    print("Calculating SFNO EFI")
     # CDF of the model climate must be precomputed.  See
     # fcn_mip/workflows/mclimate_statistics/
     cdf = xarray.open_zarr(
-        "{}/MClimate_Percentiles.2023-{:02d}-{:02d}.zarr".format(
-            efi_path, initial_condition.month, initial_condition.day
+        "{}/MClimate_{}_Percentiles.2023-{:02d}-{:02d}.zarr".format(
+            efi_path, mode, initial_condition.month, initial_condition.day
         )
     )
 
