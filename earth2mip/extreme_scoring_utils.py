@@ -54,7 +54,6 @@ def set_threshold(variables, times, percentile, extreme_scoring, align_ds, windo
                     curr_time_dt.month,
                 )
             )
-            print(curr_time_dt.month)
             thresholds.append(ds)
         
         retval = xarray.concat(thresholds, dim=times).rename({'latitude' : 'lat', 'longitude' : 'lon',
