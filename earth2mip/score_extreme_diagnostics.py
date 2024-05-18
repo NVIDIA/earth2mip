@@ -85,6 +85,8 @@ def open_ifs(time):
 def open_operational_analysis(time):
     if time.year == 2023:
         ds = xarray.open_dataset("/pscratch/sd/a/amahesh/tigge/analysis/ifs_analysis-2023-{:02d}.grib".format(time.month))
+        next_ds = xarray.open_dataset("/pscratch/sd/a/amahesh/tigge/analysis/ifs_analysis-2023-{:02d}.grib".format(time.month+1))
+        ds = xarray.concat([ds, next_ds], dim='time')
         ds = ds.rename({'latitude' : 'lat',
                         'longitude' : 'lon'})
         return ds[['t2m']]
