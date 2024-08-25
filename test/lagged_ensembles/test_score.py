@@ -37,7 +37,7 @@ def _run_score(nlat, nlon, nchannel, device="cpu"):
     obs = torch.zeros_like(ensemble[0][0]).to(device)
 
     # Call the score function
-    return score(grid, ensemble, obs)
+    return score(grid, ensemble, obs, biased=True)
 
 
 def test_score_regression(regtest):
@@ -54,5 +54,5 @@ def test_score_regression(regtest):
 def test_score_large_data():
     """Make a test to avoid ooms"""
     torch.cuda.reset_peak_memory_stats()
-    _run_score(721, 1440, 200, device="cuda")
+    _run_score(721, 1440, 400, device="cuda")
     print(torch.cuda.memory_summary())

@@ -17,13 +17,13 @@ import numpy as np
 import properscoring
 import torch
 
-from earth2mip.crps import crps_from_empirical_cdf
+from earth2mip.crps import kcrps
 
 
 def test_crps_cdf():
     n = 10
     x = torch.randn((10, n))
     y = torch.randn((n,))
-    out = crps_from_empirical_cdf(y, x)
+    out = kcrps(x, y, dim=0)
     reference = properscoring.crps_ensemble(y.numpy(), x.numpy(), axis=0)
     np.testing.assert_allclose(out.numpy(), reference, rtol=1e-6)

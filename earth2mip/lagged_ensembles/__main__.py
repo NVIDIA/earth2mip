@@ -44,6 +44,7 @@ async def lagged_average_simple(
     times: List[datetime.datetime],
     time_step: datetime.timedelta,
     filename: str,
+    biased: bool
 ):
     async for (j, k), ensemble, obs in core.yield_lagged_ensembles(
         observations=observations,
@@ -56,7 +57,7 @@ async def lagged_average_simple(
         lead_time = time_step * k
 
         ensemble_cuda = {lag: x.cuda() for lag, x in ensemble.items()}
-        out = score.score(run_forecast.grid, ensemble_cuda, obs.cuda())
+        out = score.score(run_forecast.grid, ensemble_cuda, obs.cuda(), biased=biased)
 
         with open(filename, "a") as f:
             earth2mip.forecast_metrics_io.write_metric(
@@ -213,6 +214,7 @@ def main(args):
             filename=output_path,
             times=times,
             time_step=times[1] - times[0],
+            biased=not args.crps_unbiased
         )
         asyncio.run(scores_future)
 
@@ -231,6 +233,7 @@ def parse_args():
     parser.add_argument("--lags", type=int, default=4, help="Number of lags")
     parser.add_argument("--leads", type=int, default=54, help="Number of leads")
     parser.add_argument("--output", type=str, default=".", help="Output directory")
+    parser.add_argument("--crps-unbiased", action="store_true", help="Compute the CRPS with an unbiased formula")
     parser.add_argument(
         "--channels",
         type=str,

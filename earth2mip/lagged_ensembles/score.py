@@ -18,7 +18,7 @@ import logging
 import torch
 
 import earth2mip.grid
-from earth2mip.crps import crps_from_empirical_cdf
+from earth2mip.crps import kcrps
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +37,7 @@ def score(
     grid: earth2mip.grid.LatLonGrid,
     ensemble: dict[int, torch.Tensor],
     obs: torch.Tensor,
+    biased: bool,
 ) -> dict[str, torch.Tensor]:
     """Set of standardized scores for lagged ensembles
 
@@ -59,8 +60,7 @@ def score(
     ens = torch.stack(list(ensemble.values()), dim=0)
     ensemble_dim = 0
 
-    # compute all the metrics
-    num = crps_from_empirical_cdf(obs, ens)
+    num = kcrps(ens, obs, biased=biased, dim=0)
     out["crps"] = area_average(grid, num)
 
     num = (ens.mean(ensemble_dim) - obs) ** 2
