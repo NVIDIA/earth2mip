@@ -212,10 +212,11 @@ def generate_bred_vector_timeevolve(
 
     date_obj = weather_event.properties.start_time
     for step in list(range(integration_steps))[::-1]:
-        x0 = initial_conditions.get_initial_condition_for_model(model, data_source, date_obj - (timedelta(hours=6*step)))
+        curr_time = date_obj - (timedelta(hours=6*step))
+        x0 = initial_conditions.get_initial_condition_for_model(model, data_source, curr_time)
 
         # Get control forecast
-        for k, (_, data, _) in enumerate(model(time, x0)):
+        for k, (_, data, _) in enumerate(model(curr_time, x0)):
             xd = data
             if k == 1:
                 break
@@ -225,7 +226,7 @@ def generate_bred_vector_timeevolve(
             xd = xd.unsqueeze(1)
 
         x1 = x0 + dx
-        for k, (_, data, _) in enumerate(model(time, x1)):
+        for k, (_, data, _) in enumerate(model(curr_time, x1)):
             x2 = data
             if k == 1:
                 break
