@@ -1,3 +1,72 @@
+# HENS
+
+This codebase is a fork of the earth2mip repository, developed by NVIDIA.  It is used to run ensemble weather forecasts with SFNO in the following two papers:
+
+"Huge Ensembles Part II: Properties of a Huge Ensemble of Hindcasts Generated with Spherical Fourier Neural Operators" (submitted to Geoscientific Model Development)
+
+"Huge Ensembles Part I: Design of Ensemble Weather Forecasts using Spherical Fourier Neural Operators" (submitted to Geoscientific Model development)
+
+The license and copyright for the code for these two projects are at:
+license_lbl.txt
+copyright_notice.txt
+
+-
+
+
+This codebase can be adpated to run the ensemble weather forecasts.  Particular files of interest are our implementation of bred vectors for initial condition perturbations:
+
+'earth2mip-fork/earth2mip/ensemble_utils.py'
+
+Additionally, ensemble inference is at 
+
+'earth2mip-fork/earth2mip/inference_ensemble.py'
+
+## Trained ML Models
+
+The trained ML models are available at
+
+https://portal.nersc.gov/cfs/m4416/ 
+in the `earth2mip_prod_registry` folder.  Each model package includes the learned weights of the model and additional information necessary to run the model (e.g. the input to the model is normalized by the data in 'global_means.npy' and 'global_stds.npy').
+
+As the data is hosted on the NERSC high-performance computing facility, it may occasionally be down for maintenance.  If the link above does not work, you can check https://www.nersc.gov/live-status/motd/ to see if the data portal is up.
+
+These model packages can be run with earth2mip: NVIDIA's model inference repository.  A dependency for running these models with earth2mip is to have modulus-makani v0.1.0 installed.
+
+## ERA5 data
+
+For training and running the ensemble, we use a mirror of ERA5.  The data-packing code to create this mirror is available through a fork of modulus-makani: https://zenodo.org/records/13137296 in 'modulus-makani-fork/data_process/'.  We also aim to make our full exact mirror available of the entire training dataset (1979-2016): please stay tuned for more updates.  We are looking for a permanent place to store the data.  In the meantime, NVIDIA has made a similar dataset available, but we note that their dataset does not include 2m dewpoint.  However, their dataset can be used to train data-driven weather prediction models: https://docs.nvidia.com/deeplearning/modulus/modulus-core/examples/weather/dataset_download/readme.html.  We use the hdf5 training dataset, not the zarr dataset.
+
+We do make our exact ERA5 dataset available for inference.  We perform inference on years that were not used for training: 2018, 2020, and summer 2023. The ERA5 data for these years is available here:
+
+`https://portal.nersc.gov/cfs/m4416/` in the `ERA5_inference_data` folder.
+
+This data can be used to obtain initial conditions to run the ensemble.
+
+## Running the ensemble
+
+The necessary requirements for running the ensemble are listed in this file: earth2mip-fork/set_74ch_vars.sh
+
+This data is available at https://portal.nersc.gov/cfs/m4416/.  You'll have to download this data to your local machine and change the paths to point to this data.
+
+The general documentation for earth2mip is included below.  For running ensembles, we recommend setting up earth2mip inference_ensemble to work on your local compute environment (ideally using the general earth2mip documentation).  Then, you can make modifications to the earth2mip config json to run ensembles with our trained model. In particular, earth2mip requires defining a config file which sets the parameters of the ensemble.  The config files used for generating huge ensemble forecasts are at 
+
+'earth2mip-fork/summer23_configs/*'
+
+You can adapt these configs to suit your local directory (e.g. change the save paths) and also to run ensembles that save different variable subsets and use different days as initial conditions.  See the earth2mip documentation for more information about specifying a config for ensemble inference.
+
+The submit script for the huge ensemble is 
+
+'earth2mip-fork/submit_HENS_summer23.sh' . This script creates a huge (7424 member ensemble) using inference_ensemble.py mentioned above
+
+
+## Scoring the ensemble: overall diagnostics
+
+`earth2mip-fork/earth2mip/time_collection.py` is the file used to score the ensemble against the ERA5 dataset.  We score the dataset using 2018, 2020, and 2023.  This file used `inference_ensemble.py` to generate an ensemble and then uses the earth2mip scoring utils to score the ensemble.
+
+We have our scoring ensemble script here.
+
+This is not the right codebase for scoring extreme diagnostics. We use a different codebase for validating on extremes.
+
 # Earth-2 MIP (Beta)
 
 <!-- markdownlint-disable -->
