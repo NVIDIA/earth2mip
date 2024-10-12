@@ -177,8 +177,8 @@ information about Earth-2 MIP, functionality, APIs, etc.
 
 ## Communication
 
-- Github Discussions: Discuss new ideas, model integration, support etc.
-- GitHub Issues: Bug reports, feature requests, install issues, etc.
+- [Github Discussions:](https://github.com/NVIDIA/earth2mip/discussions) Discuss new ideas, model integration, support etc.
+- [GitHub Issues:](https://github.com/NVIDIA/earth2mip/issues) Bug reports, feature requests, install issues, etc.
 
 ## License
 
