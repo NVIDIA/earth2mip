@@ -18,7 +18,7 @@ import datetime
 from enum import Enum
 from typing import Any, List, Mapping, Optional
 
-import pydantic
+from pydantic import BaseModel, Field
 
 from earth2mip import weather_events
 from earth2mip.weather_events import InitialConditionSource, WeatherEvent
@@ -38,7 +38,7 @@ class Grid(Enum):
     s2s_challenge = "s2s"
 
 
-class InferenceEntrypoint(pydantic.BaseModel):
+class InferenceEntrypoint(BaseModel):
     """
     Attrs:
         name: an entrypoint string like ``my_package:model_entrypoint``.
@@ -48,10 +48,10 @@ class InferenceEntrypoint(pydantic.BaseModel):
     """
 
     name: str = ""
-    kwargs: Mapping[Any, Any] = pydantic.Field(default_factory=dict)
+    kwargs: Mapping[Any, Any] = Field(default_factory=dict)
 
 
-class Model(pydantic.BaseModel):
+class Model(BaseModel):
     """Metadata for using a ERA5 time-stepper model
 
     Attrs:
@@ -62,8 +62,8 @@ class Model(pydantic.BaseModel):
 
     n_history: int = 0
     grid: Grid = Grid.grid_720x1440
-    in_channels_names: List[str] = pydantic.Field(default_factory=list)
-    out_channels_names: List[str] = pydantic.Field(default_factory=list)
+    in_channels_names: List[str] = Field(default_factory=list)
+    out_channels_names: List[str] = Field(default_factory=list)
     architecture: str = ""
     architecture_entrypoint: str = ""
     time_step: datetime.timedelta = datetime.timedelta(hours=6)
@@ -78,7 +78,7 @@ class PerturbationStrategy(Enum):
     none = "none"
 
 
-class EnsembleRun(pydantic.BaseModel):
+class EnsembleRun(BaseModel):
     """A configuration for running an ensemble weather forecast
 
     Attributes:
