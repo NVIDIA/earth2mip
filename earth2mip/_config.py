@@ -15,9 +15,16 @@
 # limitations under the License.
 
 import os
-from typing import List
+from importlib.metadata import version
+from typing import List, Optional
 
-from pydantic import BaseSettings, Field
+from packaging.version import Version
+from pydantic import Field
+
+if Version(version("pydantic")) >= Version("2"):
+    from pydantic_settings import BaseSettings
+else:
+    from pydantic import BaseSettings
 
 
 def _default_local_cache():
@@ -54,11 +61,11 @@ class Settings(BaseSettings):
 
     # used in score-ifs.py
     # TODO refactor to a command line argument of that script
-    IFS_ROOT: str = None
+    IFS_ROOT: Optional[str] = None
 
     # only used in test suite
     # TODO add a default option.
-    TEST_DIAGNOSTICS: List[str] = ()
+    TEST_DIAGNOSTICS: List[str] = Field(default_factory=list)
 
     # where to store regridding files
     MAP_FILES: str = ""
