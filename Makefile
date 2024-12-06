@@ -7,8 +7,14 @@
 install:
 	apt-get install -y libeccodes-dev
 	pip install --upgrade pip
-	pip install .[pangu,graphcast]
 	pip install -r requirements.txt
+
+enter:
+	docker run \
+		--rm --name dev \
+		-v $(shell pwd):/workspace \
+		--gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 \
+		-ti nvcr.io/nvidia/modulus/modulus:24.04 bash
 
 .PHONY: setup-ci
 setup-ci:

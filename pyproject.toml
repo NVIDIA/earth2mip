@@ -32,7 +32,7 @@ dependencies = [
     "loguru>=0.6.0",
     "netCDF4>=1.6.4",
     "numpy",
-    "nvidia-modulus >= 0.7.0",
+    "nvidia-modulus >= 0.6.0",
     "pandas>=1.5.3",
     "properscoring>=0.1",
     "pydantic >= 1.10, <=1.10.11",
