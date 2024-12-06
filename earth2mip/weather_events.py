@@ -39,7 +39,7 @@ class WeatherEventProperties(BaseModel):
     """
 
     name: str
-    start_time: Optional[datetime.datetime]
+    start_time: Optional[datetime.datetime] = None
     initial_condition_source: InitialConditionSource = InitialConditionSource.era5
     netcdf: str = ""
     # TODO do not require IC other than restart (currently loads data w/ normal mechanisms regardless) # noqa
@@ -121,5 +121,5 @@ def read(forecast_name: str) -> WeatherEvent:
             if len(domain["diagnostics"]) > 1:
                 print("CWBDomain only supports one diagnostic")
                 domain["diagnostics"] = domain["diagnostics"][0]
-    event = WeatherEvent.parse_obj(weather_event)
+    event = WeatherEvent.model_validate(weather_event)
     return event

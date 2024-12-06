@@ -148,7 +148,7 @@ def test_run_over_initial_times(tmp_path, regtest):
     time_loop = MockTimeLoop()
     data_source = MockData()
     initial_times = [datetime.datetime(2018, 1, 1), datetime.datetime(2018, 1, 2)]
-    config = earth2mip.schema.EnsembleRun.parse_obj(config_obj)
+    config = earth2mip.schema.EnsembleRun.model_validate(config_obj)
     output_path = tmp_path.as_posix()
 
     run_over_initial_times(

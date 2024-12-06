@@ -43,7 +43,7 @@ def test_parse():
         ],
     }
 
-    weather_events.WeatherEvent.parse_obj(obj)
+    weather_events.WeatherEvent.model_validate(obj)
 
 
 def test_parse_cwbdomain():
@@ -94,7 +94,7 @@ def test_parse_cwbdomain():
             }
         ],
     }
-    weather_events.WeatherEvent.parse_obj(obj)
+    weather_events.WeatherEvent.model_validate(obj)
 
 
 def test_parse_multipoint():
@@ -116,4 +116,4 @@ def test_parse_multipoint():
             }
         ],
     }
-    weather_events.WeatherEvent.parse_obj(obj)
+    weather_events.WeatherEvent.model_validate(obj)

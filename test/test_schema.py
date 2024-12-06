@@ -27,5 +27,5 @@ def test_model():
         in_channels=[0, 1],
         out_channels=[0, 1],
     )
-    loaded = json.loads(obj.json())
+    loaded = json.loads(obj.model_dump_json())
     assert loaded

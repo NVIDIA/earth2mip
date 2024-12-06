@@ -85,7 +85,7 @@ def test__cli_utils(tmp_path, required):
     path = tmp_path / "meta.json"
 
     with path.open("w") as f:
-        f.write(metadata_with_entrypoint.json())
+        f.write(metadata_with_entrypoint.model_dump_json())
 
     parser = argparse.ArgumentParser()
     _cli_utils.add_model_args(parser, required=required)

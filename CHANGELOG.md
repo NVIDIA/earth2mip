@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.0a1] - 2024-xx-xx
 - Changed earth2mip.inference\_ensemble to avoid reperturbing initial condition repeatedly.  this could lead to large initial condition perturbations if many ensemble members are run per rank.
+- Upgraded pydantic v1 to v2
 
 ## [0.2.0a0] - 2024-xx-xx
 

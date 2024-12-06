@@ -178,7 +178,7 @@ def main(config=None):
         config: EnsembleRun = EnsembleRun.parse_file(config)
     # If string, assume JSON string
     elif isinstance(config, str):
-        config: EnsembleRun = EnsembleRun.parse_obj(json.loads(config))
+        config: EnsembleRun = EnsembleRun.model_validate(json.loads(config))
     # Otherwise assume parsable obj
     else:
         raise ValueError(
@@ -364,7 +364,7 @@ def run_inference(
         # Only rank 0 copies config files over
         config_path = os.path.join(output_path, "config.json")
         with open(config_path, "w") as f:
-            f.write(config.json())
+            f.write(config.model_dump_json())
 
     group_rank = torch.distributed.get_group_rank(group, dist.rank)
     output_file_path = os.path.join(output_path, f"ensemble_out_{group_rank}.nc")
@@ -372,8 +372,8 @@ def run_inference(
     with DS(output_file_path, "w", format="NETCDF4") as nc:
         # assign global attributes
         nc.model = config.weather_model
-        nc.config = config.json()
-        nc.weather_event = weather_event.json()
+        nc.config = config.model_dump_json()
+        nc.weather_event = weather_event.model_dump_json()
         nc.date_created = datetime.now().isoformat()
         nc.history = " ".join(sys.argv)
         nc.institution = "NVIDIA"

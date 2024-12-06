@@ -83,7 +83,7 @@ def main(
         data_source=None,
         output_path=root,
         time_loop=networks.get_model(config["model"], device=dist.device),
-        config=EnsembleRun.parse_obj(protocol["inference_template"]),
+        config=EnsembleRun.model_validate(protocol["inference_template"]),
         initial_times=[
             datetime.datetime.fromisoformat(line.strip()) for line in protocol["times"]
         ],

@@ -71,7 +71,7 @@ def add_model_args(parser: argparse.ArgumentParser, required=False):
 def model_from_args(args, device):
     if args.model_metadata:
         with open(args.model_metadata) as f:
-            metadata = schema.Model.parse_raw(f.read())
+            metadata = schema.Model.model_validate_json(f.read())
     else:
         metadata = None
 

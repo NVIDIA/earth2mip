@@ -298,7 +298,7 @@ def _load_package(package, metadata, device) -> time_loop.TimeLoop:
     if metadata is None:
         local_path = package.get("metadata.json")
         with open(local_path) as f:
-            metadata = schema.Model.parse_raw(f.read())
+            metadata = schema.Model.model_validate_json(f.read())
 
     if metadata.entrypoint:
         ep = EntryPoint(name=None, group=None, value=metadata.entrypoint.name)

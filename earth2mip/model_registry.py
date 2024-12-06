@@ -116,7 +116,7 @@ class Package:
         metadata_path = self._fullpath(METADATA)
         local_path = filesystem.download_cached(metadata_path)
         with open(local_path) as f:
-            return schema.Model.parse_raw(f.read())
+            return schema.Model.model_validate_json(f.read())
 
 
 # TODO: Replace with some NGC file system scheme
@@ -278,7 +278,7 @@ class ModelRegistry:
 
     def put_metadata(self, name: str, metadata: schema.Model):
         metadata_path = self.get_path(name, METADATA)
-        filesystem.pipe(metadata_path, metadata.json().encode())
+        filesystem.pipe(metadata_path, metadata.model_dump_json().encode())
 
     def get_metadata(self, name: str) -> schema.Model:
         return self.get_model(name).metadata()

@@ -17,7 +17,8 @@
 import os
 from typing import List
 
-from pydantic import BaseSettings, Field
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 def _default_local_cache():
@@ -34,6 +35,7 @@ def _default_model_registry():
 
 
 class Settings(BaseSettings):
+
     # not needed anymore
     # AFNO_26_WEIGHTS: Optional[str] = None
     # AFNO_26_MEAN: str
@@ -52,10 +54,6 @@ class Settings(BaseSettings):
     # used for scoring (score-ifs.py, inference-medium-range)
     TIME_MEAN: str = ""
 
-    # used in score-ifs.py
-    # TODO refactor to a command line argument of that script
-    IFS_ROOT: str = None
-
     # only used in test suite
     # TODO add a default option.
     TEST_DIAGNOSTICS: List[str] = ()
@@ -66,5 +64,5 @@ class Settings(BaseSettings):
     # End point for s3 commands
     S3_ENDPOINT: str = "https://pbss.s8k.io"
 
-    class Config:
-        env_file = ".env"
+    # load dot env file
+    model_config = SettingsConfigDict(env_file=".env")
