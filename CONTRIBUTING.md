@@ -37,7 +37,8 @@ committing it to git history:
 jupyter nbconvert --ClearOutputPreprocessor.enabled=True --to=notebook --log-level=ERROR <notebook.ipynb>
 ```
 
-### CI
+### Testing
+
 Linting. Manually run the linting:
 
     make lint
@@ -51,6 +52,13 @@ Run it before every commit:
 
 To run the test suite:
 
+    # enter the docker image
+    make enter
+
+    # install extra deps
+    make install
+
+    # run the tests
     pytest
 
 To run quick tests (takes 10 seconds):
