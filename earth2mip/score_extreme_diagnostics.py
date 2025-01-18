@@ -54,12 +54,16 @@ def nearest_number(num, number_set):
 
 def open_ifs(time):
     if time[:4] == '2023':
-        start_days = np.array([1, 4, 7, 10, 13, 16, 19, 22, 25, 28])
+        start_days = np.array([1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31])
         from datetime import datetime
         time_obj = datetime.fromisoformat(time)
         nearest = nearest_number(time_obj.day, start_days)
         ds = xarray.open_dataset("/pscratch/sd/a/amahesh/tigge/d2m_t2m_summer23/sfc/sfcvars__ens_2023_{:02d}_{:02d}_raw.grib".format(time_obj.month, nearest))
-        subset = ds.sel(time=time)
+        if 'time' in ds.dims.keys(): 
+            subset = ds.sel(time=time)
+        else:
+            subset = ds
+        assert len(subset['time'].shape) == 0, "There must be one time in the dataset"
         subset['step'] = subset['time'] + subset['step']
         subset = subset.rename({'time' : 'initial_time'}).rename({
                                 'step' : 'time',
@@ -214,7 +218,7 @@ def main(
             ds = ds[variables]
             verification = verification[variables]
 
-            for percentile in [0.95]: #, 0.99]:
+            for percentile in [0.95]: #['99p9']: # [0.99]: #, 0.99]:
                 output_path_percentile = os.path.join(
                     output_path, f"percentile_{percentile}/"
                 )

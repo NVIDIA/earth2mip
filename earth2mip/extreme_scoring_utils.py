@@ -25,7 +25,10 @@ def set_threshold(variables, times, percentile, extreme_scoring, align_ds, windo
          extreme_scoring   : the path of where the percentile data is
                              stored
     """
-    percentile_str = str(int(percentile * 100))
+    if percentile != '99p9':
+        percentile_str = str(int(percentile * 100))
+    else:
+        percentile_str = percentile
     assert set(variables) == set(
         ["t2m"] #, "tcwv", "wind_speed10m")
     ), "Extreme event validation is only implemented for t2m. These variables are included: {}".format(variables)
@@ -136,6 +139,8 @@ def compute_brier_score_decomposition(sharpness, reliability, percentile, var):
     """
     Brier score decomposition (3 part): reliability, resolution, uncertainty. BS = rel - res + unc
     """
+    if percentile == '99p9':
+        percentile = 0.999
     n_k  = sharpness.rename({f"{var}_bin": "forecast_probability"} )
     N    = n_k.sum()
     o_k  = reliability
