@@ -12,8 +12,8 @@ earth2mip/copyright_notice.txt
 
 There are two primary codebases for HENS: modulus-makani (used for training the ML models) and earth2mip (used for inference, scoring, and analysis).  These two codebases are developed by NVIDIA, and we use forks of the codebases for this project.
 
-The codebases for this are `earth2mip-fork` and `modulus-makani-fork` at this Zenodo repository: 
-The `earth2mip-fork` is also on Github at : https://github.com/ankurmahesh/earth2mip-fork/tree/HENS
+The codebases for this are `earth2mip-fork` and `modulus-makani-fork` at the DOI listed in the code and data availability section in the HENS preprints. They are also made available on Github for reference and convenience.
+The `earth2mip-fork` is also on Github at : https://github.com/ankurmahesh/earth2mip-fork/tree/HENS.  On Github, please be sure to use the "HENS" branch.
 The `modulus-makani-fork` is also on Github at : https://github.com/ankurmahesh/modulus-makani-fork
 
 The rest of this README has the following sections:
@@ -60,19 +60,15 @@ bash modulus-makani-fork/script_convert_legacy_to_flexible.sh
 
 ## Access to our trained SFNOs used for HENS
 
-We open-source the learned weights of our models at https://portal.nersc.gov/cfs/m4416/hens/earth2mip\_prod\_registry/.  Each model is trained with a different initial seed: therefore, the name of each trained model end with "seed[SEED]," where SEED corresponds to the Pytorch seed used for the weight initialization. Each model also includes a `config.json` file which specifies the configuration parameters used for training each SFNO checkpoint. Each model package includes the learned weights of the model and additional information necessary to run the model (e.g. the input to the model is normalized by the data in 'global_means.npy' and 'global_stds.npy').
+We open-source the learned weights of our models at 3 locations: (1) the DataDryad DOI listed in the paper, (2) (https://huggingface.co/datasets/maheshankur10/hens/tree/main) https://doi.org/10.57967/hf/4200, and (3) https://portal.nersc.gov/cfs/m4416/hens/earth2mip\_prod\_registry/.  Each model is trained with a different initial seed: therefore, the name of each trained model end with "seed[SEED]," where SEED corresponds to the Pytorch seed used for the weight initialization. Each model also includes a `config.json` file which specifies the configuration parameters used for training each SFNO checkpoint. Each model package includes the learned weights of the model and additional information necessary to run the model (e.g. the input to the model is normalized by the data in 'global_means.npy' and 'global_stds.npy').
 
-As the data is hosted on the NERSC high-performance computing facility, it may occasionally be down for maintenance.  If the link above does not work, you can check https://www.nersc.gov/live-status/motd/ to see if the data portal is up.  In cases of downtime, the model checkpoints may also be downloaded at https://huggingface.co/datasets/maheshankur10/hens/tree/main.
+As the data is hosted on the NERSC high-performance computing facility, it may occasionally be down for maintenance.  If the link above does not work, you can check https://www.nersc.gov/live-status/motd/ to see if the data portal is up.  In cases of downtime, the model checkpoints may also be downloaded at https://huggingface.co/datasets/maheshankur10/hens/tree/main (https://doi.org/10.57967/hf/4200) or the DataDryad repository listed in the Code and Data Availability Section of the HENS preprints.
 
 ## Ensemble Inference with SFNO: `earth2mip-fork`
 
 ### ERA5 data for inference
 
-We make our ERA5 dataset available for inference.  We perform inference on years that were not used for training: 2018, 2020, and summer 2023. The ERA5 data for these years is available here:
-
-`https://portal.nersc.gov/cfs/m4416/hens/` in the `ERA5_inference_data` folder
-
-This data can be used to obtain initial conditions to run the ensemble.
+We use the files at `modulus-makani-fork/data_process/` to create the ERA5 mirror used for training and inference.
 
 ### Running the model for inference
 
@@ -88,7 +84,7 @@ Additionally, ensemble inference with the multiple checkpoints is at
 
 #### Scripts and configs to run the ensemble
 
-In order to run the ensemble, some paths to some dependent data files must be set as environment variables.  The script to set these paths is at earth2mip-fork/set_74ch_vars.sh.  The environment variables can be changed according to the location of the data dependencies on your machine. `prod_heat_index_lookup.zarr` is a table used for calculating the heat index, `percentile_95.tar` is a tar of the 95th percentile calculated for each hour of day and each month of ERA5 used for thresholding in the calculation of extreme statistics, and `percentile_99.tar` is the 99th percentile from ERA5.
+In order to run the ensemble, some paths to some dependent data files must be set as environment variables.  The script to set these paths is at earth2mip-fork/set_74ch_vars.sh.  The environment variables can be changed according to the location of the data dependencies on your machine. `prod_heat_index_lookup.zarr` is a table used for calculating the heat index, `percentile_95.tar` is a tar of the 95th percentile calculated for each hour of day and each month of ERA5 used for thresholding in the calculation of extreme statistics, and `percentile_99.tar` is the 99th percentile from ERA5.  `d2m_sfno_linear_74chq_sc2_layers8_edim620_wstgl2-epoch70_seed16.nc` includes the data that stores the amplitudes used for the bred vector initial condition perturbation method.
 
 This data for these dependent data files is available at https://huggingface.co/datasets/maheshankur10/hens/tree/main and at https://portal.nersc.gov/cfs/m4416/hens/.  You'll have to download this data to your local machine and change the paths `set_74ch_vars.sh` to point to this data.
 
