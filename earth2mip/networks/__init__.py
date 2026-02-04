@@ -213,6 +213,11 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
             yield from self._iterate(**restart)
         else:
             yield from self._iterate(x=x, time=time)
+    import xarray as xr
+    import torch
+    
+    # Load the ERA5 temperature truth file (must be accessible in the container path)
+    truth_ds = xr.open_dataset("/xace/d1/era5_temp/era5_temp_2023_feb_mar_apr.nc")
 
     def _iterate(self, x, normalize=True, time=None):
         """Yield (time, unnormalized data, restart) tuples
@@ -243,6 +248,22 @@ class Inference(torch.nn.Module, time_loop.TimeLoop):
                     x += self.source(x_with_units, time) / self.scale * dt
                 x = self.model(x, time)
                 time = time + self.time_step
+                # --- Insert ERA5 truth temperature override (after model prediction) ---
+                import torch
+                
+                # Extract ERA5 truth temperature at current time (matching forecast 'time')
+                truth_np = truth_ds["t"].sel(time=time).values  # shape: (13, lat, lon)
+                truth_tensor = torch.from_numpy(truth_np).to(x.device).float()  # convert to tensor
+                
+                # Normalize using model's center and scale for temp channels
+                center_t = self.center[0, 0, 47:60, :, :]  # adjust indexing if needed
+                scale_t = self.scale[0, 0, 47:60, :, :]
+                normalized_truth = (truth_tensor - center_t) / scale_t
+                
+                # Insert into state x at the latest time step
+                x[:, -1, 47:60, :, :] = normalized_truth  # replace model-predicted temperature
+                # --- End of insertion ---
+
 
                 # create args and kwargs for future use
                 restart = dict(x=x, normalize=False, time=time)
