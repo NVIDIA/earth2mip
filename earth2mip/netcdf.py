@@ -145,13 +145,13 @@ def update_netcdf(
 
     batch_size = geometry.get_batch_size(data)
     for d_index, domain in enumerate(domains):
-        lat, lon, regional_data = geometry.select_space(data, lat, lon, domain)
+        regional_lat, regional_lon, regional_data = geometry.select_space(data, lat, lon, domain)
 
         domain_diagnostics = total_diagnostics[d_index]
         for diagnostic in domain_diagnostics:
             index = [
                 channel_names_of_data.index(c) for c in diagnostic.diagnostic.channels
             ]
-            output = data[:, index]
+            output = regional_data[:, index]
             diagnostic.update(output, time_count, batch_id, batch_size)
     return

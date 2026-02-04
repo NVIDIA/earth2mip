@@ -43,6 +43,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Corrected DLWP intial condition fetch with history
 - Corrected if statement for geopotential calculation in GFS initial conditions.
 - Fixed lexicon bug for u100m variable in GFS.
+- Output_grid different than model_grid can be written to output now
+- Spatial subsets can be written to netcdf now
 
 ### Security
 
